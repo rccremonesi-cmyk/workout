@@ -1,1 +1,856 @@
-asdasdasd
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheda Allenamento - 3 Giorni</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .workout-card { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px); 
+            border-radius: 20px; 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+        .exercise-item { 
+            background: rgba(248, 249, 250, 0.8); 
+            border-radius: 15px; 
+            margin-bottom: 15px; 
+            padding: 20px; 
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .exercise-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .weight-input { 
+            width: 80px; 
+            border-radius: 10px; 
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+        .weight-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-primary { 
+            background: linear-gradient(45deg, #667eea, #764ba2); 
+            border: none; 
+            border-radius: 25px; 
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover { 
+            transform: translateY(-1px); 
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .nav-pills .nav-link {
+            border-radius: 25px;
+            margin: 0 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .nav-pills .nav-link.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+        .timer-section { 
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52); 
+            color: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-top: 20px;
+        }
+        .timer-display { 
+            font-size: 2.5rem; 
+            font-weight: bold; 
+            font-family: 'Courier New', monospace;
+        }
+        .exercise-name {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .exercise-details {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .video-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .video-btn:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+        .day-title {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-3">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center mb-4">
+                    <h1 class="text-white fw-bold">
+                        <i class="fas fa-dumbbell"></i> La Mia Scheda
+                    </h1>
+                    <p class="text-white-50">Programma di allenamento 3 giorni</p>
+                </div>
+                
+                <!-- Navigation Pills -->
+                <ul class="nav nav-pills justify-content-center mb-4" id="dayTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="day-a-tab" data-bs-toggle="pill" data-bs-target="#day-a" type="button" role="tab">
+                            <i class="fas fa-fire"></i> Giorno A
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="day-b-tab" data-bs-toggle="pill" data-bs-target="#day-b" type="button" role="tab">
+                            <i class="fas fa-bolt"></i> Giorno B
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="day-c-tab" data-bs-toggle="pill" data-bs-target="#day-c" type="button" role="tab">
+                            <i class="fas fa-star"></i> Giorno C
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab Content -->
+                <div class="tab-content" id="dayTabsContent">
+                    <!-- Giorno A -->
+                    <div class="tab-pane fade show active" id="day-a" role="tabpanel">
+                        <div class="workout-card p-4">
+                            <h2 class="day-title text-center mb-4">
+                                <i class="fas fa-fire"></i> Giorno A - Spinta
+                            </h2>
+                            <p class="text-center text-muted mb-4">Petto, Spalle, Tricipiti</p>
+                            
+                            <div class="exercises" id="exercises-a">
+                                <div class="exercise-item" data-exercise="panca-piana-bilanciere">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Panca piana bilanciere</div>
+                                            <div class="exercise-details">4x6-8 (carico medio/alto)</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="panca-piana-bilanciere">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('panca-piana-bilanciere')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="panca-inclinata-manubri">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Panca inclinata manubri</div>
+                                            <div class="exercise-details">4x8-10</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="panca-inclinata-manubri">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('panca-inclinata-manubri')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="croci-panca-piana">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Croci panca piana manubri</div>
+                                            <div class="exercise-details">3x12</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="croci-panca-piana">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('croci-panca-piana')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="lento-avanti">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Lento avanti</div>
+                                            <div class="exercise-details">4x8</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="lento-avanti">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('lento-avanti')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="alzate-laterali">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Alzate laterali</div>
+                                            <div class="exercise-details">3x12</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="alzate-laterali">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('alzate-laterali')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="french-press">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">French press</div>
+                                            <div class="exercise-details">3x10-12</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="french-press">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('french-press')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="addominali-plank">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Addominali plank/crunch</div>
+                                            <div class="exercise-details">3x max</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <span class="text-muted small">bodyweight</span>
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('plank')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Giorno B -->
+                    <div class="tab-pane fade" id="day-b" role="tabpanel">
+                        <div class="workout-card p-4">
+                            <h2 class="day-title text-center mb-4">
+                                <i class="fas fa-bolt"></i> Giorno B - Trazioni e Gambe
+                            </h2>
+                            <p class="text-center text-muted mb-4">Schiena, Bicipiti, Gambe</p>
+                            
+                            <div class="exercises" id="exercises-b">
+                                <div class="exercise-item" data-exercise="trazioni">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Trazioni</div>
+                                            <div class="exercise-details">4x max (puntare a 5-6)</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <span class="text-muted small">bodyweight</span>
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('trazioni')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="rematore">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Rematore manubrio/bilanciere</div>
+                                            <div class="exercise-details">4x8-10</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="rematore">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('rematore')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="stacco-trap-bar">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Stacco con trap bar</div>
+                                            <div class="exercise-details">4x6-8</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="stacco-trap-bar">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('stacco-trap-bar')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="squat-bilanciere">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Squat con bilanciere</div>
+                                            <div class="exercise-details">4x6-8 (o 10 per volume)</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="squat-bilanciere">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('squat-bilanciere')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="affondi-manubri">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Affondi con manubri</div>
+                                            <div class="exercise-details">3x10 per gamba</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="affondi-manubri">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('affondi-manubri')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="calf-manubri">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Calf in piedi con manubri</div>
+                                            <div class="exercise-details">4x15-20</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="calf-manubri">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('calf-manubri')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="addominali-leg-raise">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Addominali leg raise/bicicletta</div>
+                                            <div class="exercise-details">3x max</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <span class="text-muted small">bodyweight</span>
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('leg-raise')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Giorno C -->
+                    <div class="tab-pane fade" id="day-c" role="tabpanel">
+                        <div class="workout-card p-4">
+                            <h2 class="day-title text-center mb-4">
+                                <i class="fas fa-star"></i> Giorno C - Full Body
+                            </h2>
+                            <p class="text-center text-muted mb-4">Full Body + Isolamento</p>
+                            
+                            <div class="exercises" id="exercises-c">
+                                <div class="exercise-item" data-exercise="panca-piana-manubri">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Panca piana manubri</div>
+                                            <div class="exercise-details">4x8-10</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="panca-piana-manubri">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('panca-piana-manubri')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="stacco-rumeno">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Stacco rumeno bilanciere</div>
+                                            <div class="exercise-details">4x8-10</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="stacco-rumeno">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('stacco-rumeno')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="squat-frontale">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Squat frontale/goblet squat</div>
+                                            <div class="exercise-details">4x10</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="squat-frontale">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('squat-frontale')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="trazioni-strette">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Trazioni presa stretta</div>
+                                            <div class="exercise-details">4x max</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <span class="text-muted small">bodyweight</span>
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('trazioni-strette')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="curl-manubri">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Curl manubri/bilanciere Z</div>
+                                            <div class="exercise-details">3x10-12</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="curl-manubri">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('curl-manubri')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="alzate-posteriori">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Alzate laterali posteriori</div>
+                                            <div class="exercise-details">3x12</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <input type="number" class="form-control weight-input" placeholder="kg" data-exercise="alzate-posteriori">
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('alzate-posteriori')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exercise-item" data-exercise="addominali-russian-twist">
+                                    <div class="row align-items-center">
+                                        <div class="col-7">
+                                            <div class="exercise-name">Plank + Russian twist</div>
+                                            <div class="exercise-details">3x max</div>
+                                        </div>
+                                        <div class="col-3 text-center">
+                                            <span class="text-muted small">bodyweight</span>
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <button class="btn btn-sm video-btn" onclick="openVideo('russian-twist')">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timer Section -->
+                <div class="timer-section text-center">
+                    <h3><i class="fas fa-clock"></i> Timer Recupero</h3>
+                    <div class="timer-display" id="timerDisplay">00:00</div>
+                    <div class="mt-3">
+                        <button class="btn btn-light me-2" onclick="setTimer(60)">1min</button>
+                        <button class="btn btn-light me-2" onclick="setTimer(90)">1.5min</button>
+                        <button class="btn btn-light me-2" onclick="setTimer(120)">2min</button>
+                        <button class="btn btn-light me-2" onclick="setTimer(180)">3min</button>
+                    </div>
+                    <div class="mt-2">
+                        <button class="btn btn-outline-light" id="timerBtn" onclick="toggleTimer()">
+                            <i class="fas fa-play"></i> Start
+                        </button>
+                        <button class="btn btn-outline-light ms-2" onclick="resetTimer()">
+                            <i class="fas fa-stop"></i> Reset
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Save/Load Buttons -->
+                <div class="text-center mt-4 mb-3">
+                    <button class="btn btn-primary btn-lg me-2" onclick="saveWeights()">
+                        <i class="fas fa-save"></i> Salva Pesi
+                    </button>
+                    <button class="btn btn-outline-primary btn-lg" onclick="clearWeights()">
+                        <i class="fas fa-trash"></i> Cancella
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Modal -->
+    <div class="modal fade" id="videoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Video Esercizio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="videoContainer">
+                        <p class="text-muted">Caricamento video...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Timer variables
+        let timerInterval;
+        let timeRemaining = 0;
+        let isRunning = false;
+        
+        // Video mappings per media.musclewiki.com
+        const videoMappings = {
+            'panca-piana-bilanciere': 'male/Chest/Barbell-Bench-Press/Barbell-Bench-Press',
+            'panca-inclinata-manubri': 'male/Chest/Dumbbell-Incline-Bench-Press/Dumbbell-Incline-Bench-Press',
+            'croci-panca-piana': 'male/Chest/Dumbbell-Fly/Dumbbell-Fly',
+            'lento-avanti': 'male/Shoulders/Barbell-Overhead-Press/Barbell-Overhead-Press',
+            'alzate-laterali': 'male/Shoulders/Dumbbell-Lateral-Raise/Dumbbell-Lateral-Raise',
+            'french-press': 'male/Triceps/Barbell-Lying-Triceps-Extension/Barbell-Lying-Triceps-Extension',
+            'plank': 'male/Abs/Plank/Plank',
+            'trazioni': 'male/Back/Pull-up/Pull-up',
+            'rematore': 'male/Back/Barbell-Bent-Over-Row/Barbell-Bent-Over-Row',
+            'stacco-trap-bar': 'male/Back/Trap-Bar-Deadlift/Trap-Bar-Deadlift',
+            'squat-bilanciere': 'male/Quads/Barbell-Back-Squat/Barbell-Back-Squat',
+            'affondi-manubri': 'male/Quads/Dumbbell-Lunge/Dumbbell-Lunge',
+            'calf-manubri': 'male/Calves/Dumbbell-Calf-Raise/Dumbbell-Calf-Raise',
+            'leg-raise': 'male/Abs/Leg-Raise/Leg-Raise',
+            'panca-piana-manubri': 'male/Chest/Dumbbell-Bench-Press/Dumbbell-Bench-Press',
+            'stacco-rumeno': 'male/Hamstrings/Barbell-Romanian-Deadlift/Barbell-Romanian-Deadlift',
+            'squat-frontale': 'male/Quads/Barbell-Front-Squat/Barbell-Front-Squat',
+            'trazioni-strette': 'male/Back/Close-Grip-Pull-up/Close-Grip-Pull-up',
+            'curl-manubri': 'male/Biceps/Dumbbell-Bicep-Curl/Dumbbell-Bicep-Curl',
+            'alzate-posteriori': 'male/Shoulders/Dumbbell-Rear-Delt-Fly/Dumbbell-Rear-Delt-Fly',
+            'russian-twist': 'male/Abs/Russian-Twist/Russian-Twist'
+        };
+
+        // Load saved weights on page load
+        window.addEventListener('load', function() {
+            loadWeights();
+        });
+
+        // Save weights to localStorage
+        function saveWeights() {
+            const weights = {};
+            document.querySelectorAll('.weight-input').forEach(input => {
+                const exercise = input.getAttribute('data-exercise');
+                if (input.value && input.value.trim() !== '') {
+                    weights[exercise] = parseFloat(input.value);
+                }
+            });
+            
+            localStorage.setItem('workoutWeights', JSON.stringify(weights));
+            
+            // Show success message
+            showToast('Pesi salvati con successo!', 'success');
+        }
+
+        // Load weights from localStorage
+        function loadWeights() {
+            const savedWeights = localStorage.getItem('workoutWeights');
+            if (savedWeights) {
+                const weights = JSON.parse(savedWeights);
+                document.querySelectorAll('.weight-input').forEach(input => {
+                    const exercise = input.getAttribute('data-exercise');
+                    if (weights[exercise]) {
+                        input.value = weights[exercise];
+                    }
+                });
+            }
+        }
+
+        // Clear all weights
+        function clearWeights() {
+            if (confirm('Sei sicuro di voler cancellare tutti i pesi salvati?')) {
+                localStorage.removeItem('workoutWeights');
+                document.querySelectorAll('.weight-input').forEach(input => {
+                    input.value = '';
+                });
+                showToast('Pesi cancellati!', 'warning');
+            }
+        }
+
+        // Auto-save weights when changed
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('weight-input')) {
+                saveWeights();
+            }
+        });
+
+        // Timer functions
+        function setTimer(seconds) {
+            timeRemaining = seconds;
+            updateTimerDisplay();
+            resetTimer();
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (timeRemaining <= 0) return;
+            
+            isRunning = true;
+            document.getElementById('timerBtn').innerHTML = '<i class="fas fa-pause"></i> Pausa';
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    resetTimer();
+                    playNotificationSound();
+                    showToast('Tempo scaduto! 💪', 'success');
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('timerBtn').innerHTML = '<i class="fas fa-play"></i> Riprendi';
+        }
+
+        function resetTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('timerBtn').innerHTML = '<i class="fas fa-play"></i> Start';
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Open video function
+        function openVideo(exercise) {
+            const videoPath = videoMappings[exercise];
+            if (videoPath) {
+                const videoUrl = `https://media.musclewiki.com/media/uploads/videos/branded/${videoPath}.mp4`;
+                const modalBody = document.getElementById('videoContainer');
+                modalBody.innerHTML = `
+                    <video controls autoplay style="width: 100%; max-height: 400px;" onloadstart="this.volume=0.3">
+                        <source src="${videoUrl}" type="video/mp4">
+                        <p>Il tuo browser non supporta i video HTML5. <a href="${videoUrl}" target="_blank">Clicca qui per vedere il video</a></p>
+                    </video>
+                `;
+                
+                const modal = new bootstrap.Modal(document.getElementById('videoModal'));
+                modal.show();
+                
+                // Pause video when modal is closed
+                document.getElementById('videoModal').addEventListener('hidden.bs.modal', function() {
+                    modalBody.innerHTML = '<p class="text-muted">Caricamento video...</p>';
+                });
+            } else {
+                showToast('Video non disponibile per questo esercizio', 'warning');
+            }
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            // Remove existing toasts
+            document.querySelectorAll('.toast-notification').forEach(toast => toast.remove());
+            
+            const toast = document.createElement('div');
+            toast.className = `toast-notification alert alert-${type} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // Play notification sound (simple beep using Web Audio API)
+        function playNotificationSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (error) {
+                console.log('Audio notification not available');
+            }
+        }
+
+        // Add vibration on mobile devices
+        function vibrateDevice() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate([200, 100, 200]);
+            }
+        }
+
+        // Enhanced timer completion
+        function completeTimer() {
+            resetTimer();
+            playNotificationSound();
+            vibrateDevice();
+            showToast('⏰ Tempo scaduto! Pronto per la serie successiva! 💪', 'success');
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Space bar to start/pause timer
+            if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                toggleTimer();
+            }
+            // R key to reset timer
+            if (e.key === 'r' && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                resetTimer();
+            }
+        });
+
+        // Add swipe gestures for mobile tab navigation
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const swipeLength = touchEndX - touchStartX;
+            
+            if (Math.abs(swipeLength) > swipeThreshold) {
+                const activeTab = document.querySelector('.nav-link.active');
+                let nextTab = null;
+                
+                if (swipeLength > 0) { // Swipe right - previous tab
+                    nextTab = activeTab.parentElement.previousElementSibling?.querySelector('.nav-link');
+                } else { // Swipe left - next tab
+                    nextTab = activeTab.parentElement.nextElementSibling?.querySelector('.nav-link');
+                }
+                
+                if (nextTab) {
+                    nextTab.click();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
