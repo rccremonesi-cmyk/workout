@@ -839,27 +839,30 @@ li.nav-item button{
         }
 
         // Play notification sound (simple beep using Web Audio API)
-        function playNotificationSound() {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 800;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
-            } catch (error) {
-                console.log('Audio notification not available');
-            }
-        }
+       function playNotificationSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        // volume iniziale
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        // decrescita graduale entro 3 secondi
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 3);
+    } catch (error) {
+        console.log('Audio notification not available');
+    }
+}
+
 
         // Add vibration on mobile devices
         function vibrateDevice() {
