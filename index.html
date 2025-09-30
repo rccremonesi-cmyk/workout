@@ -796,7 +796,7 @@ li.nav-item button{
         function openVideo(exercise) {
             const videoPath = videoMappings[exercise];
             if (videoPath) {
-                const videoUrl = `https://media.musclewiki.com/media/uploads/videos/branded/${videoPath}.mp4`;
+                const videoUrl = `${videoPath}`;
                 const modalBody = document.getElementById('videoContainer');
                 modalBody.innerHTML = `
                     <video controls autoplay style="width: 100%; max-height: 400px;" onloadstart="this.volume=0.3">
