@@ -38,6 +38,12 @@
 
         /* Mobile safe area */
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+        footer-action{
+            position: fixed;
+    bottom: 0px;
+    width: 100%;
+        }
     </style>
     
     <script>
@@ -191,7 +197,7 @@
             </div>
 
             <!-- Controls Footer -->
-            <div class="p-6 bg-gray-800 pb-safe rounded-t-3xl">
+            <div class="p-6 bg-gray-800 pb-safe rounded-t-3xl footer-action">
                 <button id="btn-main-action" onclick="app.handlers.completeSet()" class="w-full bg-primary hover:bg-primaryDark text-white font-bold text-xl py-4 rounded-xl shadow-lg transform transition active:scale-95 flex justify-center items-center gap-3">
                     <i class="fa-solid fa-check"></i> <span>Completa Serie</span>
                 </button>
