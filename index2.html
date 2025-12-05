@@ -236,6 +236,11 @@
                 <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Volume Settimanale (Kg)</h3>
                 <canvas id="chart-volume" height="200"></canvas>
             </div>
+			
+			<div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm">
+    <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Calorie Bruciate (kcal)</h3>
+    <canvas id="chart-calories" height="200"></canvas>
+</div>
 
             <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm">
                 <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Allenamenti Mensili</h3>
@@ -256,6 +261,31 @@
             <h2 class="text-2xl font-bold">Impostazioni</h2>
             
             <div class="bg-white dark:bg-darkCard rounded-xl overflow-hidden shadow-sm">
+
+<div class="bg-white dark:bg-darkCard rounded-xl overflow-hidden shadow-sm">
+    <h3 class="font-bold p-4 border-b border-gray-100 dark:border-gray-700">Dati Personali</h3>
+    <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+        <span>Peso corporeo (kg)</span>
+        <input type="number" id="setting-body-weight" step="0.1" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="70">
+    </div>
+    <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+        <span>Altezza (cm)</span>
+        <input type="number" id="setting-height" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="175">
+    </div>
+    <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+        <span>Età (anni)</span>
+        <input type="number" id="setting-age" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="30">
+    </div>
+    <div class="p-4 flex justify-between items-center">
+        <span>Sesso</span>
+        <select id="setting-gender" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1">
+            <option value="">Non specificato</option>
+            <option value="male">Maschio</option>
+            <option value="female">Femmina</option>
+        </select>
+    </div>
+</div>
+
                 <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                     <span>Unità di peso</span>
                     <select id="setting-unit" class="bg-gray-100 dark:bg-gray-800 rounded px-2 py-1">
@@ -426,7 +456,7 @@
                 history: [],
                 editingWorkout: null,
                 activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
-                settings: { unit: 'kg', sound: true, vibrate: true, theme: 'dark' }
+                settings: { unit: 'kg', sound: true, vibrate: true, theme: 'dark', bodyWeight: null, height: null, age: null, gender: '' }
             },
             
             init: async () => {
@@ -445,6 +475,55 @@
                     savedSettings.forEach(s => app.state.settings[s.key] = s.value);
                 }
             },
+			
+			calculateCalories: (session) => {
+    // MET values for resistance training (source: Compendium of Physical Activities)
+    // Light: 3.5, Moderate: 5.0, Vigorous: 6.0, Very Vigorous: 8.0
+    const baseMET = 5.0; // Moderate intensity resistance training
+    
+    const settings = app.state.settings;
+    const bodyWeight = parseFloat(settings.bodyWeight);
+    
+    if (!bodyWeight || isNaN(bodyWeight)) {
+        return 0; // Cannot calculate without body weight
+    }
+    
+    // Calculate workout duration in hours
+    const durationMinutes = (Date.now() - session.startTime) / 1000 / 60;
+    const durationHours = durationMinutes / 60;
+    
+    // Calculate intensity multiplier based on volume
+    // Higher volume = higher intensity
+    let totalVolume = 0;
+    let totalReps = 0;
+    
+    session.logs.forEach(l => {
+        const weight = parseFloat(l.weight) || 0;
+        const reps = parseFloat(l.reps) || 0;
+        const multiplier = l.multiplier || 1;
+        totalVolume += weight * reps * multiplier;
+        totalReps += reps;
+    });
+    
+    // Adjust MET based on intensity
+    // If average weight per rep is high relative to body weight, increase MET
+    const avgWeightPerRep = totalReps > 0 ? totalVolume / totalReps : 0;
+    const intensityRatio = avgWeightPerRep / bodyWeight;
+    
+    let adjustedMET = baseMET;
+    if (intensityRatio > 1.5) {
+        adjustedMET = 8.0; // Very vigorous
+    } else if (intensityRatio > 1.0) {
+        adjustedMET = 6.5; // Vigorous
+    } else if (intensityRatio > 0.5) {
+        adjustedMET = 5.5; // Moderate-vigorous
+    }
+    
+    // Formula: Calories = MET × body weight (kg) × duration (hours)
+    const calories = adjustedMET * bodyWeight * durationHours;
+    
+    return Math.round(calories);
+},
 
             router: {
                 go: (viewId) => {
@@ -649,18 +728,47 @@ if (session.currentExIdx < session.workout.exercises.length - 1) {
                         },
                         options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: {stepSize: 1} } } }
                     });
+					
+					// Calories Chart
+const ctxCal = document.getElementById('chart-calories').getContext('2d');
+if(window.chartCal) window.chartCal.destroy();
+
+const logsWithCalories = lastLogs.filter(l => l.caloriesBurned);
+if (logsWithCalories.length > 0) {
+    window.chartCal = new Chart(ctxCal, {
+        type: 'line',
+        data: {
+            labels: logsWithCalories.map(l => new Date(l.date).toLocaleDateString(undefined, {weekday:'short'})),
+            datasets: [{ 
+                label: 'Calorie', 
+                data: logsWithCalories.map(l => l.caloriesBurned), 
+                borderColor: '#f97316', 
+                backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                tension: 0.4, 
+                fill: true 
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+} else {
+    // Show message if no calorie data
+    ctxCal.canvas.parentElement.innerHTML = '<p class="text-gray-400 text-center py-8 text-sm">Imposta i dati personali per vedere le calorie</p>';
+}
 
                     // List
                     const list = document.getElementById('history-list');
-                    list.innerHTML = history.slice().reverse().slice(0, 10).map(h => `
-                        <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-2">
-                            <div>
-                                <div class="font-bold">${h.workoutName}</div>
-                                <div class="text-xs text-gray-400">${new Date(h.date).toLocaleString()}</div>
-                            </div>
-                            <div class="font-mono font-bold text-primary">${Math.round(h.totalVolume)}kg</div>
-                        </div>
-                    `).join('');
+list.innerHTML = history.slice().reverse().slice(0, 10).map(h => `
+    <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-2">
+        <div class="flex-1">
+            <div class="font-bold">${h.workoutName}</div>
+            <div class="text-xs text-gray-400">${new Date(h.date).toLocaleString()}</div>
+        </div>
+        <div class="text-right">
+            <div class="font-mono font-bold text-primary">${Math.round(h.totalVolume)}kg</div>
+            ${h.caloriesBurned ? `<div class="text-xs text-orange-500">🔥 ${h.caloriesBurned} kcal</div>` : ''}
+        </div>
+    </div>
+`).join('');
                 }
             },
 
@@ -903,22 +1011,27 @@ const volume = session.logs.reduce((acc, l) => {
     }
     return acc;
 }, 0);
-                    const duration = Math.round((Date.now() - session.startTime) / 1000 / 60);
+const duration = Math.round((Date.now() - session.startTime) / 1000 / 60);
+const calories = app.calculateCalories(session);
 
-                    const historyItem = {
-                        id: 'h_' + Date.now(),
-                        workoutId: session.workout.id,
-                        workoutName: session.workout.name,
-                        date: new Date().toISOString(),
-                        totalVolume: volume,
-                        durationMinutes: duration,
-                        logs: session.logs
-                    };
+const historyItem = {
+    id: 'h_' + Date.now(),
+    workoutId: session.workout.id,
+    workoutName: session.workout.name,
+    date: new Date().toISOString(),
+    totalVolume: volume,
+    durationMinutes: duration,
+    caloriesBurned: calories,
+    logs: session.logs
+};
 
                     await app.db.put('history', historyItem);
                     await app.loadData(); // Reload history for dashboard
                     
-                    alert("Ottimo lavoro! Allenamento completato.");
+                    const statsMsg = calories > 0 
+    ? `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n• Calorie: ~${calories} kcal`
+    : `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n\n💡 Imposta peso corporeo nelle impostazioni per vedere le calorie bruciate!`;
+alert(statsMsg);
                     app.router.go('dashboard');
                 },
 
@@ -1014,6 +1127,23 @@ const volume = session.logs.reduce((acc, l) => {
             app.db.put('settings', { key: 'theme', value: app.state.settings.theme });
             app.ui.applyTheme();
         });
+		
+		// Personal Settings Listeners
+['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender'].forEach(id => {
+    const el = document.getElementById(id);
+    const key = id.replace('setting-', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+    
+    // Load saved value
+    if (app.state.settings[key]) {
+        el.value = app.state.settings[key];
+    }
+    
+    // Save on change
+    el.addEventListener('change', () => {
+        app.state.settings[key] = el.value;
+        app.db.put('settings', { key: key, value: el.value });
+    });
+});
 
         // Init App
         window.addEventListener('DOMContentLoaded', app.init);
