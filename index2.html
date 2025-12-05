@@ -182,7 +182,7 @@
                 <div class="text-center w-full animate-fade-in">
                     <h2 id="active-exercise-name" class="text-3xl font-bold mb-2 break-words">Nome Esercizio</h2>
                     <div class="flex justify-center gap-4 text-gray-400 text-sm mb-4">
-                        <span id="active-set-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700">Serie 1/4</span>
+                        <span id="active-set-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700" style="background-color:#059669; color:#FFF;">Serie 1/4</span>
                         <span id="active-target-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700">10 Reps</span>
                     </div>
 
@@ -198,19 +198,20 @@
                 </div>
 
                 <!-- Timer / Rest Overlay -->
-                <div id="rest-overlay" class="hidden flex-col items-center justify-center w-full py-0">
-                    <div class="relative w-48 h-48">
-                         <svg class="w-full h-full transform -rotate-90">
-                            <circle cx="96" cy="96" r="88" stroke="currentColor" stroke-width="8" fill="transparent" class="text-gray-800" />
-                            <circle id="rest-timer-circle" cx="96" cy="96" r="88" stroke="currentColor" stroke-width="8" fill="transparent" class="text-primary timer-circle" stroke-dasharray="552" stroke-dashoffset="0" />
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center flex-col">
-                            <span class="text-gray-400 text-xs uppercase tracking-widest">Pausa</span>
-                            <span id="rest-timer-text" class="text-4xl font-mono font-bold">00:00</span>
-                        </div>
-                    </div>
-                    <button onclick="app.handlers.skipRest()" class="mt-4 text-sm text-gray-400 hover:text-white underline">Salta Pausa</button>
-                </div>
+<!-- Timer / Rest Overlay -->
+<div id="rest-overlay" class="hidden flex-col items-center justify-center w-full py-0">
+    <div class="relative w-40 h-40">
+         <svg class="w-full h-full transform -rotate-90">
+            <circle cx="80" cy="80" r="72" stroke="currentColor" stroke-width="6" fill="transparent" class="text-gray-800" />
+            <circle id="rest-timer-circle" cx="80" cy="80" r="72" stroke="currentColor" stroke-width="6" fill="transparent" class="text-primary timer-circle" stroke-dasharray="452" stroke-dashoffset="0" />
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center flex-col">
+            <span class="text-gray-400 text-xs uppercase tracking-widest">Pausa</span>
+            <span id="rest-timer-text" class="text-3xl font-mono font-bold">00:00</span>
+        </div>
+    </div>
+    
+</div>
 
             </div>
 
@@ -815,8 +816,8 @@ app.state.editingWorkout.exercises.push({
                     const timerEl = document.getElementById('rest-timer-text');
                     const circle = document.getElementById('rest-timer-circle');
                     
-                    // 552 is circumference of r=88 circle
-                    const maxOffset = 552;
+                    // 452 is circumference of r=88 circle
+                    const maxOffset = 452;
                     circle.style.strokeDasharray = maxOffset;
                     
                     app.restInterval = setInterval(() => {
