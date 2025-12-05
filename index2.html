@@ -146,9 +146,13 @@
             <div class="px-4 py-4 flex justify-between items-center border-b border-gray-700">
                 <button onclick="app.handlers.confirmExitWorkout()" class="text-gray-400"><i class="fa-solid fa-xmark text-2xl"></i></button>
                 <div class="text-center">
-                    <h3 id="active-workout-name" class="font-bold text-sm text-gray-300">Workout</h3>
-                    <div id="active-timer-total" class="text-xs text-primary font-mono">00:00</div>
-                </div>
+    <h3 id="active-workout-name" class="font-bold text-sm text-gray-300">Workout</h3>
+    <div class="flex items-center gap-2 justify-center text-xs">
+        <span id="active-timer-total" class="text-primary font-mono">00:00</span>
+        <span class="text-gray-500">•</span>
+        <span id="active-exercise-count" class="text-gray-400">0/0 es.</span>
+    </div>
+</div>
                 <button onclick="app.handlers.toggleSound()" id="sound-toggle" class="text-gray-400"><i class="fa-solid fa-volume-high"></i></button>
             </div>
 
@@ -199,11 +203,11 @@
             <!-- Controls Footer -->
             <div class="p-6 bg-gray-800 pb-safe rounded-t-3xl footer-action">
                 <button id="btn-main-action" onclick="app.handlers.completeSet()" class="w-full bg-primary hover:bg-primaryDark text-white font-bold text-xl py-4 rounded-xl shadow-lg transform transition active:scale-95 flex justify-center items-center gap-3">
-                    <i class="fa-solid fa-check"></i> <span>Completa Serie</span>
+                    <i class="fa-solid fa-check"></i> <span>Serie Completata</span>
                 </button>
                  <div class="flex justify-between mt-4 px-2">
-                    <button onclick="app.handlers.skipExercise()" class="text-gray-400 text-sm hover:text-white">Salta Es.</button>
-                    <button onclick="app.handlers.finishWorkoutEarly()" class="text-red-400 text-sm hover:text-red-300">Termina</button>
+                    <button onclick="app.handlers.skipExercise()" class="text-gray-400 text-sm hover:text-white">Salta Esercizio</button>
+                    <button onclick="app.handlers.finishWorkoutEarly()" class="text-red-400 text-sm hover:text-red-300">Termina Workout</button>
                 </div>
             </div>
         </section>
@@ -304,16 +308,20 @@
                     <input type="text" id="modal-ex-reps" value="10" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3" placeholder="es. 8-10">
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-xs text-gray-500 ml-1">Pausa (sec)</label>
-                    <input type="number" id="modal-ex-rest" value="90" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-                </div>
-                <div>
-                    <label class="text-xs text-gray-500 ml-1">Peso Iniziale</label>
-                    <input type="number" id="modal-ex-weight" value="0" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-                </div>
-            </div>
+           <div class="grid grid-cols-2 gap-4">
+    <div>
+        <label class="text-xs text-gray-500 ml-1">Pausa (sec)</label>
+        <input type="number" id="modal-ex-rest" value="90" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+    </div>
+    <div>
+        <label class="text-xs text-gray-500 ml-1">Peso Iniziale</label>
+        <input type="number" id="modal-ex-weight" value="0" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+    </div>
+</div>
+<div class="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+    <input type="checkbox" id="modal-ex-double" class="accent-primary w-5 h-5">
+    <label class="text-sm">Peso doppio (2 manubri)</label>
+</div>
             <div class="flex gap-3 mt-4 pt-2">
                 <button onclick="document.getElementById('exercise-modal').classList.add('hidden')" class="flex-1 py-3 text-gray-500 font-semibold">Annulla</button>
                 <button onclick="app.handlers.confirmAddExercise()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryDark shadow-lg">Aggiungi</button>
@@ -506,7 +514,7 @@
                                 <i class="fa-solid fa-grip-lines text-gray-400 cursor-move"></i>
                                 <div>
                                     <div class="font-bold">${ex.name}</div>
-                                    <div class="text-xs text-gray-500">${ex.sets} x ${ex.reps} • ${ex.rest}s riposo</div>
+                                    <div class="text-xs text-gray-500">${ex.sets} x ${ex.reps} • ${ex.rest}s riposo${ex.isDouble ? ' • 2x manubri' : ''}</div>
                                 </div>
                             </div>
                             <button onclick="app.handlers.removeExercise(${idx})" class="text-red-400 p-2"><i class="fa-solid fa-times"></i></button>
@@ -541,11 +549,15 @@
                     document.getElementById('active-target-display').innerText = `${ex.reps} Reps`;
                     document.getElementById('active-weight-value').innerText = ex.lastWeight || 0;
                     
-                    // Progress Bar
-                    const totalSets = session.workout.exercises.reduce((acc, e) => acc + parseInt(e.sets), 0);
-                    const completedSets = session.workout.exercises.slice(0, session.currentExIdx).reduce((acc,e) => acc + parseInt(e.sets), 0) + session.currentSet;
-                    const pct = (completedSets / totalSets) * 100;
-                    document.getElementById('active-progress-bar').style.width = `${pct}%`;
+					// Progress Bar
+					const totalExercises = session.workout.exercises.length;
+					const currentExercise = session.currentExIdx + 1;
+					document.getElementById('active-exercise-count').innerText = `${currentExercise}/${totalExercises} es.`;
+
+					const totalSets = session.workout.exercises.reduce((acc, e) => acc + parseInt(e.sets), 0);
+					const completedSets = session.workout.exercises.slice(0, session.currentExIdx).reduce((acc,e) => acc + parseInt(e.sets), 0) + session.currentSet;
+					const pct = (completedSets / totalSets) * 100;
+					document.getElementById('active-progress-bar').style.width = `${pct}%`;
 
                     // Button State
                     const btn = document.getElementById('btn-main-action');
@@ -558,7 +570,7 @@
                         restOverlay.classList.remove('hidden');
                         restOverlay.classList.add('flex');
                     } else {
-                        btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Completa Serie</span>`;
+                        btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
                         btn.classList.replace('bg-gray-600', 'bg-primary');
                         btn.onclick = app.handlers.completeSet;
                         restOverlay.classList.add('hidden');
@@ -651,17 +663,19 @@
                     const name = document.getElementById('modal-ex-name').value;
                     if(!name) return;
                     
-                    app.state.editingWorkout.exercises.push({
-                        name,
-                        sets: document.getElementById('modal-ex-sets').value,
-                        reps: document.getElementById('modal-ex-reps').value,
-                        rest: document.getElementById('modal-ex-rest').value,
-                        lastWeight: document.getElementById('modal-ex-weight').value
-                    });
+app.state.editingWorkout.exercises.push({
+    name,
+    sets: document.getElementById('modal-ex-sets').value,
+    reps: document.getElementById('modal-ex-reps').value,
+    rest: document.getElementById('modal-ex-rest').value,
+    lastWeight: document.getElementById('modal-ex-weight').value,
+    isDouble: document.getElementById('modal-ex-double').checked
+});
                     
                     document.getElementById('exercise-modal').classList.add('hidden');
                     // Reset modal fields
                     document.getElementById('modal-ex-name').value = '';
+					document.getElementById('modal-ex-double').checked = false;
                     
                     app.ui.renderEditorExercises();
                 },
@@ -725,12 +739,14 @@
                     const ex = session.workout.exercises[session.currentExIdx];
                     
                     // Log the set
-                    const weight = parseFloat(ex.lastWeight);
+					const weight = parseFloat(ex.lastWeight);
 					const reps = parseFloat(ex.reps);
+					const multiplier = ex.isDouble ? 2 : 1;
 					session.logs.push({
 						exercise: ex.name,
 						weight: isNaN(weight) ? 0 : weight,
-						reps: isNaN(reps) ? 0 : reps
+						reps: isNaN(reps) ? 0 : reps,
+						multiplier: multiplier
 					});
 
                     // Persist new weight to main DB so next time it's updated
@@ -844,14 +860,15 @@
                     const session = app.state.activeSession;
                     
                     // Calc Stats
-                    const volume = session.logs.reduce((acc, l) => {
-						const weight = parseFloat(l.weight);
-						const reps = parseFloat(l.reps);
-						if (!isNaN(weight) && !isNaN(reps)) {
-							return acc + (weight * reps);
-						}
-						return acc;
-					}, 0);
+const volume = session.logs.reduce((acc, l) => {
+    const weight = parseFloat(l.weight);
+    const reps = parseFloat(l.reps);
+    const multiplier = l.multiplier || 1;
+    if (!isNaN(weight) && !isNaN(reps)) {
+        return acc + (weight * reps * multiplier);
+    }
+    return acc;
+}, 0);
                     const duration = Math.round((Date.now() - session.startTime) / 1000 / 60);
 
                     const historyItem = {
