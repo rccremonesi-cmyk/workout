@@ -1,1153 +1,1153 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FitTracker Web</title>
-    <meta name="description" content="Il tuo tracker di allenamento locale.">
-    <meta name="theme-color" content="#10b981">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SortableJS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        /* Custom Styles & Animations */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Smooth transitions for views */
-        /* FIX: Use !important to override Tailwind's utility classes (like .flex) that might keep hidden views visible/blocking */
-        .view-section { display: none !important; opacity: 0; transition: opacity 0.2s ease-in-out; }
-        .view-section.active { display: block !important; opacity: 1; }
-        /* Ensure the active view with flex class uses flex display */
-        #view-active.active { display: flex !important; }
-
-        /* Timer Circle Animation */
-        .timer-circle { transition: stroke-dashoffset 1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
-        
-        /* Drag & Drop Ghost */
-        .sortable-ghost { opacity: 0.4; background-color: #ecfdf5; border: 2px dashed #10b981; }
-        .sortable-drag { cursor: grabbing; }
-
-        /* Mobile safe area */
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-
-        .footer-action{
-            position: fixed;
-    bottom: 0px;
-    width: 100%;
-        }
-    </style>
-    
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#10b981', // Emerald 500
-                        primaryDark: '#059669',
-                        darkBg: '#111827',
-                        darkCard: '#1f2937'
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-gray-100 dark:bg-darkBg text-gray-800 dark:text-gray-100 h-screen flex flex-col overflow-hidden transition-colors duration-300">
-
-    <!-- HEADER -->
-    <header class="bg-white dark:bg-darkCard shadow-sm z-20 px-4 py-3 flex justify-between items-center transition-colors duration-300">
-        <div class="flex items-center gap-2">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      <title>FitTracker Web</title>
+      <meta name="description" content="Il tuo tracker di allenamento locale.">
+      <meta name="theme-color" content="#10b981">
+      <!-- Tailwind CSS -->
+      <script src="https://cdn.tailwindcss.com"></script>
+      <!-- Chart.js -->
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <!-- SortableJS -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+      <!-- FontAwesome -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      <style>
+         /* Custom Styles & Animations */
+         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+         .hide-scrollbar::-webkit-scrollbar { display: none; }
+         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+         /* Smooth transitions for views */
+         /* FIX: Use !important to override Tailwind's utility classes (like .flex) that might keep hidden views visible/blocking */
+         .view-section { display: none !important; opacity: 0; transition: opacity 0.2s ease-in-out; }
+         .view-section.active { display: block !important; opacity: 1; }
+         /* Ensure the active view with flex class uses flex display */
+         #view-active.active { display: flex !important; }
+         /* Timer Circle Animation */
+         .timer-circle { transition: stroke-dashoffset 1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
+         /* Drag & Drop Ghost */
+         .sortable-ghost { opacity: 0.4; background-color: #ecfdf5; border: 2px dashed #10b981; }
+         .sortable-drag { cursor: grabbing; }
+         /* Mobile safe area */
+         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+         .footer-action{
+         position: fixed;
+         bottom: 0px;
+         width: 100%;
+         }
+      </style>
+      <script>
+         tailwind.config = {
+             darkMode: 'class',
+             theme: {
+                 extend: {
+                     colors: {
+                         primary: '#10b981', // Emerald 500
+                         primaryDark: '#059669',
+                         darkBg: '#111827',
+                         darkCard: '#1f2937'
+                     }
+                 }
+             }
+         }
+      </script>
+   </head>
+   <body class="bg-gray-100 dark:bg-darkBg text-gray-800 dark:text-gray-100 h-screen flex flex-col overflow-hidden transition-colors duration-300">
+      <!-- HEADER -->
+      <header class="bg-white dark:bg-darkCard shadow-sm z-20 px-4 py-3 flex justify-between items-center transition-colors duration-300">
+         <div class="flex items-center gap-2">
             <i class="fa-solid fa-dumbbell text-primary text-xl"></i>
             <h1 class="font-bold text-lg tracking-tight">FitTracker</h1>
-        </div>
-        <div class="flex gap-3">
+         </div>
+         <div class="flex gap-3">
             <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                <i class="fa-solid fa-moon"></i>
+            <i class="fa-solid fa-moon"></i>
             </button>
-        </div>
-    </header>
-
-    <!-- MAIN CONTENT AREA -->
-    <main id="app-container" class="flex-1 overflow-y-auto overflow-x-hidden relative hide-scrollbar pb-24">
-        
-        <!-- VIEW: DASHBOARD (HOME) -->
-        <section id="view-dashboard" class="view-section active p-4 space-y-6">
+         </div>
+      </header>
+      <!-- MAIN CONTENT AREA -->
+      <main id="app-container" class="flex-1 overflow-y-auto overflow-x-hidden relative hide-scrollbar pb-24">
+         <!-- VIEW: DASHBOARD (HOME) -->
+         <section id="view-dashboard" class="view-section active p-4 space-y-6">
             <!-- Quick Stats Card -->
             <div class="bg-gradient-to-r from-primary to-primaryDark rounded-2xl p-5 text-white shadow-lg">
-                <h2 class="text-sm opacity-90 uppercase tracking-wider font-semibold">Questo Mese</h2>
-                <div class="flex justify-between items-end mt-2">
-                    <div>
-                        <span id="monthly-workouts-count" class="text-4xl font-bold">0</span>
-                        <span class="text-sm opacity-80">Allenamenti</span>
-                    </div>
-                    <div class="text-right">
-                        <span id="monthly-volume" class="text-xl font-bold">0</span>
-                        <span class="text-sm opacity-80 block">kg Sollevati</span>
-                    </div>
-                </div>
+               <h2 class="text-sm opacity-90 uppercase tracking-wider font-semibold">Questo Mese</h2>
+               <div class="flex justify-between items-end mt-2">
+                  <div>
+                     <span id="monthly-workouts-count" class="text-4xl font-bold">0</span>
+                     <span class="text-sm opacity-80">Allenamenti</span>
+                  </div>
+                  <div class="text-right">
+                     <span id="monthly-volume" class="text-xl font-bold">0</span>
+                     <span class="text-sm opacity-80 block">kg Sollevati</span>
+                  </div>
+               </div>
             </div>
-
             <!-- Workouts List -->
             <div>
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-lg">I tuoi Workout</h3>
-                    <button onclick="app.handlers.createNewWorkout()" class="text-primary text-sm font-semibold hover:underline">+ Nuovo</button>
-                </div>
-                <div id="workout-list" class="space-y-3">
-                    <!-- Dynamic Workout Cards injected here -->
-                    <div class="text-center text-gray-400 py-8">Caricamento...</div>
-                </div>
+               <div class="flex justify-between items-center mb-4">
+                  <h3 class="font-bold text-lg">I tuoi Workout</h3>
+                  <button onclick="app.handlers.createNewWorkout()" class="text-primary text-sm font-semibold hover:underline">+ Nuovo</button>
+               </div>
+               <div id="workout-list" class="space-y-3">
+                  <!-- Dynamic Workout Cards injected here -->
+                  <div class="text-center text-gray-400 py-8">Caricamento...</div>
+               </div>
             </div>
-        </section>
-
-        <!-- VIEW: WORKOUT EDITOR -->
-        <section id="view-editor" class="view-section p-4 bg-white dark:bg-darkBg min-h-full absolute inset-0 z-30">
+         </section>
+         <!-- VIEW: WORKOUT EDITOR -->
+         <section id="view-editor" class="view-section p-4 bg-white dark:bg-darkBg min-h-full absolute inset-0 z-30">
             <div class="flex items-center gap-4 mb-6">
-                <button onclick="app.router.go('dashboard')" class="p-2 -ml-2 text-gray-500 hover:text-primary"><i class="fa-solid fa-arrow-left text-xl"></i></button>
-                <input type="text" id="editor-name" class="flex-1 text-2xl font-bold bg-transparent border-none focus:ring-0 placeholder-gray-400" placeholder="Nome Workout (es. Leg Day)">
+               <button onclick="app.router.go('dashboard')" class="p-2 -ml-2 text-gray-500 hover:text-primary"><i class="fa-solid fa-arrow-left text-xl"></i></button>
+               <input type="text" id="editor-name" class="flex-1 text-2xl font-bold bg-transparent border-none focus:ring-0 placeholder-gray-400" placeholder="Nome Workout (es. Leg Day)">
             </div>
-
             <div id="editor-exercises-list" class="space-y-4 mb-20">
-                <!-- Exercises injected here via SortableJS -->
+               <!-- Exercises injected here via SortableJS -->
             </div>
-
             <!-- Floating Action Button for Add Exercise -->
             <div class="fixed bottom-6 right-6 z-40">
-                <button onclick="app.handlers.addExerciseToEditor()" class="bg-primary hover:bg-primaryDark text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl transition transform hover:scale-105">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
+               <button onclick="app.handlers.addExerciseToEditor()" class="bg-primary hover:bg-primaryDark text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl transition transform hover:scale-105">
+               <i class="fa-solid fa-plus"></i>
+               </button>
             </div>
-            
             <div class="fixed bottom-6 left-6 z-40">
-                 <button onclick="app.handlers.saveWorkout()" class="bg-gray-800 dark:bg-white dark:text-gray-900 text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-save"></i> Salva
-                </button>
+               <button onclick="app.handlers.saveWorkout()" class="bg-gray-800 dark:bg-white dark:text-gray-900 text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2">
+               <i class="fa-solid fa-save"></i> Salva
+               </button>
             </div>
-             <div class="fixed top-20 right-4 z-40">
-                 <button onclick="app.handlers.deleteWorkout()" id="btn-delete-workout" class="text-red-500 p-2 hidden">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+            <div class="fixed top-20 right-4 z-40">
+               <button onclick="app.handlers.deleteWorkout()" id="btn-delete-workout" class="text-red-500 p-2 hidden">
+               <i class="fa-solid fa-trash"></i>
+               </button>
             </div>
-        </section>
-
-        <!-- VIEW: ACTIVE WORKOUT MODE -->
-        <section id="view-active" class="view-section bg-gray-900 text-white min-h-full absolute inset-0 z-50 flex flex-col">
+         </section>
+         <!-- VIEW: ACTIVE WORKOUT MODE -->
+         <section id="view-active" class="view-section bg-gray-900 text-white min-h-full absolute inset-0 z-50 flex flex-col">
             <!-- Active Header -->
             <div class="px-4 py-4 flex justify-between items-center border-b border-gray-700">
-                <button onclick="app.handlers.confirmExitWorkout()" class="text-gray-400"><i class="fa-solid fa-xmark text-2xl"></i></button>
-                <div class="text-center">
-    <h3 id="active-workout-name" class="font-bold text-sm text-gray-300">Workout</h3>
-    <div class="flex items-center gap-2 justify-center text-xs">
-        <span id="active-timer-total" class="text-primary font-mono">00:00</span>
-        <span class="text-gray-500">•</span>
-        <span id="active-exercise-count" class="text-gray-400">0/0 es.</span>
-    </div>
-</div>
-                <button onclick="app.handlers.toggleSound()" id="sound-toggle" class="text-gray-400"><i class="fa-solid fa-volume-high"></i></button>
+               <button onclick="app.handlers.confirmExitWorkout()" class="text-gray-400"><i class="fa-solid fa-xmark text-2xl"></i></button>
+               <div class="text-center">
+                  <h3 id="active-workout-name" class="font-bold text-sm text-gray-300">Workout</h3>
+                  <div class="flex items-center gap-2 justify-center text-xs">
+                     <span id="active-timer-total" class="text-primary font-mono">00:00</span>
+                     <span class="text-gray-500">•</span>
+                     <span id="active-exercise-count" class="text-gray-400">0/0 es.</span>
+                  </div>
+               </div>
+               <button onclick="app.handlers.toggleSound()" id="sound-toggle" class="text-gray-400"><i class="fa-solid fa-volume-high"></i></button>
             </div>
-
             <!-- Progress Bar -->
-           <!-- Progress Bar with Exercise Navigation -->
-<div class="bg-gray-800 w-full">
-    <div class="px-4 py-2 flex items-center justify-between text-xs">
-        <div id="prev-exercise" class="text-gray-500 flex-1 text-left truncate">
-            <i class="fa-solid fa-check text-green-500 mr-1"></i>
-            <span>-</span>
-        </div>
-        <div class="text-gray-400 px-2">→</div>
-        <div id="next-exercise" class="text-gray-400 flex-1 text-right truncate">
-            <span>-</span>
-            <i class="fa-solid fa-arrow-right ml-1"></i>
-        </div>
-    </div>
-    <div class="h-1 bg-gray-800 w-full">
-        <div id="active-progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
-    </div>
-</div>
-
+            <!-- Progress Bar with Exercise Navigation -->
+            <div class="bg-gray-800 w-full">
+               <div class="px-4 py-2 flex items-center justify-between text-xs">
+                  <div id="prev-exercise" class="text-gray-500 flex-1 text-left truncate">
+                     <i class="fa-solid fa-check text-green-500 mr-1"></i>
+                     <span>-</span>
+                  </div>
+                  <div class="text-gray-400 px-2">→</div>
+                  <div id="next-exercise" class="text-gray-400 flex-1 text-right truncate">
+                     <span>-</span>
+                     <i class="fa-solid fa-arrow-right ml-1"></i>
+                  </div>
+               </div>
+               <div class="h-1 bg-gray-800 w-full">
+                  <div id="active-progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+               </div>
+            </div>
             <!-- Main Exercise Area -->
             <div class="p-5">
-                
-                <!-- Current Exercise Info -->
-                <div class="text-center w-full animate-fade-in">
-                    <h2 id="active-exercise-name" class="text-3xl font-bold mb-2 break-words">Nome Esercizio</h2>
-                    <div class="flex justify-center gap-4 text-gray-400 text-sm mb-4">
-                        <span id="active-set-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700" style="background-color:#059669; color:#FFF;">Serie 1/4</span>
-                        <span id="active-target-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700">10 Reps</span>
-                    </div>
-
-                    <!-- Weight Control -->
-                    <div class="flex items-center justify-center gap-6 my-6">
-                        <button onclick="app.handlers.adjustWeight(-1)" class="w-12 h-12 rounded-full bg-gray-800 border border-gray-600 text-xl active:scale-95">-</button>
-                        <div class="text-center">
-                            <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
-                            <span class="text-sm text-gray-500 block uppercase">kg</span>
-                        </div>
-                        <button onclick="app.handlers.adjustWeight(1)" class="w-12 h-12 rounded-full bg-gray-800 border border-gray-600 text-xl active:scale-95">+</button>
-                    </div>
-                </div>
-
-                <!-- Timer / Rest Overlay -->
-<!-- Timer / Rest Overlay -->
-<div id="rest-overlay" class="hidden flex-col items-center justify-center w-full py-0">
-    <div class="relative w-40 h-40">
-         <svg class="w-full h-full transform -rotate-90">
-            <circle cx="80" cy="80" r="72" stroke="currentColor" stroke-width="6" fill="transparent" class="text-gray-800" />
-            <circle id="rest-timer-circle" cx="80" cy="80" r="72" stroke="currentColor" stroke-width="6" fill="transparent" class="text-primary timer-circle" stroke-dasharray="452" stroke-dashoffset="0" />
-        </svg>
-        <div class="absolute inset-0 flex items-center justify-center flex-col">
-            <span class="text-gray-400 text-xs uppercase tracking-widest">Pausa</span>
-            <span id="rest-timer-text" class="text-3xl font-mono font-bold">00:00</span>
-        </div>
-    </div>
-    
-</div>
-
+               <!-- Current Exercise Info -->
+               <div class="text-center w-full animate-fade-in">
+                  <h2 id="active-exercise-name" class="text-3xl font-bold mb-2 break-words">Nome Esercizio</h2>
+                  <div class="flex justify-center gap-4 text-gray-400 text-sm mb-4">
+                     <span id="active-set-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700" style="background-color:#059669; color:#FFF;">Serie 1/4</span>
+                     <span id="active-target-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700">10 Reps</span>
+                  </div>
+                  <!-- Weight Control -->
+                  <div class="flex items-center justify-center gap-6 my-6">
+                     <button onclick="app.handlers.adjustWeight(-1)" class="w-12 h-12 rounded-full bg-gray-800 border border-gray-600 text-xl active:scale-95">-</button>
+                     <div class="text-center">
+                        <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
+                        <span class="text-sm text-gray-500 block uppercase">kg</span>
+                     </div>
+                     <button onclick="app.handlers.adjustWeight(1)" class="w-12 h-12 rounded-full bg-gray-800 border border-gray-600 text-xl active:scale-95">+</button>
+                  </div>
+               </div>
+               <!-- Timer / Rest Overlay -->
+               <!-- Timer / Rest Overlay -->
+               <div id="rest-overlay" class="hidden flex-col items-center justify-center w-full py-0">
+                  <div class="relative w-40 h-40">
+                     <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="80" cy="80" r="72" stroke="currentColor" stroke-width="6" fill="transparent" class="text-gray-800" />
+                        <circle id="rest-timer-circle" cx="80" cy="80" r="72" stroke="currentColor" stroke-width="6" fill="transparent" class="text-primary timer-circle" stroke-dasharray="452" stroke-dashoffset="0" />
+                     </svg>
+                     <div class="absolute inset-0 flex items-center justify-center flex-col">
+                        <span class="text-gray-400 text-xs uppercase tracking-widest">Pausa</span>
+                        <span id="rest-timer-text" class="text-3xl font-mono font-bold">00:00</span>
+                     </div>
+                  </div>
+               </div>
             </div>
-
             <!-- Controls Footer -->
             <div class="p-6 bg-gray-800 pb-safe rounded-t-3xl footer-action">
-                <button id="btn-main-action" onclick="app.handlers.completeSet()" class="w-full bg-primary hover:bg-primaryDark text-white font-bold text-xl py-4 rounded-xl shadow-lg transform transition active:scale-95 flex justify-center items-center gap-3">
-                    <i class="fa-solid fa-check"></i> <span>Serie Completata</span>
-                </button>
-                 <div class="flex justify-between mt-4 px-2">
-                    <button onclick="app.handlers.skipExercise()" class="text-gray-400 text-sm hover:text-white">Salta Esercizio</button>
-                    <button onclick="app.handlers.finishWorkoutEarly()" class="text-red-400 text-sm hover:text-red-300">Termina Workout</button>
-                </div>
+               <button id="btn-main-action" onclick="app.handlers.completeSet()" class="w-full bg-primary hover:bg-primaryDark text-white font-bold text-xl py-4 rounded-xl shadow-lg transform transition active:scale-95 flex justify-center items-center gap-3">
+               <i class="fa-solid fa-check"></i> <span>Serie Completata</span>
+               </button>
+               <div class="flex justify-between mt-4 px-2">
+                  <button onclick="app.handlers.skipExercise()" class="text-gray-400 text-sm hover:text-white">Salta Esercizio</button>
+                  <button onclick="app.handlers.finishWorkoutEarly()" class="text-red-400 text-sm hover:text-red-300">Termina Workout</button>
+               </div>
             </div>
-        </section>
-
-        <!-- VIEW: STATISTICS -->
-        <section id="view-stats" class="view-section p-4 space-y-6 pb-20">
+         </section>
+         <!-- VIEW: STATISTICS -->
+         <section id="view-stats" class="view-section p-4 space-y-6 pb-20">
             <h2 class="text-2xl font-bold">I tuoi Progressi</h2>
-            
             <!-- Charts Container -->
             <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm">
-                <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Volume Settimanale (Kg)</h3>
-                <canvas id="chart-volume" height="200"></canvas>
+               <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Volume Settimanale (Kg)</h3>
+               <canvas id="chart-volume" height="200"></canvas>
             </div>
-			
-			<div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm">
-    <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Calorie Bruciate (kcal)</h3>
-    <canvas id="chart-calories" height="200"></canvas>
-</div>
-
             <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm">
-                <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Allenamenti Mensili</h3>
-                <canvas id="chart-consistency" height="200"></canvas>
+               <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Calorie Bruciate (kcal)</h3>
+               <canvas id="chart-calories" height="200"></canvas>
             </div>
-
-             <!-- History Log -->
-             <div>
-                <h3 class="font-bold text-lg mb-3">Storico Allenamenti</h3>
-                <div id="history-list" class="space-y-3 text-sm">
-                    <!-- Logs injected here -->
-                </div>
+            <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm">
+               <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Allenamenti Mensili</h3>
+               <canvas id="chart-consistency" height="200"></canvas>
             </div>
-        </section>
-
-        <!-- VIEW: SETTINGS -->
-        <section id="view-settings" class="view-section p-4 space-y-6">
+            <!-- History Log -->
+            <div>
+               <h3 class="font-bold text-lg mb-3">Storico Allenamenti</h3>
+               <div id="history-list" class="space-y-3 text-sm">
+                  <!-- Logs injected here -->
+               </div>
+            </div>
+         </section>
+         <!-- VIEW: SETTINGS -->
+         <section id="view-settings" class="view-section p-4 space-y-6">
             <h2 class="text-2xl font-bold">Impostazioni</h2>
-            
             <div class="bg-white dark:bg-darkCard rounded-xl overflow-hidden shadow-sm">
-
-<div class="bg-white dark:bg-darkCard rounded-xl overflow-hidden shadow-sm">
-    <h3 class="font-bold p-4 border-b border-gray-100 dark:border-gray-700">Dati Personali</h3>
-    <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-        <span>Peso corporeo (kg)</span>
-        <input type="number" id="setting-body-weight" step="0.1" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="70">
-    </div>
-    <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-        <span>Altezza (cm)</span>
-        <input type="number" id="setting-height" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="175">
-    </div>
-    <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-        <span>Età (anni)</span>
-        <input type="number" id="setting-age" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="30">
-    </div>
-    <div class="p-4 flex justify-between items-center">
-        <span>Sesso</span>
-        <select id="setting-gender" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1">
-            <option value="">Non specificato</option>
-            <option value="male">Maschio</option>
-            <option value="female">Femmina</option>
-        </select>
-    </div>
-</div>
-
-                <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                    <span>Unità di peso</span>
-                    <select id="setting-unit" class="bg-gray-100 dark:bg-gray-800 rounded px-2 py-1">
-                        <option value="kg">KG</option>
-                        <option value="lb">LB</option>
-                    </select>
-                </div>
-                <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                    <span>Suoni Timer</span>
-                    <input type="checkbox" id="setting-sound" checked class="accent-primary w-5 h-5">
-                </div>
-                <div class="p-4 flex justify-between items-center">
-                    <span>Vibrazione</span>
-                    <input type="checkbox" id="setting-vibrate" checked class="accent-primary w-5 h-5">
-                </div>
+               <div class="bg-white dark:bg-darkCard rounded-xl overflow-hidden shadow-sm">
+                  <h3 class="font-bold p-4 border-b border-gray-100 dark:border-gray-700">Dati Personali</h3>
+                  <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                     <span>Peso corporeo (kg)</span>
+                     <input type="number" id="setting-body-weight" step="0.1" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="70">
+                  </div>
+                  <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                     <span>Altezza (cm)</span>
+                     <input type="number" id="setting-height" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="175">
+                  </div>
+                  <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                     <span>Età (anni)</span>
+                     <input type="number" id="setting-age" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="30">
+                  </div>
+                  <div class="p-4 flex justify-between items-center">
+                     <span>Sesso</span>
+                     <select id="setting-gender" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1">
+                        <option value="">Non specificato</option>
+                        <option value="male">Maschio</option>
+                        <option value="female">Femmina</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                  <span>Unità di peso</span>
+                  <select id="setting-unit" class="bg-gray-100 dark:bg-gray-800 rounded px-2 py-1">
+                     <option value="kg">KG</option>
+                     <option value="lb">LB</option>
+                  </select>
+               </div>
+               <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                  <span>Suoni Timer</span>
+                  <input type="checkbox" id="setting-sound" checked class="accent-primary w-5 h-5">
+               </div>
+               <div class="p-4 flex justify-between items-center">
+                  <span>Vibrazione</span>
+                  <input type="checkbox" id="setting-vibrate" checked class="accent-primary w-5 h-5">
+               </div>
             </div>
-
             <div class="bg-white dark:bg-darkCard rounded-xl p-4 shadow-sm space-y-4">
-                <h3 class="font-bold">Dati</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="app.handlers.exportData()" class="bg-blue-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-600">Esporta JSON</button>
-                    <label class="bg-gray-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-gray-600 text-center cursor-pointer">
-                        Importa JSON
-                        <input type="file" onchange="app.handlers.importData(this)" class="hidden" accept=".json">
-                    </label>
-                </div>
-                <button onclick="app.handlers.resetAllData()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg text-sm font-semibold hover:bg-red-50">Cancellazione Totale</button>
+               <h3 class="font-bold">Dati</h3>
+               <div class="grid grid-cols-2 gap-4">
+                  <button onclick="app.handlers.exportData()" class="bg-blue-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-600">Esporta JSON</button>
+                  <label class="bg-gray-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-gray-600 text-center cursor-pointer">
+                  Importa JSON
+                  <input type="file" onchange="app.handlers.importData(this)" class="hidden" accept=".json">
+                  </label>
+               </div>
+               <button onclick="app.handlers.resetAllData()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg text-sm font-semibold hover:bg-red-50">Cancellazione Totale</button>
             </div>
-            
             <div class="text-center text-xs text-gray-400 mt-8">
-                FitTracker Web v1.0 • Browser-Based
+               FitTracker Web v1.0 • Browser-Based
             </div>
-        </section>
-
-    </main>
-
-    <!-- BOTTOM NAVIGATION -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-darkCard border-t border-gray-200 dark:border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300">
-        <button onclick="app.router.go('dashboard')" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
-            <i class="fa-solid fa-house mb-1"></i>
-            <span class="text-[10px] font-medium">Home</span>
-        </button>
-        <button onclick="app.router.go('stats')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
-            <i class="fa-solid fa-chart-simple mb-1"></i>
-            <span class="text-[10px] font-medium">Stats</span>
-        </button>
-        <button onclick="app.router.go('settings')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
-            <i class="fa-solid fa-gear mb-1"></i>
-            <span class="text-[10px] font-medium">Set</span>
-        </button>
-    </nav>
-
-    <!-- Modal Template for Exercise Form -->
-    <div id="exercise-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-darkCard rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl animate-fade-in-up">
+         </section>
+      </main>
+      <!-- BOTTOM NAVIGATION -->
+      <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-darkCard border-t border-gray-200 dark:border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300">
+         <button onclick="app.router.go('dashboard')" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
+         <i class="fa-solid fa-house mb-1"></i>
+         <span class="text-[10px] font-medium">Home</span>
+         </button>
+         <button onclick="app.router.go('stats')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
+         <i class="fa-solid fa-chart-simple mb-1"></i>
+         <span class="text-[10px] font-medium">Stats</span>
+         </button>
+         <button onclick="app.router.go('settings')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
+         <i class="fa-solid fa-gear mb-1"></i>
+         <span class="text-[10px] font-medium">Set</span>
+         </button>
+      </nav>
+      <!-- Modal Template for Exercise Form -->
+      <div id="exercise-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+         <div class="bg-white dark:bg-darkCard rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl animate-fade-in-up">
             <h3 class="font-bold text-xl mb-2">Aggiungi Esercizio</h3>
             <input type="text" id="modal-ex-name" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3 border-none focus:ring-2 focus:ring-primary" placeholder="Nome (es. Panca Piana)">
             <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-xs text-gray-500 ml-1">Serie</label>
-                    <input type="number" id="modal-ex-sets" value="3" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-                </div>
-                <div>
-                    <label class="text-xs text-gray-500 ml-1">Reps</label>
-                    <input type="text" id="modal-ex-reps" value="10" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3" placeholder="es. 8-10">
-                </div>
+               <div>
+                  <label class="text-xs text-gray-500 ml-1">Serie</label>
+                  <input type="number" id="modal-ex-sets" value="3" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+               </div>
+               <div>
+                  <label class="text-xs text-gray-500 ml-1">Reps</label>
+                  <input type="text" id="modal-ex-reps" value="10" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3" placeholder="es. 8-10">
+               </div>
             </div>
-           <div class="grid grid-cols-2 gap-4">
-    <div>
-        <label class="text-xs text-gray-500 ml-1">Pausa (sec)</label>
-        <input type="number" id="modal-ex-rest" value="90" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-    </div>
-    <div>
-        <label class="text-xs text-gray-500 ml-1">Peso Iniziale</label>
-        <input type="number" id="modal-ex-weight" value="0" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-    </div>
-</div>
-<div class="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-    <input type="checkbox" id="modal-ex-double" class="accent-primary w-5 h-5">
-    <label class="text-sm">Peso doppio (2 manubri)</label>
-</div>
+            <div class="grid grid-cols-2 gap-4">
+               <div>
+                  <label class="text-xs text-gray-500 ml-1">Pausa (sec)</label>
+                  <input type="number" id="modal-ex-rest" value="90" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+               </div>
+               <div>
+                  <label class="text-xs text-gray-500 ml-1">Peso Iniziale</label>
+                  <input type="number" id="modal-ex-weight" value="0" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+               </div>
+            </div>
+            <div class="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+               <input type="checkbox" id="modal-ex-double" class="accent-primary w-5 h-5">
+               <label class="text-sm">Peso doppio (2 manubri)</label>
+            </div>
             <div class="flex gap-3 mt-4 pt-2">
-                <button onclick="document.getElementById('exercise-modal').classList.add('hidden')" class="flex-1 py-3 text-gray-500 font-semibold">Annulla</button>
-                <button onclick="app.handlers.confirmAddExercise()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryDark shadow-lg">Aggiungi</button>
+               <button onclick="document.getElementById('exercise-modal').classList.add('hidden')" class="flex-1 py-3 text-gray-500 font-semibold">Annulla</button>
+               <button onclick="app.handlers.confirmAddExercise()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryDark shadow-lg">Aggiungi</button>
             </div>
-        </div>
-    </div>
-
-    <!-- AUDIO ELEMENTS -->
-    <audio id="audio-beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
-    <audio id="audio-complete" src="https://actions.google.com/sounds/v1/cartoon/clank_car_crash.ogg" preload="auto"></audio>
-
-    <!-- LOGIC SCRIPT -->
-    <script>
-        /**
-         * INDEXED DB WRAPPER
-         * Helper class for raw IndexedDB operations to ensure data persistence without libraries.
-         */
-        class DB {
-            constructor() {
-                this.dbName = 'FitTrackerDB';
-                this.version = 1;
-                this.db = null;
-            }
-
-            async connect() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(this.dbName, this.version);
-                    request.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains('workouts')) db.createObjectStore('workouts', { keyPath: 'id' });
-                        if (!db.objectStoreNames.contains('history')) db.createObjectStore('history', { keyPath: 'id' });
-                        if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'key' });
-                    };
-                    request.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
-                    request.onerror = (e) => reject(e);
-                });
-            }
-
-            async getAll(storeName) {
-                if(!this.db) await this.connect();
-                return new Promise((resolve) => {
-                    const tx = this.db.transaction(storeName, 'readonly');
-                    const store = tx.objectStore(storeName);
-                    const request = store.getAll();
-                    request.onsuccess = () => resolve(request.result);
-                });
-            }
-
-            async put(storeName, item) {
-                if(!this.db) await this.connect();
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction(storeName, 'readwrite');
-                    const store = tx.objectStore(storeName);
-                    const request = store.put(item);
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = () => reject("Put error");
-                });
-            }
-
-            async delete(storeName, key) {
-                if(!this.db) await this.connect();
-                return new Promise((resolve) => {
-                    const tx = this.db.transaction(storeName, 'readwrite');
-                    tx.objectStore(storeName).delete(key);
-                    tx.oncomplete = () => resolve();
-                });
-            }
-
-            async clearAll() {
-                if(!this.db) await this.connect();
-                const stores = ['workouts', 'history', 'settings'];
-                stores.forEach(name => {
-                    const tx = this.db.transaction(name, 'readwrite');
-                    tx.objectStore(name).clear();
-                });
-            }
-        }
-
-        /**
-         * APP LOGIC
-         */
-        const app = {
-            db: new DB(),
-            state: {
-                currentView: 'dashboard',
-                workouts: [],
-                history: [],
-                editingWorkout: null,
-                activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
-                settings: { unit: 'kg', sound: true, vibrate: true, theme: 'dark', bodyWeight: null, height: null, age: null, gender: '' }
-            },
-            
-            init: async () => {
-                await app.db.connect();
-                await app.loadData();
-                app.ui.applyTheme();
-                app.router.go('dashboard');
-                app.handlers.requestNotificationPermission();
-            },
-
-            loadData: async () => {
-                app.state.workouts = await app.db.getAll('workouts');
-                app.state.history = await app.db.getAll('history');
-                const savedSettings = await app.db.getAll('settings');
-                if (savedSettings.length > 0) {
-                    savedSettings.forEach(s => app.state.settings[s.key] = s.value);
-                }
-            },
-			
-			calculateCalories: (session) => {
-    // MET values for resistance training (source: Compendium of Physical Activities)
-    // Light: 3.5, Moderate: 5.0, Vigorous: 6.0, Very Vigorous: 8.0
-    const baseMET = 5.0; // Moderate intensity resistance training
-    
-    const settings = app.state.settings;
-    const bodyWeight = parseFloat(settings.bodyWeight);
-    
-    if (!bodyWeight || isNaN(bodyWeight)) {
-        return 0; // Cannot calculate without body weight
-    }
-    
-    // Calculate workout duration in hours
-    const durationMinutes = (Date.now() - session.startTime) / 1000 / 60;
-    const durationHours = durationMinutes / 60;
-    
-    // Calculate intensity multiplier based on volume
-    // Higher volume = higher intensity
-    let totalVolume = 0;
-    let totalReps = 0;
-    
-    session.logs.forEach(l => {
-        const weight = parseFloat(l.weight) || 0;
-        const reps = parseFloat(l.reps) || 0;
-        const multiplier = l.multiplier || 1;
-        totalVolume += weight * reps * multiplier;
-        totalReps += reps;
-    });
-    
-    // Adjust MET based on intensity
-    // If average weight per rep is high relative to body weight, increase MET
-    const avgWeightPerRep = totalReps > 0 ? totalVolume / totalReps : 0;
-    const intensityRatio = avgWeightPerRep / bodyWeight;
-    
-    let adjustedMET = baseMET;
-    if (intensityRatio > 1.5) {
-        adjustedMET = 8.0; // Very vigorous
-    } else if (intensityRatio > 1.0) {
-        adjustedMET = 6.5; // Vigorous
-    } else if (intensityRatio > 0.5) {
-        adjustedMET = 5.5; // Moderate-vigorous
-    }
-    
-    // Formula: Calories = MET × body weight (kg) × duration (hours)
-    const calories = adjustedMET * bodyWeight * durationHours;
-    
-    return Math.round(calories);
-},
-
-            router: {
-                go: (viewId) => {
-                    // Hide bottom nav if active workout
-                    document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'flex';
-                    
-                    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-                    document.getElementById(`view-${viewId}`).classList.add('active');
-                    
-                    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-primary'));
-                    if(viewId !== 'editor' && viewId !== 'active') {
-                        // Highlight nav
-                        const navIndices = {'dashboard': 0, 'stats': 1, 'settings': 2};
-                        document.querySelectorAll('.nav-btn')[navIndices[viewId]]?.classList.add('text-primary');
-                    }
-
-                    app.state.currentView = viewId;
-                    if (viewId === 'dashboard') app.ui.renderDashboard();
-                    if (viewId === 'stats') app.ui.renderStats();
-                }
-            },
-
-            ui: {
-                applyTheme: () => {
-                    const isDark = app.state.settings.theme === 'dark';
-                    document.documentElement.classList.toggle('dark', isDark);
-                },
-                
-                renderDashboard: () => {
-                    const list = document.getElementById('workout-list');
-                    list.innerHTML = '';
-                    
-                    // Monthly stats calculation
-                    const now = new Date();
-                    const thisMonthHistory = app.state.history.filter(h => {
-                        const d = new Date(h.date);
-                        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                    });
-                    
-                   let totalVol = 0;
-					thisMonthHistory.forEach(h => {
-						const vol = parseFloat(h.totalVolume);
-						if (!isNaN(vol)) totalVol += vol;
-					});
-                    
-                    document.getElementById('monthly-workouts-count').innerText = thisMonthHistory.length;
-                    document.getElementById('monthly-volume').innerText = Math.round(totalVol).toLocaleString();
-
-                    // Render Workouts
-                    if (app.state.workouts.length === 0) {
-                        list.innerHTML = `<div class="text-center p-8 bg-white dark:bg-darkCard rounded-xl shadow-sm">
-                            <i class="fa-solid fa-person-running text-4xl text-gray-300 mb-3"></i>
-                            <p class="text-gray-500">Nessun workout creato.<br>Inizia creandone uno!</p>
-                        </div>`;
-                        return;
-                    }
-
-                    app.state.workouts.forEach(w => {
-                        const el = document.createElement('div');
-                        el.className = 'bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
-                        el.innerHTML = `
-                            <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
-                                <h4 class="font-bold text-lg">${w.name}</h4>
-                                <p class="text-xs text-gray-500">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
-                            </div>
-                            <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
-                                <i class="fa-solid fa-play ml-1"></i>
-                            </button>
-                        `;
-                        list.appendChild(el);
-                    });
-                },
-
-                renderEditorExercises: () => {
-                    const container = document.getElementById('editor-exercises-list');
-                    container.innerHTML = '';
-                    app.state.editingWorkout.exercises.forEach((ex, idx) => {
-                        const el = document.createElement('div');
-                        el.className = 'bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
-                        el.innerHTML = `
-                            <div class="flex items-center gap-3 flex-1">
-                                <i class="fa-solid fa-grip-lines text-gray-400 cursor-move"></i>
-                                <div>
-                                    <div class="font-bold">${ex.name}</div>
-                                    <div class="text-xs text-gray-500">${ex.sets} x ${ex.reps} • ${ex.rest}s riposo${ex.isDouble ? ' • 2x manubri' : ''}</div>
-                                </div>
-                            </div>
-                            <button onclick="app.handlers.removeExercise(${idx})" class="text-red-400 p-2"><i class="fa-solid fa-times"></i></button>
-                        `;
-                        container.appendChild(el);
-                    });
-                    
-                    // Init Sortable
-                    if (app.sortable) app.sortable.destroy();
-                    app.sortable = new Sortable(container, {
-                        animation: 150,
-                        handle: '.fa-grip-lines',
-                        ghostClass: 'sortable-ghost',
-                        onEnd: (evt) => {
-                            // Reorder logic
-                            const item = app.state.editingWorkout.exercises.splice(evt.oldIndex, 1)[0];
-                            app.state.editingWorkout.exercises.splice(evt.newIndex, 0, item);
-                        }
-                    });
-                },
-
-                updateActiveView: () => {
-                    const session = app.state.activeSession;
-                    if(!session) return;
-                    
-                    const ex = session.workout.exercises[session.currentExIdx];
-                    
-                    // Texts
-                    document.getElementById('active-workout-name').innerText = session.workout.name;
-                    document.getElementById('active-exercise-name').innerText = ex.name;
-                    document.getElementById('active-set-display').innerText = `Serie ${session.currentSet + 1} / ${ex.sets}`;
-                    document.getElementById('active-target-display').innerText = `${ex.reps} Reps`;
-                    document.getElementById('active-weight-value').innerText = ex.lastWeight || 0;
-                    
-					// Progress Bar
-// Progress Bar
-const totalExercises = session.workout.exercises.length;
-const currentExercise = session.currentExIdx + 1;
-document.getElementById('active-exercise-count').innerText = `${currentExercise}/${totalExercises} es.`;
-
-const totalSets = session.workout.exercises.reduce((acc, e) => acc + parseInt(e.sets), 0);
-const completedSets = session.workout.exercises.slice(0, session.currentExIdx).reduce((acc,e) => acc + parseInt(e.sets), 0) + session.currentSet;
-const pct = (completedSets / totalSets) * 100;
-document.getElementById('active-progress-bar').style.width = `${pct}%`;
-
-// Previous and Next Exercise Display
-const prevEl = document.getElementById('prev-exercise');
-const nextEl = document.getElementById('next-exercise');
-
-if (session.currentExIdx > 0) {
-    const prevEx = session.workout.exercises[session.currentExIdx - 1];
-    prevEl.innerHTML = `<i class="fa-solid fa-check text-green-500 mr-1"></i><span>${prevEx.name}</span>`;
-} else {
-    prevEl.innerHTML = `<i class="fa-solid fa-check text-gray-700 mr-1"></i><span>Inizio</span>`;
-}
-
-if (session.currentExIdx < session.workout.exercises.length - 1) {
-    const nextEx = session.workout.exercises[session.currentExIdx + 1];
-    nextEl.innerHTML = `<span>${nextEx.name}</span><i class="fa-solid fa-arrow-right ml-1"></i>`;
-} else {
-    nextEl.innerHTML = `<span>Fine!</span><i class="fa-solid fa-flag-checkered ml-1"></i>`;
-}
-
-                    // Button State
-                    const btn = document.getElementById('btn-main-action');
-                    const restOverlay = document.getElementById('rest-overlay');
-                    
-                    if (session.status === 'rest') {
-                        btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa</span>`;
-                        btn.classList.replace('bg-primary', 'bg-gray-600');
-                        btn.onclick = app.handlers.skipRest;
-                        restOverlay.classList.remove('hidden');
-                        restOverlay.classList.add('flex');
-                    } else {
-                        btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
-                        btn.classList.replace('bg-gray-600', 'bg-primary');
-                        btn.onclick = app.handlers.completeSet;
-                        restOverlay.classList.add('hidden');
-                        restOverlay.classList.remove('flex');
-                    }
-                },
-                
-                renderStats: () => {
-                    // Logic to build Chart.js
-                    const history = app.state.history;
-                    const ctxVol = document.getElementById('chart-volume').getContext('2d');
-                    const ctxCon = document.getElementById('chart-consistency').getContext('2d');
-
-                    if(window.chartVol) window.chartVol.destroy();
-                    if(window.chartCon) window.chartCon.destroy();
-
-                    // Data Prep
-                    // Volume Last 7 Workouts
-                    const lastLogs = history.slice(-7);
-                    window.chartVol = new Chart(ctxVol, {
-                        type: 'bar',
-                        data: {
-                            labels: lastLogs.map(l => new Date(l.date).toLocaleDateString(undefined, {weekday:'short'})),
-                            datasets: [{ label: 'Volume (kg)', data: lastLogs.map(l => l.totalVolume), backgroundColor: '#10b981', borderRadius: 4 }]
-                        },
-                        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
-                    });
-
-                    // Consistency (Last 12 months count)
-                    // Simplified: Just workouts per month
-                    const monthCounts = {};
-                    history.forEach(h => {
-                        const k = new Date(h.date).toLocaleDateString(undefined, {month:'short'});
-                        monthCounts[k] = (monthCounts[k] || 0) + 1;
-                    });
-                    
-                    window.chartCon = new Chart(ctxCon, {
-                        type: 'line',
-                        data: {
-                            labels: Object.keys(monthCounts),
-                            datasets: [{ label: 'Sessioni', data: Object.values(monthCounts), borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)' }]
-                        },
-                        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: {stepSize: 1} } } }
-                    });
-					
-					// Calories Chart
-const ctxCal = document.getElementById('chart-calories').getContext('2d');
-if(window.chartCal) window.chartCal.destroy();
-
-const logsWithCalories = lastLogs.filter(l => l.caloriesBurned);
-if (logsWithCalories.length > 0) {
-    window.chartCal = new Chart(ctxCal, {
-        type: 'line',
-        data: {
-            labels: logsWithCalories.map(l => new Date(l.date).toLocaleDateString(undefined, {weekday:'short'})),
-            datasets: [{ 
-                label: 'Calorie', 
-                data: logsWithCalories.map(l => l.caloriesBurned), 
-                borderColor: '#f97316', 
-                backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                tension: 0.4, 
-                fill: true 
-            }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-    });
-} else {
-    // Show message if no calorie data
-    ctxCal.canvas.parentElement.innerHTML = '<p class="text-gray-400 text-center py-8 text-sm">Imposta i dati personali per vedere le calorie</p>';
-}
-
-                    // List
-                    const list = document.getElementById('history-list');
-list.innerHTML = history.slice().reverse().slice(0, 10).map(h => `
-    <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-2">
-        <div class="flex-1">
-            <div class="font-bold">${h.workoutName}</div>
-            <div class="text-xs text-gray-400">${new Date(h.date).toLocaleString()}</div>
-        </div>
-        <div class="text-right">
-            <div class="font-mono font-bold text-primary">${Math.round(h.totalVolume)}kg</div>
-            ${h.caloriesBurned ? `<div class="text-xs text-orange-500">🔥 ${h.caloriesBurned} kcal</div>` : ''}
-        </div>
-    </div>
-`).join('');
-                }
-            },
-
-            handlers: {
-                // Editor Handlers
-                createNewWorkout: () => {
-                    app.state.editingWorkout = {
-                        id: 'w_' + Date.now(),
-                        name: '',
-                        exercises: []
-                    };
-                    document.getElementById('editor-name').value = '';
-                    document.getElementById('btn-delete-workout').classList.add('hidden');
-                    app.ui.renderEditorExercises();
-                    app.router.go('editor');
-                },
-
-                openWorkoutEditor: (id) => {
-                    const w = app.state.workouts.find(w => w.id === id);
-                    // Clone to avoid ref issues
-                    app.state.editingWorkout = JSON.parse(JSON.stringify(w));
-                    document.getElementById('editor-name').value = w.name;
-                    document.getElementById('btn-delete-workout').classList.remove('hidden');
-                    app.ui.renderEditorExercises();
-                    app.router.go('editor');
-                },
-
-                addExerciseToEditor: () => {
-                    document.getElementById('exercise-modal').classList.remove('hidden');
-                    document.getElementById('modal-ex-name').focus();
-                },
-
-                confirmAddExercise: () => {
-                    const name = document.getElementById('modal-ex-name').value;
-                    if(!name) return;
-                    
-app.state.editingWorkout.exercises.push({
-    name,
-    sets: document.getElementById('modal-ex-sets').value,
-    reps: document.getElementById('modal-ex-reps').value,
-    rest: document.getElementById('modal-ex-rest').value,
-    lastWeight: document.getElementById('modal-ex-weight').value,
-    isDouble: document.getElementById('modal-ex-double').checked
-});
-                    
-                    document.getElementById('exercise-modal').classList.add('hidden');
-                    // Reset modal fields
-                    document.getElementById('modal-ex-name').value = '';
-					document.getElementById('modal-ex-double').checked = false;
-                    
-                    app.ui.renderEditorExercises();
-                },
-
-                removeExercise: (idx) => {
-                    if(confirm('Rimuovere esercizio?')) {
-                        app.state.editingWorkout.exercises.splice(idx, 1);
-                        app.ui.renderEditorExercises();
-                    }
-                },
-
-                saveWorkout: async () => {
-                    const name = document.getElementById('editor-name').value || 'Workout Senza Nome';
-                    app.state.editingWorkout.name = name;
-                    
-                    // Save to DB
-                    await app.db.put('workouts', app.state.editingWorkout);
-                    
-                    // Update Local State
-                    await app.loadData();
-                    app.router.go('dashboard');
-                },
-
-                deleteWorkout: async () => {
-                    if(confirm('Sei sicuro di voler cancellare questo workout?')) {
-                        await app.db.delete('workouts', app.state.editingWorkout.id);
-                        await app.loadData();
-                        app.router.go('dashboard');
-                    }
-                },
-
-                // Execution Handlers
-                startWorkout: (id) => {
-                    const w = app.state.workouts.find(w => w.id === id);
-                    app.state.activeSession = {
-                        workout: JSON.parse(JSON.stringify(w)), // Clone
-                        currentExIdx: 0,
-                        currentSet: 0,
-                        status: 'work',
-                        startTime: Date.now(),
-                        logs: [] // Track actual reps/weight
-                    };
-                    app.router.go('active');
-                    app.ui.updateActiveView();
-                    app.handlers.startTotalTimer();
-                },
-
-                adjustWeight: (delta) => {
-					const session = app.state.activeSession;
-					const ex = session.workout.exercises[session.currentExIdx];
-					let w = parseFloat(ex.lastWeight);
-					if (isNaN(w)) w = 0;
-					w += delta;
-					if(w < 0) w = 0;
-					ex.lastWeight = w;
-					app.ui.updateActiveView();
-				},
-
-                completeSet: () => {
-                    const session = app.state.activeSession;
-                    const ex = session.workout.exercises[session.currentExIdx];
-                    
-                    // Log the set
-					const weight = parseFloat(ex.lastWeight);
-					const reps = parseFloat(ex.reps);
-					const multiplier = ex.isDouble ? 2 : 1;
-					session.logs.push({
-						exercise: ex.name,
-						weight: isNaN(weight) ? 0 : weight,
-						reps: isNaN(reps) ? 0 : reps,
-						multiplier: multiplier
-					});
-
-                    // Persist new weight to main DB so next time it's updated
-                    // We do this by updating the base workout object
-                    const baseWorkout = app.state.workouts.find(w => w.id === session.workout.id);
-                    if(baseWorkout) {
-                        baseWorkout.exercises[session.currentExIdx].lastWeight = ex.lastWeight;
-                        app.db.put('workouts', baseWorkout);
-                    }
-
-                    // Check if exercise finished
-                    if (session.currentSet < ex.sets - 1) {
-                        // Start Rest
-                        app.handlers.startRest(ex.rest);
-                    } else {
-                        // Exercise Finished
-                        if (session.currentExIdx < session.workout.exercises.length - 1) {
-                            // Move to next exercise (with rest)
-                            app.handlers.startRest(ex.rest, true);
-                        } else {
-                            // Workout Finished
-                            app.handlers.finishWorkout();
-                        }
-                    }
-                },
-
-                startRest: (seconds, isNextExercise = false) => {
-                    const session = app.state.activeSession;
-                    session.status = 'rest';
-                    app.ui.updateActiveView();
-                    
-                    let timeLeft = parseInt(seconds);
-                    const timerEl = document.getElementById('rest-timer-text');
-                    const circle = document.getElementById('rest-timer-circle');
-                    
-                    // 452 is circumference of r=88 circle
-                    const maxOffset = 452;
-                    circle.style.strokeDasharray = maxOffset;
-                    
-                    app.restInterval = setInterval(() => {
-                        timeLeft--;
-                        const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-                        const secs = (timeLeft % 60).toString().padStart(2, '0');
-                        timerEl.innerText = `${mins}:${secs}`;
-                        
-                        const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
-                        circle.style.strokeDashoffset = offset;
-
-                        if (timeLeft <= 0) {
-                            clearInterval(app.restInterval);
-                            app.handlers.notify();
-                            app.handlers.skipRest(null, isNextExercise);
-                        }
-                    }, 1000);
-                },
-
-                skipRest: (_, isNextExercise = false) => {
-                    if (app.restInterval) clearInterval(app.restInterval);
-                    const session = app.state.activeSession;
-                    
-                    // Advance Logic
-                    const ex = session.workout.exercises[session.currentExIdx];
-                    
-                    // If we were resting after a set...
-                    if(session.currentSet < ex.sets - 1) {
-                        session.currentSet++;
-                    } else {
-                        // We were resting between exercises
-                        session.currentExIdx++;
-                        session.currentSet = 0;
-                    }
-                    
-                    session.status = 'work';
-                    app.ui.updateActiveView();
-                },
-
-                skipExercise: () => {
-                    const session = app.state.activeSession;
-                    if (session.currentExIdx < session.workout.exercises.length - 1) {
-                        session.currentExIdx++;
-                        session.currentSet = 0;
-                        session.status = 'work';
-                        if (app.restInterval) clearInterval(app.restInterval);
-                        app.ui.updateActiveView();
-                    } else {
-                        app.handlers.finishWorkout();
-                    }
-                },
-
-                finishWorkoutEarly: () => {
-                    if(confirm("Terminare l'allenamento ora?")) {
-                        app.handlers.finishWorkout();
-                    }
-                },
-
-                confirmExitWorkout: () => {
-                    if(confirm("Vuoi uscire senza salvare?")) {
-                        if (app.restInterval) clearInterval(app.restInterval);
-                        if (app.totalTimerInt) clearInterval(app.totalTimerInt);
-                        app.router.go('dashboard');
-                    }
-                },
-
-                finishWorkout: async () => {
-                    if (app.restInterval) clearInterval(app.restInterval);
-                    if (app.totalTimerInt) clearInterval(app.totalTimerInt);
-                    
-                    document.getElementById('audio-complete').play().catch(e=>{});
-                    if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-
-                    const session = app.state.activeSession;
-                    
-                    // Calc Stats
-const volume = session.logs.reduce((acc, l) => {
-    const weight = parseFloat(l.weight);
-    const reps = parseFloat(l.reps);
-    const multiplier = l.multiplier || 1;
-    if (!isNaN(weight) && !isNaN(reps)) {
-        return acc + (weight * reps * multiplier);
-    }
-    return acc;
-}, 0);
-const duration = Math.round((Date.now() - session.startTime) / 1000 / 60);
-const calories = app.calculateCalories(session);
-
-const historyItem = {
-    id: 'h_' + Date.now(),
-    workoutId: session.workout.id,
-    workoutName: session.workout.name,
-    date: new Date().toISOString(),
-    totalVolume: volume,
-    durationMinutes: duration,
-    caloriesBurned: calories,
-    logs: session.logs
-};
-
-                    await app.db.put('history', historyItem);
-                    await app.loadData(); // Reload history for dashboard
-                    
-                    const statsMsg = calories > 0 
-    ? `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n• Calorie: ~${calories} kcal`
-    : `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n\n💡 Imposta peso corporeo nelle impostazioni per vedere le calorie bruciate!`;
-alert(statsMsg);
-                    app.router.go('dashboard');
-                },
-
-                startTotalTimer: () => {
-                    const start = Date.now();
-                    const el = document.getElementById('active-timer-total');
-                    app.totalTimerInt = setInterval(() => {
-                        const diff = Math.floor((Date.now() - start) / 1000);
-                        const m = Math.floor(diff / 60).toString().padStart(2, '0');
-                        const s = (diff % 60).toString().padStart(2, '0');
-                        el.innerText = `${m}:${s}`;
-                    }, 1000);
-                },
-
-                // Notifications & Sounds
-                requestNotificationPermission: () => {
-                    if ("Notification" in window && Notification.permission !== "granted") {
-                        Notification.requestPermission();
-                    }
-                },
-
-                notify: () => {
-                    // Sound
-                    if(app.state.settings.sound) {
-                        document.getElementById('audio-beep').play().catch(e=>{});
-                    }
-                    // Vibrate
-                    if(app.state.settings.vibrate && navigator.vibrate) {
-                        navigator.vibrate([500]);
-                    }
-                    // Web Notification
-                    if ("Notification" in window && Notification.permission === "granted") {
-                        new Notification("Riposo Terminato!", { body: "Inizia la prossima serie." });
-                    }
-                },
-                
-                toggleSound: () => {
-                    app.state.settings.sound = !app.state.settings.sound;
-                    const icon = document.getElementById('sound-toggle').querySelector('i');
-                    icon.className = app.state.settings.sound ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
-                },
-
-                // Settings Handlers
-                resetAllData: async () => {
-                    const confirmTxt = prompt("Scrivi 'DELETE' per cancellare tutti i dati permanentemente.");
-                    if (confirmTxt === 'DELETE') {
-                        await app.db.clearAll();
-                        location.reload();
-                    }
-                },
-                
-                exportData: async () => {
-                    const data = {
-                        workouts: app.state.workouts,
-                        history: app.state.history,
-                        settings: app.state.settings
-                    };
-                    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `fit_tracker_backup_${new Date().toISOString().slice(0,10)}.json`;
-                    a.click();
-                },
-
-                importData: (input) => {
-                    const file = input.files[0];
-                    if(!file) return;
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        try {
-                            const data = JSON.parse(e.target.result);
-                            if(data.workouts) {
-                                for (const w of data.workouts) await app.db.put('workouts', w);
-                            }
-                            if(data.history) {
-                                for (const h of data.history) await app.db.put('history', h);
-                            }
-                            alert("Importazione completata!");
-                            location.reload();
-                        } catch(err) {
-                            alert("Errore nel file JSON.");
-                        }
-                    };
-                    reader.readAsText(file);
-                }
-            }
-        };
-
-        // Dark Mode Logic
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            app.state.settings.theme = app.state.settings.theme === 'dark' ? 'light' : 'dark';
-            app.db.put('settings', { key: 'theme', value: app.state.settings.theme });
-            app.ui.applyTheme();
-        });
-		
-		// Personal Settings Listeners
-['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender'].forEach(id => {
-    const el = document.getElementById(id);
-    const key = id.replace('setting-', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-    
-    // Load saved value
-    if (app.state.settings[key]) {
-        el.value = app.state.settings[key];
-    }
-    
-    // Save on change
-    el.addEventListener('change', () => {
-        app.state.settings[key] = el.value;
-        app.db.put('settings', { key: key, value: el.value });
-    });
-});
-
-        // Init App
-        window.addEventListener('DOMContentLoaded', app.init);
-
-    </script>
-</body>
+         </div>
+      </div>
+      <!-- AUDIO ELEMENTS -->
+      <audio id="audio-beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+      <audio id="audio-complete" src="https://actions.google.com/sounds/v1/cartoon/clank_car_crash.ogg" preload="auto"></audio>
+      <!-- LOGIC SCRIPT -->
+      <script>
+         /**
+          * INDEXED DB WRAPPER
+          * Helper class for raw IndexedDB operations to ensure data persistence without libraries.
+          */
+         class DB {
+             constructor() {
+                 this.dbName = 'FitTrackerDB';
+                 this.version = 1;
+                 this.db = null;
+             }
+         
+             async connect() {
+                 return new Promise((resolve, reject) => {
+                     const request = indexedDB.open(this.dbName, this.version);
+                     request.onupgradeneeded = (e) => {
+                         const db = e.target.result;
+                         if (!db.objectStoreNames.contains('workouts')) db.createObjectStore('workouts', { keyPath: 'id' });
+                         if (!db.objectStoreNames.contains('history')) db.createObjectStore('history', { keyPath: 'id' });
+                         if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'key' });
+                     };
+                     request.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
+                     request.onerror = (e) => reject(e);
+                 });
+             }
+         
+             async getAll(storeName) {
+                 if(!this.db) await this.connect();
+                 return new Promise((resolve) => {
+                     const tx = this.db.transaction(storeName, 'readonly');
+                     const store = tx.objectStore(storeName);
+                     const request = store.getAll();
+                     request.onsuccess = () => resolve(request.result);
+                 });
+             }
+         
+             async put(storeName, item) {
+                 if(!this.db) await this.connect();
+                 return new Promise((resolve, reject) => {
+                     const tx = this.db.transaction(storeName, 'readwrite');
+                     const store = tx.objectStore(storeName);
+                     const request = store.put(item);
+                     request.onsuccess = () => resolve(request.result);
+                     request.onerror = () => reject("Put error");
+                 });
+             }
+         
+             async delete(storeName, key) {
+                 if(!this.db) await this.connect();
+                 return new Promise((resolve) => {
+                     const tx = this.db.transaction(storeName, 'readwrite');
+                     tx.objectStore(storeName).delete(key);
+                     tx.oncomplete = () => resolve();
+                 });
+             }
+         
+             async clearAll() {
+                 if(!this.db) await this.connect();
+                 const stores = ['workouts', 'history', 'settings'];
+                 stores.forEach(name => {
+                     const tx = this.db.transaction(name, 'readwrite');
+                     tx.objectStore(name).clear();
+                 });
+             }
+         }
+         
+         /**
+          * APP LOGIC
+          */
+         const app = {
+             db: new DB(),
+             state: {
+                 currentView: 'dashboard',
+                 workouts: [],
+                 history: [],
+                 editingWorkout: null,
+                 activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
+                 settings: { unit: 'kg', sound: true, vibrate: true, theme: 'dark', bodyWeight: null, height: null, age: null, gender: '' }
+             },
+             
+             init: async () => {
+                 await app.db.connect();
+                 await app.loadData();
+                 app.ui.applyTheme();
+                 app.router.go('dashboard');
+                 app.handlers.requestNotificationPermission();
+             },
+         
+             loadData: async () => {
+                 app.state.workouts = await app.db.getAll('workouts');
+                 app.state.history = await app.db.getAll('history');
+                 const savedSettings = await app.db.getAll('settings');
+                 if (savedSettings.length > 0) {
+                     savedSettings.forEach(s => app.state.settings[s.key] = s.value);
+                 }
+             },
+         
+         calculateCalories: (session) => {
+         // MET values for resistance training (source: Compendium of Physical Activities)
+         // Light: 3.5, Moderate: 5.0, Vigorous: 6.0, Very Vigorous: 8.0
+         const baseMET = 5.0; // Moderate intensity resistance training
+         
+         const settings = app.state.settings;
+         const bodyWeight = parseFloat(settings.bodyWeight);
+         
+         if (!bodyWeight || isNaN(bodyWeight)) {
+         return 0; // Cannot calculate without body weight
+         }
+         
+         console.log('Calculating calories with:', { bodyWeight, settings });
+         
+         // Calculate workout duration in hours
+         const durationMinutes = (Date.now() - session.startTime) / 1000 / 60;
+         const durationHours = durationMinutes / 60;
+         
+         // Calculate intensity multiplier based on volume
+         // Higher volume = higher intensity
+         let totalVolume = 0;
+         let totalReps = 0;
+         
+         session.logs.forEach(l => {
+         const weight = parseFloat(l.weight) || 0;
+         const reps = parseFloat(l.reps) || 0;
+         const multiplier = l.multiplier || 1;
+         totalVolume += weight * reps * multiplier;
+         totalReps += reps;
+         });
+         
+         // Adjust MET based on intensity
+         // If average weight per rep is high relative to body weight, increase MET
+         const avgWeightPerRep = totalReps > 0 ? totalVolume / totalReps : 0;
+         const intensityRatio = avgWeightPerRep / bodyWeight;
+         
+         let adjustedMET = baseMET;
+         if (intensityRatio > 1.5) {
+         adjustedMET = 8.0; // Very vigorous
+         } else if (intensityRatio > 1.0) {
+         adjustedMET = 6.5; // Vigorous
+         } else if (intensityRatio > 0.5) {
+         adjustedMET = 5.5; // Moderate-vigorous
+         }
+         
+         // Formula: Calories = MET × body weight (kg) × duration (hours)
+         const calories = adjustedMET * bodyWeight * durationHours;
+         
+         console.log('Calories calculation:', {
+         adjustedMET,
+         bodyWeight,
+         durationHours,
+         durationMinutes,
+         totalVolume,
+         totalReps,
+         calories
+         });
+         
+         return Math.round(calories);
+         },
+         
+             router: {
+                 go: (viewId) => {
+                     // Hide bottom nav if active workout
+                     document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'flex';
+                     
+                     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+                     document.getElementById(`view-${viewId}`).classList.add('active');
+                     
+                     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-primary'));
+                     if(viewId !== 'editor' && viewId !== 'active') {
+                         // Highlight nav
+                         const navIndices = {'dashboard': 0, 'stats': 1, 'settings': 2};
+                         document.querySelectorAll('.nav-btn')[navIndices[viewId]]?.classList.add('text-primary');
+                     }
+         
+                     app.state.currentView = viewId;
+                     if (viewId === 'dashboard') app.ui.renderDashboard();
+                     if (viewId === 'stats') app.ui.renderStats();
+                 }
+             },
+         
+             ui: {
+                 applyTheme: () => {
+                     const isDark = app.state.settings.theme === 'dark';
+                     document.documentElement.classList.toggle('dark', isDark);
+                 },
+                 
+                 renderDashboard: () => {
+                     const list = document.getElementById('workout-list');
+                     list.innerHTML = '';
+                     
+                     // Monthly stats calculation
+                     const now = new Date();
+                     const thisMonthHistory = app.state.history.filter(h => {
+                         const d = new Date(h.date);
+                         return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                     });
+                     
+                    let totalVol = 0;
+         thisMonthHistory.forEach(h => {
+         const vol = parseFloat(h.totalVolume);
+         if (!isNaN(vol)) totalVol += vol;
+         });
+                     
+                     document.getElementById('monthly-workouts-count').innerText = thisMonthHistory.length;
+                     document.getElementById('monthly-volume').innerText = Math.round(totalVol).toLocaleString();
+         
+                     // Render Workouts
+                     if (app.state.workouts.length === 0) {
+                         list.innerHTML = `<div class="text-center p-8 bg-white dark:bg-darkCard rounded-xl shadow-sm">
+                             <i class="fa-solid fa-person-running text-4xl text-gray-300 mb-3"></i>
+                             <p class="text-gray-500">Nessun workout creato.<br>Inizia creandone uno!</p>
+                         </div>`;
+                         return;
+                     }
+         
+                     app.state.workouts.forEach(w => {
+                         const el = document.createElement('div');
+                         el.className = 'bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
+                         el.innerHTML = `
+                             <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
+                                 <h4 class="font-bold text-lg">${w.name}</h4>
+                                 <p class="text-xs text-gray-500">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
+                             </div>
+                             <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
+                                 <i class="fa-solid fa-play ml-1"></i>
+                             </button>
+                         `;
+                         list.appendChild(el);
+                     });
+                 },
+         
+                 renderEditorExercises: () => {
+                     const container = document.getElementById('editor-exercises-list');
+                     container.innerHTML = '';
+                     app.state.editingWorkout.exercises.forEach((ex, idx) => {
+                         const el = document.createElement('div');
+                         el.className = 'bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
+                         el.innerHTML = `
+                             <div class="flex items-center gap-3 flex-1">
+                                 <i class="fa-solid fa-grip-lines text-gray-400 cursor-move"></i>
+                                 <div>
+                                     <div class="font-bold">${ex.name}</div>
+                                     <div class="text-xs text-gray-500">${ex.sets} x ${ex.reps} • ${ex.rest}s riposo${ex.isDouble ? ' • 2x manubri' : ''}</div>
+                                 </div>
+                             </div>
+                             <button onclick="app.handlers.removeExercise(${idx})" class="text-red-400 p-2"><i class="fa-solid fa-times"></i></button>
+                         `;
+                         container.appendChild(el);
+                     });
+                     
+                     // Init Sortable
+                     if (app.sortable) app.sortable.destroy();
+                     app.sortable = new Sortable(container, {
+                         animation: 150,
+                         handle: '.fa-grip-lines',
+                         ghostClass: 'sortable-ghost',
+                         onEnd: (evt) => {
+                             // Reorder logic
+                             const item = app.state.editingWorkout.exercises.splice(evt.oldIndex, 1)[0];
+                             app.state.editingWorkout.exercises.splice(evt.newIndex, 0, item);
+                         }
+                     });
+                 },
+         
+                 updateActiveView: () => {
+                     const session = app.state.activeSession;
+                     if(!session) return;
+                     
+                     const ex = session.workout.exercises[session.currentExIdx];
+                     
+                     // Texts
+                     document.getElementById('active-workout-name').innerText = session.workout.name;
+                     document.getElementById('active-exercise-name').innerText = ex.name;
+                     document.getElementById('active-set-display').innerText = `Serie ${session.currentSet + 1} / ${ex.sets}`;
+                     document.getElementById('active-target-display').innerText = `${ex.reps} Reps`;
+                     document.getElementById('active-weight-value').innerText = ex.lastWeight || 0;
+                     
+         // Progress Bar
+         // Progress Bar
+         const totalExercises = session.workout.exercises.length;
+         const currentExercise = session.currentExIdx + 1;
+         document.getElementById('active-exercise-count').innerText = `${currentExercise}/${totalExercises} es.`;
+         
+         const totalSets = session.workout.exercises.reduce((acc, e) => acc + parseInt(e.sets), 0);
+         const completedSets = session.workout.exercises.slice(0, session.currentExIdx).reduce((acc,e) => acc + parseInt(e.sets), 0) + session.currentSet;
+         const pct = (completedSets / totalSets) * 100;
+         document.getElementById('active-progress-bar').style.width = `${pct}%`;
+         
+         // Previous and Next Exercise Display
+         const prevEl = document.getElementById('prev-exercise');
+         const nextEl = document.getElementById('next-exercise');
+         
+         if (session.currentExIdx > 0) {
+         const prevEx = session.workout.exercises[session.currentExIdx - 1];
+         prevEl.innerHTML = `<i class="fa-solid fa-check text-green-500 mr-1"></i><span>${prevEx.name}</span>`;
+         } else {
+         prevEl.innerHTML = `<i class="fa-solid fa-check text-gray-700 mr-1"></i><span>Inizio</span>`;
+         }
+         
+         if (session.currentExIdx < session.workout.exercises.length - 1) {
+         const nextEx = session.workout.exercises[session.currentExIdx + 1];
+         nextEl.innerHTML = `<span>${nextEx.name}</span><i class="fa-solid fa-arrow-right ml-1"></i>`;
+         } else {
+         nextEl.innerHTML = `<span>Fine!</span><i class="fa-solid fa-flag-checkered ml-1"></i>`;
+         }
+         
+                     // Button State
+                     const btn = document.getElementById('btn-main-action');
+                     const restOverlay = document.getElementById('rest-overlay');
+                     
+                     if (session.status === 'rest') {
+                         btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa</span>`;
+                         btn.classList.replace('bg-primary', 'bg-gray-600');
+                         btn.onclick = app.handlers.skipRest;
+                         restOverlay.classList.remove('hidden');
+                         restOverlay.classList.add('flex');
+                     } else {
+                         btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
+                         btn.classList.replace('bg-gray-600', 'bg-primary');
+                         btn.onclick = app.handlers.completeSet;
+                         restOverlay.classList.add('hidden');
+                         restOverlay.classList.remove('flex');
+                     }
+                 },
+                 
+                 renderStats: () => {
+                     // Logic to build Chart.js
+                     const history = app.state.history;
+                     const ctxVol = document.getElementById('chart-volume').getContext('2d');
+                     const ctxCon = document.getElementById('chart-consistency').getContext('2d');
+         
+                     if(window.chartVol) window.chartVol.destroy();
+                     if(window.chartCon) window.chartCon.destroy();
+         
+                     // Data Prep
+                     // Volume Last 7 Workouts
+                     const lastLogs = history.slice(-7);
+                     window.chartVol = new Chart(ctxVol, {
+                         type: 'bar',
+                         data: {
+                             labels: lastLogs.map(l => new Date(l.date).toLocaleDateString(undefined, {weekday:'short'})),
+                             datasets: [{ label: 'Volume (kg)', data: lastLogs.map(l => l.totalVolume), backgroundColor: '#10b981', borderRadius: 4 }]
+                         },
+                         options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
+                     });
+         
+                     // Consistency (Last 12 months count)
+                     // Simplified: Just workouts per month
+                     const monthCounts = {};
+                     history.forEach(h => {
+                         const k = new Date(h.date).toLocaleDateString(undefined, {month:'short'});
+                         monthCounts[k] = (monthCounts[k] || 0) + 1;
+                     });
+                     
+                     window.chartCon = new Chart(ctxCon, {
+                         type: 'line',
+                         data: {
+                             labels: Object.keys(monthCounts),
+                             datasets: [{ label: 'Sessioni', data: Object.values(monthCounts), borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)' }]
+                         },
+                         options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: {stepSize: 1} } } }
+                     });
+         
+         // Calories Chart
+         
+         const ctxCal = document.getElementById('chart-calories');
+         if (!ctxCal) return; // Safety check
+         const ctxCalContext = ctxCal.getContext('2d');
+         if(window.chartCal) window.chartCal.destroy();
+         
+         const logsWithCalories = lastLogs.filter(l => l.caloriesBurned && l.caloriesBurned > 0);
+         if (logsWithCalories.length > 0) {
+         window.chartCal = new Chart(ctxCalContext, {
+         type: 'line',
+         data: {
+             labels: logsWithCalories.map(l => new Date(l.date).toLocaleDateString(undefined, {weekday:'short'})),
+             datasets: [{ 
+                 label: 'Calorie', 
+                 data: logsWithCalories.map(l => l.caloriesBurned), 
+                 borderColor: '#f97316', 
+                 backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                 tension: 0.4, 
+                 fill: true 
+             }]
+         },
+         options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+         });
+         } else {
+         // Show message if no calorie data
+         const container = ctxCal.parentElement;
+         container.innerHTML = '<div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm"><h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Calorie Bruciate (kcal)</h3><p class="text-gray-400 text-center py-8 text-sm">💡 Imposta peso corporeo nelle impostazioni per vedere le calorie</p></div>';
+         }
+         
+                     // List
+                     const list = document.getElementById('history-list');
+         list.innerHTML = history.slice().reverse().slice(0, 10).map(h => `
+         <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-2">
+         <div class="flex-1">
+             <div class="font-bold">${h.workoutName}</div>
+             <div class="text-xs text-gray-400">${new Date(h.date).toLocaleString()}</div>
+         </div>
+         <div class="text-right">
+             <div class="font-mono font-bold text-primary">${Math.round(h.totalVolume)}kg</div>
+             ${h.caloriesBurned ? `<div class="text-xs text-orange-500">🔥 ${h.caloriesBurned} kcal</div>` : ''}
+         </div>
+         </div>
+         `).join('');
+                 }
+             },
+         
+             handlers: {
+                 // Editor Handlers
+                 createNewWorkout: () => {
+                     app.state.editingWorkout = {
+                         id: 'w_' + Date.now(),
+                         name: '',
+                         exercises: []
+                     };
+                     document.getElementById('editor-name').value = '';
+                     document.getElementById('btn-delete-workout').classList.add('hidden');
+                     app.ui.renderEditorExercises();
+                     app.router.go('editor');
+                 },
+         
+                 openWorkoutEditor: (id) => {
+                     const w = app.state.workouts.find(w => w.id === id);
+                     // Clone to avoid ref issues
+                     app.state.editingWorkout = JSON.parse(JSON.stringify(w));
+                     document.getElementById('editor-name').value = w.name;
+                     document.getElementById('btn-delete-workout').classList.remove('hidden');
+                     app.ui.renderEditorExercises();
+                     app.router.go('editor');
+                 },
+         
+                 addExerciseToEditor: () => {
+                     document.getElementById('exercise-modal').classList.remove('hidden');
+                     document.getElementById('modal-ex-name').focus();
+                 },
+         
+                 confirmAddExercise: () => {
+                     const name = document.getElementById('modal-ex-name').value;
+                     if(!name) return;
+                     
+         app.state.editingWorkout.exercises.push({
+         name,
+         sets: document.getElementById('modal-ex-sets').value,
+         reps: document.getElementById('modal-ex-reps').value,
+         rest: document.getElementById('modal-ex-rest').value,
+         lastWeight: document.getElementById('modal-ex-weight').value,
+         isDouble: document.getElementById('modal-ex-double').checked
+         });
+                     
+                     document.getElementById('exercise-modal').classList.add('hidden');
+                     // Reset modal fields
+                     document.getElementById('modal-ex-name').value = '';
+         document.getElementById('modal-ex-double').checked = false;
+                     
+                     app.ui.renderEditorExercises();
+                 },
+         
+                 removeExercise: (idx) => {
+                     if(confirm('Rimuovere esercizio?')) {
+                         app.state.editingWorkout.exercises.splice(idx, 1);
+                         app.ui.renderEditorExercises();
+                     }
+                 },
+         
+                 saveWorkout: async () => {
+                     const name = document.getElementById('editor-name').value || 'Workout Senza Nome';
+                     app.state.editingWorkout.name = name;
+                     
+                     // Save to DB
+                     await app.db.put('workouts', app.state.editingWorkout);
+                     
+                     // Update Local State
+                     await app.loadData();
+                     app.router.go('dashboard');
+                 },
+         
+                 deleteWorkout: async () => {
+                     if(confirm('Sei sicuro di voler cancellare questo workout?')) {
+                         await app.db.delete('workouts', app.state.editingWorkout.id);
+                         await app.loadData();
+                         app.router.go('dashboard');
+                     }
+                 },
+         
+                 // Execution Handlers
+                 startWorkout: (id) => {
+                     const w = app.state.workouts.find(w => w.id === id);
+                     app.state.activeSession = {
+                         workout: JSON.parse(JSON.stringify(w)), // Clone
+                         currentExIdx: 0,
+                         currentSet: 0,
+                         status: 'work',
+                         startTime: Date.now(),
+                         logs: [] // Track actual reps/weight
+                     };
+                     app.router.go('active');
+                     app.ui.updateActiveView();
+                     app.handlers.startTotalTimer();
+                 },
+         
+                 adjustWeight: (delta) => {
+         const session = app.state.activeSession;
+         const ex = session.workout.exercises[session.currentExIdx];
+         let w = parseFloat(ex.lastWeight);
+         if (isNaN(w)) w = 0;
+         w += delta;
+         if(w < 0) w = 0;
+         ex.lastWeight = w;
+         app.ui.updateActiveView();
+         },
+         
+                 completeSet: () => {
+                     const session = app.state.activeSession;
+                     const ex = session.workout.exercises[session.currentExIdx];
+                     
+                     // Log the set
+         const weight = parseFloat(ex.lastWeight);
+         // Extract first number from reps string (e.g., "8-10" -> 8, "10" -> 10)
+         const repsStr = String(ex.reps).split('-')[0].trim();
+         const reps = parseFloat(repsStr);
+         const multiplier = ex.isDouble ? 2 : 1;
+         
+         console.log('Completing set:', { exercise: ex.name, weight, reps, multiplier });
+         
+         session.logs.push({
+         exercise: ex.name,
+         weight: isNaN(weight) ? 0 : weight,
+         reps: isNaN(reps) ? 0 : reps,
+         multiplier: multiplier
+         });
+         
+                     // Persist new weight to main DB so next time it's updated
+                     // We do this by updating the base workout object
+                     const baseWorkout = app.state.workouts.find(w => w.id === session.workout.id);
+                     if(baseWorkout) {
+                         baseWorkout.exercises[session.currentExIdx].lastWeight = ex.lastWeight;
+                         app.db.put('workouts', baseWorkout);
+                     }
+         
+                     // Check if exercise finished
+                     if (session.currentSet < ex.sets - 1) {
+                         // Start Rest
+                         app.handlers.startRest(ex.rest);
+                     } else {
+                         // Exercise Finished
+                         if (session.currentExIdx < session.workout.exercises.length - 1) {
+                             // Move to next exercise (with rest)
+                             app.handlers.startRest(ex.rest, true);
+                         } else {
+                             // Workout Finished
+                             app.handlers.finishWorkout();
+                         }
+                     }
+                 },
+         
+                 startRest: (seconds, isNextExercise = false) => {
+                     const session = app.state.activeSession;
+                     session.status = 'rest';
+                     app.ui.updateActiveView();
+                     
+                     let timeLeft = parseInt(seconds);
+                     const timerEl = document.getElementById('rest-timer-text');
+                     const circle = document.getElementById('rest-timer-circle');
+                     
+                     // 452 is circumference of r=88 circle
+                     const maxOffset = 452;
+                     circle.style.strokeDasharray = maxOffset;
+                     
+                     app.restInterval = setInterval(() => {
+                         timeLeft--;
+                         const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                         const secs = (timeLeft % 60).toString().padStart(2, '0');
+                         timerEl.innerText = `${mins}:${secs}`;
+                         
+                         const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
+                         circle.style.strokeDashoffset = offset;
+         
+                         if (timeLeft <= 0) {
+                             clearInterval(app.restInterval);
+                             app.handlers.notify();
+                             app.handlers.skipRest(null, isNextExercise);
+                         }
+                     }, 1000);
+                 },
+         
+                 skipRest: (_, isNextExercise = false) => {
+                     if (app.restInterval) clearInterval(app.restInterval);
+                     const session = app.state.activeSession;
+                     
+                     // Advance Logic
+                     const ex = session.workout.exercises[session.currentExIdx];
+                     
+                     // If we were resting after a set...
+                     if(session.currentSet < ex.sets - 1) {
+                         session.currentSet++;
+                     } else {
+                         // We were resting between exercises
+                         session.currentExIdx++;
+                         session.currentSet = 0;
+                     }
+                     
+                     session.status = 'work';
+                     app.ui.updateActiveView();
+                 },
+         
+                 skipExercise: () => {
+                     const session = app.state.activeSession;
+                     if (session.currentExIdx < session.workout.exercises.length - 1) {
+                         session.currentExIdx++;
+                         session.currentSet = 0;
+                         session.status = 'work';
+                         if (app.restInterval) clearInterval(app.restInterval);
+                         app.ui.updateActiveView();
+                     } else {
+                         app.handlers.finishWorkout();
+                     }
+                 },
+         
+                 finishWorkoutEarly: () => {
+                     if(confirm("Terminare l'allenamento ora?")) {
+                         app.handlers.finishWorkout();
+                     }
+                 },
+         
+                 confirmExitWorkout: () => {
+                     if(confirm("Vuoi uscire senza salvare?")) {
+                         if (app.restInterval) clearInterval(app.restInterval);
+                         if (app.totalTimerInt) clearInterval(app.totalTimerInt);
+                         app.router.go('dashboard');
+                     }
+                 },
+         
+                 finishWorkout: async () => {
+                     if (app.restInterval) clearInterval(app.restInterval);
+                     if (app.totalTimerInt) clearInterval(app.totalTimerInt);
+                     
+                     document.getElementById('audio-complete').play().catch(e=>{});
+                     if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+         
+                     const session = app.state.activeSession;
+                     
+                     // Calc Stats
+         const volume = session.logs.reduce((acc, l) => {
+         const weight = parseFloat(l.weight);
+         const reps = parseFloat(l.reps);
+         const multiplier = l.multiplier || 1;
+         if (!isNaN(weight) && !isNaN(reps)) {
+         return acc + (weight * reps * multiplier);
+         }
+         return acc;
+         }, 0);
+         const duration = Math.round((Date.now() - session.startTime) / 1000 / 60);
+         const calories = app.calculateCalories(session);
+         
+         const historyItem = {
+         id: 'h_' + Date.now(),
+         workoutId: session.workout.id,
+         workoutName: session.workout.name,
+         date: new Date().toISOString(),
+         totalVolume: volume,
+         durationMinutes: duration,
+         caloriesBurned: calories,
+         logs: session.logs
+         };
+         
+                     await app.db.put('history', historyItem);
+                     await app.loadData(); // Reload history for dashboard
+                     
+                     const statsMsg = calories > 0 
+         ? `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n• Calorie: ~${calories} kcal`
+         : `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n\n💡 Imposta peso corporeo nelle impostazioni per vedere le calorie bruciate!`;
+         alert(statsMsg);
+                     app.router.go('dashboard');
+                 },
+         
+                 startTotalTimer: () => {
+                     const start = Date.now();
+                     const el = document.getElementById('active-timer-total');
+                     app.totalTimerInt = setInterval(() => {
+                         const diff = Math.floor((Date.now() - start) / 1000);
+                         const m = Math.floor(diff / 60).toString().padStart(2, '0');
+                         const s = (diff % 60).toString().padStart(2, '0');
+                         el.innerText = `${m}:${s}`;
+                     }, 1000);
+                 },
+         
+                 // Notifications & Sounds
+                 requestNotificationPermission: () => {
+                     if ("Notification" in window && Notification.permission !== "granted") {
+                         Notification.requestPermission();
+                     }
+                 },
+         
+                 notify: () => {
+                     // Sound
+                     if(app.state.settings.sound) {
+                         document.getElementById('audio-beep').play().catch(e=>{});
+                     }
+                     // Vibrate
+                     if(app.state.settings.vibrate && navigator.vibrate) {
+                         navigator.vibrate([500]);
+                     }
+                     // Web Notification
+                     if ("Notification" in window && Notification.permission === "granted") {
+                         new Notification("Riposo Terminato!", { body: "Inizia la prossima serie." });
+                     }
+                 },
+                 
+                 toggleSound: () => {
+                     app.state.settings.sound = !app.state.settings.sound;
+                     const icon = document.getElementById('sound-toggle').querySelector('i');
+                     icon.className = app.state.settings.sound ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+                 },
+         
+                 // Settings Handlers
+                 resetAllData: async () => {
+                     const confirmTxt = prompt("Scrivi 'DELETE' per cancellare tutti i dati permanentemente.");
+                     if (confirmTxt === 'DELETE') {
+                         await app.db.clearAll();
+                         location.reload();
+                     }
+                 },
+                 
+                 exportData: async () => {
+                     const data = {
+                         workouts: app.state.workouts,
+                         history: app.state.history,
+                         settings: app.state.settings
+                     };
+                     const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+                     const url = URL.createObjectURL(blob);
+                     const a = document.createElement('a');
+                     a.href = url;
+                     a.download = `fit_tracker_backup_${new Date().toISOString().slice(0,10)}.json`;
+                     a.click();
+                 },
+         
+                 importData: (input) => {
+                     const file = input.files[0];
+                     if(!file) return;
+                     const reader = new FileReader();
+                     reader.onload = async (e) => {
+                         try {
+                             const data = JSON.parse(e.target.result);
+                             if(data.workouts) {
+                                 for (const w of data.workouts) await app.db.put('workouts', w);
+                             }
+                             if(data.history) {
+                                 for (const h of data.history) await app.db.put('history', h);
+                             }
+                             alert("Importazione completata!");
+                             location.reload();
+                         } catch(err) {
+                             alert("Errore nel file JSON.");
+                         }
+                     };
+                     reader.readAsText(file);
+                 }
+             }
+         };
+         
+         // Dark Mode Logic
+         document.getElementById('themeToggle').addEventListener('click', () => {
+             app.state.settings.theme = app.state.settings.theme === 'dark' ? 'light' : 'dark';
+             app.db.put('settings', { key: 'theme', value: app.state.settings.theme });
+             app.ui.applyTheme();
+         });
+         
+         // Personal Settings Listeners
+         ['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender'].forEach(id => {
+         const el = document.getElementById(id);
+         const key = id.replace('setting-', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+         
+         // Load saved value
+         if (app.state.settings[key]) {
+         el.value = app.state.settings[key];
+         }
+         
+         // Save on change
+         el.addEventListener('change', () => {
+         app.state.settings[key] = el.value;
+         app.db.put('settings', { key: key, value: el.value });
+         });
+         });
+         
+         
+         // Init App
+         window.addEventListener('DOMContentLoaded', async () => {
+         await app.init();
+         
+         // Personal Settings Listeners (after init so settings are loaded)
+         ['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender'].forEach(id => {
+         const el = document.getElementById(id);
+         const key = id.replace('setting-', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+         
+         // Load saved value
+         if (app.state.settings[key]) {
+             el.value = app.state.settings[key];
+         }
+         
+         // Save on change
+         el.addEventListener('change', () => {
+             app.state.settings[key] = el.value;
+             app.db.put('settings', { key: key, value: el.value });
+         });
+         });
+         });
+         
+      </script>
+   </body>
 </html>
