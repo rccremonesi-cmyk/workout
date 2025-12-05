@@ -251,6 +251,16 @@
                         <option value="female">Femmina</option>
                      </select>
                   </div>
+				  <!-- Aggiungi dopo il campo sesso nelle impostazioni -->
+<div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+    <span>Livello di Allenamento</span>
+    <select id="setting-training-level" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1">
+        <option value="beginner">Principiante</option>
+        <option value="intermediate" selected>Intermedio</option>
+        <option value="advanced">Avanzato</option>
+        <option value="elite">Elite</option>
+    </select>
+</div>
                </div>
                <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                   <span>Unità di peso</span>
@@ -442,104 +452,213 @@
          
 calculateCalories: (session) => {
     const settings = app.state.settings;
-    const bodyWeight = parseFloat(settings.bodyWeight);
-    const age = parseFloat(settings.age);
-    const height = parseFloat(settings.height);
-    const gender = settings.gender;
+    const bodyWeight = parseFloat(settings.bodyWeight); // kg
+    const age = parseFloat(settings.age); // anni
+    const height = parseFloat(settings.height); // cm
+    const gender = settings.gender; // 'male' o 'female'
     
-    if (!bodyWeight || isNaN(bodyWeight)) {
-        console.log('No body weight set');
+    if (!bodyWeight || isNaN(bodyWeight) || bodyWeight <= 0) {
+        console.log('Body weight not set or invalid');
         return 0;
     }
     
-    // Calculate total volume (weight × reps × multiplier)
-    let totalVolume = 0;
-    let totalReps = 0;
+    if (!session.logs || session.logs.length === 0) {
+        console.log('No exercise logs');
+        return 0;
+    }
+    
+    // 1. CALCOLO DEL VOLUME E INTENSITÀ
+    let totalVolume = 0; // kg × reps
+    let totalSets = 0;
+    let intensityFactor = 0;
+    let compoundExercisesCount = 0;
+    
+    // Esercizi composti (multi-articolari) consumano più calorie
+    const compoundExercises = ['squat', 'deadlift', 'bench', 'press', 'row', 'pullup', 'chinup', 'overhead', 'clean', 'snatch', 'lunge', 'panca', 'stacco', 'militar', 'trazioni', 'rematore', 'dip'];
     
     session.logs.forEach(l => {
         const weight = parseFloat(l.weight) || 0;
         const reps = parseFloat(l.reps) || 0;
-        // Moltiplicatore per manubri (peso doppio)
-        const multiplier = l.multiplier || 1; 
-        totalVolume += weight * reps * multiplier;
-        totalReps += reps;
+        const multiplier = l.multiplier || 1;
+        const exerciseName = (l.exercise || '').toLowerCase();
+        
+        // Calcolo volume
+        const exerciseVolume = weight * reps * multiplier;
+        totalVolume += exerciseVolume;
+        totalSets += 1; // Ogni log è una serie
+        
+        // Calcolo intensità relativa (peso sollevato / peso corporeo)
+        const relativeIntensity = bodyWeight > 0 ? weight / bodyWeight : 0;
+        intensityFactor += relativeIntensity;
+        
+        // Conta esercizi composti
+        if (compoundExercises.some(ce => exerciseName.includes(ce))) {
+            compoundExercisesCount += 1;
+        }
     });
     
-    if (totalVolume === 0 || totalReps === 0) {
+    if (totalVolume === 0) {
         console.log('No volume recorded');
         return 0;
     }
     
-    // Assumiamo un ROM (Range of Motion) medio di 0.7 metri per rep
-    const avgROM = 0.7; // metri
+    // Intensità media
+    const avgIntensity = totalSets > 0 ? intensityFactor / totalSets : 0;
     
-    // Lavoro meccanico in joules: Volume (kg) × ROM (m) × 9.81 (gravità)
-    const workJoules = totalVolume * avgROM * 9.81;
+    // 2. CALCOLO ENERGIA DIRETTA
     
-    // Conversione joules a kcal: 1 kcal = 4184 joules
-    const mechanicalCalories = workJoules / 4184;
+    // A. Metabolismo basale durante l'allenamento
+    const durationMinutes = session.durationMinutes || 
+                          Math.max(1, Math.round((Date.now() - session.startTime) / 1000 / 60));
+    const durationHours = durationMinutes / 60;
     
-    // Efficienza muscolare/Fattore di spesa totale: Aumentato a 7.0 per risultati più realistici
-    const efficiencyMultiplier = 7.0; 
-    let baseCalories = mechanicalCalories * efficiencyMultiplier;
-    
-    // Aggiustamenti basati su dati personali
-    let personalMultiplier = 1.0;
-    
-    // Aggiustamento per peso corporeo
-    if (bodyWeight < 60) {
-        personalMultiplier *= 0.9;
-    } else if (bodyWeight > 90) {
-        personalMultiplier *= 1.1;
-    }
-    
-    // Aggiustamento per età
-    if (age && !isNaN(age)) {
-        if (age > 50) {
-            personalMultiplier *= 0.95;
-        } else if (age < 25) {
-            personalMultiplier *= 1.05;
-        }
-    }
-    
-    // Aggiustamento per sesso
+    // Formula Harris-Benedict per BMR
+    let bmr;
     if (gender === 'male') {
-        personalMultiplier *= 1.1;
+        bmr = 88.362 + (13.397 * bodyWeight) + (4.799 * height) - (5.677 * (age || 30));
     } else if (gender === 'female') {
-        personalMultiplier *= 0.95;
+        bmr = 447.593 + (9.247 * bodyWeight) + (3.098 * height) - (4.330 * (age || 30));
+    } else {
+        // Default se sesso non specificato
+        bmr = 10 * bodyWeight + 6.25 * height - 5 * (age || 30) + 5;
     }
     
-    // EPOC (Excess Post-exercise Oxygen Consumption): Aumentato a 15%
-    const epocBonus = 1.15;
+    // Durante allenamento pesi: BMR × MET (METs per sollevamento pesi)
+    // MET base per allenamento pesi = 3.5, aggiungiamo in base all'intensità
+    const baseMET = 3.5;
+    const intensityMET = Math.min(2.0, avgIntensity * 1.5); // Massimo +2 MET per alta intensità
+    const workoutMET = baseMET + intensityMET;
     
-    // Calcolo finale basato sul lavoro
-    const totalCalories = baseCalories * personalMultiplier * epocBonus;
+    const basalCaloriesDuringWorkout = (bmr / 24) * durationHours * workoutMET;
     
-    // Aggiungi componente basale per la durata minima
-    const durationMinutes = session.durationMinutes || ((Date.now() - session.startTime) / 1000 / 60);
-    const bmrCaloriesPerMinute = (bodyWeight * 0.02); // Stima BMR durante attività
-    const basalCalories = bmrCaloriesPerMinute * durationMinutes;
+    // B. Costo meccanico del volume sollevato
+    // Secondo studi, 1 kg sollevato di 1 metro ≈ 0.0024 kcal (considerando efficienza muscolare)
+    const avgRomPerRep = 0.7; // metri (ROM medio per ripetizione)
+    const mechanicalCostPerKgMeter = 0.0024; // kcal per kg×metro
     
-    const finalCalories = totalCalories + basalCalories;
+    // Volume totale in kg×metri
+    const mechanicalCalories = totalVolume * avgRomPerRep * mechanicalCostPerKgMeter;
     
-    console.log('Calories calculation (volume-based):', {
+    // 3. FATTORI DI MODIFICA
+    
+    // A. Fattore efficienza (dipende dal livello)
+    // Impostiamo un livello di default (intermediate)
+    const trainingLevel = app.state.settings.trainingLevel || 'intermediate';
+    let efficiencyFactor;
+    switch(trainingLevel.toLowerCase()) {
+        case 'beginner':
+            efficiencyFactor = 5.0; // +25% per principianti (minor efficienza)
+            break;
+        case 'intermediate':
+            efficiencyFactor = 4.0;
+            break;
+        case 'advanced':
+            efficiencyFactor = 3.5; // -12.5% per avanzati
+            break;
+        case 'elite':
+            efficiencyFactor = 3.0; // -25% per élite
+            break;
+        default:
+            efficiencyFactor = 4.0;
+    }
+    
+    // B. Fattore composizione esercizi
+    let exerciseTypeFactor = 1.0;
+    if (compoundExercisesCount > 0) {
+        const compoundExerciseRatio = compoundExercisesCount / totalSets;
+        exerciseTypeFactor += (compoundExerciseRatio * 0.25); // +25% se tutti composti
+    }
+    
+    // C. Fattore densità (recupero breve = più dispendioso)
+    let densityFactor = 1.0;
+    if (durationMinutes > 0 && totalSets > 0) {
+        const avgRestTime = durationMinutes / totalSets; // minuti per set
+        if (avgRestTime < 1.0) densityFactor = 1.25; // Circuito/HIIT
+        else if (avgRestTime < 2.0) densityFactor = 1.15; // Pausa breve
+        else if (avgRestTime > 4.0) densityFactor = 0.9; // Pausa lunga
+    }
+    
+    // D. Fattori individuali
+    let personalFactor = 1.0;
+    
+    // Età (metabolismo rallenta ~2% per decade dopo 20 anni)
+    if (age && !isNaN(age) && age > 20) {
+        const decadesOver20 = (age - 20) / 10;
+        personalFactor *= (1 - (decadesOver20 * 0.02));
+    }
+    
+    // Peso corporeo e composizione
+    if (height > 0) {
+        const bmi = bodyWeight / ((height/100) * (height/100));
+        if (bmi < 18.5) personalFactor *= 0.95; // Sottopeso
+        else if (bmi > 25 && bmi < 30) personalFactor *= 1.05; // Sovrappeso
+        else if (bmi >= 30) personalFactor *= 1.10; // Obesità (consumo energetico aumentato)
+    }
+    
+    // Sesso (gli uomini hanno generalmente metabolismo più alto)
+    if (gender === 'male') {
+        personalFactor *= 1.05;
+    } else if (gender === 'female') {
+        personalFactor *= 0.95;
+    }
+    
+    // 4. EPOC (Excess Post-exercise Oxygen Consumption)
+    let epocFactor = 1.0;
+    const highIntensityThreshold = avgIntensity > 0.8; // >80% del peso corporeo
+    const highVolumeThreshold = totalVolume > (bodyWeight * 40); // >40 volte il peso corporeo
+    
+    if (highIntensityThreshold && highVolumeThreshold) {
+        epocFactor = 1.20; // +20% EPOC per allenamenti molto intensi
+    } else if (highIntensityThreshold || highVolumeThreshold) {
+        epocFactor = 1.10; // +10% EPOC
+    }
+    
+    // 5. CALCOLO FINALE
+    let totalCalories = basalCaloriesDuringWorkout + 
+                       (mechanicalCalories * efficiencyFactor * exerciseTypeFactor * densityFactor * personalFactor);
+    
+    // Applica EPOC
+    totalCalories *= epocFactor;
+    
+    // Aggiungi termogenesi (NEAT) post-workout (+5%)
+    const neatBonus = totalCalories * 0.05;
+    totalCalories += neatBonus;
+    
+    // 6. LIMITI REALISTICI
+    // Range realistico per allenamento pesi: 3-8 kcal/min
+    const minRealisticRate = 3.0; // kcal/min
+    const maxRealisticRate = 8.0; // kcal/min (per sessioni molto intense)
+    
+    const caloriesPerMinute = totalCalories / durationMinutes;
+    if (caloriesPerMinute < minRealisticRate) {
+        totalCalories = minRealisticRate * durationMinutes;
+    } else if (caloriesPerMinute > maxRealisticRate) {
+        totalCalories = maxRealisticRate * durationMinutes;
+    }
+    
+    console.log('Calorie calculation (improved):', {
         bodyWeight,
-        age,
-        gender,
-        height,
+        age: age || 'N/A',
+        gender: gender || 'N/A',
+        height: height || 'N/A',
         totalVolume: Math.round(totalVolume),
-        totalReps,
-        workJoules: Math.round(workJoules),
-        mechanicalCalories: mechanicalCalories.toFixed(2),
-        baseCalories: Math.round(baseCalories),
-        personalMultiplier: personalMultiplier.toFixed(2),
-        epocBonus,
-        basalCalories: Math.round(basalCalories),
+        totalSets,
+        avgIntensity: avgIntensity.toFixed(2),
+        compoundExercises: compoundExercisesCount,
+        basalCaloriesDuringWorkout: Math.round(basalCaloriesDuringWorkout),
+        mechanicalCalories: Math.round(mechanicalCalories),
+        efficiencyFactor,
+        exerciseTypeFactor: exerciseTypeFactor.toFixed(2),
+        densityFactor: densityFactor.toFixed(2),
+        personalFactor: personalFactor.toFixed(2),
+        epocFactor: epocFactor.toFixed(2),
+        neatBonus: Math.round(neatBonus),
         durationMinutes: Math.round(durationMinutes),
-        finalCalories: Math.round(finalCalories)
+        caloriesPerMinute: (totalCalories / durationMinutes).toFixed(2),
+        finalCalories: Math.round(totalCalories)
     });
     
-    return Math.round(finalCalories);
+    return Math.max(0, Math.round(totalCalories));
 },
          
              router: {
@@ -1155,21 +1274,21 @@ calculateCalories: (session) => {
          });
          
          // Personal Settings Listeners
-         ['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender'].forEach(id => {
-         const el = document.getElementById(id);
-         const key = id.replace('setting-', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-         
-         // Load saved value
-         if (app.state.settings[key]) {
-         el.value = app.state.settings[key];
-         }
-         
-         // Save on change
-         el.addEventListener('change', () => {
-         app.state.settings[key] = el.value;
-         app.db.put('settings', { key: key, value: el.value });
-         });
-         });
+['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender', 'setting-training-level'].forEach(id => {
+    const el = document.getElementById(id);
+    const key = id.replace('setting-', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+    
+    // Load saved value
+    if (app.state.settings[key]) {
+        el.value = app.state.settings[key];
+    }
+    
+    // Save on change
+    el.addEventListener('change', () => {
+        app.state.settings[key] = el.value;
+        app.db.put('settings', { key: key, value: el.value });
+    });
+});
          
          
          // Init App
