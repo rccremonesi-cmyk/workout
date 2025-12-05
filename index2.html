@@ -435,114 +435,66 @@
                  }
              },
          
-calculateCalories: (session) => {
-    const settings = app.state.settings;
-    const bodyWeight = parseFloat(settings.bodyWeight);
-    const age = parseFloat(settings.age);
-    const height = parseFloat(settings.height);
-    const gender = settings.gender;
-    
-    if (!bodyWeight || isNaN(bodyWeight)) {
-        console.log('No body weight set');
-        return 0;
-    }
-    
-    // Calculate total volume (weight × reps × multiplier)
-    let totalVolume = 0;
-    let totalReps = 0;
-    
-    session.logs.forEach(l => {
-        const weight = parseFloat(l.weight) || 0;
-        const reps = parseFloat(l.reps) || 0;
-        const multiplier = l.multiplier || 1;
-        totalVolume += weight * reps * multiplier;
-        totalReps += reps;
-    });
-    
-    if (totalVolume === 0 || totalReps === 0) {
-        console.log('No volume recorded');
-        return 0;
-    }
-    
-    // Formula base: Calorie = Volume (kg) × Fattore di efficienza
-    // L'efficienza meccanica del corpo umano è circa 20-25%
-    // 1 kg sollevato per 1 metro ≈ 0.0023 kcal di lavoro meccanico
-    // Con efficienza 25%, servono circa 0.01 kcal per kg sollevato
-    
-    // Assumiamo un ROM (Range of Motion) medio di 0.7 metri per rep
-    const avgROM = 0.7; // metri
-    
-    // Lavoro meccanico in joules: Volume (kg) × ROM (m) × 9.81 (gravità)
-    const workJoules = totalVolume * avgROM * 9.81;
-    
-    // Conversione joules a kcal: 1 kcal = 4184 joules
-    const mechanicalCalories = workJoules / 4184;
-    
-    // Efficienza muscolare: il corpo usa circa 4-5x l'energia del lavoro meccanico
-    const efficiencyMultiplier = 4.5;
-    let baseCalories = mechanicalCalories * efficiencyMultiplier;
-    
-    // Aggiustamenti basati su dati personali
-    let personalMultiplier = 1.0;
-    
-    // Aggiustamento per peso corporeo (persone più pesanti bruciano più calorie)
-    if (bodyWeight < 60) {
-        personalMultiplier *= 0.9;
-    } else if (bodyWeight > 90) {
-        personalMultiplier *= 1.1;
-    }
-    
-    // Aggiustamento per età (metabolismo rallenta con l'età)
-    if (age && !isNaN(age)) {
-        if (age > 50) {
-            personalMultiplier *= 0.95;
-        } else if (age < 25) {
-            personalMultiplier *= 1.05;
-        }
-    }
-    
-    // Aggiustamento per sesso (uomini tendono ad avere più massa muscolare)
-    if (gender === 'male') {
-        personalMultiplier *= 1.1;
-    } else if (gender === 'female') {
-        personalMultiplier *= 0.95;
-    }
-    
-    // EPOC (Excess Post-exercise Oxygen Consumption)
-    // Il resistance training causa un afterburn effect del 10-15%
-    const epocBonus = 1.12;
-    
-    // Calcolo finale
-    const totalCalories = baseCalories * personalMultiplier * epocBonus;
-    
-    // Aggiungi componente basale per la durata minima
-    // Anche stando fermi si bruciano calorie
-    const durationMinutes = session.durationMinutes || ((Date.now() - session.startTime) / 1000 / 60);
-    const bmrCaloriesPerMinute = (bodyWeight * 0.02); // Stima BMR durante attività
-    const basalCalories = bmrCaloriesPerMinute * durationMinutes;
-    
-    const finalCalories = totalCalories + basalCalories;
-    
-    console.log('Calories calculation (volume-based):', {
-        bodyWeight,
-        age,
-        gender,
-        height,
-        totalVolume: Math.round(totalVolume),
-        totalReps,
-        avgROM,
-        workJoules: Math.round(workJoules),
-        mechanicalCalories: Math.round(mechanicalCalories),
-        baseCalories: Math.round(baseCalories),
-        personalMultiplier: personalMultiplier.toFixed(2),
-        epocBonus,
-        basalCalories: Math.round(basalCalories),
-        durationMinutes: Math.round(durationMinutes),
-        finalCalories: Math.round(finalCalories)
-    });
-    
-    return Math.round(finalCalories);
-},
+         calculateCalories: (session) => {
+         // MET values for resistance training (source: Compendium of Physical Activities)
+         // Light: 3.5, Moderate: 5.0, Vigorous: 6.0, Very Vigorous: 8.0
+         const baseMET = 5.0; // Moderate intensity resistance training
+         
+         const settings = app.state.settings;
+         const bodyWeight = parseFloat(settings.bodyWeight);
+         
+         if (!bodyWeight || isNaN(bodyWeight)) {
+         return 0; // Cannot calculate without body weight
+         }
+         
+         console.log('Calculating calories with:', { bodyWeight, settings });
+         
+         // Calculate workout duration in hours
+         const durationMinutes = (Date.now() - session.startTime) / 1000 / 60;
+         const durationHours = durationMinutes / 60;
+         
+         // Calculate intensity multiplier based on volume
+         // Higher volume = higher intensity
+         let totalVolume = 0;
+         let totalReps = 0;
+         
+         session.logs.forEach(l => {
+         const weight = parseFloat(l.weight) || 0;
+         const reps = parseFloat(l.reps) || 0;
+         const multiplier = l.multiplier || 1;
+         totalVolume += weight * reps * multiplier;
+         totalReps += reps;
+         });
+         
+         // Adjust MET based on intensity
+         // If average weight per rep is high relative to body weight, increase MET
+         const avgWeightPerRep = totalReps > 0 ? totalVolume / totalReps : 0;
+         const intensityRatio = avgWeightPerRep / bodyWeight;
+         
+         let adjustedMET = baseMET;
+         if (intensityRatio > 1.5) {
+         adjustedMET = 8.0; // Very vigorous
+         } else if (intensityRatio > 1.0) {
+         adjustedMET = 6.5; // Vigorous
+         } else if (intensityRatio > 0.5) {
+         adjustedMET = 5.5; // Moderate-vigorous
+         }
+         
+         // Formula: Calories = MET × body weight (kg) × duration (hours)
+         const calories = adjustedMET * bodyWeight * durationHours;
+         
+         console.log('Calories calculation:', {
+         adjustedMET,
+         bodyWeight,
+         durationHours,
+         durationMinutes,
+         totalVolume,
+         totalReps,
+         calories
+         });
+         
+         return Math.round(calories);
+         },
          
              router: {
                  go: (viewId) => {
@@ -1053,16 +1005,14 @@ calculateCalories: (session) => {
          logs: session.logs
          };
          
-await app.db.put('history', historyItem);
-await app.loadData(); // Reload history for dashboard
-
-const statsMsg = calories > 0 
-    ? `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n• Calorie: ~${calories} kcal`
-    : `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n\n💡 Imposta peso corporeo nelle impostazioni per vedere le calorie bruciate!`;
-alert(statsMsg);
-
-// Force update dashboard stats
-app.router.go('dashboard');
+                     await app.db.put('history', historyItem);
+                     await app.loadData(); // Reload history for dashboard
+                     
+                     const statsMsg = calories > 0 
+         ? `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n• Calorie: ~${calories} kcal`
+         : `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n\n💡 Imposta peso corporeo nelle impostazioni per vedere le calorie bruciate!`;
+         alert(statsMsg);
+                     app.router.go('dashboard');
                  },
          
                  startTotalTimer: () => {
