@@ -461,8 +461,11 @@
                         return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                     });
                     
-                    let totalVol = 0;
-                    thisMonthHistory.forEach(h => totalVol += (h.totalVolume || 0));
+                   let totalVol = 0;
+					thisMonthHistory.forEach(h => {
+						const vol = parseFloat(h.totalVolume);
+						if (!isNaN(vol)) totalVol += vol;
+					});
                     
                     document.getElementById('monthly-workouts-count').innerText = thisMonthHistory.length;
                     document.getElementById('monthly-volume').innerText = Math.round(totalVol).toLocaleString();
@@ -707,25 +710,28 @@
                 },
 
                 adjustWeight: (delta) => {
-                    const session = app.state.activeSession;
-                    const ex = session.workout.exercises[session.currentExIdx];
-                    let w = parseFloat(ex.lastWeight) || 0;
-                    w += delta;
-                    if(w < 0) w = 0;
-                    ex.lastWeight = w; // Update in memory
-                    app.ui.updateActiveView();
-                },
+					const session = app.state.activeSession;
+					const ex = session.workout.exercises[session.currentExIdx];
+					let w = parseFloat(ex.lastWeight);
+					if (isNaN(w)) w = 0;
+					w += delta;
+					if(w < 0) w = 0;
+					ex.lastWeight = w;
+					app.ui.updateActiveView();
+				},
 
                 completeSet: () => {
                     const session = app.state.activeSession;
                     const ex = session.workout.exercises[session.currentExIdx];
                     
                     // Log the set
-                    session.logs.push({
-                        exercise: ex.name,
-                        weight: ex.lastWeight,
-                        reps: ex.reps // Assuming target hit for simplicity
-                    });
+                    const weight = parseFloat(ex.lastWeight);
+					const reps = parseFloat(ex.reps);
+					session.logs.push({
+						exercise: ex.name,
+						weight: isNaN(weight) ? 0 : weight,
+						reps: isNaN(reps) ? 0 : reps
+					});
 
                     // Persist new weight to main DB so next time it's updated
                     // We do this by updating the base workout object
@@ -838,7 +844,14 @@
                     const session = app.state.activeSession;
                     
                     // Calc Stats
-                    const volume = session.logs.reduce((acc, l) => acc + (parseFloat(l.weight) * parseFloat(l.reps)), 0);
+                    const volume = session.logs.reduce((acc, l) => {
+						const weight = parseFloat(l.weight);
+						const reps = parseFloat(l.reps);
+						if (!isNaN(weight) && !isNaN(reps)) {
+							return acc + (weight * reps);
+						}
+						return acc;
+					}, 0);
                     const duration = Math.round((Date.now() - session.startTime) / 1000 / 60);
 
                     const historyItem = {
