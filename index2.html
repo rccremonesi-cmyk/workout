@@ -459,7 +459,8 @@ calculateCalories: (session) => {
     session.logs.forEach(l => {
         const weight = parseFloat(l.weight) || 0;
         const reps = parseFloat(l.reps) || 0;
-        const multiplier = l.multiplier || 1;
+        // Moltiplicatore per manubri (peso doppio)
+        const multiplier = l.multiplier || 1; 
         totalVolume += weight * reps * multiplier;
         totalReps += reps;
     });
@@ -468,11 +469,6 @@ calculateCalories: (session) => {
         console.log('No volume recorded');
         return 0;
     }
-    
-    // Formula base: Calorie = Volume (kg) × Fattore di efficienza
-    // L'efficienza meccanica del corpo umano è circa 20-25%
-    // 1 kg sollevato per 1 metro ≈ 0.0023 kcal di lavoro meccanico
-    // Con efficienza 25%, servono circa 0.01 kcal per kg sollevato
     
     // Assumiamo un ROM (Range of Motion) medio di 0.7 metri per rep
     const avgROM = 0.7; // metri
@@ -483,21 +479,21 @@ calculateCalories: (session) => {
     // Conversione joules a kcal: 1 kcal = 4184 joules
     const mechanicalCalories = workJoules / 4184;
     
-    // Efficienza muscolare: il corpo usa circa 4-5x l'energia del lavoro meccanico
-    const efficiencyMultiplier = 4.5;
+    // Efficienza muscolare/Fattore di spesa totale: Aumentato a 7.0 per risultati più realistici
+    const efficiencyMultiplier = 7.0; 
     let baseCalories = mechanicalCalories * efficiencyMultiplier;
     
     // Aggiustamenti basati su dati personali
     let personalMultiplier = 1.0;
     
-    // Aggiustamento per peso corporeo (persone più pesanti bruciano più calorie)
+    // Aggiustamento per peso corporeo
     if (bodyWeight < 60) {
         personalMultiplier *= 0.9;
     } else if (bodyWeight > 90) {
         personalMultiplier *= 1.1;
     }
     
-    // Aggiustamento per età (metabolismo rallenta con l'età)
+    // Aggiustamento per età
     if (age && !isNaN(age)) {
         if (age > 50) {
             personalMultiplier *= 0.95;
@@ -506,22 +502,20 @@ calculateCalories: (session) => {
         }
     }
     
-    // Aggiustamento per sesso (uomini tendono ad avere più massa muscolare)
+    // Aggiustamento per sesso
     if (gender === 'male') {
         personalMultiplier *= 1.1;
     } else if (gender === 'female') {
         personalMultiplier *= 0.95;
     }
     
-    // EPOC (Excess Post-exercise Oxygen Consumption)
-    // Il resistance training causa un afterburn effect del 10-15%
-    const epocBonus = 1.12;
+    // EPOC (Excess Post-exercise Oxygen Consumption): Aumentato a 15%
+    const epocBonus = 1.15;
     
-    // Calcolo finale
+    // Calcolo finale basato sul lavoro
     const totalCalories = baseCalories * personalMultiplier * epocBonus;
     
     // Aggiungi componente basale per la durata minima
-    // Anche stando fermi si bruciano calorie
     const durationMinutes = session.durationMinutes || ((Date.now() - session.startTime) / 1000 / 60);
     const bmrCaloriesPerMinute = (bodyWeight * 0.02); // Stima BMR durante attività
     const basalCalories = bmrCaloriesPerMinute * durationMinutes;
@@ -535,9 +529,8 @@ calculateCalories: (session) => {
         height,
         totalVolume: Math.round(totalVolume),
         totalReps,
-        avgROM,
         workJoules: Math.round(workJoules),
-        mechanicalCalories: Math.round(mechanicalCalories),
+        mechanicalCalories: mechanicalCalories.toFixed(2),
         baseCalories: Math.round(baseCalories),
         personalMultiplier: personalMultiplier.toFixed(2),
         epocBonus,
