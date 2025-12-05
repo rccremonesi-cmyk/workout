@@ -157,9 +157,23 @@
             </div>
 
             <!-- Progress Bar -->
-            <div class="h-1 bg-gray-800 w-full">
-                <div id="active-progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
-            </div>
+           <!-- Progress Bar with Exercise Navigation -->
+<div class="bg-gray-800 w-full">
+    <div class="px-4 py-2 flex items-center justify-between text-xs">
+        <div id="prev-exercise" class="text-gray-500 flex-1 text-left truncate">
+            <i class="fa-solid fa-check text-green-500 mr-1"></i>
+            <span>-</span>
+        </div>
+        <div class="text-gray-400 px-2">→</div>
+        <div id="next-exercise" class="text-gray-400 flex-1 text-right truncate">
+            <span>-</span>
+            <i class="fa-solid fa-arrow-right ml-1"></i>
+        </div>
+    </div>
+    <div class="h-1 bg-gray-800 w-full">
+        <div id="active-progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+    </div>
+</div>
 
             <!-- Main Exercise Area -->
             <div class="p-5">
@@ -550,14 +564,33 @@
                     document.getElementById('active-weight-value').innerText = ex.lastWeight || 0;
                     
 					// Progress Bar
-					const totalExercises = session.workout.exercises.length;
-					const currentExercise = session.currentExIdx + 1;
-					document.getElementById('active-exercise-count').innerText = `${currentExercise}/${totalExercises} es.`;
+// Progress Bar
+const totalExercises = session.workout.exercises.length;
+const currentExercise = session.currentExIdx + 1;
+document.getElementById('active-exercise-count').innerText = `${currentExercise}/${totalExercises} es.`;
 
-					const totalSets = session.workout.exercises.reduce((acc, e) => acc + parseInt(e.sets), 0);
-					const completedSets = session.workout.exercises.slice(0, session.currentExIdx).reduce((acc,e) => acc + parseInt(e.sets), 0) + session.currentSet;
-					const pct = (completedSets / totalSets) * 100;
-					document.getElementById('active-progress-bar').style.width = `${pct}%`;
+const totalSets = session.workout.exercises.reduce((acc, e) => acc + parseInt(e.sets), 0);
+const completedSets = session.workout.exercises.slice(0, session.currentExIdx).reduce((acc,e) => acc + parseInt(e.sets), 0) + session.currentSet;
+const pct = (completedSets / totalSets) * 100;
+document.getElementById('active-progress-bar').style.width = `${pct}%`;
+
+// Previous and Next Exercise Display
+const prevEl = document.getElementById('prev-exercise');
+const nextEl = document.getElementById('next-exercise');
+
+if (session.currentExIdx > 0) {
+    const prevEx = session.workout.exercises[session.currentExIdx - 1];
+    prevEl.innerHTML = `<i class="fa-solid fa-check text-green-500 mr-1"></i><span>${prevEx.name}</span>`;
+} else {
+    prevEl.innerHTML = `<i class="fa-solid fa-check text-gray-700 mr-1"></i><span>Inizio</span>`;
+}
+
+if (session.currentExIdx < session.workout.exercises.length - 1) {
+    const nextEx = session.workout.exercises[session.currentExIdx + 1];
+    nextEl.innerHTML = `<span>${nextEx.name}</span><i class="fa-solid fa-arrow-right ml-1"></i>`;
+} else {
+    nextEl.innerHTML = `<span>Fine!</span><i class="fa-solid fa-flag-checkered ml-1"></i>`;
+}
 
                     // Button State
                     const btn = document.getElementById('btn-main-action');
