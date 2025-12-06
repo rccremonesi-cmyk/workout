@@ -83,7 +83,16 @@
             <div>
                <div class="flex justify-between items-center mb-4">
                   <h3 class="font-bold text-lg">I tuoi Workout</h3>
-                  <button onclick="app.handlers.createNewWorkout()" class="text-primary text-sm font-semibold hover:underline">+ Nuovo</button>
+                  
+				  
+				  <button onclick="app.handlers.createNewWorkout()" id="add-workout-fab" 
+    class="fixed bottom-[calc(3rem+env(safe-area-inset-bottom))] right-4 
+           bg-primary text-white p-4 rounded-full shadow-lg 
+           hover:bg-primaryDark transition duration-300 
+           z-50 text-xl w-14 h-14 flex items-center justify-center 
+           transform active:scale-95">
+    <i class="fa-solid fa-plus"></i>
+</button>
                </div>
                <div id="workout-list" class="space-y-3">
                   <!-- Dynamic Workout Cards injected here -->
