@@ -5,38 +5,31 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <title>FitTracker Web</title>
       <meta name="description" content="Il tuo tracker di allenamento locale.">
-      <meta name="theme-color" content="#10b981">
-      <!-- Tailwind CSS -->
+      <meta name="theme-color" content="#5127F2">
+      <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3C!-- Icona dumbbell di Font Awesome (simil-v6) --%3E%3Cpath fill='%235127F2' d='M88.75 35.5h-9.87c-1.39 0-2.5 1.12-2.5 2.5v22c0 1.38 1.11 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zm-66.25 0h-9.87c-1.38 0-2.5 1.12-2.5 2.5v22c0 1.38 1.12 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zM36.1 48h27.8c1.38 0 2.5-1.12 2.5-2.5s-1.12-2.5-2.5-2.5h-27.8c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5z' /%3E%3C/svg%3E">
       <script src="https://cdn.tailwindcss.com"></script>
-      <!-- Chart.js -->
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <!-- SortableJS -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-      <!-- FontAwesome -->
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
       <style>
-         /* Custom Styles & Animations */
+         /* ... (mantieni il tuo stile CSS esistente qui) ... */
+         /* Assicurati solo di non aver cancellato i tuoi stili custom */
          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
          .hide-scrollbar::-webkit-scrollbar { display: none; }
          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-         /* Smooth transitions for views */
-         /* FIX: Use !important to override Tailwind's utility classes (like .flex) that might keep hidden views visible/blocking */
          .view-section { display: none !important; opacity: 0; transition: opacity 0.2s ease-in-out; }
          .view-section.active { display: block !important; opacity: 1; }
-         /* Ensure the active view with flex class uses flex display */
          #view-active.active { display: flex !important; }
-         /* Timer Circle Animation */
-         .timer-circle { transition: stroke-dashoffset 1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
-         /* Drag & Drop Ghost */
-         .sortable-ghost { opacity: 0.4; background-color: #ecfdf5; border: 2px dashed #10b981; }
-         .sortable-drag { cursor: grabbing; }
-         /* Mobile safe area */
-         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-         .footer-action{
-         position: fixed;
-         bottom: 0px;
-         width: 100%;
+         .timer-circle { 
+         stroke: #5127F2; /* Forzatura colore se necessario */
+         transition: stroke-dashoffset 1s linear; 
+         transform: rotate(-90deg); 
+         transform-origin: 50% 50%; 
          }
+         .sortable-ghost { opacity: 0.4; background-color: #ede9fe; border: 2px dashed #5127F2; } /* Aggiornato colore ghost */
+         .sortable-drag { cursor: grabbing; }
+         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+         .footer-action{ position: fixed; bottom: 0px; width: 100%; }
       </style>
       <script>
          tailwind.config = {
@@ -44,8 +37,9 @@
              theme: {
                  extend: {
                      colors: {
-                         primary: '#10b981', // Emerald 500
-                         primaryDark: '#059669',
+                         // NEW COLOR: rgb(81 39 242) -> Hex #5127F2
+                         primary: '#5127F2', 
+                         primaryDark: '#401eb5', // Versione più scura per hover
                          darkBg: '#111827',
                          darkCard: '#1f2937'
                      }
@@ -160,10 +154,10 @@
             <div class="p-5">
                <!-- Current Exercise Info -->
                <div class="text-center w-full animate-fade-in">
-                  <h2 id="active-exercise-name" class="text-3xl font-bold mb-2 break-words">Nome Esercizio</h2>
+                  <h2 id="active-exercise-name" class="text-3xl font-bold mb-5 break-words">Nome Esercizio</h2>
                   <div class="flex justify-center gap-4 text-gray-400 text-sm mb-4">
-                     <span id="active-set-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700" style="background-color:#059669; color:#FFF;">Serie 1/4</span>
-                     <span id="active-target-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700">10 Reps</span>
+                     <span id="active-set-display" class="bg-primary px-3 py-1 rounded-full border border-gray-700" style="color:#FFF;">Serie 1/4</span>
+                     <span id="active-target-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700" style="color:#FFF;">10 Reps</span>
                   </div>
                   <!-- Weight Control -->
                   <div class="flex items-center justify-center gap-6 my-6">
@@ -251,16 +245,16 @@
                         <option value="female">Femmina</option>
                      </select>
                   </div>
-				  <!-- Aggiungi dopo il campo sesso nelle impostazioni -->
-<div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-    <span>Livello di Allenamento</span>
-    <select id="setting-training-level" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1">
-        <option value="beginner">Principiante</option>
-        <option value="intermediate" selected>Intermedio</option>
-        <option value="advanced">Avanzato</option>
-        <option value="elite">Elite</option>
-    </select>
-</div>
+                  <!-- Aggiungi dopo il campo sesso nelle impostazioni -->
+                  <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                     <span>Livello di Allenamento</span>
+                     <select id="setting-training-level" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1">
+                        <option value="beginner">Principiante</option>
+                        <option value="intermediate" selected>Intermedio</option>
+                        <option value="advanced">Avanzato</option>
+                        <option value="elite">Elite</option>
+                     </select>
+                  </div>
                </div>
                <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                   <span>Unità di peso</span>
@@ -298,15 +292,15 @@
       <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-darkCard border-t border-gray-200 dark:border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300">
          <button onclick="app.router.go('dashboard')" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
          <i class="fa-solid fa-house mb-1"></i>
-         <span class="text-[10px] font-medium">Home</span>
+         <!-- <span class="text-[10px] font-medium">Home</span> -->
          </button>
          <button onclick="app.router.go('stats')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
          <i class="fa-solid fa-chart-simple mb-1"></i>
-         <span class="text-[10px] font-medium">Stats</span>
+         <!-- <span class="text-[10px] font-medium">Stats</span> -->
          </button>
          <button onclick="app.router.go('settings')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
          <i class="fa-solid fa-gear mb-1"></i>
-         <span class="text-[10px] font-medium">Set</span>
+         <!-- <span class="text-[10px] font-medium">Set</span> -->
          </button>
       </nav>
       <!-- Modal Template for Exercise Form -->
@@ -325,20 +319,20 @@
                </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
-    <div>
-        <label class="text-xs text-gray-500 ml-1">Pausa</label>
-        <select id="modal-ex-rest" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-            <option value="60">1 minuto</option>
-            <option value="90" selected>1:30 minuti</option>
-            <option value="120">2 minuti</option>
-            <option value="180">3 minuti</option>
-        </select>
-    </div>
-    <div>
-        <label class="text-xs text-gray-500 ml-1">Peso Iniziale</label>
-        <input type="number" id="modal-ex-weight" value="0" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-    </div>
-</div>
+               <div>
+                  <label class="text-xs text-gray-500 ml-1">Pausa</label>
+                  <select id="modal-ex-rest" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+                     <option value="60">1 minuto</option>
+                     <option value="90" selected>1:30 minuti</option>
+                     <option value="120">2 minuti</option>
+                     <option value="180">3 minuti</option>
+                  </select>
+               </div>
+               <div>
+                  <label class="text-xs text-gray-500 ml-1">Peso Iniziale</label>
+                  <input type="number" id="modal-ex-weight" value="0" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+               </div>
+            </div>
             <div class="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                <input type="checkbox" id="modal-ex-double" class="accent-primary w-5 h-5">
                <label class="text-sm">Peso doppio (2 manubri)</label>
@@ -429,6 +423,7 @@
                  workouts: [],
                  history: [],
                  editingWorkout: null,
+         editingExerciseIndex: null,
                  activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
                  settings: { unit: 'kg', sound: true, vibrate: true, theme: 'dark', bodyWeight: null, height: null, age: null, gender: '' }
              },
@@ -450,216 +445,97 @@
                  }
              },
          
-calculateCalories: (session) => {
-    const settings = app.state.settings;
-    const bodyWeight = parseFloat(settings.bodyWeight); // kg
-    const age = parseFloat(settings.age); // anni
-    const height = parseFloat(settings.height); // cm
-    const gender = settings.gender; // 'male' o 'female'
-    
-    if (!bodyWeight || isNaN(bodyWeight) || bodyWeight <= 0) {
-        console.log('Body weight not set or invalid');
-        return 0;
-    }
-    
-    if (!session.logs || session.logs.length === 0) {
-        console.log('No exercise logs');
-        return 0;
-    }
-    
-    // 1. CALCOLO DEL VOLUME E INTENSITÀ
-    let totalVolume = 0; // kg × reps
-    let totalSets = 0;
-    let intensityFactor = 0;
-    let compoundExercisesCount = 0;
-    
-    // Esercizi composti (multi-articolari) consumano più calorie
-    const compoundExercises = ['squat', 'deadlift', 'bench', 'press', 'row', 'pullup', 'chinup', 'overhead', 'clean', 'snatch', 'lunge', 'panca', 'stacco', 'militar', 'trazioni', 'rematore', 'dip'];
-    
-    session.logs.forEach(l => {
-        const weight = parseFloat(l.weight) || 0;
-        const reps = parseFloat(l.reps) || 0;
-        const multiplier = l.multiplier || 1;
-        const exerciseName = (l.exercise || '').toLowerCase();
-        
-        // Calcolo volume
-        const exerciseVolume = weight * reps * multiplier;
-        totalVolume += exerciseVolume;
-        totalSets += 1; // Ogni log è una serie
-        
-        // Calcolo intensità relativa (peso sollevato / peso corporeo)
-        const relativeIntensity = bodyWeight > 0 ? weight / bodyWeight : 0;
-        intensityFactor += relativeIntensity;
-        
-        // Conta esercizi composti
-        if (compoundExercises.some(ce => exerciseName.includes(ce))) {
-            compoundExercisesCount += 1;
-        }
-    });
-    
-    if (totalVolume === 0) {
-        console.log('No volume recorded');
-        return 0;
-    }
-    
-    // Intensità media
-    const avgIntensity = totalSets > 0 ? intensityFactor / totalSets : 0;
-    
-    // 2. CALCOLO ENERGIA DIRETTA
-    
-    // A. Metabolismo basale durante l'allenamento
-    const durationMinutes = session.durationMinutes || 
-                          Math.max(1, Math.round((Date.now() - session.startTime) / 1000 / 60));
-    const durationHours = durationMinutes / 60;
-    
-    // Formula Harris-Benedict per BMR
-    let bmr;
-    if (gender === 'male') {
-        bmr = 88.362 + (13.397 * bodyWeight) + (4.799 * height) - (5.677 * (age || 30));
-    } else if (gender === 'female') {
-        bmr = 447.593 + (9.247 * bodyWeight) + (3.098 * height) - (4.330 * (age || 30));
-    } else {
-        // Default se sesso non specificato
-        bmr = 10 * bodyWeight + 6.25 * height - 5 * (age || 30) + 5;
-    }
-    
-    // Durante allenamento pesi: BMR × MET (METs per sollevamento pesi)
-    // MET base per allenamento pesi = 3.5, aggiungiamo in base all'intensità
-    const baseMET = 3.5;
-    const intensityMET = Math.min(2.0, avgIntensity * 1.5); // Massimo +2 MET per alta intensità
-    const workoutMET = baseMET + intensityMET;
-    
-    const basalCaloriesDuringWorkout = (bmr / 24) * durationHours * workoutMET;
-    
-    // B. Costo meccanico del volume sollevato
-    // Secondo studi, 1 kg sollevato di 1 metro ≈ 0.0024 kcal (considerando efficienza muscolare)
-    const avgRomPerRep = 0.7; // metri (ROM medio per ripetizione)
-    const mechanicalCostPerKgMeter = 0.0024; // kcal per kg×metro
-    
-    // Volume totale in kg×metri
-    const mechanicalCalories = totalVolume * avgRomPerRep * mechanicalCostPerKgMeter;
-    
-    // 3. FATTORI DI MODIFICA
-    
-    // A. Fattore efficienza (dipende dal livello)
-    // Impostiamo un livello di default (intermediate)
-    const trainingLevel = app.state.settings.trainingLevel || 'intermediate';
-    let efficiencyFactor;
-    switch(trainingLevel.toLowerCase()) {
-        case 'beginner':
-            efficiencyFactor = 5.0; // +25% per principianti (minor efficienza)
+         
+         
+         calculateCalories: (session) => {
+         const settings = app.state.settings;
+         
+         // 1. Recupero Dati Utente (con fallback robusti)
+         const weight = parseFloat(settings.bodyWeight) || 75; 
+         const height = parseFloat(settings.height) || 175;    
+         const age = parseFloat(settings.age) || 30;           
+         const gender = settings.gender || 'male';
+         // Recupero il livello selezionato (default intermediate)
+         const trainingLevel = settings.trainingLevel || 'intermediate';
+         
+         // 2. Calcolo Volume Totale
+         let totalVolume = 0;
+         if (session.logs && session.logs.length > 0) {
+         session.logs.forEach(l => {
+            const w = parseFloat(l.weight) || 0;
+            const r = parseFloat(l.reps) || 0;
+            const m = l.multiplier || 1;
+            totalVolume += (w * r * m);
+         });
+         }
+         
+         // 3. Calcolo Durata (minimo 1 minuto)
+         let durationMinutes = session.durationMinutes || Math.round((Date.now() - session.startTime) / 1000 / 60);
+         if (durationMinutes < 1) durationMinutes = 1;
+         
+         // --- ALGORITMO CALORIE ---
+         
+         // A. BMR (Mifflin-St Jeor)
+         let bmr = 0;
+         if (gender === 'male') {
+         bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+         } else {
+         bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+         }
+         
+         // B. Calcolo METs Base (Intensità)
+         // Determiniamo l'intensità in base alla "Densità" (kg spostati al minuto)
+         let metValue = 5.0; 
+         const volumeDensity = totalVolume / durationMinutes; 
+         
+         if (volumeDensity > 800) metValue = 7.5;      // Alta intensità
+         else if (volumeDensity > 400) metValue = 6.0; // Media
+         else metValue = 4.5;                          // Bassa
+         
+         // C. APPLICAZIONE LIVELLI (Tutti e 4 i casi)
+         // Modifichiamo i METs in base all'efficienza neuromuscolare
+         switch (trainingLevel) {
+         case 'beginner':
+            // I principianti sono meno coordinati e bruciano circa il 10% in più per stabilizzarsi
+            metValue *= 1.10; 
             break;
-        case 'intermediate':
-            efficiencyFactor = 4.0;
+         case 'intermediate':
+            // Valore standard di riferimento
+            metValue *= 1.00; 
             break;
-        case 'advanced':
-            efficiencyFactor = 3.5; // -12.5% per avanzati
+         case 'advanced':
+            // Gli avanzati sono più efficienti, bruciano leggermente meno a parità di sforzo
+            metValue *= 0.95; 
             break;
-        case 'elite':
-            efficiencyFactor = 3.0; // -25% per élite
+         case 'elite':
+            // Massima efficienza biomeccanica, minimo dispendio inutile
+            metValue *= 0.90; 
             break;
-        default:
-            efficiencyFactor = 4.0;
-    }
-    
-    // B. Fattore composizione esercizi
-    let exerciseTypeFactor = 1.0;
-    if (compoundExercisesCount > 0) {
-        const compoundExerciseRatio = compoundExercisesCount / totalSets;
-        exerciseTypeFactor += (compoundExerciseRatio * 0.25); // +25% se tutti composti
-    }
-    
-    // C. Fattore densità (recupero breve = più dispendioso)
-    let densityFactor = 1.0;
-    if (durationMinutes > 0 && totalSets > 0) {
-        const avgRestTime = durationMinutes / totalSets; // minuti per set
-        if (avgRestTime < 1.0) densityFactor = 1.25; // Circuito/HIIT
-        else if (avgRestTime < 2.0) densityFactor = 1.15; // Pausa breve
-        else if (avgRestTime > 4.0) densityFactor = 0.9; // Pausa lunga
-    }
-    
-    // D. Fattori individuali
-    let personalFactor = 1.0;
-    
-    // Età (metabolismo rallenta ~2% per decade dopo 20 anni)
-    if (age && !isNaN(age) && age > 20) {
-        const decadesOver20 = (age - 20) / 10;
-        personalFactor *= (1 - (decadesOver20 * 0.02));
-    }
-    
-    // Peso corporeo e composizione
-    if (height > 0) {
-        const bmi = bodyWeight / ((height/100) * (height/100));
-        if (bmi < 18.5) personalFactor *= 0.95; // Sottopeso
-        else if (bmi > 25 && bmi < 30) personalFactor *= 1.05; // Sovrappeso
-        else if (bmi >= 30) personalFactor *= 1.10; // Obesità (consumo energetico aumentato)
-    }
-    
-    // Sesso (gli uomini hanno generalmente metabolismo più alto)
-    if (gender === 'male') {
-        personalFactor *= 1.05;
-    } else if (gender === 'female') {
-        personalFactor *= 0.95;
-    }
-    
-    // 4. EPOC (Excess Post-exercise Oxygen Consumption)
-    let epocFactor = 1.0;
-    const highIntensityThreshold = avgIntensity > 0.8; // >80% del peso corporeo
-    const highVolumeThreshold = totalVolume > (bodyWeight * 40); // >40 volte il peso corporeo
-    
-    if (highIntensityThreshold && highVolumeThreshold) {
-        epocFactor = 1.20; // +20% EPOC per allenamenti molto intensi
-    } else if (highIntensityThreshold || highVolumeThreshold) {
-        epocFactor = 1.10; // +10% EPOC
-    }
-    
-    // 5. CALCOLO FINALE
-    let totalCalories = basalCaloriesDuringWorkout + 
-                       (mechanicalCalories * efficiencyFactor * exerciseTypeFactor * densityFactor * personalFactor);
-    
-    // Applica EPOC
-    totalCalories *= epocFactor;
-    
-    // Aggiungi termogenesi (NEAT) post-workout (+5%)
-    const neatBonus = totalCalories * 0.05;
-    totalCalories += neatBonus;
-    
-    // 6. LIMITI REALISTICI
-    // Range realistico per allenamento pesi: 3-8 kcal/min
-    const minRealisticRate = 3.0; // kcal/min
-    const maxRealisticRate = 8.0; // kcal/min (per sessioni molto intense)
-    
-    const caloriesPerMinute = totalCalories / durationMinutes;
-    if (caloriesPerMinute < minRealisticRate) {
-        totalCalories = minRealisticRate * durationMinutes;
-    } else if (caloriesPerMinute > maxRealisticRate) {
-        totalCalories = maxRealisticRate * durationMinutes;
-    }
-    
-    console.log('Calorie calculation (improved):', {
-        bodyWeight,
-        age: age || 'N/A',
-        gender: gender || 'N/A',
-        height: height || 'N/A',
-        totalVolume: Math.round(totalVolume),
-        totalSets,
-        avgIntensity: avgIntensity.toFixed(2),
-        compoundExercises: compoundExercisesCount,
-        basalCaloriesDuringWorkout: Math.round(basalCaloriesDuringWorkout),
-        mechanicalCalories: Math.round(mechanicalCalories),
-        efficiencyFactor,
-        exerciseTypeFactor: exerciseTypeFactor.toFixed(2),
-        densityFactor: densityFactor.toFixed(2),
-        personalFactor: personalFactor.toFixed(2),
-        epocFactor: epocFactor.toFixed(2),
-        neatBonus: Math.round(neatBonus),
-        durationMinutes: Math.round(durationMinutes),
-        caloriesPerMinute: (totalCalories / durationMinutes).toFixed(2),
-        finalCalories: Math.round(totalCalories)
-    });
-    
-    return Math.max(0, Math.round(totalCalories));
-},
+         default:
+            metValue *= 1.00;
+         }
+         
+         // Calcolo Calorie da Attività
+         // Formula: (METs * 3.5 * pesoInKg) / 200 * minuti
+         const activityCalories = ((metValue * 3.5 * weight) / 200) * durationMinutes;
+         
+         // D. Bonus Volume (Lavoro Meccanico Puro)
+         // Questo compensa il fatto che gli Elite, pur essendo efficienti, spostano carichi enormi
+         // che la formula METs base potrebbe sottostimare.
+         const volumeBonus = totalVolume * 0.035; 
+         
+         const totalCalories = activityCalories + volumeBonus;
+         
+         console.log(`📊 CALORIE REPORT:
+         • Level: ${trainingLevel}
+         • METs Adjusted: ${metValue.toFixed(2)}
+         • Activity: ${Math.round(activityCalories)}
+         • Volume Bonus: ${Math.round(volumeBonus)}
+         👉 TOTAL: ${Math.round(totalCalories)}`);
+         
+         return Math.round(totalCalories);
+         },
+         
          
              router: {
                  go: (viewId) => {
@@ -733,38 +609,45 @@ calculateCalories: (session) => {
                      });
                  },
          
-                 renderEditorExercises: () => {
-                     const container = document.getElementById('editor-exercises-list');
-                     container.innerHTML = '';
-                     app.state.editingWorkout.exercises.forEach((ex, idx) => {
-                         const el = document.createElement('div');
-                         el.className = 'bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
-                         el.innerHTML = `
-                             <div class="flex items-center gap-3 flex-1">
-                                 <i class="fa-solid fa-grip-lines text-gray-400 cursor-move"></i>
-                                 <div>
-                                     <div class="font-bold">${ex.name}</div>
-                                     <div class="text-xs text-gray-500">${ex.sets} x ${ex.reps} • ${ex.rest}s riposo${ex.isDouble ? ' • 2x manubri' : ''}</div>
-                                 </div>
-                             </div>
-                             <button onclick="app.handlers.removeExercise(${idx})" class="text-red-400 p-2"><i class="fa-solid fa-times"></i></button>
-                         `;
-                         container.appendChild(el);
-                     });
-                     
-                     // Init Sortable
-                     if (app.sortable) app.sortable.destroy();
-                     app.sortable = new Sortable(container, {
-                         animation: 150,
-                         handle: '.fa-grip-lines',
-                         ghostClass: 'sortable-ghost',
-                         onEnd: (evt) => {
-                             // Reorder logic
-                             const item = app.state.editingWorkout.exercises.splice(evt.oldIndex, 1)[0];
-                             app.state.editingWorkout.exercises.splice(evt.newIndex, 0, item);
-                         }
-                     });
-                 },
+         renderEditorExercises: () => {
+         const container = document.getElementById('editor-exercises-list');
+         container.innerHTML = '';
+         
+         app.state.editingWorkout.exercises.forEach((ex, idx) => {
+         const el = document.createElement('div');
+         el.className = 'bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
+         el.innerHTML = `
+         <div class="flex items-center gap-3 flex-1 overflow-hidden">
+         <i class="fa-solid fa-grip-lines text-gray-400 cursor-move"></i>
+         <div class="truncate">
+         	<div class="font-bold truncate">${ex.name}</div>
+         	<div class="text-xs text-gray-500 truncate">${ex.sets} x ${ex.reps} • ${ex.rest}s${ex.isDouble ? ' • 2x' : ''}</div>
+         </div>
+         </div>
+         <div class="flex items-center gap-1">
+         <button onclick="app.handlers.editExercise(${idx})" class="text-blue-500 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+         	<i class="fa-solid fa-pencil"></i>
+         </button>
+         <button onclick="app.handlers.removeExercise(${idx})" class="text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 dark:hover:bg-gray-700 transition">
+         	<i class="fa-solid fa-times"></i>
+         </button>
+         </div>
+         `;
+         container.appendChild(el);
+         });
+         
+         // Init Sortable (rimane uguale)
+         if (app.sortable) app.sortable.destroy();
+         app.sortable = new Sortable(container, {
+         animation: 150,
+         handle: '.fa-grip-lines',
+         ghostClass: 'sortable-ghost',
+         onEnd: (evt) => {
+         const item = app.state.editingWorkout.exercises.splice(evt.oldIndex, 1)[0];
+         app.state.editingWorkout.exercises.splice(evt.newIndex, 0, item);
+         }
+         });
+         },
          
                  updateActiveView: () => {
                      const session = app.state.activeSession;
@@ -936,31 +819,71 @@ calculateCalories: (session) => {
                      app.router.go('editor');
                  },
          
-                 addExerciseToEditor: () => {
-                     document.getElementById('exercise-modal').classList.remove('hidden');
-                     document.getElementById('modal-ex-name').focus();
-                 },
          
-                 confirmAddExercise: () => {
-                     const name = document.getElementById('modal-ex-name').value;
-                     if(!name) return;
-                     
-         app.state.editingWorkout.exercises.push({
+         // --- Sostituisci addExerciseToEditor ---
+         addExerciseToEditor: () => {
+         app.state.editingExerciseIndex = null; // Stiamo creando, non modificando
+         
+         // Reset form
+         document.getElementById('modal-ex-name').value = '';
+         document.getElementById('modal-ex-sets').value = '3';
+         document.getElementById('modal-ex-reps').value = '10';
+         document.getElementById('modal-ex-rest').value = '90';
+         document.getElementById('modal-ex-weight').value = '0';
+         document.getElementById('modal-ex-double').checked = false;
+         
+         // Cambia testo bottone
+         document.querySelector('#exercise-modal button.bg-primary').innerText = "Aggiungi";
+         
+         document.getElementById('exercise-modal').classList.remove('hidden');
+         document.getElementById('modal-ex-name').focus();
+         },
+         
+         // --- AGGIUNGI QUESTA NUOVA FUNZIONE ---
+         editExercise: (idx) => {
+         app.state.editingExerciseIndex = idx; // Salviamo l'indice che stiamo modificando
+         const ex = app.state.editingWorkout.exercises[idx];
+         
+         // Popola il form con i dati esistenti
+         document.getElementById('modal-ex-name').value = ex.name;
+         document.getElementById('modal-ex-sets').value = ex.sets;
+         document.getElementById('modal-ex-reps').value = ex.reps;
+         document.getElementById('modal-ex-rest').value = ex.rest;
+         document.getElementById('modal-ex-weight').value = ex.lastWeight || 0;
+         document.getElementById('modal-ex-double').checked = ex.isDouble || false;
+         
+         // Cambia testo bottone per chiarezza
+         document.querySelector('#exercise-modal button.bg-primary').innerText = "Salva Modifiche";
+         
+         document.getElementById('exercise-modal').classList.remove('hidden');
+         },
+         
+         // --- Sostituisci confirmAddExercise ---
+         confirmAddExercise: () => {
+         const name = document.getElementById('modal-ex-name').value;
+         if(!name) return;
+         
+         const exerciseData = {
          name,
          sets: document.getElementById('modal-ex-sets').value,
          reps: document.getElementById('modal-ex-reps').value,
          rest: document.getElementById('modal-ex-rest').value,
          lastWeight: document.getElementById('modal-ex-weight').value,
          isDouble: document.getElementById('modal-ex-double').checked
-         });
-                     
-                     document.getElementById('exercise-modal').classList.add('hidden');
-                     // Reset modal fields
-                     document.getElementById('modal-ex-name').value = '';
-         document.getElementById('modal-ex-double').checked = false;
-                     
-                     app.ui.renderEditorExercises();
-                 },
+         };
+         
+         if (app.state.editingExerciseIndex !== null) {
+         // MODIFICA ESISTENTE
+         app.state.editingWorkout.exercises[app.state.editingExerciseIndex] = exerciseData;
+         app.state.editingExerciseIndex = null; // Reset
+         } else {
+         // AGGIUNTA NUOVO
+         app.state.editingWorkout.exercises.push(exerciseData);
+         }
+         
+         document.getElementById('exercise-modal').classList.add('hidden');
+         app.ui.renderEditorExercises();
+         },
          
                  removeExercise: (idx) => {
                      if(confirm('Rimuovere esercizio?')) {
@@ -1274,21 +1197,21 @@ calculateCalories: (session) => {
          });
          
          // Personal Settings Listeners
-['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender', 'setting-training-level'].forEach(id => {
-    const el = document.getElementById(id);
-    const key = id.replace('setting-', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-    
-    // Load saved value
-    if (app.state.settings[key]) {
-        el.value = app.state.settings[key];
-    }
-    
-    // Save on change
-    el.addEventListener('change', () => {
-        app.state.settings[key] = el.value;
-        app.db.put('settings', { key: key, value: el.value });
-    });
-});
+         ['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender', 'setting-training-level'].forEach(id => {
+         const el = document.getElementById(id);
+         const key = id.replace('setting-', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+         
+         // Load saved value
+         if (app.state.settings[key]) {
+         el.value = app.state.settings[key];
+         }
+         
+         // Save on change
+         el.addEventListener('change', () => {
+         app.state.settings[key] = el.value;
+         app.db.put('settings', { key: key, value: el.value });
+         });
+         });
          
          
          // Init App
