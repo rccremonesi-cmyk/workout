@@ -768,19 +768,41 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
                          restOverlay.classList.add('hidden');
                          restOverlay.classList.remove('flex');
                      }
-					 // Update Footer Progress Bar
-        const totalSetsInWorkout = session.workout.exercises.reduce((acc, e) => acc + parseInt(e.sets), 0);
-        const completedSetsTotal = session.workout.exercises.slice(0, session.currentExIdx).reduce((acc,e) => acc + parseInt(e.sets), 0) + session.currentSet;
-        const progressPct = ((completedSetsTotal + 1) / totalSetsInWorkout) * 100;
+					 
+					 // Update Footer Progress Bar (SINGOLO ESERCIZIO)
+const currentEx = session.workout.exercises[session.currentExIdx];
+const totalStepsInExercise = parseInt(currentEx.sets) * 2 - 1; // ogni serie + pausa (tranne ultima)
+let currentStep = session.currentSet * 2; // ogni serie completata = 2 step (serie + pausa)
+if (session.status === 'rest') currentStep++; // se siamo in pausa, aggiungi 1
 
-        document.getElementById('footer-progress-fill').style.width = `${Math.min(progressPct, 100)}%`;
-        document.getElementById('footer-progress-text').innerText = `Serie ${completedSetsTotal + 1}/${totalSetsInWorkout}`;
+const progressPct = (currentStep / totalStepsInExercise) * 100;
 
-        // Calcola tempo rimanente stimato
-        const avgRestTime = session.workout.exercises.reduce((acc, e) => acc + parseInt(e.rest), 0) / session.workout.exercises.length;
-        const remainingSets = totalSetsInWorkout - completedSetsTotal - 1;
-        const estimatedMinutes = Math.ceil((remainingSets * avgRestTime) / 60);
-        document.getElementById('footer-time-remaining').innerText = estimatedMinutes > 0 ? `~${estimatedMinutes} min rimanenti` : 'Ultima serie!';
+document.getElementById('footer-progress-fill').style.width = `${Math.min(progressPct, 100)}%`;
+
+// Testo dinamico
+let statusText = '';
+if (session.status === 'rest') {
+    statusText = `Pausa ${session.currentSet + 1}/${currentEx.sets}`;
+} else {
+    statusText = `Serie ${session.currentSet + 1}/${currentEx.sets}`;
+}
+document.getElementById('footer-progress-text').innerText = statusText;
+
+// Tempo rimanente per questo esercizio
+const remainingSetsEx = parseInt(currentEx.sets) - session.currentSet - 1;
+const restTime = parseInt(currentEx.rest);
+const estimatedSecondsEx = session.status === 'rest' 
+    ? (remainingSetsEx * restTime) 
+    : (remainingSetsEx * restTime + restTime);
+const estimatedMinutesEx = Math.ceil(estimatedSecondsEx / 60);
+
+if (estimatedMinutesEx > 0) {
+    document.getElementById('footer-time-remaining').innerText = `~${estimatedMinutesEx} min questo esercizio`;
+} else if (session.status === 'rest') {
+    document.getElementById('footer-time-remaining').innerText = 'Ultima pausa!';
+} else {
+    document.getElementById('footer-time-remaining').innerText = 'Ultima serie!';
+}
                  },
                  
                  renderStats: () => {
