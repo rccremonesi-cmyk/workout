@@ -203,15 +203,29 @@
                </div>
             </div>
             <!-- Controls Footer -->
-            <div class="p-6 bg-gray-800 pb-safe rounded-t-3xl footer-action">
-               <button id="btn-main-action" onclick="app.handlers.completeSet()" class="w-full bg-primary hover:bg-primaryDark text-white font-bold text-xl py-4 rounded-xl shadow-lg transform transition active:scale-95 flex justify-center items-center gap-3">
-               <i class="fa-solid fa-check"></i> <span>Serie Completata</span>
-               </button>
-               <div class="flex justify-between mt-4 px-2">
-                  <button onclick="app.handlers.skipExercise()" class="text-gray-400 text-sm hover:text-white">Salta Esercizio</button>
-                  <button onclick="app.handlers.finishWorkoutEarly()" class="text-red-400 text-sm hover:text-red-300">Termina Workout</button>
-               </div>
-            </div>
+           <!-- Controls Footer -->
+<div class="fixed bottom-0 left-0 right-0 bg-gray-800 pb-safe z-40">
+   <!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
+   <div class="px-4 pt-2 pb-3">
+      <div class="flex items-center justify-between text-xs text-gray-400 mb-1">
+         <span id="footer-progress-text">Serie 1/12</span>
+         <span id="footer-time-remaining">~15 min rimanenti</span>
+      </div>
+      <div class="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+         <div id="footer-progress-fill" class="h-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-300" style="width: 8%"></div>
+      </div>
+   </div>
+   
+   <div class="px-6 pb-6 rounded-t-3xl">
+      <button id="btn-main-action" onclick="app.handlers.completeSet()" class="w-full bg-primary hover:bg-primaryDark text-white font-bold text-xl py-4 rounded-xl shadow-lg transform transition active:scale-95 flex justify-center items-center gap-3">
+      <i class="fa-solid fa-check"></i> <span>Serie Completata</span>
+      </button>
+      <div class="flex justify-between mt-4 px-2">
+         <button onclick="app.handlers.skipExercise()" class="text-gray-400 text-sm hover:text-white">Salta Esercizio</button>
+         <button onclick="app.handlers.finishWorkoutEarly()" class="text-red-400 text-sm hover:text-red-300">Termina Workout</button>
+      </div>
+   </div>
+</div>
          </section>
          <!-- VIEW: STATISTICS -->
          <section id="view-stats" class="view-section p-4 space-y-6 pb-20">
@@ -754,6 +768,19 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
                          restOverlay.classList.add('hidden');
                          restOverlay.classList.remove('flex');
                      }
+					 // Update Footer Progress Bar
+        const totalSetsInWorkout = session.workout.exercises.reduce((acc, e) => acc + parseInt(e.sets), 0);
+        const completedSetsTotal = session.workout.exercises.slice(0, session.currentExIdx).reduce((acc,e) => acc + parseInt(e.sets), 0) + session.currentSet;
+        const progressPct = ((completedSetsTotal + 1) / totalSetsInWorkout) * 100;
+
+        document.getElementById('footer-progress-fill').style.width = `${Math.min(progressPct, 100)}%`;
+        document.getElementById('footer-progress-text').innerText = `Serie ${completedSetsTotal + 1}/${totalSetsInWorkout}`;
+
+        // Calcola tempo rimanente stimato
+        const avgRestTime = session.workout.exercises.reduce((acc, e) => acc + parseInt(e.rest), 0) / session.workout.exercises.length;
+        const remainingSets = totalSetsInWorkout - completedSetsTotal - 1;
+        const estimatedMinutes = Math.ceil((remainingSets * avgRestTime) / 60);
+        document.getElementById('footer-time-remaining').innerText = estimatedMinutes > 0 ? `~${estimatedMinutes} min rimanenti` : 'Ultima serie!';
                  },
                  
                  renderStats: () => {
