@@ -253,10 +253,8 @@
             <!-- Active Header -->
             <div class="px-4 py-4 flex justify-between items-center border-b border-gray-700">
                 <button onclick="app.handlers.confirmExitWorkout()" class="text-gray-400"><i class="fa-solid fa-xmark text-2xl"></i></button>
-   <button onclick="app.handlers.showWorkoutPreview()" class="text-gray-400 hover:text-primary transition">
-      <i class="fa-solid fa-list-check text-xl"></i>
-   </button>
-               <div class="text-center">
+   
+               <div class="text-center" onclick="app.handlers.showWorkoutPreview()">
                   <h3 id="active-workout-name" class="font-bold text-sm text-gray-300">Workout</h3>
                   <div class="flex items-center gap-2 justify-center text-xs">
                      <span id="active-timer-total" class="text-primary font-mono">00:00</span>
