@@ -31,20 +31,104 @@
          .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
          .footer-action{ position: fixed; bottom: 0px; width: 100%; }
 		 /* Animated Background for Active Workout */
-@keyframes pulse-gradient {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+/* Animated Background for Active Workout - VERSIONE VISIVA */
+@keyframes energy-pulse {
+    0%, 100% { 
+        transform: scale(1) rotate(0deg);
+        opacity: 0.15;
+    }
+    50% { 
+        transform: scale(1.5) rotate(180deg);
+        opacity: 0.25;
+    }
+}
+
+@keyframes energy-pulse-2 {
+    0%, 100% { 
+        transform: scale(1.2) rotate(180deg);
+        opacity: 0.1;
+    }
+    50% { 
+        transform: scale(1.8) rotate(360deg);
+        opacity: 0.2;
+    }
+}
+
+@keyframes radial-expand {
+    0% { 
+        transform: scale(0.8);
+        opacity: 0.3;
+    }
+    100% { 
+        transform: scale(2.5);
+        opacity: 0;
+    }
 }
 
 .workout-active-bg {
-    background: linear-gradient(135deg, #1f2937 0%, #5127F2 50%, #1f2937 100%);
-    background-size: 200% 200%;
-    animation: pulse-gradient 4s ease infinite;
+    background: #111827;
+    position: relative;
+    overflow: hidden;
+}
+
+.workout-active-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, #5127F2 0%, transparent 70%);
+    animation: energy-pulse 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.workout-active-bg::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+    animation: energy-pulse-2 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* Pulsazioni radiali durante esercizio */
+.workout-active-bg .radial-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    margin: -150px 0 0 -150px;
+    border: 2px solid #5127F2;
+    border-radius: 50%;
+    animation: radial-expand 2s ease-out infinite;
+    pointer-events: none;
+}
+
+.workout-active-bg .radial-pulse:nth-child(2) {
+    animation-delay: 0.6s;
+    border-color: #7c3aed;
+}
+
+.workout-active-bg .radial-pulse:nth-child(3) {
+    animation-delay: 1.2s;
+    border-color: #a855f7;
 }
 
 .workout-rest-bg {
     background: #111827;
     transition: background 0.5s ease;
+    position: relative;
+}
+
+/* Rimuovi gli pseudo-elementi durante il riposo */
+.workout-rest-bg::before,
+.workout-rest-bg::after {
+    display: none;
 }
       </style>
       <script>
@@ -153,6 +237,13 @@
          </section>
          <!-- VIEW: ACTIVE WORKOUT MODE -->
          <section id="view-active" class="view-section bg-gray-900 text-white min-h-full absolute inset-0 z-50 flex flex-col">
+		 
+		 <!-- Pulsazioni radiali animate -->
+<div class="radial-pulse"></div>
+<div class="radial-pulse"></div>
+<div class="radial-pulse"></div>
+
+
             <!-- Active Header -->
             <div class="px-4 py-4 flex justify-between items-center border-b border-gray-700">
                 <button onclick="app.handlers.confirmExitWorkout()" class="text-gray-400"><i class="fa-solid fa-xmark text-2xl"></i></button>
@@ -797,13 +888,20 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
                      const restOverlay = document.getElementById('rest-overlay');
                      
 					 // Apply animated background
+// Apply animated background
 const activeSection = document.getElementById('view-active');
+const pulses = activeSection.querySelectorAll('.radial-pulse');
+
 if (session.status === 'rest') {
     activeSection.classList.remove('workout-active-bg');
     activeSection.classList.add('workout-rest-bg');
+    // Nascondi pulsazioni durante riposo
+    pulses.forEach(p => p.style.display = 'none');
 } else {
     activeSection.classList.remove('workout-rest-bg');
     activeSection.classList.add('workout-active-bg');
+    // Mostra pulsazioni durante esercizio
+    pulses.forEach(p => p.style.display = 'block');
 }
 					 
                      if (session.status === 'rest') {
