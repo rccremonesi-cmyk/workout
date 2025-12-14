@@ -891,15 +891,22 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
                      const btn = document.getElementById('btn-main-action');
                      const restOverlay = document.getElementById('rest-overlay');
                      
-// Apply animated background
+// Apply animated background con delay per evitare flash iniziale
 const activeSection = document.getElementById('view-active');
+const pulses = activeSection.querySelectorAll('.radial-pulse');
 
 if (session.status === 'rest') {
     activeSection.classList.remove('workout-active-bg');
     activeSection.classList.add('workout-rest-bg');
+    // Nascondi immediatamente durante riposo
+    pulses.forEach(p => p.style.display = 'none');
 } else {
     activeSection.classList.remove('workout-rest-bg');
     activeSection.classList.add('workout-active-bg');
+    // Mostra con piccolo delay per evitare flash
+    setTimeout(() => {
+        pulses.forEach(p => p.style.display = 'block');
+    }, 100);
 }
 					 
                      if (session.status === 'rest') {
@@ -1189,20 +1196,24 @@ document.getElementById('total-fat-burned').innerText = totalFatGrams.toLocaleSt
                  },
          
                  // Execution Handlers
-                 startWorkout: (id) => {
-                     const w = app.state.workouts.find(w => w.id === id);
-                     app.state.activeSession = {
-                         workout: JSON.parse(JSON.stringify(w)), // Clone
-                         currentExIdx: 0,
-                         currentSet: 0,
-                         status: 'work',
-                         startTime: Date.now(),
-                         logs: [] // Track actual reps/weight
-                     };
-                     app.router.go('active');
-                     app.ui.updateActiveView();
-                     app.handlers.startTotalTimer();
-                 },
+startWorkout: (id) => {
+    const w = app.state.workouts.find(w => w.id === id);
+    app.state.activeSession = {
+        workout: JSON.parse(JSON.stringify(w)), // Clone
+        currentExIdx: 0,
+        currentSet: 0,
+        status: 'work',
+        startTime: Date.now(),
+        logs: [] // Track actual reps/weight
+    };
+    app.router.go('active');
+    
+    // Delay per permettere il rendering prima di attivare animazioni
+    setTimeout(() => {
+        app.ui.updateActiveView();
+        app.handlers.startTotalTimer();
+    }, 50);
+},
          
                  adjustWeight: (delta) => {
          const session = app.state.activeSession;
