@@ -891,21 +891,15 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
                      const btn = document.getElementById('btn-main-action');
                      const restOverlay = document.getElementById('rest-overlay');
                      
-					 // Apply animated background
 // Apply animated background
 const activeSection = document.getElementById('view-active');
-const pulses = activeSection.querySelectorAll('.radial-pulse');
 
 if (session.status === 'rest') {
     activeSection.classList.remove('workout-active-bg');
     activeSection.classList.add('workout-rest-bg');
-    // Nascondi pulsazioni durante riposo
-    pulses.forEach(p => p.style.display = 'none');
 } else {
     activeSection.classList.remove('workout-rest-bg');
     activeSection.classList.add('workout-active-bg');
-    // Mostra pulsazioni durante esercizio
-    pulses.forEach(p => p.style.display = 'block');
 }
 					 
                      if (session.status === 'rest') {
