@@ -95,8 +95,8 @@
     pointer-events: none;
 }
 
-/* Pulsazioni radiali durante esercizio */
-.workout-active-bg .radial-pulse {
+/* Pulsazioni radiali - nascoste di default */
+.radial-pulse {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -105,8 +105,14 @@
     margin: -150px 0 0 -150px;
     border: 2px solid #5127F2;
     border-radius: 50%;
-    animation: radial-expand 2s ease-out infinite;
     pointer-events: none;
+    display: none; /* Nascoste di default */
+}
+
+/* Mostrale e animale SOLO quando workout-active-bg è attivo */
+.workout-active-bg .radial-pulse {
+    display: block;
+    animation: radial-expand 2s ease-out infinite;
 }
 
 .workout-active-bg .radial-pulse:nth-child(2) {
