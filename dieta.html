@@ -24,6 +24,16 @@
             color: #333;
         }
         
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+        
         .container {
             background: white;
             padding: 30px;
@@ -53,9 +63,15 @@
         
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             gap: 15px;
             text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         
         .summary-item {
@@ -94,12 +110,18 @@
         
         .meal-totals {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
             gap: 10px;
             margin-bottom: 15px;
             padding: 10px;
             background: white;
             border-radius: 5px;
+        }
+        
+        @media (max-width: 600px) {
+            .meal-totals {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         
         .meal-total-item {
@@ -123,6 +145,21 @@
             grid-template-columns: 3fr 1fr 1fr 1fr 1fr 1fr;
             gap: 10px;
             align-items: center;
+        }
+        
+        @media (max-width: 768px) {
+            .food-item {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            
+            .food-item > div:not(:first-child) {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 5px;
+                text-align: center;
+                font-size: 11px;
+            }
         }
         
         .food-item:last-child {
@@ -176,6 +213,18 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
+        }
+        
+        @media (max-width: 600px) {
+            .category-items {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .category-items {
+                grid-template-columns: 1fr;
+            }
         }
         
         .category-item {
