@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mio Diario Alimentare - 07 Gennaio 2026</title>
+    <style>
+        @media print {
+            body {
+                margin: 0;
+                padding: 15mm;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c5282;
+            border-bottom: 3px solid #4299e1;
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .date {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        
+        .summary {
+            background: #e6f2ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #4299e1;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .summary-item {
+            padding: 10px;
+        }
+        
+        .summary-item .label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .summary-item .value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c5282;
+            margin-top: 5px;
+        }
+        
+        .meal {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fafafa;
+        }
+        
+        .meal-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c5282;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #4299e1;
+            padding-bottom: 5px;
+        }
+        
+        .meal-totals {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+        
+        .meal-total-item {
+            text-align: center;
+        }
+        
+        .meal-total-item .label {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .meal-total-item .value {
+            font-weight: bold;
+            color: #2c5282;
+        }
+        
+        .food-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #e8e8e8;
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .food-item:last-child {
+            border-bottom: none;
+        }
+        
+        .food-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .food-quantity {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .food-value {
+            text-align: center;
+            font-size: 13px;
+        }
+        
+        .substitutions {
+            margin-top: 40px;
+            page-break-before: avoid;
+        }
+        
+        .substitutions h2 {
+            color: #2c5282;
+            border-bottom: 3px solid #48bb78;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .category {
+            margin-bottom: 25px;
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .category-title {
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 16px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .category-items {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .category-item {
+            padding: 6px 10px;
+            background: white;
+            border-radius: 4px;
+            font-size: 13px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .daily-summary {
+            background: #fff5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border-left: 4px solid #f56565;
+            text-align: center;
+        }
+        
+        .daily-summary h3 {
+            color: #c53030;
+            margin: 0 0 10px 0;
+        }
+        
+        .percentage {
+            font-size: 36px;
+            font-weight: bold;
+            color: #c53030;
+        }
+        
+        @media print {
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mio Diario Alimentare</h1>
+        <div class="date">Mercoledì 07 Gennaio 2026</div>
+        
+        <div class="summary">
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="label">GDA (%)</div>
+                    <div class="value">106</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Grassi (g)</div>
+                    <div class="value">64,18</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Carb (g)</div>
+                    <div class="value">287,14</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Prot (g)</div>
+                    <div class="value">158,20</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Cal</div>
+                    <div class="value">2328</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLAZIONE -->
+        <div class="meal">
+            <div class="meal-header">COLAZIONE</div>
+            <div class="meal-totals">
+                <div class="meal-total-item">
+                    <div class="label">GDA</div>
+                    <div class="value">23</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Grassi</div>
+                    <div class="value">17,31g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Carb</div>
+                    <div class="value">68,40g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Prot</div>
+                    <div class="value">16,67g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Cal</div>
+                    <div class="value">497</div>
+                </div>
+            </div>
+            
+            <div class="food-item" style="font-weight: bold; background: #f0f0f0; padding: 8px; border-radius: 4px;">
+                <div class="food-name">Alimento</div>
+                <div class="food-value">GDA</div>
+                <div class="food-value">Grassi</div>
+                <div class="food-value">Carb</div>
+                <div class="food-value">Prot</div>
+                <div class="food-value">Cal</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Mela</div>
+                    <div class="food-quantity">1 media (7 cm di diametro) (circa 3 in 450 g)</div>
+                </div>
+                <div class="food-value">3</div>
+                <div class="food-value">0,23</div>
+                <div class="food-value">19,06</div>
+                <div class="food-value">0,36</div>
+                <div class="food-value">72</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Caputo Mandorle Tostate</div>
+                    <div class="food-quantity">6 g</div>
+                </div>
+                <div class="food-value">2</div>
+                <div class="food-value">3,13</div>
+                <div class="food-value">0,62</div>
+                <div class="food-value">1,27</div>
+                <div class="food-value">36</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Esselunga Equilibrio Granola Cioccolato Fondente</div>
+                    <div class="food-quantity">60 g</div>
+                </div>
+                <div class="food-value">12</div>
+                <div class="food-value">9,84</div>
+                <div class="food-value">36,66</div>
+                <div class="food-value">6,72</div>
+                <div class="food-value">270</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Latte Parzialmente Scremato</div>
+                    <div class="food-quantity">250 g</div>
+                </div>
+                <div class="food-value">5</div>
+                <div class="food-value">4,11</div>
+                <div class="food-value">12,06</div>
+                <div class="food-value">8,32</div>
+                <div class="food-value">119</div>
+            </div>
+        </div>
+
+        <!-- PRANZO -->
+        <div class="meal">
+            <div class="meal-header">PRANZO</div>
+            <div class="meal-totals">
+                <div class="meal-total-item">
+                    <div class="label">GDA</div>
+                    <div class="value">32</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Grassi</div>
+                    <div class="value">18,20g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Carb</div>
+                    <div class="value">74,74g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Prot</div>
+                    <div class="value">62,75g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Cal</div>
+                    <div class="value">698</div>
+                </div>
+            </div>
+            
+            <div class="food-item" style="font-weight: bold; background: #f0f0f0; padding: 8px; border-radius: 4px;">
+                <div class="food-name">Alimento</div>
+                <div class="food-value">GDA</div>
+                <div class="food-value">Grassi</div>
+                <div class="food-value">Carb</div>
+                <div class="food-value">Prot</div>
+                <div class="food-value">Cal</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Sugo di Pomodoro</div>
+                    <div class="food-quantity">100 g</div>
+                </div>
+                <div class="food-value">2</div>
+                <div class="food-value">0,20</div>
+                <div class="food-value">7,41</div>
+                <div class="food-value">1,30</div>
+                <div class="food-value">37</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Parmigiano (Grattugiato)</div>
+                    <div class="food-quantity">15 g</div>
+                </div>
+                <div class="food-value">3</div>
+                <div class="food-value">4,29</div>
+                <div class="food-value">0,61</div>
+                <div class="food-value">5,77</div>
+                <div class="food-value">65</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Pasta Integrale Secca</div>
+                    <div class="food-quantity">80 g</div>
+                </div>
+                <div class="food-value">13</div>
+                <div class="food-value">1,12</div>
+                <div class="food-value">60,02</div>
+                <div class="food-value">11,70</div>
+                <div class="food-value">278</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Olio Extra Vergine di Oliva</div>
+                    <div class="food-quantity">10 g</div>
+                </div>
+                <div class="food-value">4</div>
+                <div class="food-value">10,00</div>
+                <div class="food-value">-</div>
+                <div class="food-value">-</div>
+                <div class="food-value">88</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Zucchine</div>
+                    <div class="food-quantity">200 g</div>
+                </div>
+                <div class="food-value">1</div>
+                <div class="food-value">0,36</div>
+                <div class="food-value">6,70</div>
+                <div class="food-value">2,42</div>
+                <div class="food-value">32</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Petto di Pollo, Carne</div>
+                    <div class="food-quantity">180 g</div>
+                </div>
+                <div class="food-value">9</div>
+                <div class="food-value">2,23</div>
+                <div class="food-value">-</div>
+                <div class="food-value">41,56</div>
+                <div class="food-value">198</div>
+            </div>
+        </div>
+
+        <!-- CENA -->
+        <div class="meal">
+            <div class="meal-header">CENA</div>
+            <div class="meal-totals">
+                <div class="meal-total-item">
+                    <div class="label">GDA</div>
+                    <div class="value">32</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Grassi</div>
+                    <div class="value">22,32g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Carb</div>
+                    <div class="value">74,73g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Prot</div>
+                    <div class="value">54,72g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Cal</div>
+                    <div class="value">708</div>
+                </div>
+            </div>
+            
+            <div class="food-item" style="font-weight: bold; background: #f0f0f0; padding: 8px; border-radius: 4px;">
+                <div class="food-name">Alimento</div>
+                <div class="food-value">GDA</div>
+                <div class="food-value">Grassi</div>
+                <div class="food-value">Carb</div>
+                <div class="food-value">Prot</div>
+                <div class="food-value">Cal</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Sgombro</div>
+                    <div class="food-quantity">200 g</div>
+                </div>
+                <div class="food-value">15</div>
+                <div class="food-value">12,42</div>
+                <div class="food-value">-</div>
+                <div class="food-value">38,60</div>
+                <div class="food-value">292</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Auchan Olio Extravergine di Oliva</div>
+                    <div class="food-quantity">1 cucchiaio da tavola, 10 g</div>
+                </div>
+                <div class="food-value">4</div>
+                <div class="food-value">9,16</div>
+                <div class="food-value">-</div>
+                <div class="food-value">-</div>
+                <div class="food-value">82</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Insalata Mista Verde</div>
+                    <div class="food-quantity">1 porzione (55 g)</div>
+                </div>
+                <div class="food-value">0</div>
+                <div class="food-value">0,13</div>
+                <div class="food-value">1,76</div>
+                <div class="food-value">0,84</div>
+                <div class="food-value">9</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Patate Crude</div>
+                    <div class="food-quantity">300 g</div>
+                </div>
+                <div class="food-value">11</div>
+                <div class="food-value">0,27</div>
+                <div class="food-value">52,41</div>
+                <div class="food-value">6,06</div>
+                <div class="food-value">231</div>
+            </div>
+        </div>
+
+        <!-- SNACKS/ALTRO -->
+        <div class="meal">
+            <div class="meal-header">SNACKS/ALTRO</div>
+            <div class="meal-totals">
+                <div class="meal-total-item">
+                    <div class="label">GDA</div>
+                    <div class="value">19</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Grassi</div>
+                    <div class="value">6,35g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Carb</div>
+                    <div class="value">69,27g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Prot</div>
+                    <div class="value">24,06g</div>
+                </div>
+                <div class="meal-total-item">
+                    <div class="label">Cal</div>
+                    <div class="value">425</div>
+                </div>
+            </div>
+            
+            <div class="food-item" style="font-weight: bold; background: #f0f0f0; padding: 8px; border-radius: 4px;">
+                <div class="food-name">Alimento</div>
+                <div class="food-value">GDA</div>
+                <div class="food-value">Grassi</div>
+                <div class="food-value">Carb</div>
+                <div class="food-value">Prot</div>
+                <div class="food-value">Cal</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Pere</div>
+                    <div class="food-quantity">200 g</div>
+                </div>
+                <div class="food-value">5</div>
+                <div class="food-value">0,24</div>
+                <div class="food-value">30,92</div>
+                <div class="food-value">0,76</div>
+                <div class="food-value">116</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Citterio Prosciutto Cotto di Alta Qualità</div>
+                    <div class="food-quantity">80 g</div>
+                </div>
+                <div class="food-value">5</div>
+                <div class="food-value">5,60</div>
+                <div class="food-value">0,80</div>
+                <div class="food-value">14,40</div>
+                <div class="food-value">111</div>
+            </div>
+            
+            <div class="food-item">
+                <div>
+                    <div class="food-name">Esselunga Bocconcino Rustico</div>
+                    <div class="food-quantity">70 g</div>
+                </div>
+                <div class="food-value">9</div>
+                <div class="food-value">0,51</div>
+                <div class="food-value">37,55</div>
+                <div class="food-value">8,90</div>
+                <div class="food-value">198</div>
+            </div>
+        </div>
+
+        <div class="daily-summary">
+            <h3>Riepilogo Giornaliero</h3>
+            <div class="percentage">106% <span style="font-size: 16px;">di GDA*</span></div>
+            <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                (2328 cal)<br>
+                Basato su un GDA di 2200 calorie (17 giu 19)
+            </div>
+        </div>
+
+        <!-- SOSTITUTI ALIMENTARI -->
+        <div class="substitutions">
+            <h2>📋 Alimenti Sostituibili - Promemoria</h2>
+            
+            <div class="category">
+                <div class="category-title">🥬 Verdura</div>
+                <div class="category-items">
+                    <div class="category-item">Zucchine</div>
+                    <div class="category-item">Insalata</div>
+                    <div class="category-item">Cavoli vapore</div>
+                    <div class="category-item">Cavolfiore</div>
+                    <div class="category-item">Patate</div>
+                    <div class="category-item">Patate dolci</div>
+                    <div class="category-item">Pomodoro datterino</div>
+                    <div class="category-item">Fagiolini</div>
+                    <div class="category-item">Pesto Esselunga</div>
+                    <div class="category-item">Salsa pomodoro</div>
+                    <div class="category-item">Piselli surgelati</div>
+                </div>
+            </div>
+            
+            <div class="category">
+                <div class="category-title">🥩 Carne</div>
+                <div class="category-items">
+                    <div class="category-item">Scottona fettine</div>
+                    <div class="category-item">Petto di pollo</div>
+                    <div class="category-item">Fesa tacchino</div>
+                    <div class="category-item">Macinato fine tacchino Amadori</div>
+                </div>
+            </div>
+            
+            <div class="category">
+                <div class="category-title">🐟 Pesce</div>
+                <div class="category-items">
+                    <div class="category-item">Filetto orata</div>
+                    <div class="category-item">Filetto salmone</div>
+                    <div class="category-item">Fiori di nasello</div>
+                    <div class="category-item">Gambero argentino</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
