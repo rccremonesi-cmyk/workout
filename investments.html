@@ -19,96 +19,108 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --success-color: #4cc9f0;
-            --info-color: #4895ef;
-            --warning-color: #f72585;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --gradient-primary: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-            --gradient-secondary: linear-gradient(135deg, #7209b7 0%, #560bad 100%);
-            --gradient-success: linear-gradient(135deg, #4cc9f0 0%, #4895ef 100%);
-            --gradient-warning: linear-gradient(135deg, #f72585 0%, #b5179e 100%);
-            --gradient-info: linear-gradient(135deg, #4895ef 0%, #4361ee 100%);
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --info-color: #06b6d4;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-color: #f8fafc;
+            --dark-color: #1e293b;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-info: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+            --gradient-purple: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
         }
         
         body {
-            background-color: #f0f2f5;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
+            background: linear-gradient(to bottom right, #f8fafc 0%, #e0e7ff 100%);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1e293b;
+            min-height: 100vh;
         }
         .container {
             max-width: 1400px;
         }
         .card {
             border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
             margin-bottom: 20px;
-            border-radius: 12px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 16px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
         }
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.15);
         }
         .card-header {
-            background-color: #fff;
-            border-bottom: 2px solid #e9ecef;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-bottom: 2px solid rgba(99, 102, 241, 0.1);
             font-weight: 600;
-            border-radius: 12px 12px 0 0 !important;
-            padding: 15px 20px;
+            border-radius: 16px 16px 0 0 !important;
+            padding: 18px 24px;
             color: var(--primary-color);
         }
         .nav-tabs {
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.1);
         }
         .nav-tabs .nav-link {
-            color: #6c757d;
+            color: #64748b;
             border: none;
             border-bottom: 3px solid transparent;
-            padding: 12px 20px;
+            padding: 14px 24px;
             font-weight: 500;
-            border-radius: 8px 8px 0 0;
+            border-radius: 12px 12px 0 0;
             transition: all 0.3s;
         }
         .nav-tabs .nav-link:hover {
             color: var(--primary-color);
-            background-color: rgba(67, 97, 238, 0.05);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
         }
         .nav-tabs .nav-link.active {
             color: var(--primary-color);
             border-bottom: 3px solid var(--primary-color);
-            background-color: rgba(67, 97, 238, 0.08);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
         }
         .table {
             background-color: white;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
         }
         .table thead {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         }
         .badge-custom {
             font-size: 0.85rem;
-            padding: 0.35em 0.65em;
-            border-radius: 20px;
+            padding: 0.4em 0.75em;
+            border-radius: 24px;
+            font-weight: 500;
         }
         .stat-card {
             background: var(--gradient-primary);
             color: white;
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 24px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
         }
         .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
+            font-size: 0.95rem;
+            opacity: 0.95;
+            font-weight: 500;
         }
         .chart-container {
             position: relative;
@@ -120,39 +132,42 @@
         .btn-clone {
             font-size: 0.85rem;
             padding: 0.25rem 0.5rem;
-			border-radius:4px !important;
+			border-radius:6px !important;
         }
         .year-tab {
             cursor: pointer;
-            padding: 10px 20px;
-            margin-right: 5px;
-            border-radius: 8px;
-            background-color: #e9ecef;
+            padding: 12px 24px;
+            margin-right: 8px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
             display: inline-block;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             transition: all 0.3s;
             font-weight: 500;
+            border: 2px solid transparent;
         }
         .year-tab:hover {
-            background-color: #dee2e6;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            border-color: rgba(99, 102, 241, 0.3);
         }
         .year-tab.active {
-            background-color: var(--primary-color);
+            background: var(--gradient-primary);
             color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
         .investment-group {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
             border-left: 4px solid var(--primary-color);
-            padding: 15px;
+            padding: 20px;
             margin-bottom: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
         }
         .versamento-row {
             background-color: white;
             margin-bottom: 5px;
         }
         .total-row {
-            background-color: #e7f1ff;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
             font-weight: bold;
         }
         .sub-table {
@@ -165,56 +180,71 @@
         .btn-primary {
             background: var(--gradient-primary);
             border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
+            border-radius: 10px;
+            padding: 12px 24px;
             font-weight: 500;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
         .btn-primary:hover {
-            background: var(--secondary-color);
+            background: linear-gradient(135deg, #5558e3 0%, #6d42a0 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
         }
         .btn-outline-primary {
             color: var(--primary-color);
             border-color: var(--primary-color);
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 500;
+            border-width: 1px;
         }
         .btn-outline-primary:hover {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        .btn-outline-success {
+            border-radius: 10px;
+            font-weight: 500;
+            border-width: 2px;
+        }
+        .btn-outline-success:hover {
+            transform: translateY(-2px);
         }
         h1 {
-            color: var(--primary-color);
-            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
         }
         .form-control, .form-select {
-            border-radius: 8px;
-            padding: 10px 15px;
-            border: 1px solid #ced4da;
+            border-radius: 10px;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
         }
         .form-control:focus, .form-select:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.15);
         }
         .alert-info {
-            background-color: rgba(76, 201, 240, 0.1);
-            border-color: rgba(76, 201, 240, 0.3);
-            color: #0c5460;
-            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            border: 2px solid rgba(6, 182, 212, 0.3);
+            color: #0e7490;
+            border-radius: 12px;
         }
         .notes-editor {
             min-height: 400px;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             padding: 15px;
             background-color: white;
         }
         .notes-toolbar {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 8px 8px 0 0;
-            border-bottom: 1px solid #ced4da;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 12px;
+            border-radius: 12px 12px 0 0;
+            border-bottom: 2px solid #e2e8f0;
         }
         .notes-content {
             min-height: 350px;
@@ -222,22 +252,22 @@
             outline: none;
         }
         .notes-actions {
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 0 0 8px 8px;
-            border-top: 1px solid #ced4da;
+            padding: 12px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 0 0 12px 12px;
+            border-top: 2px solid #e2e8f0;
         }
         .floating-action-btn {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             background: var(--gradient-primary);
             color: white;
             border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -246,8 +276,8 @@
             transition: all 0.3s;
         }
         .floating-action-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+            transform: scale(1.15) rotate(360deg);
+            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.45);
         }
         .custom-tooltip {
             position: relative;
@@ -256,11 +286,11 @@
         .custom-tooltip .tooltip-text {
             visibility: hidden;
             width: 200px;
-            background-color: #333;
+            background-color: #1e293b;
             color: #fff;
             text-align: center;
-            border-radius: 6px;
-            padding: 5px;
+            border-radius: 8px;
+            padding: 8px;
             position: absolute;
             z-index: 1;
             bottom: 125%;
@@ -275,18 +305,49 @@
             opacity: 1;
         }
 		.select2-container--default .select2-selection--multiple {
-    background-color: white;
-    border: 1px solid #ced4da;
-    padding: 7px 0px 10px 10px;
-	}
+            background-color: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 8px 0px 10px 12px;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: var(--primary-color);
+        }
 	
 	.forecast-input-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
+        background: var(--gradient-purple);
+        color: #1e293b;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 24px rgba(168, 237, 234, 0.3);
+    }
+    
+    .badge {
+        border-radius: 20px;
+        padding: 0.5em 0.9em;
+        font-weight: 500;
+    }
+    
+    .badge.bg-primary {
+        background: var(--gradient-primary) !important;
+    }
+    
+    .badge.bg-info {
+        background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%) !important;
+    }
+    
+    .badge.bg-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    }
+    
+    .badge.bg-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    }
+    
+    .badge.bg-secondary {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+    }
     </style>
 </head>
 <body>
@@ -388,7 +449,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><i class="fas fa-euro-sign me-1"></i> Importo Versamento (€)</label>
+                                    <label class="form-label"><i class="fas fa-euro-sign me-1"></i> Importo Versamento (â‚¬)</label>
                                     <input type="number" step="0.01" class="form-control" id="totaleInvestito" required>
                                 </div>
                             </div>
@@ -687,12 +748,12 @@
             const yearTabsHtml = `
                 <div class="year-tab ${currentYear === 'all' ? 'active' : ''}" onclick="filterByYear('all')">
                     Tutti gli anni
-                    <div style="font-size: 0.85rem; margin-top: 3px;">€${totaleAll.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                    <div style="font-size: 0.85rem; margin-top: 3px;">â‚¬${totaleAll.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                 </div>
                 ${years.map(year => `
                     <div class="year-tab ${currentYear === year ? 'active' : ''}" onclick="filterByYear(${year})">
                         ${year}
-                        <div style="font-size: 0.85rem; margin-top: 3px;">€${totaliPerAnno[year].toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div style="font-size: 0.85rem; margin-top: 3px;">â‚¬${totaliPerAnno[year].toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                     </div>
                 `).join('')}
             `;
@@ -719,7 +780,7 @@
                 const totaleType = Object.values(investimenti).flat().reduce((sum, inv) => sum + inv.totale, 0);
                 
                 html += `
-                    <h5 class="mt-4 mb-3">${tipo} <span class="badge bg-secondary">${Object.keys(investimenti).length} investimenti - €${totaleType.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span></h5>
+                    <h5 class="mt-4 mb-3">${tipo} <span class="badge bg-secondary">${Object.keys(investimenti).length} investimenti - â‚¬${totaleType.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span></h5>
                 `;
 
                 Object.keys(investimenti).sort().forEach(nomeInv => {
@@ -731,7 +792,7 @@
                         <div class="investment-group">
                             <h6 class="mb-3">
                                 ${lastVersamento.link ? `<a href="${lastVersamento.link}" target="_blank">${nomeInv}</a>` : nomeInv}
-                                <span class="badge bg-primary ms-2">€${totaleInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})} totale</span>
+                                <span class="badge bg-primary ms-2">â‚¬${totaleInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})} totale</span>
                                 <span class="badge bg-info ms-1">${versamenti.length} versament${versamenti.length !== 1 ? 'i' : 'o'}
 </span>
                             </h6>
@@ -743,8 +804,8 @@
                                             <th>Anno</th>
                                             <th>Settori</th>
                                             <th>TER %</th>
-                                            <th>Versamento €</th>
-                                            <th>Progressivo €</th>
+                                            <th>Versamento â‚¬</th>
+                                            <th>Progressivo â‚¬</th>
                                             <th>Azioni</th>
                                         </tr>
                                     </thead>
@@ -762,8 +823,8 @@
                                     ${inv.settori.map(s => `<span class="badge bg-info badge-custom">${s}</span>`).join(' ')}
                                 </td>
                                 <td>${inv.ter}%</td>
-                                <td>€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                                <td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                                <td>â‚¬${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                                <td><strong>â‚¬${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                                 <td>
                                     <button class="btn btn-sm btn-outline-secondary btn-clone custom-tooltip" onclick="cloneInvestment('${inv.id}')" title="Clona per nuovo versamento">
                                         <i class="fas fa-clone"></i>
@@ -885,9 +946,9 @@
                                 <th>Tipologia</th>
                                 <th>TER %</th>
                                 ${years.map(anno => `<th class="text-center">${anno}</th>`).join('')}
-                                <th class="text-end">Totale €</th>
+                                <th class="text-end">Totale â‚¬</th>
                                 <th class="text-end">% sul Totale</th>
-                                <th class="text-end">Costo TER €/anno</th>
+                                <th class="text-end">Costo TER â‚¬/anno</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -909,7 +970,7 @@
                     <tr class="table-secondary">
                         <td colspan="${3 + years.length + 3}" style="font-weight: bold;">
                             <i class="fas fa-folder"></i> ${tipologia} 
-                            <span class="badge bg-primary ms-2">€${totaleTipologia.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
+                            <span class="badge bg-primary ms-2">â‚¬${totaleTipologia.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
                             <span class="badge bg-info ms-1">${((totaleTipologia / granTotale) * 100).toFixed(2)}%</span>
                         </td>
                     </tr>
@@ -926,11 +987,11 @@
                             <td class="text-end">${row.ter}%</td>
                             ${years.map(anno => {
                                 const val = row.versamenti[anno] || 0;
-                                return `<td class="text-end">${val > 0 ? '€' + val.toLocaleString('it-IT', {minimumFractionDigits: 2}) : '-'}</td>`;
+                                return `<td class="text-end">${val > 0 ? 'â‚¬' + val.toLocaleString('it-IT', {minimumFractionDigits: 2}) : '-'}</td>`;
                             }).join('')}
-                            <td class="text-end"><strong>€${row.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                            <td class="text-end"><strong>â‚¬${row.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                             <td class="text-end">${((row.totale / granTotale) * 100).toFixed(2)}%</td>
-                            <td class="text-end">€${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            <td class="text-end">â‚¬${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         </tr>
                     `;
                 });
@@ -942,10 +1003,10 @@
                         <tfoot class="table-dark">
                             <tr>
                                 <td colspan="3" style="position: sticky; left: 0; background-color: #212529; z-index: 2;"><strong>TOTALI</strong></td>
-                                ${years.map(anno => `<td class="text-end"><strong>€${totaliAnno[anno].toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>`).join('')}
-                                <td class="text-end"><strong>€${granTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                                ${years.map(anno => `<td class="text-end"><strong>â‚¬${totaliAnno[anno].toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>`).join('')}
+                                <td class="text-end"><strong>â‚¬${granTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                                 <td class="text-end"><strong>100%</strong></td>
-                                <td class="text-end"><strong>€${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                                <td class="text-end"><strong>â‚¬${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -960,7 +1021,7 @@
                                     <thead>
                                         <tr>
                                             <th>Tipologia</th>
-                                            <th class="text-end">Totale €</th>
+                                            <th class="text-end">Totale â‚¬</th>
                                             <th class="text-end">% Portafoglio</th>
                                         </tr>
                                     </thead>
@@ -968,18 +1029,18 @@
                                         ${Object.entries(percentualiTipologia).sort((a, b) => b[1] - a[1]).map(([tipo, val]) => `
                                             <tr>
                                                 <td><strong>${tipo}</strong></td>
-                                                <td class="text-end">€${val.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                                <td class="text-end">â‚¬${val.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                                                 <td class="text-end"><span class="badge bg-primary">${((val / granTotale) * 100).toFixed(2)}%</span></td>
                                             </tr>
                                         `).join('')}
                                         <tr class="table-info">
                                             <td><strong>Bond / iBond / Metalli Preziosi</strong></td>
-                                            <td class="text-end"><strong>€${totaleBondIBondMetalli.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                                            <td class="text-end"><strong>â‚¬${totaleBondIBondMetalli.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                                             <td class="text-end"><span class="badge bg-success">${((totaleBondIBondMetalli / granTotale) * 100).toFixed(2)}%</span></td>
                                         </tr>
                                         <tr class="table-warning">
                                             <td><strong>ETF / Stocks</strong></td>
-                                            <td class="text-end"><strong>€${totaleETFStocks.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                                            <td class="text-end"><strong>â‚¬${totaleETFStocks.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                                             <td class="text-end"><span class="badge bg-success">${((totaleETFStocks / granTotale) * 100).toFixed(2)}%</span></td>
                                         </tr>
                                     </tbody>
@@ -996,7 +1057,7 @@
                                         <tr>
                                             <th>Investimento</th>
                                             <th class="text-end">TER %</th>
-                                            <th class="text-end">Costo €/anno</th>
+                                            <th class="text-end">Costo â‚¬/anno</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1004,12 +1065,12 @@
                                             <tr>
                                                 <td>${row.nome}</td>
                                                 <td class="text-end">${row.ter}%</td>
-                                                <td class="text-end">€${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                                <td class="text-end">â‚¬${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                                             </tr>
                                         `).join('')}
                                         <tr class="table-dark">
                                             <td colspan="2"><strong>TOTALE COSTI TER</strong></td>
-                                            <td class="text-end"><strong>€${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                                            <td class="text-end"><strong>â‚¬${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1119,13 +1180,13 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="stat-card">
-                            <div class="stat-value">€${totaleProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
+                            <div class="stat-value">â‚¬${totaleProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
                             <div class="stat-label">Totale Investito ${currentYear !== 'all' ? 'al ' + currentYear : ''}</div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="stat-card" style="background: var(--gradient-warning);">
-                            <div class="stat-value">€${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                            <div class="stat-value">â‚¬${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                             <div class="stat-label">Costo TER Annuale</div>
                         </div>
                     </div>
@@ -1167,8 +1228,8 @@
                                                 return `
                                                     <tr>
                                                         <td><strong>${anno}</strong></td>
-                                                        <td>€${versamentiAnno.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                                                        <td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                                                        <td>â‚¬${versamentiAnno.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                                                        <td><strong>â‚¬${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                                                         <td>${crescita > 0 ? `<span class="badge bg-success">+${crescita}%</span>` : idx === 0 ? '-' : `<span class="badge bg-secondary">${crescita}%</span>`}</td>
                                                     </tr>
                                                 `;
@@ -1237,7 +1298,7 @@
                         <div class="card">
                             <div class="card-header">STOCK</div>
                             <div class="card-body">
-                                <h3>€${stockTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
+                                <h3>â‚¬${stockTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
                                 <p class="text-muted">${totaleProgressivo > 0 ? (stockTotal / totaleProgressivo * 100).toFixed(2) : 0}% del totale</p>
                             </div>
                         </div>
@@ -1246,7 +1307,7 @@
                         <div class="card">
                             <div class="card-header">BOND + IBOND + METALLI</div>
                             <div class="card-body">
-                                <h3>€${bondTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
+                                <h3>â‚¬${bondTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
                                 <p class="text-muted">${totaleProgressivo > 0 ? (bondTotal / totaleProgressivo * 100).toFixed(2) : 0}% del totale</p>
                             </div>
                         </div>
@@ -1255,7 +1316,7 @@
                         <div class="card">
                             <div class="card-header">ETF</div>
                             <div class="card-body">
-                                <h3>€${etfTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
+                                <h3>â‚¬${etfTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
                                 <p class="text-muted">${totaleProgressivo > 0 ? (etfTotal / totaleProgressivo * 100).toFixed(2) : 0}% del totale</p>
                             </div>
                         </div>
@@ -1271,7 +1332,7 @@
                                 <div class="row">
                                     ${Object.entries(byType).map(([tipo, val]) => `
                                         <div class="col-md-4 mb-2">
-                                            <strong>${tipo}:</strong> €${val.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
+                                            <strong>${tipo}:</strong> â‚¬${val.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
                                             <span class="text-muted">(${totaleProgressivo > 0 ? (val / totaleProgressivo * 100).toFixed(2) : 0}%)</span>
                                         </div>
                                     `).join('')}
@@ -1282,7 +1343,7 @@
                                     <div class="row">
                                         ${Object.entries(bySector).sort((a, b) => b[1] - a[1]).map(([settore, val]) => `
                                             <div class="col-md-4 mb-2">
-                                                <strong>${settore}:</strong> €${val.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
+                                                <strong>${settore}:</strong> â‚¬${val.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
                                                 <span class="text-muted">(${totaleProgressivo > 0 ? (val / totaleProgressivo * 100).toFixed(2) : 0}%)</span>
                                             </div>
                                         `).join('')}
