@@ -449,7 +449,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><i class="fas fa-euro-sign me-1"></i> Importo Versamento (â‚¬)</label>
+                                    <label class="form-label"><i class="fas fa-euro-sign me-1"></i> Importo Versamento (€)</label>
                                     <input type="number" step="0.01" class="form-control" id="totaleInvestito" required>
                                 </div>
                             </div>
@@ -748,12 +748,12 @@
             const yearTabsHtml = `
                 <div class="year-tab ${currentYear === 'all' ? 'active' : ''}" onclick="filterByYear('all')">
                     Tutti gli anni
-                    <div style="font-size: 0.85rem; margin-top: 3px;">â‚¬${totaleAll.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                    <div style="font-size: 0.85rem; margin-top: 3px;">€${totaleAll.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                 </div>
                 ${years.map(year => `
                     <div class="year-tab ${currentYear === year ? 'active' : ''}" onclick="filterByYear(${year})">
                         ${year}
-                        <div style="font-size: 0.85rem; margin-top: 3px;">â‚¬${totaliPerAnno[year].toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div style="font-size: 0.85rem; margin-top: 3px;">€${totaliPerAnno[year].toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                     </div>
                 `).join('')}
             `;
@@ -780,7 +780,7 @@
                 const totaleType = Object.values(investimenti).flat().reduce((sum, inv) => sum + inv.totale, 0);
                 
                 html += `
-                    <h5 class="mt-4 mb-3">${tipo} <span class="badge bg-secondary">${Object.keys(investimenti).length} investimenti - â‚¬${totaleType.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span></h5>
+                    <h5 class="mt-4 mb-3">${tipo} <span class="badge bg-secondary">${Object.keys(investimenti).length} investimenti - €${totaleType.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span></h5>
                 `;
 
                 Object.keys(investimenti).sort().forEach(nomeInv => {
@@ -792,7 +792,7 @@
                         <div class="investment-group">
                             <h6 class="mb-3">
                                 ${lastVersamento.link ? `<a href="${lastVersamento.link}" target="_blank">${nomeInv}</a>` : nomeInv}
-                                <span class="badge bg-primary ms-2">â‚¬${totaleInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})} totale</span>
+                                <span class="badge bg-primary ms-2">€${totaleInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})} totale</span>
                                 <span class="badge bg-info ms-1">${versamenti.length} versament${versamenti.length !== 1 ? 'i' : 'o'}
 </span>
                             </h6>
@@ -804,8 +804,8 @@
                                             <th>Anno</th>
                                             <th>Settori</th>
                                             <th>TER %</th>
-                                            <th>Versamento â‚¬</th>
-                                            <th>Progressivo â‚¬</th>
+                                            <th>Versamento €</th>
+                                            <th>Progressivo €</th>
                                             <th>Azioni</th>
                                         </tr>
                                     </thead>
@@ -823,8 +823,8 @@
                                     ${inv.settori.map(s => `<span class="badge bg-info badge-custom">${s}</span>`).join(' ')}
                                 </td>
                                 <td>${inv.ter}%</td>
-                                <td>â‚¬${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                                <td><strong>â‚¬${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                                <td>€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                                <td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                                 <td>
                                     <button class="btn btn-sm btn-outline-secondary btn-clone custom-tooltip" onclick="cloneInvestment('${inv.id}')" title="Clona per nuovo versamento">
                                         <i class="fas fa-clone"></i>
@@ -946,9 +946,9 @@
                                 <th>Tipologia</th>
                                 <th>TER %</th>
                                 ${years.map(anno => `<th class="text-center">${anno}</th>`).join('')}
-                                <th class="text-end">Totale â‚¬</th>
+                                <th class="text-end">Totale €</th>
                                 <th class="text-end">% sul Totale</th>
-                                <th class="text-end">Costo TER â‚¬/anno</th>
+                                <th class="text-end">Costo TER €/anno</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -970,7 +970,7 @@
                     <tr class="table-secondary">
                         <td colspan="${3 + years.length + 3}" style="font-weight: bold;">
                             <i class="fas fa-folder"></i> ${tipologia} 
-                            <span class="badge bg-primary ms-2">â‚¬${totaleTipologia.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
+                            <span class="badge bg-primary ms-2">€${totaleTipologia.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
                             <span class="badge bg-info ms-1">${((totaleTipologia / granTotale) * 100).toFixed(2)}%</span>
                         </td>
                     </tr>
@@ -987,11 +987,11 @@
                             <td class="text-end">${row.ter}%</td>
                             ${years.map(anno => {
                                 const val = row.versamenti[anno] || 0;
-                                return `<td class="text-end">${val > 0 ? 'â‚¬' + val.toLocaleString('it-IT', {minimumFractionDigits: 2}) : '-'}</td>`;
+                                return `<td class="text-end">${val > 0 ? '€' + val.toLocaleString('it-IT', {minimumFractionDigits: 2}) : '-'}</td>`;
                             }).join('')}
-                            <td class="text-end"><strong>â‚¬${row.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                            <td class="text-end"><strong>€${row.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                             <td class="text-end">${((row.totale / granTotale) * 100).toFixed(2)}%</td>
-                            <td class="text-end">â‚¬${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            <td class="text-end">€${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         </tr>
                     `;
                 });
@@ -1003,10 +1003,10 @@
                         <tfoot class="table-dark">
                             <tr>
                                 <td colspan="3" style="position: sticky; left: 0; background-color: #212529; z-index: 2;"><strong>TOTALI</strong></td>
-                                ${years.map(anno => `<td class="text-end"><strong>â‚¬${totaliAnno[anno].toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>`).join('')}
-                                <td class="text-end"><strong>â‚¬${granTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                                ${years.map(anno => `<td class="text-end"><strong>€${totaliAnno[anno].toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>`).join('')}
+                                <td class="text-end"><strong>€${granTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                                 <td class="text-end"><strong>100%</strong></td>
-                                <td class="text-end"><strong>â‚¬${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                                <td class="text-end"><strong>€${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -1021,7 +1021,7 @@
                                     <thead>
                                         <tr>
                                             <th>Tipologia</th>
-                                            <th class="text-end">Totale â‚¬</th>
+                                            <th class="text-end">Totale €</th>
                                             <th class="text-end">% Portafoglio</th>
                                         </tr>
                                     </thead>
@@ -1029,18 +1029,18 @@
                                         ${Object.entries(percentualiTipologia).sort((a, b) => b[1] - a[1]).map(([tipo, val]) => `
                                             <tr>
                                                 <td><strong>${tipo}</strong></td>
-                                                <td class="text-end">â‚¬${val.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                                <td class="text-end">€${val.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                                                 <td class="text-end"><span class="badge bg-primary">${((val / granTotale) * 100).toFixed(2)}%</span></td>
                                             </tr>
                                         `).join('')}
                                         <tr class="table-info">
                                             <td><strong>Bond / iBond / Metalli Preziosi</strong></td>
-                                            <td class="text-end"><strong>â‚¬${totaleBondIBondMetalli.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                                            <td class="text-end"><strong>€${totaleBondIBondMetalli.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                                             <td class="text-end"><span class="badge bg-success">${((totaleBondIBondMetalli / granTotale) * 100).toFixed(2)}%</span></td>
                                         </tr>
                                         <tr class="table-warning">
                                             <td><strong>ETF / Stocks</strong></td>
-                                            <td class="text-end"><strong>â‚¬${totaleETFStocks.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                                            <td class="text-end"><strong>€${totaleETFStocks.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                                             <td class="text-end"><span class="badge bg-success">${((totaleETFStocks / granTotale) * 100).toFixed(2)}%</span></td>
                                         </tr>
                                     </tbody>
@@ -1057,7 +1057,7 @@
                                         <tr>
                                             <th>Investimento</th>
                                             <th class="text-end">TER %</th>
-                                            <th class="text-end">Costo â‚¬/anno</th>
+                                            <th class="text-end">Costo €/anno</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1065,12 +1065,12 @@
                                             <tr>
                                                 <td>${row.nome}</td>
                                                 <td class="text-end">${row.ter}%</td>
-                                                <td class="text-end">â‚¬${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                                <td class="text-end">€${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                                             </tr>
                                         `).join('')}
                                         <tr class="table-dark">
                                             <td colspan="2"><strong>TOTALE COSTI TER</strong></td>
-                                            <td class="text-end"><strong>â‚¬${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                                            <td class="text-end"><strong>€${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1180,13 +1180,13 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="stat-card">
-                            <div class="stat-value">â‚¬${totaleProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
+                            <div class="stat-value">€${totaleProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
                             <div class="stat-label">Totale Investito ${currentYear !== 'all' ? 'al ' + currentYear : ''}</div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="stat-card" style="background: var(--gradient-warning);">
-                            <div class="stat-value">â‚¬${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                            <div class="stat-value">€${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                             <div class="stat-label">Costo TER Annuale</div>
                         </div>
                     </div>
@@ -1228,8 +1228,8 @@
                                                 return `
                                                     <tr>
                                                         <td><strong>${anno}</strong></td>
-                                                        <td>â‚¬${versamentiAnno.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                                                        <td><strong>â‚¬${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                                                        <td>€${versamentiAnno.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                                                        <td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                                                         <td>${crescita > 0 ? `<span class="badge bg-success">+${crescita}%</span>` : idx === 0 ? '-' : `<span class="badge bg-secondary">${crescita}%</span>`}</td>
                                                     </tr>
                                                 `;
@@ -1298,7 +1298,7 @@
                         <div class="card">
                             <div class="card-header">STOCK</div>
                             <div class="card-body">
-                                <h3>â‚¬${stockTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
+                                <h3>€${stockTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
                                 <p class="text-muted">${totaleProgressivo > 0 ? (stockTotal / totaleProgressivo * 100).toFixed(2) : 0}% del totale</p>
                             </div>
                         </div>
@@ -1307,7 +1307,7 @@
                         <div class="card">
                             <div class="card-header">BOND + IBOND + METALLI</div>
                             <div class="card-body">
-                                <h3>â‚¬${bondTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
+                                <h3>€${bondTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
                                 <p class="text-muted">${totaleProgressivo > 0 ? (bondTotal / totaleProgressivo * 100).toFixed(2) : 0}% del totale</p>
                             </div>
                         </div>
@@ -1316,7 +1316,7 @@
                         <div class="card">
                             <div class="card-header">ETF</div>
                             <div class="card-body">
-                                <h3>â‚¬${etfTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
+                                <h3>€${etfTotal.toLocaleString('it-IT', {minimumFractionDigits: 2})}</h3>
                                 <p class="text-muted">${totaleProgressivo > 0 ? (etfTotal / totaleProgressivo * 100).toFixed(2) : 0}% del totale</p>
                             </div>
                         </div>
@@ -1332,7 +1332,7 @@
                                 <div class="row">
                                     ${Object.entries(byType).map(([tipo, val]) => `
                                         <div class="col-md-4 mb-2">
-                                            <strong>${tipo}:</strong> â‚¬${val.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
+                                            <strong>${tipo}:</strong> €${val.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
                                             <span class="text-muted">(${totaleProgressivo > 0 ? (val / totaleProgressivo * 100).toFixed(2) : 0}%)</span>
                                         </div>
                                     `).join('')}
@@ -1343,7 +1343,7 @@
                                     <div class="row">
                                         ${Object.entries(bySector).sort((a, b) => b[1] - a[1]).map(([settore, val]) => `
                                             <div class="col-md-4 mb-2">
-                                                <strong>${settore}:</strong> â‚¬${val.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
+                                                <strong>${settore}:</strong> €${val.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
                                                 <span class="text-muted">(${totaleProgressivo > 0 ? (val / totaleProgressivo * 100).toFixed(2) : 0}%)</span>
                                             </div>
                                         `).join('')}
