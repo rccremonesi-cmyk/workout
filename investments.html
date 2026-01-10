@@ -348,6 +348,19 @@
     .badge.bg-secondary {
         background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
     }
+		.year-forecast-inputs {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s;
+}
+
+.year-forecast-inputs:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+}
     </style>
 </head>
 <body>
@@ -554,14 +567,14 @@
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-percentage me-1"></i> Rendimenti Annuali Attesi</h6>
-                </div>
-                <div class="card-body">
-                    <div id="yearlyReturnsInputs" class="row"></div>
-                </div>
-            </div>
+          <div class="card mb-4">
+    <div class="card-header bg-light">
+        <h6 class="mb-0"><i class="fas fa-percentage me-1"></i> Rendimenti e Versamenti Annuali Attesi</h6>
+    </div>
+    <div class="card-body">
+        <div id="yearlyReturnsInputs"></div>
+    </div>
+</div>
 
             <div id="forecastResults"></div>
         </div>
@@ -583,6 +596,7 @@
         let allNomi = new Set();
         let currentYear = 'all';
 		let forecastReturns = {};
+		let forecastDeposits = {};
 		let forecastChart = null;
 
         // Caricamento dati da localStorage
@@ -614,6 +628,10 @@
 			if (savedForecast) {
 				forecastReturns = JSON.parse(savedForecast);
 			}
+			const savedDeposits = localStorage.getItem('forecastDeposits');
+if (savedDeposits) {
+    forecastDeposits = JSON.parse(savedDeposits);
+}
         }
 
         // Salvataggio dati
@@ -1580,14 +1598,16 @@ function exportData() {
     const notesContent = document.getElementById('notesContent');
     const currentNotes = notesContent ? notesContent.innerHTML : (localStorage.getItem('investmentNotes') || '');
 
-    const dataToExport = {
-        version: '1.0',
-        exportDate: new Date().toISOString(),
-        investments: investments,
-        allTags: Array.from(allTags),
-        allNomi: Array.from(allNomi),
-        notes: currentNotes
-    };
+const dataToExport = {
+    version: '1.0',
+    exportDate: new Date().toISOString(),
+    investments: investments,
+    allTags: Array.from(allTags),
+    allNomi: Array.from(allNomi),
+    notes: currentNotes,
+    forecastReturns: forecastReturns,
+    forecastDeposits: forecastDeposits
+};
 
     const dataStr = JSON.stringify(dataToExport, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -1651,6 +1671,16 @@ if (importedData.notes !== undefined) {
         updateCharCount();
     }
 }
+	// Importa previsioni
+if (importedData.forecastReturns) {
+    forecastReturns = importedData.forecastReturns;
+    localStorage.setItem('forecastReturns', JSON.stringify(forecastReturns));
+}
+
+if (importedData.forecastDeposits) {
+    forecastDeposits = importedData.forecastDeposits;
+    localStorage.setItem('forecastDeposits', JSON.stringify(forecastDeposits));
+}		
 
             saveData();
             updateNomiList();
@@ -1751,26 +1781,55 @@ function generateYearlyReturnsInputs() {
         return;
     }
 
+    // Calcola versamento medio storico
+    const years = [...new Set(investments.map(inv => inv.anno))].sort();
+    const versamentiPerAnno = {};
+    years.forEach(year => {
+        versamentiPerAnno[year] = investments.filter(inv => inv.anno === year).reduce((sum, inv) => sum + inv.totale, 0);
+    });
+    const avgAnnualDeposit = Math.round(Object.values(versamentiPerAnno).reduce((a, b) => a + b, 0) / years.length);
+
     const numYears = targetYear - currentYearNum + 1;
-    let html = `<div class="col-12 mb-3">
-        <p class="text-muted">
-            <i class="fas fa-info-circle me-1"></i>
-            Inserisci il rendimento atteso (%) per ogni anno dal ${currentYearNum} al ${targetYear} (${numYears} anni). 
-            I calcoli si aggiornano in tempo reale.
-        </p>
-    </div>`;
+    let html = `
+        <div class="alert alert-info mb-3">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Istruzioni:</strong> Inserisci il rendimento atteso (%) e il versamento previsto (€) per ogni anno dal ${currentYearNum} al ${targetYear} (${numYears} anni). 
+            I calcoli si aggiornano in tempo reale. Il versamento medio storico è di €${avgAnnualDeposit.toLocaleString('it-IT')}/anno.
+        </div>
+    `;
     
     for (let year = currentYearNum; year <= targetYear; year++) {
-        const savedValue = forecastReturns[year] || '';
+        const savedReturn = forecastReturns[year] || '';
+        const savedDeposit = forecastDeposits[year] || (year === currentYearNum ? '' : avgAnnualDeposit);
+        
         html += `
-            <div class="col-md-3 col-sm-6 mb-3">
-                <label class="form-label"><strong>${year}</strong></label>
-                <div class="input-group">
-                    <input type="number" step="0.01" class="form-control" id="return_${year}" value="${savedValue}" 
-                           placeholder="Es. 7.5" oninput="updateYearReturn(${year}, this.value)">
-                    <span class="input-group-text">%</span>
+            <div class="year-forecast-inputs">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        <h6 class="mb-0 text-primary"><i class="fas fa-calendar me-1"></i><strong>${year}</strong></h6>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label mb-1"><small>Rendimento Atteso (%)</small></label>
+                        <div class="input-group">
+                            <input type="number" step="0.01" class="form-control" id="return_${year}" value="${savedReturn}" 
+                                   placeholder="Es. 7.5" oninput="updateYearForecast(${year})">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label mb-1"><small>Versamento Previsto (€)</small></label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="100" class="form-control" id="deposit_${year}" value="${savedDeposit}" 
+                                   placeholder="Es. ${avgAnnualDeposit}" oninput="updateYearForecast(${year})">
+                        </div>
+                    </div>
                 </div>
-                <small class="text-muted" id="gain_${year}"></small>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <small class="text-success fw-bold" id="preview_${year}"></small>
+                    </div>
+                </div>
             </div>
         `;
     }
@@ -1779,9 +1838,16 @@ function generateYearlyReturnsInputs() {
     calculateForecast();
 }
 
-function updateYearReturn(year, value) {
-    forecastReturns[year] = parseFloat(value) || 0;
+function updateYearForecast(year) {
+    const returnVal = parseFloat(document.getElementById(`return_${year}`).value) || 0;
+    const depositVal = parseFloat(document.getElementById(`deposit_${year}`).value) || 0;
+    
+    forecastReturns[year] = returnVal;
+    forecastDeposits[year] = depositVal;
+    
     localStorage.setItem('forecastReturns', JSON.stringify(forecastReturns));
+    localStorage.setItem('forecastDeposits', JSON.stringify(forecastDeposits));
+    
     calculateForecast();
 }
 
@@ -1796,15 +1862,8 @@ function calculateForecast() {
     }
 
     // Calcola totale attuale e versamento medio annuale
-    const years = [...new Set(investments.map(inv => inv.anno))].sort();
-    const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
-    
-    const versamentiPerAnno = {};
-    years.forEach(year => {
-        versamentiPerAnno[year] = investments.filter(inv => inv.anno === year).reduce((sum, inv) => sum + inv.totale, 0);
-    });
-    
-    const avgAnnualDeposit = Object.values(versamentiPerAnno).reduce((a, b) => a + b, 0) / years.length;
+// Calcola totale attuale
+const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
 
     // Calcola TER medio
     const byNome = {};
@@ -1830,37 +1889,41 @@ function calculateForecast() {
         { name: 'Prudente (-70%)', multiplier: 0.3, color: 'danger' }
     ];
 
-    const results = scenarios.map(scenario => {
-        let capital = totalInvested;
-        const yearlyData = [];
+const results = scenarios.map(scenario => {
+    let capital = totalInvested;
+    const yearlyData = [];
+    let totalDeposited = totalInvested;
+    
+    for (let year = currentYearNum; year <= targetYear; year++) {
+        const deposit = parseFloat(forecastDeposits[year]) || 0;
         
-        for (let year = currentYearNum; year <= targetYear; year++) {
-            if (year > currentYearNum) {
-                capital += avgAnnualDeposit;
-            }
-            
-            const returnRate = (forecastReturns[year] || 0) * scenario.multiplier / 100;
-            let gain = 0;
-            
-            if (calcMode === 'compound') {
-                gain = capital * returnRate;
-            } else {
-                gain = totalInvested * returnRate + (year > currentYearNum ? avgAnnualDeposit * (year - currentYearNum) * returnRate : 0);
-            }
-            
-            capital += gain;
-            
-            const terCost = capital * (avgTER / 100);
-            capital -= terCost;
-            
-            yearlyData.push({
-                year,
-                capital: capital,
-                gain: gain,
-                terCost: terCost,
-                deposited: totalInvested + (year > currentYearNum ? avgAnnualDeposit * (year - currentYearNum) : 0)
-            });
+        if (year > currentYearNum) {
+            capital += deposit;
+            totalDeposited += deposit;
         }
+        
+        const returnRate = (forecastReturns[year] || 0) * scenario.multiplier / 100;
+        let gain = 0;
+        
+        if (calcMode === 'compound') {
+            gain = capital * returnRate;
+        } else {
+            gain = totalInvested * returnRate;
+        }
+        
+        capital += gain;
+        
+        const terCost = capital * (avgTER / 100);
+        capital -= terCost;
+        
+        yearlyData.push({
+            year,
+            capital: capital,
+            gain: gain,
+            terCost: terCost,
+            deposited: totalDeposited
+        });
+    }
         
         const finalData = yearlyData[yearlyData.length - 1];
         const totalGain = finalData.capital - finalData.deposited;
@@ -1879,20 +1942,30 @@ function calculateForecast() {
     });
 
     // Aggiorna guadagni in tempo reale
-    for (let year = currentYearNum; year <= targetYear; year++) {
-        const gainEl = document.getElementById(`gain_${year}`);
-        if (gainEl && forecastReturns[year]) {
-            const estimatedCapital = totalInvested + avgAnnualDeposit * Math.max(0, year - currentYearNum);
-            const gain = estimatedCapital * (forecastReturns[year] / 100);
-            gainEl.textContent = `\u20AC${gain.toLocaleString('it-IT', {minimumFractionDigits: 0})} guadagno`;
-            gainEl.className = 'text-success';
+// Aggiorna preview in tempo reale
+for (let year = currentYearNum; year <= targetYear; year++) {
+    const previewEl = document.getElementById(`preview_${year}`);
+    const returnVal = forecastReturns[year] || 0;
+    const depositVal = forecastDeposits[year] || 0;
+    
+    if (previewEl) {
+        if (returnVal && depositVal) {
+            const estimatedGain = depositVal * (returnVal / 100);
+            previewEl.textContent = `💰 Con ${returnVal}% su €${depositVal.toLocaleString('it-IT')}, guadagno stimato: €${estimatedGain.toLocaleString('it-IT', {minimumFractionDigits: 0})}`;
+        } else if (returnVal) {
+            previewEl.textContent = `📈 Rendimento: ${returnVal}%`;
+        } else if (depositVal) {
+            previewEl.textContent = `💵 Versamento: €${depositVal.toLocaleString('it-IT')}`;
+        } else {
+            previewEl.textContent = '';
         }
     }
-
-    renderForecastResults(results, avgAnnualDeposit, totalInvested, avgTER, targetYear);
 }
 
-function renderForecastResults(results, avgDeposit, totalInvested, avgTER, targetYear) {
+renderForecastResults(results, totalInvested, avgTER, targetYear);
+}
+
+function renderForecastResults(results, totalInvested, avgTER, targetYear) {
     const currentYearNum = new Date().getFullYear();
     const yearsToTarget = targetYear - currentYearNum;
 
@@ -1906,14 +1979,30 @@ function renderForecastResults(results, avgDeposit, totalInvested, avgTER, targe
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-info">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted mb-2">Versamento Medio Annuale</h6>
-                        <h3 class="text-info mb-0">\u20AC${avgDeposit.toLocaleString('it-IT', {minimumFractionDigits: 0})}</h3>
-                    </div>
-                </div>
-            </div>
+            <div class="col-md-4">
+    <div class="card border-primary">
+        <div class="card-body text-center">
+            <h6 class="text-muted mb-2">Capitale Attuale</h6>
+            <h3 class="text-primary mb-0">€${totalInvested.toLocaleString('it-IT', {minimumFractionDigits: 0})}</h3>
+        </div>
+    </div>
+</div>
+<div class="col-md-4">
+    <div class="card border-warning">
+        <div class="card-body text-center">
+            <h6 class="text-muted mb-2">TER Medio</h6>
+            <h3 class="text-warning mb-0">${avgTER.toFixed(2)}%</h3>
+        </div>
+    </div>
+</div>
+<div class="col-md-4">
+    <div class="card border-success">
+        <div class="card-body text-center">
+            <h6 class="text-muted mb-2">Anni di Investimento</h6>
+            <h3 class="text-success mb-0">${yearsToTarget}</h3>
+        </div>
+    </div>
+</div>
             <div class="col-md-3">
                 <div class="card border-warning">
                     <div class="card-body text-center">
