@@ -2072,10 +2072,10 @@ for (let year = currentYearNum; year <= targetYear; year++) {
     }
 }
 
-renderForecastResults(results, totalInvested, avgTER, targetYear);
+renderForecastResults(results, totalInvested, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear);
 }
 
-function renderForecastResults(results, totalInvested, avgTER, targetYear) {
+function renderForecastResults(results, totalInvested, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear) {
     const currentYearNum = new Date().getFullYear();
     const yearsToTarget = targetYear - currentYearNum;
 
