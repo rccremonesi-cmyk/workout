@@ -1091,15 +1091,39 @@ document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottr
                     costoTER: 0
                 };
 
-                years.forEach(anno => {
-                    const versamentiAnno = inv.versamenti.filter(v => v.anno === anno);
-                    row.versamenti[anno] = versamentiAnno.reduce((sum, v) => sum + v.totale, 0);
-                });
+               years.forEach(anno => {
+    const versamentiAnno = inv.versamenti.filter(v => v.anno === anno);
+    row.versamenti[anno] = versamentiAnno.reduce((sum, v) => {
+        const totale = v.totale;
+        const commissioni = v.commissioni || 0;
+        const tipo = v.commissioniTipo || 'sottratta';
+        
+        if (tipo === 'sottratta') {
+            return sum + (totale - commissioni);
+        } else {
+            return sum + totale;
+        }
+    }, 0);
+});
 
-                // Calcola totale investito
-                row.totale = inv.versamenti.reduce((sum, v) => sum + v.totale, 0);
+// Calcola totale investito
+row.totale = inv.versamenti.reduce((sum, v) => {
+    const totale = v.totale;
+    const commissioni = v.commissioni || 0;
+    const tipo = v.commissioniTipo || 'sottratta';
+    
+    if (tipo === 'sottratta') {
+        return sum + (totale - commissioni);
+    } else {
+        return sum + totale;
+    }
+}, 0);
+				
+				
+				
                 // Calcola costo TER annuale
-                row.costoTER = row.totale * (row.ter / 100);
+                
+				row.costoTER = row.totale * (row.ter / 100);
 
                 return row;
             });
@@ -1307,7 +1331,19 @@ document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottr
             });
 
             // Per i calcoli correnti, usa solo i versamenti filtrati
-            const totalInvestito = filtered.reduce((sum, inv) => sum + inv.totale, 0);
+            const totalInvestito = filtered.reduce((sum, inv) => {
+    const totale = inv.totale;
+    const commissioni = inv.commissioni || 0;
+    const tipo = inv.commissioniTipo || 'sottratta';
+    
+    // Se commissione è "sottratta" (già inclusa nel totale), la sottraiamo
+    // Se commissione è "aggiuntiva", non è inclusa nel totale
+    if (tipo === 'sottratta') {
+        return sum + (totale - commissioni);
+    } else {
+        return sum + totale;
+    }
+}, 0);
             
             // Calcola TER sul totale progressivo dell'anno selezionato
             let totaleTER = 0;
@@ -1332,34 +1368,56 @@ document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottr
             }
 
             // Calcoli per tipologia (sul totale progressivo)
-            const byType = {};
-            Object.keys(byNome).forEach(nome => {
-                const versamenti = byNome[nome];
-                const versamentiValidi = currentYear === 'all' ? versamenti : versamenti.filter(inv => inv.anno <= currentYear);
-                if (versamentiValidi.length > 0) {
-                    const totaleInv = versamentiValidi.reduce((sum, inv) => sum + inv.totale, 0);
-                    const tipo = versamentiValidi[versamentiValidi.length - 1].tipologia;
-                    if (!byType[tipo]) byType[tipo] = 0;
-                    byType[tipo] += totaleInv;
-                }
-            });
+			
+           
+		   const byType = {};
+			Object.keys(byNome).forEach(nome => {
+				const versamenti = byNome[nome];
+				const versamentiValidi = currentYear === 'all' ? versamenti : versamenti.filter(inv => inv.anno <= currentYear);
+				if (versamentiValidi.length > 0) {
+					const totaleInv = versamentiValidi.reduce((sum, inv) => {
+						const totale = inv.totale;
+						const commissioni = inv.commissioni || 0;
+						const tipo = inv.commissioniTipo || 'sottratta';
+						
+						if (tipo === 'sottratta') {
+							return sum + (totale - commissioni);
+						} else {
+							return sum + totale;
+						}
+					}, 0);
+					const tipo = versamentiValidi[versamentiValidi.length - 1].tipologia;
+					if (!byType[tipo]) byType[tipo] = 0;
+					byType[tipo] += totaleInv;
+				}
+			});
 
             // Calcoli per settore
-            const bySector = {};
-            Object.keys(byNome).forEach(nome => {
-                const versamenti = byNome[nome];
-                const versamentiValidi = currentYear === 'all' ? versamenti : versamenti.filter(inv => inv.anno <= currentYear);
-                if (versamentiValidi.length > 0) {
-                    const totaleInv = versamentiValidi.reduce((sum, inv) => sum + inv.totale, 0);
-                    const ultimo = versamentiValidi[versamentiValidi.length - 1];
-                    if (ultimo.settori && ultimo.settori.length > 0) {
-                        ultimo.settori.forEach(settore => {
-                            if (!bySector[settore]) bySector[settore] = 0;
-                            bySector[settore] += totaleInv;
-                        });
-                    }
-                }
-            });
+			const bySector = {};
+			Object.keys(byNome).forEach(nome => {
+				const versamenti = byNome[nome];
+				const versamentiValidi = currentYear === 'all' ? versamenti : versamenti.filter(inv => inv.anno <= currentYear);
+				if (versamentiValidi.length > 0) {
+					const totaleInv = versamentiValidi.reduce((sum, inv) => {
+						const totale = inv.totale;
+						const commissioni = inv.commissioni || 0;
+						const tipo = inv.commissioniTipo || 'sottratta';
+						
+						if (tipo === 'sottratta') {
+							return sum + (totale - commissioni);
+						} else {
+							return sum + totale;
+						}
+					}, 0);
+					const ultimo = versamentiValidi[versamentiValidi.length - 1];
+					if (ultimo.settori && ultimo.settori.length > 0) {
+						ultimo.settori.forEach(settore => {
+							if (!bySector[settore]) bySector[settore] = 0;
+							bySector[settore] += totaleInv;
+						});
+					}
+				}
+			});
 
             const totaleProgressivo = currentYear === 'all' ? 
                 Object.values(byType).reduce((sum, val) => sum + val, 0) : 
@@ -1850,10 +1908,8 @@ function calcolaCapitaleNetto(investimenti) {
         const tipo = inv.commissioniTipo || 'sottratta';
         
         if (tipo === 'aggiuntiva') {
-            // Se commissione aggiuntiva, il capitale netto è solo il versamento
             return sum + totale;
         } else {
-            // Se commissione inclusa, sottrai la commissione dal totale
             return sum + (totale - commissioni);
         }
     }, 0);
