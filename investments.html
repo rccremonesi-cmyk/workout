@@ -728,6 +728,7 @@ let forecastReturns = {};
 let forecastDeposits = {};
 let currentMarketValue = 0;
 let forecastChart = null;
+let forecastInflation = {};
 
         // Caricamento dati da localStorage
         function loadData() {
@@ -762,6 +763,11 @@ let forecastChart = null;
 if (savedDeposits) {
     forecastDeposits = JSON.parse(savedDeposits);
 }
+
+const savedInflation = localStorage.getItem('forecastInflation');
+    if (savedInflation) {
+        forecastInflation = JSON.parse(savedInflation);
+    }
 
 			const savedMarketValue = localStorage.getItem('currentMarketValue');
 if (savedMarketValue) {
@@ -1791,6 +1797,7 @@ const dataToExport = {
     notes: currentNotes,
     forecastReturns: forecastReturns,
     forecastDeposits: forecastDeposits,
+	forecastInflation: forecastInflation,
     currentMarketValue: currentMarketValue,
     exposureData: exposureData,
     exposureTypes: exposureTypes  // AGGIUNGI QUESTA RIGA
@@ -1867,7 +1874,13 @@ if (importedData.forecastReturns) {
 if (importedData.forecastDeposits) {
     forecastDeposits = importedData.forecastDeposits;
     localStorage.setItem('forecastDeposits', JSON.stringify(forecastDeposits));
+}
+
+if (importedData.forecastInflation) {
+    forecastInflation = importedData.forecastInflation;
+    localStorage.setItem('forecastInflation', JSON.stringify(forecastInflation));
 }		
+
 			if (importedData.currentMarketValue !== undefined) {
     currentMarketValue = parseFloat(importedData.currentMarketValue);
     localStorage.setItem('currentMarketValue', currentMarketValue.toString());
@@ -2055,34 +2068,44 @@ html += `
         const versamentoEffettivo = versamentiPerAnno[year] || 0;
         const hasVersamento = versamentoEffettivo > 0;
         
-        html += `
-            <div class="year-forecast-inputs">
-                <div class="row align-items-center">
-                    <div class="col-md-2">
-                        <h6 class="mb-0 text-primary"><i class="fas fa-calendar me-1"></i><strong>${year}</strong></h6>
-                        ${hasVersamento ? `<small class="text-success"><i class="fas fa-check-circle me-1"></i>Dati presenti</small>` : `<small class="text-muted">Previsione</small>`}
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label mb-1"><small>Rendimento Atteso (%)</small></label>
-                        <div class="input-group">
-                            <input type="number" step="0.01" class="form-control" id="return_${year}" value="${savedReturn}" 
-                                   placeholder="Es. 7.5" oninput="updateYearForecast(${year})">
-                            <span class="input-group-text">%</span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label mb-1">
-                            <small>Versamento ${hasVersamento ? 'Aggiuntivo' : 'Previsto'} (€)</small>
-                            ${hasVersamento ? `<span class="badge bg-success ms-2">Già investito: €${versamentoEffettivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</span>` : ''}
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text">€</span>
-                            <input type="number" step="100" class="form-control" id="deposit_${year}" value="${savedDeposit}" 
-                                   placeholder="${hasVersamento ? 'Aggiungi altro...' : 'Es. ' + avgAnnualDeposit}" oninput="updateYearForecast(${year})">
-                            ${hasVersamento ? `<span class="input-group-text bg-info text-white" title="Totale con versamento già effettuato"><i class="fas fa-calculator"></i></span>` : ''}
-                        </div>
-                    </div>
+const savedInflation = forecastInflation[year] || '';
+
+html += `
+    <div class="year-forecast-inputs">
+        <div class="row align-items-center">
+            <div class="col-md-2">
+                <h6 class="mb-0 text-primary"><i class="fas fa-calendar me-1"></i><strong>${year}</strong></h6>
+                ${hasVersamento ? `<small class="text-success"><i class="fas fa-check-circle me-1"></i>Dati presenti</small>` : `<small class="text-muted">Previsione</small>`}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1"><small>Rendimento Atteso (%)</small></label>
+                <div class="input-group">
+                    <input type="number" step="0.01" class="form-control" id="return_${year}" value="${savedReturn}" 
+                           placeholder="Es. 7.5" oninput="updateYearForecast(${year})">
+                    <span class="input-group-text">%</span>
                 </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label mb-1"><small>Inflazione (%)</small></label>
+                <div class="input-group">
+                    <input type="number" step="0.01" class="form-control" id="inflation_${year}" value="${savedInflation}" 
+                           placeholder="Es. 2.5" oninput="updateYearForecast(${year})">
+                    <span class="input-group-text">%</span>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label mb-1">
+                    <small>Versamento ${hasVersamento ? 'Aggiuntivo' : 'Previsto'} (€)</small>
+                    ${hasVersamento ? `<span class="badge bg-success ms-2">Già investito: €${versamentoEffettivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</span>` : ''}
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">€</span>
+                    <input type="number" step="100" class="form-control" id="deposit_${year}" value="${savedDeposit}" 
+                           placeholder="${hasVersamento ? 'Aggiungi altro...' : 'Es. ' + avgAnnualDeposit}" oninput="updateYearForecast(${year})">
+                    ${hasVersamento ? `<span class="input-group-text bg-info text-white" title="Totale con versamento già effettuato"><i class="fas fa-calculator"></i></span>` : ''}
+                </div>
+            </div>
+        </div>
                 <div class="row mt-2">
                     <div class="col-12">
                         <small class="text-primary fw-bold" id="preview_${year}"></small>
@@ -2099,12 +2122,15 @@ html += `
 function updateYearForecast(year) {
     const returnVal = parseFloat(document.getElementById(`return_${year}`).value) || 0;
     const depositVal = parseFloat(document.getElementById(`deposit_${year}`).value) || 0;
+    const inflationVal = parseFloat(document.getElementById(`inflation_${year}`).value) || 0;
     
     forecastReturns[year] = returnVal;
     forecastDeposits[year] = depositVal;
+    forecastInflation[year] = inflationVal;
     
     localStorage.setItem('forecastReturns', JSON.stringify(forecastReturns));
     localStorage.setItem('forecastDeposits', JSON.stringify(forecastDeposits));
+    localStorage.setItem('forecastInflation', JSON.stringify(forecastInflation));
     
     calculateForecast();
 }
@@ -2178,17 +2204,21 @@ const results = scenarios.map(scenario => {
         versamentiPerAnno[inv.anno] += inv.totale;
     });
     
+let cumulativeInflation = 1; // Per calcolare inflazione cumulativa
+
 for (let year = currentYearNum; year <= targetYear; year++) {
     const depositPrevisto = parseFloat(forecastDeposits[year]) || 0;
     const depositEffettivo = versamentiPerAnno[year] || 0;
+    const inflationRate = (forecastInflation[year] || 0) / 100;
+    
+    // Aggiorna inflazione cumulativa
+    cumulativeInflation *= (1 + inflationRate);
     
     // Gestione corretta dei versamenti
     let depositTotale = 0;
     if (year === currentYearNum) {
-        // Anno corrente: solo depositPrevisto come versamento aggiuntivo
         depositTotale = depositPrevisto;
     } else if (year > currentYearNum) {
-        // Anni futuri: somma depositPrevisto + depositEffettivo
         depositTotale = depositPrevisto + depositEffettivo;
     }
     
@@ -2214,30 +2244,40 @@ for (let year = currentYearNum; year <= targetYear; year++) {
     // Sottrai TER solo se c'è capitale
     const terCost = capital > 0 ? capital * (avgTER / 100) : 0;
     capital -= terCost;
+    
+    // Calcola capitale reale corretto per inflazione
+    const realCapital = capital / cumulativeInflation;
+    
+    yearlyData.push({
+        year,
+        capital: capital,
+        realCapital: realCapital,
+        gain: gain,
+        terCost: terCost,
+        deposited: totalDeposited,
+        inflation: inflationRate * 100,
+        cumulativeInflation: cumulativeInflation
+    });
+}
         
-        yearlyData.push({
-            year,
-            capital: capital,
-            gain: gain,
-            terCost: terCost,
-            deposited: totalDeposited
-        });
-    }
-        
-        const finalData = yearlyData[yearlyData.length - 1];
-        const totalGain = finalData.capital - finalData.deposited;
-        const capitalGainTax = totalGain > 0 ? totalGain * 0.26 : 0;
-        const netCapital = finalData.capital - capitalGainTax;
-        
-        return {
-            ...scenario,
-            finalCapital: finalData.capital,
-            totalDeposited: finalData.deposited,
-            totalGain: totalGain,
-            capitalGainTax: capitalGainTax,
-            netCapital: netCapital,
-            yearlyData: yearlyData
-        };
+const finalData = yearlyData[yearlyData.length - 1];
+const totalGain = finalData.capital - finalData.deposited;
+const capitalGainTax = totalGain > 0 ? totalGain * 0.26 : 0;
+const netCapital = finalData.capital - capitalGainTax;
+const realNetCapital = finalData.realCapital - (capitalGainTax / finalData.cumulativeInflation);
+
+return {
+    ...scenario,
+    finalCapital: finalData.capital,
+    realFinalCapital: finalData.realCapital,
+    totalDeposited: finalData.deposited,
+    totalGain: totalGain,
+    capitalGainTax: capitalGainTax,
+    netCapital: netCapital,
+    realNetCapital: realNetCapital,
+    cumulativeInflation: finalData.cumulativeInflation,
+    yearlyData: yearlyData
+};
     });
 
     // Aggiorna guadagni in tempo reale
@@ -2364,46 +2404,61 @@ let html = `
                 <div class="row">
     `;
 
-    results.forEach(result => {
-        const roi = ((result.finalCapital - result.totalDeposited) / result.totalDeposited * 100);
-        html += `
-            <div class="col-md-6 mb-4">
-                <div class="card border-${result.color}">
-                    <div class="card-header bg-${result.color} text-white">
-                        <h6 class="mb-0">${result.name}</h6>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-sm table-borderless mb-0">
-                            <tr>
-                                <td><strong>Capitale Finale (lordo):</strong></td>
-                                <td class="text-end"><strong class="text-${result.color}">\u20AC${result.finalCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Totale Versato:</td>
-                                <td class="text-end">\u20AC${result.totalDeposited.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
-                            </tr>
-                            <tr>
-                                <td>Guadagno Totale:</td>
-                                <td class="text-end text-success">+\u20AC${result.totalGain.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
-                            </tr>
-                            <tr>
-                                <td>ROI:</td>
-                                <td class="text-end"><span class="badge bg-${result.color}">${roi.toFixed(1)}%</span></td>
-                            </tr>
-                            <tr class="table-warning">
-                                <td><strong>Tasse Capital Gain (26%):</strong></td>
-                                <td class="text-end"><strong class="text-danger">-\u20AC${result.capitalGainTax.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
-                            </tr>
-                            <tr class="table-success">
-                                <td><strong>Capitale Finale (netto):</strong></td>
-                                <td class="text-end"><strong class="text-success">\u20AC${result.netCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
-                            </tr>
-                        </table>
-                    </div>
+results.forEach(result => {
+    const roi = ((result.finalCapital - result.totalDeposited) / result.totalDeposited * 100);
+    const realRoi = ((result.realNetCapital - result.totalDeposited) / result.totalDeposited * 100);
+    const purchasingPowerLoss = ((result.netCapital - result.realNetCapital) / result.netCapital * 100);
+    
+    html += `
+        <div class="col-md-6 mb-4">
+            <div class="card border-${result.color}">
+                <div class="card-header bg-${result.color} text-white">
+                    <h6 class="mb-0">${result.name}</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr>
+                            <td><strong>Capitale Finale (lordo):</strong></td>
+                            <td class="text-end"><strong class="text-${result.color}">\u20AC${result.finalCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Totale Versato:</td>
+                            <td class="text-end">\u20AC${result.totalDeposited.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
+                        </tr>
+                        <tr>
+                            <td>Guadagno Totale:</td>
+                            <td class="text-end text-success">+\u20AC${result.totalGain.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
+                        </tr>
+                        <tr>
+                            <td>ROI (nominale):</td>
+                            <td class="text-end"><span class="badge bg-${result.color}">${roi.toFixed(1)}%</span></td>
+                        </tr>
+                        <tr class="table-warning">
+                            <td><strong>Tasse Capital Gain (26%):</strong></td>
+                            <td class="text-end"><strong class="text-danger">-\u20AC${result.capitalGainTax.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
+                        </tr>
+                        <tr class="table-success">
+                            <td><strong>Capitale Finale (netto):</strong></td>
+                            <td class="text-end"><strong class="text-success">\u20AC${result.netCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
+                        </tr>
+                        <tr class="table-info">
+                            <td><strong>Capitale Reale (corretto inflazione):</strong></td>
+                            <td class="text-end"><strong class="text-info">\u20AC${result.realNetCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><small>ROI reale:</small></td>
+                            <td class="text-end"><small><span class="badge bg-secondary">${realRoi.toFixed(1)}%</span></small></td>
+                        </tr>
+                        <tr>
+                            <td><small>Perdita potere d'acquisto:</small></td>
+                            <td class="text-end"><small class="text-warning">-${purchasingPowerLoss.toFixed(1)}%</small></td>
+                        </tr>
+                    </table>
                 </div>
             </div>
-        `;
-    });
+        </div>
+    `;
+});
 
     html += `
                 </div>
