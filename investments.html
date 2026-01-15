@@ -469,10 +469,24 @@
         <label class="form-label"><i class="fas fa-euro-sign me-1"></i> Importo Versamento (€)</label>
         <input type="number" step="0.01" class="form-control" id="totaleInvestito" required>
     </div>
-    <div class="col-md-6 mb-3">
-        <label class="form-label"><i class="fas fa-receipt me-1"></i> Commissioni (€) <small class="text-muted">(opzionale)</small></label>
-        <input type="number" step="0.01" class="form-control" id="commissioni" placeholder="0.00">
+<div class="col-md-6 mb-3">
+    <label class="form-label"><i class="fas fa-receipt me-1"></i> Commissioni (€) <small class="text-muted">(opzionale)</small></label>
+    <div class="row g-2">
+        <div class="col-7">
+            <input type="number" step="0.01" class="form-control" id="commissioni" placeholder="0.00">
+        </div>
+        <div class="col-5">
+            <select class="form-select" id="commissioniTipo">
+                <option value="sottratta">Già inclusa</option>
+                <option value="aggiuntiva">Da aggiungere</option>
+            </select>
+        </div>
     </div>
+    <small class="text-muted">
+        <strong>Già inclusa:</strong> commissione già compresa nell'importo versamento<br>
+        <strong>Da aggiungere:</strong> commissione da sommare all'importo
+    </small>
+</div>
 </div>
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-1"></i> <strong>Nota:</strong> Per aggiungere denaro a un investimento esistente, usa lo stesso nome e cambia solo la data e l'importo del versamento.
@@ -821,21 +835,23 @@ if (savedMarketValue) {
 document.getElementById('investmentForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const id = document.getElementById('investmentId').value || Date.now().toString();
-    const commissioni = parseFloat(document.getElementById('commissioni').value) || 0;
-    
-    const investment = {
-        id: id,
-        data: document.getElementById('dataInvestimento').value,
-        anno: new Date(document.getElementById('dataInvestimento').value).getFullYear(),
-        ter: parseFloat(document.getElementById('ter').value),
-        tipologia: document.getElementById('tipologia').value,
-        settori: [...selectedTags],
-        nome: document.getElementById('nome').value,
-        link: document.getElementById('link').value,
-        totale: parseFloat(document.getElementById('totaleInvestito').value),
-        commissioni: commissioni
-    };
+const id = document.getElementById('investmentId').value || Date.now().toString();
+const commissioni = parseFloat(document.getElementById('commissioni').value) || 0;
+const commissioniTipo = document.getElementById('commissioniTipo').value;
+
+const investment = {
+    id: id,
+    data: document.getElementById('dataInvestimento').value,
+    anno: new Date(document.getElementById('dataInvestimento').value).getFullYear(),
+    ter: parseFloat(document.getElementById('ter').value),
+    tipologia: document.getElementById('tipologia').value,
+    settori: [...selectedTags],
+    nome: document.getElementById('nome').value,
+    link: document.getElementById('link').value,
+    totale: parseFloat(document.getElementById('totaleInvestito').value),
+    commissioni: commissioni,
+    commissioniTipo: commissioniTipo || 'sottratta'
+};
 
             const existingIndex = investments.findIndex(inv => inv.id === id);
             if (existingIndex !== -1) {
@@ -855,6 +871,7 @@ function resetForm() {
     document.getElementById('investmentForm').reset();
     document.getElementById('investmentId').value = '';
     document.getElementById('commissioni').value = '';
+    document.getElementById('commissioniTipo').value = 'sottratta';
 }
 
 function cloneInvestment(id) {
@@ -869,6 +886,7 @@ function cloneInvestment(id) {
         document.getElementById('link').value = inv.link;
         document.getElementById('totaleInvestito').value = '';
         document.getElementById('commissioni').value = inv.commissioni || 0;
+document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottratta';
         
         // Vai al tab inserimento
         document.getElementById('input-tab').click();
@@ -887,6 +905,7 @@ function editInvestment(id) {
         document.getElementById('link').value = inv.link;
         document.getElementById('totaleInvestito').value = inv.totale;
         document.getElementById('commissioni').value = inv.commissioni || 0;
+document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottratta';
         
         document.getElementById('input-tab').click();
     }
@@ -993,7 +1012,12 @@ function editInvestment(id) {
 								</td>
 								<td>${inv.ter}%</td>
 								<td>€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-								<td>${inv.commissioni > 0 ? '€' + inv.commissioni.toLocaleString('it-IT', {minimumFractionDigits: 2}) : '-'}</td>
+								<td>
+    ${inv.commissioni > 0 ? 
+        `€${inv.commissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
+        <small class="text-muted">(${inv.commissioniTipo === 'aggiuntiva' ? '+' : 'incl.'})</small>` 
+        : '-'}
+</td>
 								<td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
 								<td>
                                     <button class="btn btn-sm btn-outline-secondary btn-clone custom-tooltip" onclick="cloneInvestment('${inv.id}')" title="Clona per nuovo versamento">
@@ -1347,14 +1371,32 @@ function editInvestment(id) {
             const etfTotal = byType['ETF'] || 0;
 
             // Calcola totale commissioni
+// Calcola totale commissioni
 const totaleCommissioni = filtered.reduce((sum, inv) => sum + (inv.commissioni || 0), 0);
+
+// Calcola totale reale speso (versamenti + commissioni aggiuntive)
+const totaleRealeSpeso = filtered.reduce((sum, inv) => {
+    const totale = inv.totale;
+    const commissioni = inv.commissioni || 0;
+    const tipo = inv.commissioniTipo || 'sottratta';
+    return sum + totale + (tipo === 'aggiuntiva' ? commissioni : 0);
+}, 0);
+
+// Calcola capitale netto effettivamente investito (escluse commissioni)
+const capitaleNettoInvestito = filtered.reduce((sum, inv) => {
+    const totale = inv.totale;
+    const commissioni = inv.commissioni || 0;
+    const tipo = inv.commissioniTipo || 'sottratta';
+    return sum + (tipo === 'aggiuntiva' ? totale : (totale - commissioni));
+}, 0);
 
 let html = `
     <div class="row">
         <div class="col-md-3">
             <div class="stat-card">
-                <div class="stat-value">€${totaleProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
-                <div class="stat-label">Totale Investito ${currentYear !== 'all' ? 'al ' + currentYear : ''}</div>
+                <div class="stat-value">€${capitaleNettoInvestito.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
+                <div class="stat-label">Capitale Netto Investito</div>
+                <small style="opacity: 0.9; font-size: 0.75rem;">Totale speso: €${totaleRealeSpeso.toLocaleString('it-IT', {minimumFractionDigits: 0})}</small>
             </div>
         </div>
         <div class="col-md-3">
@@ -1391,13 +1433,35 @@ let html = `
             </div>
         </div>
         <div class="col-md-4">
-            <div class="stat-card" style="background: var(--gradient-purple);">
+            <div class="stat-card" >
                 <div class="stat-value">${totaleProgressivo > 0 ? ((totaleTER + totaleCommissioni) / totaleProgressivo * 100).toFixed(2) : 0}%</div>
                 <div class="stat-label">% Costi sul Totale</div>
             </div>
         </div>
     </div>
-
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <div class="row">
+                <div class="col-md-4">
+                    <strong><i class="fas fa-info-circle me-2"></i>Capitale Netto Investito:</strong><br>
+                    <small>Importo effettivamente al lavoro (escluse commissioni)</small><br>
+                    <strong class="text-primary">€${capitaleNettoInvestito.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
+                </div>
+                <div class="col-md-4">
+                    <strong><i class="fas fa-wallet me-2"></i>Totale Realmente Speso:</strong><br>
+                    <small>Versamenti + commissioni aggiuntive</small><br>
+                    <strong class="text-warning">€${totaleRealeSpeso.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
+                </div>
+                <div class="col-md-4">
+                    <strong><i class="fas fa-receipt me-2"></i>Commissioni Totali:</strong><br>
+                    <small>Somma di tutte le commissioni pagate</small><br>
+                    <strong class="text-danger">€${totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                 ${years.length > 1 ? `
                 <div class="row mt-4">
                     <div class="col-12">
@@ -1759,6 +1823,44 @@ setTimeout(() => {
 
         // Inizializzazione
         loadData();
+		
+		
+		// Calcola il totale reale investito considerando le commissioni
+function calcolaTotaleRealeInvestito(investimenti) {
+    return investimenti.reduce((sum, inv) => {
+        const totale = inv.totale;
+        const commissioni = inv.commissioni || 0;
+        const tipo = inv.commissioniTipo || 'sottratta';
+        
+        // Se commissione è aggiuntiva, il totale reale è versamento + commissione
+        // Se commissione è già inclusa, il totale reale è solo il versamento
+        if (tipo === 'aggiuntiva') {
+            return sum + totale + commissioni;
+        } else {
+            return sum + totale;
+        }
+    }, 0);
+}
+
+// Calcola solo il capitale effettivamente investito (esclude commissioni)
+function calcolaCapitaleNetto(investimenti) {
+    return investimenti.reduce((sum, inv) => {
+        const totale = inv.totale;
+        const commissioni = inv.commissioni || 0;
+        const tipo = inv.commissioniTipo || 'sottratta';
+        
+        if (tipo === 'aggiuntiva') {
+            // Se commissione aggiuntiva, il capitale netto è solo il versamento
+            return sum + totale;
+        } else {
+            // Se commissione inclusa, sottrai la commissione dal totale
+            return sum + (totale - commissioni);
+        }
+    }, 0);
+}
+		
+		
+		
 		// Carica esposizioni
 const savedExposure = localStorage.getItem('exposureData');
 if (savedExposure) {
