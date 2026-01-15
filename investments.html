@@ -589,18 +589,26 @@
                         <div id="exposureTypeRadios"></div>
                     </div>
                     
-                    <div class="alert alert-info">
-                        <small>
-                            <strong>Formato dati:</strong><br>
-                            Incolla prima le percentuali, poi i nomi (uno per riga):<br>
-                            <code>23,03 %<br>16,04 %<br>Regno Unito<br>Francia</code>
-                        </small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label"><i class="fas fa-paste me-1"></i> Incolla Dati Esposizione</label>
-                        <textarea class="form-control" id="exposureDataInput" rows="12" placeholder="Incolla qui i dati..."></textarea>
-                    </div>
+<div class="mb-3">
+    <label class="form-label"><i class="fas fa-file-import me-1"></i> Formato Input</label>
+    <select class="form-select" id="inputFormatSelect">
+        <option value="separate">Separato: prima % poi nomi</option>
+        <option value="inline">In linea: nome + percentuale</option>
+    </select>
+</div>
+
+<div class="alert alert-info" id="formatHint">
+    <small>
+        <strong>Formato "Separato":</strong><br>
+        Incolla prima le percentuali, poi i nomi (uno per riga):<br>
+        <code>23,03 %<br>16,04 %<br>Regno Unito<br>Francia</code>
+    </small>
+</div>
+
+<div class="mb-3">
+    <label class="form-label"><i class="fas fa-paste me-1"></i> Incolla Dati Esposizione</label>
+    <textarea class="form-control" id="exposureDataInput" rows="12" placeholder="Incolla qui i dati..."></textarea>
+</div>
                     
                     <button class="btn btn-primary w-100 mb-2" onclick="parseAndSaveExposure()">
                         <i class="fas fa-save me-1"></i> Salva Esposizione
@@ -2668,17 +2676,28 @@ function loadExposureData() {
     const type = document.querySelector('input[name="exposureType"]:checked').value;
     const data = exposureData[investmentName][type];
     
-    if (data && data.length > 0) {
-        let text = '';
+if (data && data.length > 0) {
+    const format = document.getElementById('inputFormatSelect').value;
+    let text = '';
+    
+    if (format === 'inline') {
+        // Formato in linea: "Nome 12,34"
+        data.forEach(item => {
+            text += `${item.nome} ${item.perc.toFixed(2)}\n`;
+        });
+    } else {
+        // Formato separato
         data.forEach(item => {
             text += item.perc.toFixed(2) + ' %\n';
         });
         data.forEach(item => {
             text += item.nome + '\n';
         });
-        document.getElementById('exposureDataInput').value = text;
-    } else {
-        document.getElementById('exposureDataInput').value = '';
+    }
+    
+    document.getElementById('exposureDataInput').value = text;
+} else {
+    document.getElementById('exposureDataInput').value = '';
     }
 }
 
@@ -2697,10 +2716,32 @@ function parseAndSaveExposure() {
     
     const type = document.querySelector('input[name="exposureType"]:checked').value;
     
-    // Parse dei dati
-    const lines = rawData.split('\n').map(l => l.trim()).filter(l => l);
+// Parse dei dati in base al formato selezionato
+const format = document.getElementById('inputFormatSelect').value;
+const lines = rawData.split('\n').map(l => l.trim()).filter(l => l);
+let parsedData = [];
+
+if (format === 'inline') {
+    // Formato: "Stati Uniti 71,94"
+    lines.forEach(line => {
+        // Cerca pattern: testo seguito da numero
+        const match = line.match(/^(.+?)\s+([\d,\.]+)\s*%?\s*$/);
+        if (match) {
+            const nome = match[1].trim();
+            const perc = parseFloat(match[2].replace(',', '.'));
+            if (!isNaN(perc)) {
+                parsedData.push({ nome, perc });
+            }
+        }
+    });
     
-    // Separa percentuali e nomi
+    if (parsedData.length === 0) {
+        alert('Nessun dato valido trovato! Verifica il formato:\nOgni riga deve contenere: Nome Percentuale\nEs: Stati Uniti 71,94');
+        return;
+    }
+    
+} else {
+    // Formato separato: prima % poi nomi
     const percentages = [];
     const names = [];
     
@@ -2721,10 +2762,11 @@ function parseAndSaveExposure() {
     }
     
     // Crea array di oggetti
-    const parsedData = names.map((nome, idx) => ({
+    parsedData = names.map((nome, idx) => ({
         nome: nome,
         perc: percentages[idx]
     }));
+}
     
     // Salva
     if (!exposureData[investmentName]) {
@@ -2966,6 +3008,38 @@ const totalPortfolio = investmentsToAnalyze.reduce((sum, invName) => {
             });
         }
     }, 100);
+}
+
+// Event listener per cambio formato input
+document.addEventListener('DOMContentLoaded', function() {
+    const formatSelect = document.getElementById('inputFormatSelect');
+    if (formatSelect) {
+        formatSelect.addEventListener('change', updateFormatHint);
+        updateFormatHint(); // Inizializza
+    }
+});
+
+function updateFormatHint() {
+    const format = document.getElementById('inputFormatSelect').value;
+    const hintEl = document.getElementById('formatHint');
+    
+    if (format === 'separate') {
+        hintEl.innerHTML = `
+            <small>
+                <strong>Formato "Separato":</strong><br>
+                Incolla prima le percentuali, poi i nomi (uno per riga):<br>
+                <code>23,03 %<br>16,04 %<br>Regno Unito<br>Francia</code>
+            </small>
+        `;
+    } else {
+        hintEl.innerHTML = `
+            <small>
+                <strong>Formato "In linea":</strong><br>
+                Ogni riga contiene nome e percentuale separati da spazio:<br>
+                <code>Stati Uniti 71,94<br>Giappone 5,44<br>Regno Unito 3,68</code>
+            </small>
+        `;
+    }
 }
 
 
