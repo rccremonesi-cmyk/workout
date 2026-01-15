@@ -2151,7 +2151,7 @@ renderForecastResults(results, totalInvested, currentCapital, currentGainLoss, c
 
 function renderForecastResults(results, totalInvested, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear) {
     const currentYearNum = new Date().getFullYear();
-    const yearsToTarget = targetYear - currentYearNum;
+    const yearsToTarget = targetYear - currentYearNum + 1;
 
 let html = `
     <div class="row">
