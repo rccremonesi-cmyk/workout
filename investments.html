@@ -651,6 +651,8 @@ if (savedMarketValue) {
     currentMarketValue = parseFloat(savedMarketValue);
 }
         }
+		
+		
 
         // Salvataggio dati
         function saveData() {
@@ -1601,6 +1603,16 @@ setTimeout(() => {
 
         // Inizializzazione
         loadData();
+		
+		
+		        // Formattazione campo marketValue a 2 decimali
+        const marketValueInput = document.getElementById('marketValue');
+        if (marketValueInput) {
+            marketValueInput.addEventListener('blur', function() {
+                const value = parseFloat(this.value) || 0;
+                this.value = value.toFixed(2);
+            });
+        }
 
 
         // Aggiungi listener per aggiornare il conteggio caratteri
@@ -1795,15 +1807,15 @@ function loadForecast() {
     const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
     const marketValueInput = document.getElementById('marketValue');
     
-    if (currentMarketValue > 0) {
-        // Usa il valore salvato se esiste
-        marketValueInput.value = currentMarketValue;
-    } else {
-        // Di default usa il totale investito
-        marketValueInput.value = totalInvested;
-        currentMarketValue = totalInvested;
-        localStorage.setItem('currentMarketValue', currentMarketValue.toString());
-    }
+if (currentMarketValue > 0) {
+    // Usa il valore salvato se esiste
+    marketValueInput.value = currentMarketValue.toFixed(2);
+} else {
+    // Di default usa il totale investito
+    marketValueInput.value = totalInvested.toFixed(2);
+    currentMarketValue = totalInvested;
+    localStorage.setItem('currentMarketValue', currentMarketValue.toString());
+}
 
     generateYearlyReturnsInputs();
 }
@@ -1817,7 +1829,7 @@ function updateMarketValue() {
 
 function autoFillMarketValue() {
     const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
-    document.getElementById('marketValue').value = totalInvested;
+    document.getElementById('marketValue').value = totalInvested.toFixed(2);
     updateMarketValue();
 }
 
