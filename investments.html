@@ -2810,14 +2810,19 @@ function renderExposureAnalysis() {
         return;
     }
     
-    // Calcola totale investito per ogni investimento
-    const investmentTotals = {};
-    investments.forEach(inv => {
-        if (!investmentTotals[inv.nome]) {
-            investmentTotals[inv.nome] = 0;
-        }
-        investmentTotals[inv.nome] += inv.totale;
-    });
+// Calcola totale investito per ogni investimento
+const investmentTotals = {};
+investments.forEach(inv => {
+    if (!investmentTotals[inv.nome]) {
+        investmentTotals[inv.nome] = 0;
+    }
+    investmentTotals[inv.nome] += inv.totale;
+});
+
+// MODIFICA: Calcola totale SOLO degli investimenti analizzati (con dati esposizione)
+const totalPortfolio = investmentsToAnalyze.reduce((sum, invName) => {
+    return sum + (investmentTotals[invName] || 0);
+}, 0);
     
     const totalPortfolio = Object.values(investmentTotals).reduce((sum, val) => sum + val, 0);
     
