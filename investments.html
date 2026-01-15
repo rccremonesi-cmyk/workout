@@ -1975,39 +1975,41 @@ const results = scenarios.map(scenario => {
         versamentiPerAnno[inv.anno] += inv.totale;
     });
     
-    for (let year = currentYearNum; year <= targetYear; year++) {
-        const depositPrevisto = parseFloat(forecastDeposits[year]) || 0;
-        const depositEffettivo = versamentiPerAnno[year] || 0;
-        
-        // Somma versamento previsto (se c'è) a quello effettivo (se c'è)
-        // Ma solo per anni futuri o anno corrente con depositi aggiuntivi
-        let depositTotale = 0;
-        if (year === currentYearNum) {
-            // Anno corrente: usa solo depositPrevisto come aggiunta al capitale già presente
-            depositTotale = depositPrevisto;
-        } else if (year > currentYearNum) {
-            // Anni futuri: usa depositPrevisto + depositEffettivo (se già inserito)
-            depositTotale = depositPrevisto + depositEffettivo;
-        }
-        
-        if (year > currentYearNum || (year === currentYearNum && depositTotale > 0)) {
-            capital += depositTotale;
-            totalDeposited += depositTotale;
-        }
-        
-        const returnRate = (forecastReturns[year] || 0) * scenario.multiplier / 100;
-        let gain = 0;
-        
-        if (calcMode === 'compound') {
-            gain = capital * returnRate;
-        } else {
-            gain = totalInvested * returnRate;
-        }
-        
-        capital += gain;
-        
-        const terCost = capital * (avgTER / 100);
-        capital -= terCost;
+for (let year = currentYearNum; year <= targetYear; year++) {
+    const depositPrevisto = parseFloat(forecastDeposits[year]) || 0;
+    const depositEffettivo = versamentiPerAnno[year] || 0;
+    
+    // Gestione corretta dei versamenti
+    let depositTotale = 0;
+    if (year === currentYearNum) {
+        // Anno corrente: solo depositPrevisto come versamento aggiuntivo
+        depositTotale = depositPrevisto;
+    } else if (year > currentYearNum) {
+        // Anni futuri: somma depositPrevisto + depositEffettivo
+        depositTotale = depositPrevisto + depositEffettivo;
+    }
+    
+    // Aggiungi versamento PRIMA di calcolare il rendimento
+    if (depositTotale > 0) {
+        capital += depositTotale;
+        totalDeposited += depositTotale;
+    }
+    
+    // Calcola rendimento sul capitale aggiornato
+    const returnRate = (forecastReturns[year] || 0) * scenario.multiplier / 100;
+    let gain = 0;
+    
+    if (calcMode === 'compound') {
+        gain = capital * returnRate;
+    } else {
+        gain = totalDeposited * returnRate;
+    }
+    
+    capital += gain;
+    
+    // Sottrai TER
+    const terCost = capital * (avgTER / 100);
+    capital -= terCost;
         
         yearlyData.push({
             year,
@@ -2045,12 +2047,46 @@ investments.forEach(inv => {
     versamentiPerAnno[inv.anno] += inv.totale;
 });
 
+// Calcola preview con capitale progressivo
+let capitalProgressivo = currentCapital;
+let totaleVersatoProgressivo = totalInvested;
+
 for (let year = currentYearNum; year <= targetYear; year++) {
     const previewEl = document.getElementById(`preview_${year}`);
     const returnVal = forecastReturns[year] || 0;
     const depositPrevisto = forecastDeposits[year] || 0;
     const depositEffettivo = versamentiPerAnno[year] || 0;
-    const depositTotale = depositPrevisto + (year > currentYearNum ? depositEffettivo : 0);
+    
+    let depositTotale = 0;
+    if (year === currentYearNum) {
+        depositTotale = depositPrevisto;
+    } else if (year > currentYearNum) {
+        depositTotale = depositPrevisto + depositEffettivo;
+    }
+    
+    // Aggiungi versamento al capitale progressivo
+    if (depositTotale > 0) {
+        capitalProgressivo += depositTotale;
+        totaleVersatoProgressivo += depositTotale;
+    }
+    
+    // Calcola guadagno basato sul capitale progressivo
+    const calcMode = document.getElementById('calcMode').value;
+    let estimatedGain = 0;
+    if (returnVal) {
+        if (calcMode === 'compound') {
+            estimatedGain = capitalProgressivo * (returnVal / 100);
+        } else {
+            estimatedGain = totaleVersatoProgressivo * (returnVal / 100);
+        }
+    }
+    
+    // Applica guadagno al capitale progressivo per anno successivo
+    capitalProgressivo += estimatedGain;
+    
+    // Sottrai TER
+    const terCost = capitalProgressivo * (avgTER / 100);
+    capitalProgressivo -= terCost;
     
     if (previewEl) {
         let previewText = '';
@@ -2061,11 +2097,8 @@ for (let year = currentYearNum; year <= targetYear; year++) {
             previewText = `💵 Versamento totale: €${depositTotale.toLocaleString('it-IT')}`;
         }
         
-        if (returnVal && depositTotale) {
-            const estimatedGain = depositTotale * (returnVal / 100);
-            previewText += ` | 📈 Guadagno stimato con ${returnVal}%: €${estimatedGain.toLocaleString('it-IT', {minimumFractionDigits: 0})}`;
-        } else if (returnVal) {
-            previewText += (previewText ? ' | ' : '') + `📈 Rendimento: ${returnVal}%`;
+        if (returnVal) {
+            previewText += (previewText ? ' | ' : '') + `📈 Guadagno stimato con ${returnVal}%: €${estimatedGain.toLocaleString('it-IT', {minimumFractionDigits: 0})} | 💼 Capitale fine anno: €${capitalProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}`;
         }
         
         previewEl.textContent = previewText || '';
