@@ -1800,6 +1800,20 @@ function loadForecast() {
         const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
         marketValueInput.placeholder = `Es. ${totalInvested.toLocaleString('it-IT')} (totale investito)`;
     }
+	
+	
+	function updateMarketValue() {
+    const marketValue = parseFloat(document.getElementById('marketValue').value) || 0;
+    currentMarketValue = marketValue;
+    localStorage.setItem('currentMarketValue', currentMarketValue.toString());
+    calculateForecast(); // Ricalcola tutto quando cambia il valore di mercato
+}
+
+function autoFillMarketValue() {
+    const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
+    document.getElementById('marketValue').value = totalInvested;
+    updateMarketValue();
+}
 
     generateYearlyReturnsInputs();
 }
@@ -1928,14 +1942,24 @@ function calculateForecast() {
         return;
     }
 
-    // Calcola totale investito
-    const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
-    
-    // Usa valore di mercato se specificato, altrimenti usa totale investito
-    const marketValue = parseFloat(document.getElementById('marketValue').value) || totalInvested;
-    const currentCapital = marketValue;
-    const currentGainLoss = marketValue - totalInvested;
-    const currentGainLossPerc = totalInvested > 0 ? ((currentGainLoss / totalInvested) * 100) : 0;
+// Calcola totale investito
+const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
+
+// Usa valore di mercato salvato o quello inserito nel campo
+let marketValue = parseFloat(document.getElementById('marketValue').value);
+if (!marketValue || marketValue === 0) {
+    // Se non c'è valore di mercato, usa il valore salvato o il totale investito
+    marketValue = currentMarketValue > 0 ? currentMarketValue : totalInvested;
+    document.getElementById('marketValue').value = marketValue;
+}
+
+// Aggiorna il valore salvato
+currentMarketValue = marketValue;
+localStorage.setItem('currentMarketValue', currentMarketValue.toString());
+
+const currentCapital = marketValue;
+const currentGainLoss = marketValue - totalInvested;
+const currentGainLossPerc = totalInvested > 0 ? ((currentGainLoss / totalInvested) * 100) : 0;
 
     // Calcola TER medio
     const byNome = {};
@@ -1962,8 +1986,10 @@ function calculateForecast() {
     ];
 
 const results = scenarios.map(scenario => {
-    let capital = currentCapital;  // Usa valore di mercato invece di totalInvested
+    // IMPORTANTE: Parte dal valore di mercato reale (currentCapital include già guadagni/perdite)
+    let capital = currentCapital;
     const yearlyData = [];
+    // totalDeposited parte dal totale già investito finora
     let totalDeposited = totalInvested;
     
     // Calcola versamenti effettivi per anno
