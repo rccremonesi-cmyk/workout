@@ -730,19 +730,19 @@
     </button>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
+<script>
         let investments = [];
         let selectedTags = [];
         let allTags = new Set();
         let allNomi = new Set();
-		let exposureData = {}; // Struttura: { nomeInvestimento: { geografica: [{nome, perc}], settoriale: [{nome, perc}] } }
-let exposureTypes = ['geografica', 'settoriale']; // Tipi di esposizione configurabili
+        let exposureData = {}; // Struttura: { nomeInvestimento: { geografica: [{nome, perc}], settoriale: [{nome, perc}] } }
+        let exposureTypes = ['geografica', 'settoriale']; // Tipi di esposizione configurabili
         let currentYear = 'all';
-let forecastReturns = {};
-let forecastDeposits = {};
-let currentMarketValue = 0;
-let forecastChart = null;
-let forecastInflation = {};
+        let forecastReturns = {};
+        let forecastDeposits = {};
+        let forecastInflation = {};
+        let currentMarketValue = 0;
+        let forecastChart = null;
 
         // Caricamento dati da localStorage
         function loadData() {
@@ -759,44 +759,51 @@ let forecastInflation = {};
             
             // Carica appunti
             const savedNotes = localStorage.getItem('investmentNotes');
-			if (savedNotes !== null) {
-				const notesEl = document.getElementById('notesContent');
-				if (notesEl) {
-					notesEl.innerHTML = savedNotes;
-				}
-			}
-			updateCharCount();
-			
-			
-			// Carica previsioni
-			const savedForecast = localStorage.getItem('forecastReturns');
-			if (savedForecast) {
-				forecastReturns = JSON.parse(savedForecast);
-			}
-			const savedDeposits = localStorage.getItem('forecastDeposits');
-if (savedDeposits) {
-    forecastDeposits = JSON.parse(savedDeposits);
-}
+            if (savedNotes !== null) {
+                const notesEl = document.getElementById('notesContent');
+                if (notesEl) {
+                    notesEl.innerHTML = savedNotes;
+                }
+            }
+            updateCharCount();
+            
+            // Carica previsioni
+            const savedForecast = localStorage.getItem('forecastReturns');
+            if (savedForecast) {
+                forecastReturns = JSON.parse(savedForecast);
+            }
+            const savedDeposits = localStorage.getItem('forecastDeposits');
+            if (savedDeposits) {
+                forecastDeposits = JSON.parse(savedDeposits);
+            }
 
-const savedInflation = localStorage.getItem('forecastInflation');
-    if (savedInflation) {
-        forecastInflation = JSON.parse(savedInflation);
-    }
+            const savedInflation = localStorage.getItem('forecastInflation');
+            if (savedInflation) {
+                forecastInflation = JSON.parse(savedInflation);
+            }
 
-			const savedMarketValue = localStorage.getItem('currentMarketValue');
-if (savedMarketValue) {
-    currentMarketValue = parseFloat(savedMarketValue);
-}
+            const savedMarketValue = localStorage.getItem('currentMarketValue');
+            if (savedMarketValue) {
+                currentMarketValue = parseFloat(savedMarketValue);
+            }
+            
+            // Carica esposizioni
+            const savedExposure = localStorage.getItem('exposureData');
+            if (savedExposure) {
+                exposureData = JSON.parse(savedExposure);
+            }
+            
+            // Carica tipi esposizione
+            const savedExposureTypes = localStorage.getItem('exposureTypes');
+            if (savedExposureTypes) {
+                exposureTypes = JSON.parse(savedExposureTypes);
+            }
         }
-		
-		
 
         // Salvataggio dati
         function saveData() {
             localStorage.setItem('investments', JSON.stringify(investments));
         }
-
-       
 
         // Gestione nomi investimenti
         function updateNomiList() {
@@ -822,36 +829,27 @@ if (savedMarketValue) {
             }
         });
 
-       
-
-
-
-       
-
-
-
-
         // Form submit
-document.getElementById('investmentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-const id = document.getElementById('investmentId').value || Date.now().toString();
-const commissioni = parseFloat(document.getElementById('commissioni').value) || 0;
-const commissioniTipo = document.getElementById('commissioniTipo').value;
+        document.getElementById('investmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('investmentId').value || Date.now().toString();
+            const commissioni = parseFloat(document.getElementById('commissioni').value) || 0;
+            const commissioniTipo = document.getElementById('commissioniTipo').value;
 
-const investment = {
-    id: id,
-    data: document.getElementById('dataInvestimento').value,
-    anno: new Date(document.getElementById('dataInvestimento').value).getFullYear(),
-    ter: parseFloat(document.getElementById('ter').value),
-    tipologia: document.getElementById('tipologia').value,
-    settori: [...selectedTags],
-    nome: document.getElementById('nome').value,
-    link: document.getElementById('link').value,
-    totale: parseFloat(document.getElementById('totaleInvestito').value),
-    commissioni: commissioni,
-    commissioniTipo: commissioniTipo || 'sottratta'
-};
+            const investment = {
+                id: id,
+                data: document.getElementById('dataInvestimento').value,
+                anno: new Date(document.getElementById('dataInvestimento').value).getFullYear(),
+                ter: parseFloat(document.getElementById('ter').value),
+                tipologia: document.getElementById('tipologia').value,
+                settori: [...selectedTags],
+                nome: document.getElementById('nome').value,
+                link: document.getElementById('link').value,
+                totale: parseFloat(document.getElementById('totaleInvestito').value),
+                commissioni: commissioni,
+                commissioniTipo: commissioniTipo || 'sottratta'
+            };
 
             const existingIndex = investments.findIndex(inv => inv.id === id);
             if (existingIndex !== -1) {
@@ -867,49 +865,49 @@ const investment = {
             alert('Versamento salvato con successo!');
         });
 
-function resetForm() {
-    document.getElementById('investmentForm').reset();
-    document.getElementById('investmentId').value = '';
-    document.getElementById('commissioni').value = '';
-    document.getElementById('commissioniTipo').value = 'sottratta';
-}
+        function resetForm() {
+            document.getElementById('investmentForm').reset();
+            document.getElementById('investmentId').value = '';
+            document.getElementById('commissioni').value = '';
+            document.getElementById('commissioniTipo').value = 'sottratta';
+        }
 
-function cloneInvestment(id) {
-    const inv = investments.find(i => i.id === id);
-    if (inv) {
-        document.getElementById('investmentId').value = '';
-        document.getElementById('dataInvestimento').value = '';
-        document.getElementById('ter').value = inv.ter;
-        document.getElementById('tipologia').value = inv.tipologia;
-        selectedTags = [...inv.settori];
-        document.getElementById('nome').value = inv.nome;
-        document.getElementById('link').value = inv.link;
-        document.getElementById('totaleInvestito').value = '';
-        document.getElementById('commissioni').value = inv.commissioni || 0;
-document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottratta';
-        
-        // Vai al tab inserimento
-        document.getElementById('input-tab').click();
-    }
-}
+        function cloneInvestment(id) {
+            const inv = investments.find(i => i.id === id);
+            if (inv) {
+                document.getElementById('investmentId').value = '';
+                document.getElementById('dataInvestimento').value = '';
+                document.getElementById('ter').value = inv.ter;
+                document.getElementById('tipologia').value = inv.tipologia;
+                selectedTags = [...inv.settori];
+                document.getElementById('nome').value = inv.nome;
+                document.getElementById('link').value = inv.link;
+                document.getElementById('totaleInvestito').value = '';
+                document.getElementById('commissioni').value = inv.commissioni || 0;
+                document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottratta';
+                
+                // Vai al tab inserimento
+                document.getElementById('input-tab').click();
+            }
+        }
 
-function editInvestment(id) {
-    const inv = investments.find(i => i.id === id);
-    if (inv) {
-        document.getElementById('investmentId').value = id;
-        document.getElementById('dataInvestimento').value = inv.data;
-        document.getElementById('ter').value = inv.ter;
-        document.getElementById('tipologia').value = inv.tipologia;
-        selectedTags = [...inv.settori];
-        document.getElementById('nome').value = inv.nome;
-        document.getElementById('link').value = inv.link;
-        document.getElementById('totaleInvestito').value = inv.totale;
-        document.getElementById('commissioni').value = inv.commissioni || 0;
-document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottratta';
-        
-        document.getElementById('input-tab').click();
-    }
-}
+        function editInvestment(id) {
+            const inv = investments.find(i => i.id === id);
+            if (inv) {
+                document.getElementById('investmentId').value = id;
+                document.getElementById('dataInvestimento').value = inv.data;
+                document.getElementById('ter').value = inv.ter;
+                document.getElementById('tipologia').value = inv.tipologia;
+                selectedTags = [...inv.settori];
+                document.getElementById('nome').value = inv.nome;
+                document.getElementById('link').value = inv.link;
+                document.getElementById('totaleInvestito').value = inv.totale;
+                document.getElementById('commissioni').value = inv.commissioni || 0;
+                document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottratta';
+                
+                document.getElementById('input-tab').click();
+            }
+        }
 
         function deleteInvestment(id) {
             if (confirm('Sei sicuro di voler eliminare questo versamento?')) {
@@ -922,11 +920,12 @@ document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottr
         function loadSummary() {
             const years = [...new Set(investments.map(inv => inv.anno))].sort((a, b) => b - a);
             
-            // Calcola totali per tab
-            const totaleAll = investments.reduce((sum, inv) => sum + inv.totale, 0);
+            // Calcola totali per tab usando capitale netto
+            const totaleAll = calcolaCapitaleNetto(investments);
             const totaliPerAnno = {};
             years.forEach(year => {
-                totaliPerAnno[year] = investments.filter(inv => inv.anno === year).reduce((sum, inv) => sum + inv.totale, 0);
+                const investimentiAnno = investments.filter(inv => inv.anno === year);
+                totaliPerAnno[year] = calcolaCapitaleNetto(investimentiAnno);
             });
 
             // Render year tabs
@@ -962,7 +961,17 @@ document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottr
             let html = '';
             Object.keys(byType).sort().forEach(tipo => {
                 const investimenti = byType[tipo];
-                const totaleType = Object.values(investimenti).flat().reduce((sum, inv) => sum + inv.totale, 0);
+                const totaleType = Object.values(investimenti).flat().reduce((sum, inv) => {
+                    const totale = inv.totale;
+                    const commissioni = inv.commissioni || 0;
+                    const tipo = inv.commissioniTipo || 'sottratta';
+                    
+                    if (tipo === 'sottratta') {
+                        return sum + (totale - commissioni);
+                    } else {
+                        return sum + totale;
+                    }
+                }, 0);
                 
                 html += `
                     <h5 class="mt-4 mb-3">${tipo} <span class="badge bg-secondary">${Object.keys(investimenti).length} investimenti - €${totaleType.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span></h5>
@@ -970,56 +979,75 @@ document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottr
 
                 Object.keys(investimenti).sort().forEach(nomeInv => {
                     const versamenti = investimenti[nomeInv].sort((a, b) => new Date(a.data) - new Date(b.data));
-                    const totaleInvestimento = versamenti.reduce((sum, inv) => sum + inv.totale, 0);
+                    const totaleInvestimento = versamenti.reduce((sum, inv) => {
+                        const totale = inv.totale;
+                        const commissioni = inv.commissioni || 0;
+                        const tipo = inv.commissioniTipo || 'sottratta';
+                        
+                        if (tipo === 'sottratta') {
+                            return sum + (totale - commissioni);
+                        } else {
+                            return sum + totale;
+                        }
+                    }, 0);
                     const lastVersamento = versamenti[versamenti.length - 1];
 
                     html += `
                         <div class="investment-group">
                             <h6 class="mb-3">
                                 ${lastVersamento.link ? `<a href="${lastVersamento.link}" target="_blank">${nomeInv}</a>` : nomeInv}
-                                <span class="badge bg-primary ms-2">€${totaleInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})} totale</span>
-                                <span class="badge bg-info ms-1">${versamenti.length} versament${versamenti.length !== 1 ? 'i' : 'o'}
-</span>
+                                <span class="badge bg-primary ms-2">€${totaleInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})} netto</span>
+                                <span class="badge bg-info ms-1">${versamenti.length} versament${versamenti.length !== 1 ? 'i' : 'o'}</span>
                             </h6>
                             <div class="table-responsive">
                                 <table class="table table-sm sub-table">
                                     <thead>
-                                        <thead>
-										<tr>
-											<th>Data</th>
-											<th>Anno</th>
-											<th>Settori</th>
-											<th>TER %</th>
-											<th>Versamento €</th>
-											<th>Commissioni €</th>
-											<th>Progressivo €</th>
-											<th style="min-width:114px;">Azioni</th>
-										</tr>
-									</thead>
-
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Anno</th>
+                                            <th>Settori</th>
+                                            <th>TER %</th>
+                                            <th>Versamento €</th>
+                                            <th>Commissioni €</th>
+                                            <th>Progressivo €</th>
+                                            <th style="min-width:114px;">Azioni</th>
+                                        </tr>
+                                    </thead>
                                     <tbody>
                     `;
 
                     let progressivo = 0;
                     versamenti.forEach((inv, index) => {
-                        progressivo += inv.totale;
-						html += `
-							<tr class="versamento-row">
-								<td>${new Date(inv.data).toLocaleDateString('it-IT')}</td>
-								<td>${inv.anno}</td>
-								<td>
-									${inv.settori.map(s => `<span class="badge bg-info badge-custom">${s}</span>`).join(' ')}
-								</td>
-								<td>${inv.ter}%</td>
-								<td>€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-								<td>
-    ${inv.commissioni > 0 ? 
-        `€${inv.commissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
-        <small class="text-muted">(${inv.commissioniTipo === 'aggiuntiva' ? '+' : 'incl.'})</small>` 
-        : '-'}
-</td>
-								<td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-								<td>
+                        const capitaleNettoVersamento = (() => {
+                            const totale = inv.totale;
+                            const commissioni = inv.commissioni || 0;
+                            const tipo = inv.commissioniTipo || 'sottratta';
+                            
+                            if (tipo === 'sottratta') {
+                                return totale - commissioni;
+                            } else {
+                                return totale;
+                            }
+                        })();
+                        
+                        progressivo += capitaleNettoVersamento;
+                        html += `
+                            <tr class="versamento-row">
+                                <td>${new Date(inv.data).toLocaleDateString('it-IT')}</td>
+                                <td>${inv.anno}</td>
+                                <td>
+                                    ${inv.settori.map(s => `<span class="badge bg-info badge-custom">${s}</span>`).join(' ')}
+                                </td>
+                                <td>${inv.ter}%</td>
+                                <td>€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                                <td>
+                                    ${inv.commissioni > 0 ? 
+                                        `€${inv.commissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
+                                        <small class="text-muted">(${inv.commissioniTipo === 'aggiuntiva' ? '+' : 'incl.'})</small>` 
+                                        : '-'}
+                                </td>
+                                <td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                                <td>
                                     <button class="btn btn-sm btn-outline-secondary btn-clone custom-tooltip" onclick="cloneInvestment('${inv.id}')" title="Clona per nuovo versamento">
                                         <i class="fas fa-clone"></i>
                                         <span class="tooltip-text">Clona per nuovo versamento</span>
@@ -1078,7 +1106,7 @@ document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottr
             // Ottieni tutti gli anni ordinati
             const years = [...new Set(investments.map(inv => inv.anno))].sort((a, b) => a - b);
 
-            // Calcola versamenti per anno per ogni investimento
+            // Calcola versamenti per anno per ogni investimento (NETTI)
             const matrixData = Object.keys(byNome).sort().map(nome => {
                 const inv = byNome[nome];
                 const row = {
@@ -1091,39 +1119,36 @@ document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottr
                     costoTER: 0
                 };
 
-               years.forEach(anno => {
-    const versamentiAnno = inv.versamenti.filter(v => v.anno === anno);
-    row.versamenti[anno] = versamentiAnno.reduce((sum, v) => {
-        const totale = v.totale;
-        const commissioni = v.commissioni || 0;
-        const tipo = v.commissioniTipo || 'sottratta';
-        
-        if (tipo === 'sottratta') {
-            return sum + (totale - commissioni);
-        } else {
-            return sum + totale;
-        }
-    }, 0);
-});
+                years.forEach(anno => {
+                    const versamentiAnno = inv.versamenti.filter(v => v.anno === anno);
+                    row.versamenti[anno] = versamentiAnno.reduce((sum, v) => {
+                        const totale = v.totale;
+                        const commissioni = v.commissioni || 0;
+                        const tipo = v.commissioniTipo || 'sottratta';
+                        
+                        if (tipo === 'sottratta') {
+                            return sum + (totale - commissioni);
+                        } else {
+                            return sum + totale;
+                        }
+                    }, 0);
+                });
 
-// Calcola totale investito
-row.totale = inv.versamenti.reduce((sum, v) => {
-    const totale = v.totale;
-    const commissioni = v.commissioni || 0;
-    const tipo = v.commissioniTipo || 'sottratta';
-    
-    if (tipo === 'sottratta') {
-        return sum + (totale - commissioni);
-    } else {
-        return sum + totale;
-    }
-}, 0);
-				
-				
-				
-                // Calcola costo TER annuale
+                // Calcola totale investito NETTO
+                row.totale = inv.versamenti.reduce((sum, v) => {
+                    const totale = v.totale;
+                    const commissioni = v.commissioni || 0;
+                    const tipo = v.commissioniTipo || 'sottratta';
+                    
+                    if (tipo === 'sottratta') {
+                        return sum + (totale - commissioni);
+                    } else {
+                        return sum + totale;
+                    }
+                }, 0);
                 
-				row.costoTER = row.totale * (row.ter / 100);
+                // Calcola costo TER annuale sul capitale netto
+                row.costoTER = row.totale * (row.ter / 100);
 
                 return row;
             });
@@ -1316,7 +1341,7 @@ row.totale = inv.versamenti.reduce((sum, v) => {
                 byNome[inv.nome].push(inv);
             });
 
-            // Calcola i totali per anno considerando tutti i versamenti fino a quell'anno
+            // Calcola i totali per anno considerando tutti i versamenti fino a quell'anno (NETTI)
             const totaliPerAnno = {};
             const years = [...new Set(investments.map(inv => inv.anno))].sort();
             
@@ -1325,34 +1350,42 @@ row.totale = inv.versamenti.reduce((sum, v) => {
                 Object.keys(byNome).forEach(nome => {
                     const versamentiFinoAdAnno = byNome[nome].filter(inv => inv.anno <= anno);
                     if (versamentiFinoAdAnno.length > 0) {
-                        totaliPerAnno[anno] += versamentiFinoAdAnno.reduce((sum, inv) => sum + inv.totale, 0);
+                        totaliPerAnno[anno] += versamentiFinoAdAnno.reduce((sum, inv) => {
+                            const totale = inv.totale;
+                            const commissioni = inv.commissioni || 0;
+                            const tipo = inv.commissioniTipo || 'sottratta';
+                            
+                            if (tipo === 'sottratta') {
+                                return sum + (totale - commissioni);
+                            } else {
+                                return sum + totale;
+                            }
+                        }, 0);
                     }
                 });
             });
 
-            // Per i calcoli correnti, usa solo i versamenti filtrati
-            const totalInvestito = filtered.reduce((sum, inv) => {
-    const totale = inv.totale;
-    const commissioni = inv.commissioni || 0;
-    const tipo = inv.commissioniTipo || 'sottratta';
-    
-    // Se commissione è "sottratta" (già inclusa nel totale), la sottraiamo
-    // Se commissione è "aggiuntiva", non è inclusa nel totale
-    if (tipo === 'sottratta') {
-        return sum + (totale - commissioni);
-    } else {
-        return sum + totale;
-    }
-}, 0);
+            // Calcola capitale netto investito (escluse commissioni)
+            const capitaleNettoInvestito = calcolaCapitaleNetto(filtered);
             
-            // Calcola TER sul totale progressivo dell'anno selezionato
+            // Calcola TER sul totale progressivo dell'anno selezionato (sul capitale netto)
             let totaleTER = 0;
             if (currentYear === 'all') {
-                // Per "tutti gli anni" calcola il TER piÃ¹ recente di ogni investimento
+                // Per "tutti gli anni" calcola il TER più recente di ogni investimento
                 Object.keys(byNome).forEach(nome => {
                     const versamenti = byNome[nome].sort((a, b) => new Date(b.data) - new Date(a.data));
                     const ultimo = versamenti[0];
-                    const totaleInv = versamenti.reduce((sum, inv) => sum + inv.totale, 0);
+                    const totaleInv = versamenti.reduce((sum, inv) => {
+                        const totale = inv.totale;
+                        const commissioni = inv.commissioni || 0;
+                        const tipo = inv.commissioniTipo || 'sottratta';
+                        
+                        if (tipo === 'sottratta') {
+                            return sum + (totale - commissioni);
+                        } else {
+                            return sum + totale;
+                        }
+                    }, 0);
                     totaleTER += totaleInv * (ultimo.ter / 100);
                 });
             } else {
@@ -1360,64 +1393,72 @@ row.totale = inv.versamenti.reduce((sum, v) => {
                 Object.keys(byNome).forEach(nome => {
                     const versamentiAnno = byNome[nome].filter(inv => inv.anno === currentYear);
                     if (versamentiAnno.length > 0) {
-                        const totaleInv = byNome[nome].filter(inv => inv.anno <= currentYear).reduce((sum, inv) => sum + inv.totale, 0);
+                        const totaleInv = byNome[nome].filter(inv => inv.anno <= currentYear).reduce((sum, inv) => {
+                            const totale = inv.totale;
+                            const commissioni = inv.commissioni || 0;
+                            const tipo = inv.commissioniTipo || 'sottratta';
+                            
+                            if (tipo === 'sottratta') {
+                                return sum + (totale - commissioni);
+                            } else {
+                                return sum + totale;
+                            }
+                        }, 0);
                         const ultimo = versamentiAnno.sort((a, b) => new Date(b.data) - new Date(a.data))[0];
                         totaleTER += totaleInv * (ultimo.ter / 100);
                     }
                 });
             }
 
-            // Calcoli per tipologia (sul totale progressivo)
-			
-           
-		   const byType = {};
-			Object.keys(byNome).forEach(nome => {
-				const versamenti = byNome[nome];
-				const versamentiValidi = currentYear === 'all' ? versamenti : versamenti.filter(inv => inv.anno <= currentYear);
-				if (versamentiValidi.length > 0) {
-					const totaleInv = versamentiValidi.reduce((sum, inv) => {
-						const totale = inv.totale;
-						const commissioni = inv.commissioni || 0;
-						const tipo = inv.commissioniTipo || 'sottratta';
-						
-						if (tipo === 'sottratta') {
-							return sum + (totale - commissioni);
-						} else {
-							return sum + totale;
-						}
-					}, 0);
-					const tipo = versamentiValidi[versamentiValidi.length - 1].tipologia;
-					if (!byType[tipo]) byType[tipo] = 0;
-					byType[tipo] += totaleInv;
-				}
-			});
+            // Calcoli per tipologia (sul totale progressivo NETTO)
+            const byType = {};
+            Object.keys(byNome).forEach(nome => {
+                const versamenti = byNome[nome];
+                const versamentiValidi = currentYear === 'all' ? versamenti : versamenti.filter(inv => inv.anno <= currentYear);
+                if (versamentiValidi.length > 0) {
+                    const totaleInv = versamentiValidi.reduce((sum, inv) => {
+                        const totale = inv.totale;
+                        const commissioni = inv.commissioni || 0;
+                        const tipo = inv.commissioniTipo || 'sottratta';
+                        
+                        if (tipo === 'sottratta') {
+                            return sum + (totale - commissioni);
+                        } else {
+                            return sum + totale;
+                        }
+                    }, 0);
+                    const tipo = versamentiValidi[versamentiValidi.length - 1].tipologia;
+                    if (!byType[tipo]) byType[tipo] = 0;
+                    byType[tipo] += totaleInv;
+                }
+            });
 
-            // Calcoli per settore
-			const bySector = {};
-			Object.keys(byNome).forEach(nome => {
-				const versamenti = byNome[nome];
-				const versamentiValidi = currentYear === 'all' ? versamenti : versamenti.filter(inv => inv.anno <= currentYear);
-				if (versamentiValidi.length > 0) {
-					const totaleInv = versamentiValidi.reduce((sum, inv) => {
-						const totale = inv.totale;
-						const commissioni = inv.commissioni || 0;
-						const tipo = inv.commissioniTipo || 'sottratta';
-						
-						if (tipo === 'sottratta') {
-							return sum + (totale - commissioni);
-						} else {
-							return sum + totale;
-						}
-					}, 0);
-					const ultimo = versamentiValidi[versamentiValidi.length - 1];
-					if (ultimo.settori && ultimo.settori.length > 0) {
-						ultimo.settori.forEach(settore => {
-							if (!bySector[settore]) bySector[settore] = 0;
-							bySector[settore] += totaleInv;
-						});
-					}
-				}
-			});
+            // Calcoli per settore (sul totale progressivo NETTO)
+            const bySector = {};
+            Object.keys(byNome).forEach(nome => {
+                const versamenti = byNome[nome];
+                const versamentiValidi = currentYear === 'all' ? versamenti : versamenti.filter(inv => inv.anno <= currentYear);
+                if (versamentiValidi.length > 0) {
+                    const totaleInv = versamentiValidi.reduce((sum, inv) => {
+                        const totale = inv.totale;
+                        const commissioni = inv.commissioni || 0;
+                        const tipo = inv.commissioniTipo || 'sottratta';
+                        
+                        if (tipo === 'sottratta') {
+                            return sum + (totale - commissioni);
+                        } else {
+                            return sum + totale;
+                        }
+                    }, 0);
+                    const ultimo = versamentiValidi[versamentiValidi.length - 1];
+                    if (ultimo.settori && ultimo.settori.length > 0) {
+                        ultimo.settori.forEach(settore => {
+                            if (!bySector[settore]) bySector[settore] = 0;
+                            bySector[settore] += totaleInv;
+                        });
+                    }
+                }
+            });
 
             const totaleProgressivo = currentYear === 'all' ? 
                 Object.values(byType).reduce((sum, val) => sum + val, 0) : 
@@ -1429,97 +1470,88 @@ row.totale = inv.versamenti.reduce((sum, v) => {
             const etfTotal = byType['ETF'] || 0;
 
             // Calcola totale commissioni
-// Calcola totale commissioni
-const totaleCommissioni = filtered.reduce((sum, inv) => sum + (inv.commissioni || 0), 0);
+            const totaleCommissioni = filtered.reduce((sum, inv) => sum + (inv.commissioni || 0), 0);
 
-// Calcola totale reale speso (versamenti + commissioni aggiuntive)
-const totaleRealeSpeso = filtered.reduce((sum, inv) => {
-    const totale = inv.totale;
-    const commissioni = inv.commissioni || 0;
-    const tipo = inv.commissioniTipo || 'sottratta';
-    return sum + totale + (tipo === 'aggiuntiva' ? commissioni : 0);
-}, 0);
+            // Calcola totale reale speso (versamenti + commissioni aggiuntive)
+            const totaleRealeSpeso = filtered.reduce((sum, inv) => {
+                const totale = inv.totale;
+                const commissioni = inv.commissioni || 0;
+                const tipo = inv.commissioniTipo || 'sottratta';
+                return sum + totale + (tipo === 'aggiuntiva' ? commissioni : 0);
+            }, 0);
 
-// Calcola capitale netto effettivamente investito (escluse commissioni)
-const capitaleNettoInvestito = filtered.reduce((sum, inv) => {
-    const totale = inv.totale;
-    const commissioni = inv.commissioni || 0;
-    const tipo = inv.commissioniTipo || 'sottratta';
-    return sum + (tipo === 'aggiuntiva' ? totale : (totale - commissioni));
-}, 0);
-
-let html = `
-    <div class="row">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-value">€${capitaleNettoInvestito.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
-                <div class="stat-label">Capitale Netto Investito</div>
-                <small style="opacity: 0.9; font-size: 0.75rem;">Totale speso: €${totaleRealeSpeso.toLocaleString('it-IT', {minimumFractionDigits: 0})}</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card" style="background: var(--gradient-warning);">
-                <div class="stat-value">€${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                <div class="stat-label">Costo TER Annuale</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-    <div class="stat-card" style="background: var(--gradient-danger);">
-        <div class="stat-value" style="color:#575252;">${totaleCommissioni > 0 ? '€' + totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</div>
-        <div class="stat-label" style="color:#575252;">${totaleCommissioni > 0 ? 'Commissioni Totali' : 'Nessuna Commissione'}</div>
-    </div>
-</div>
-        <div class="col-md-3">
-            <div class="stat-card" style="background: var(--gradient-success);">
-                <div class="stat-value">${Object.keys(byNome).length}</div>
-                <div class="stat-label">Investimenti Attivi</div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row mt-3">
-        <div class="col-md-4">
-            <div class="stat-card" style="background: var(--gradient-info);">
-                <div class="stat-value">${totaleProgressivo > 0 ? (totaleTER / totaleProgressivo * 100).toFixed(2) : 0}%</div>
-                <div class="stat-label">TER Medio</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card" style="background: var(--gradient-secondary);">
-                <div class="stat-value">€${(totaleTER + totaleCommissioni).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                <div class="stat-label">Costi Totali (TER + Commissioni)</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card" >
-                <div class="stat-value">${totaleProgressivo > 0 ? ((totaleTER + totaleCommissioni) / totaleProgressivo * 100).toFixed(2) : 0}%</div>
-                <div class="stat-label">% Costi sul Totale</div>
-            </div>
-        </div>
-    </div>
-<div class="row mt-3">
-    <div class="col-12">
-        <div class="alert alert-info">
-            <div class="row">
-                <div class="col-md-4">
-                    <strong><i class="fas fa-info-circle me-2"></i>Capitale Netto Investito:</strong><br>
-                    <small>Importo effettivamente al lavoro (escluse commissioni)</small><br>
-                    <strong class="text-primary">€${capitaleNettoInvestito.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
+            let html = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-value">€${capitaleNettoInvestito.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
+                            <div class="stat-label">Capitale Netto Investito</div>
+                            <small style="opacity: 0.9; font-size: 0.75rem;">Totale speso: €${totaleRealeSpeso.toLocaleString('it-IT', {minimumFractionDigits: 0})}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="background: var(--gradient-warning);">
+                            <div class="stat-value">€${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                            <div class="stat-label">Costo TER Annuale</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="background: var(--gradient-danger);">
+                            <div class="stat-value" style="color:#575252;">${totaleCommissioni > 0 ? '€' + totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</div>
+                            <div class="stat-label" style="color:#575252;">${totaleCommissioni > 0 ? 'Commissioni Totali' : 'Nessuna Commissione'}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="background: var(--gradient-success);">
+                            <div class="stat-value">${Object.keys(byNome).length}</div>
+                            <div class="stat-label">Investimenti Attivi</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <strong><i class="fas fa-wallet me-2"></i>Totale Realmente Speso:</strong><br>
-                    <small>Versamenti + commissioni aggiuntive</small><br>
-                    <strong class="text-warning">€${totaleRealeSpeso.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
+                
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="stat-card" style="background: var(--gradient-info);">
+                            <div class="stat-value">${totaleProgressivo > 0 ? (totaleTER / totaleProgressivo * 100).toFixed(2) : 0}%</div>
+                            <div class="stat-label">TER Medio</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card" style="background: var(--gradient-secondary);">
+                            <div class="stat-value">€${(totaleTER + totaleCommissioni).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                            <div class="stat-label">Costi Totali (TER + Commissioni)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card" >
+                            <div class="stat-value">${totaleProgressivo > 0 ? ((totaleTER + totaleCommissioni) / totaleProgressivo * 100).toFixed(2) : 0}%</div>
+                            <div class="stat-label">% Costi sul Totale</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <strong><i class="fas fa-receipt me-2"></i>Commissioni Totali:</strong><br>
-                    <small>Somma di tutte le commissioni pagate</small><br>
-                    <strong class="text-danger">€${totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong><i class="fas fa-info-circle me-2"></i>Capitale Netto Investito:</strong><br>
+                                    <small>Importo effettivamente al lavoro (escluse commissioni)</small><br>
+                                    <strong class="text-primary">€${capitaleNettoInvestito.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong><i class="fas fa-wallet me-2"></i>Totale Realmente Speso:</strong><br>
+                                    <small>Versamenti + commissioni aggiuntive</small><br>
+                                    <strong class="text-warning">€${totaleRealeSpeso.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong><i class="fas fa-receipt me-2"></i>Commissioni Totali:</strong><br>
+                                    <small>Somma di tutte le commissioni pagate</small><br>
+                                    <strong class="text-danger">€${totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
                 ${years.length > 1 ? `
                 <div class="row mt-4">
                     <div class="col-12">
@@ -1538,7 +1570,7 @@ let html = `
                                         </thead>
                                         <tbody>
                                             ${years.map((anno, idx) => {
-                                                const versamentiAnno = investments.filter(inv => inv.anno === anno).reduce((sum, inv) => sum + inv.totale, 0);
+                                                const versamentiAnno = calcolaCapitaleNetto(investments.filter(inv => inv.anno === anno));
                                                 const progressivo = totaliPerAnno[anno];
                                                 const crescita = idx > 0 ? ((progressivo - totaliPerAnno[years[idx - 1]]) / totaliPerAnno[years[idx - 1]] * 100).toFixed(2) : 0;
                                                 return `
@@ -1674,7 +1706,7 @@ let html = `
             document.getElementById('analyticsContent').innerHTML = html;
 
             // Grafici
-setTimeout(() => {
+            setTimeout(() => {
                 const chartColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'];
                 
                 // Grafico tipologia - Torta
@@ -1702,7 +1734,6 @@ setTimeout(() => {
                                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                             const percentage = ((value / total) * 100).toFixed(2);
                                             return `\u20AC${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })} (${percentage}%)`;
-
                                         }
                                     }
                                 }
@@ -1737,8 +1768,7 @@ setTimeout(() => {
                                             const value = context.parsed.y || 0;
                                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                             const percentage = ((value / total) * 100).toFixed(2);
-                                           return `\u20AC${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })} (${percentage}%)`;
-
+                                            return `\u20AC${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })} (${percentage}%)`;
                                         }
                                     }
                                 }
@@ -1840,9 +1870,9 @@ setTimeout(() => {
         }
 
         // Funzioni per il tab Appunti
-       function loadNotes() {
-			updateCharCount(); // Solo aggiorna il conteggio
-		}
+        function loadNotes() {
+            updateCharCount(); // Solo aggiorna il conteggio
+        }
 
         function formatText(command) {
             document.execCommand(command, false, null);
@@ -1879,51 +1909,32 @@ setTimeout(() => {
             document.getElementById('charCount').textContent = `${charCount} caratteri`;
         }
 
-        // Inizializzazione
-        loadData();
-		
-		
-		// Calcola il totale reale investito considerando le commissioni
-function calcolaTotaleRealeInvestito(investimenti) {
-    return investimenti.reduce((sum, inv) => {
-        const totale = inv.totale;
-        const commissioni = inv.commissioni || 0;
-        const tipo = inv.commissioniTipo || 'sottratta';
-        
-        // Se commissione è aggiuntiva, il totale reale è versamento + commissione
-        // Se commissione è già inclusa, il totale reale è solo il versamento
-        if (tipo === 'aggiuntiva') {
-            return sum + totale + commissioni;
-        } else {
-            return sum + totale;
+        // Calcola il capitale netto investito (escluse commissioni)
+        function calcolaCapitaleNetto(investimenti) {
+            return investimenti.reduce((sum, inv) => {
+                const totale = inv.totale;
+                const commissioni = inv.commissioni || 0;
+                const tipo = inv.commissioniTipo || 'sottratta';
+                
+                if (tipo === 'aggiuntiva') {
+                    return sum + totale;
+                } else {
+                    return sum + (totale - commissioni);
+                }
+            }, 0);
         }
-    }, 0);
-}
 
-// Calcola solo il capitale effettivamente investito (esclude commissioni)
-function calcolaCapitaleNetto(investimenti) {
-    return investimenti.reduce((sum, inv) => {
-        const totale = inv.totale;
-        const commissioni = inv.commissioni || 0;
-        const tipo = inv.commissioniTipo || 'sottratta';
-        
-        if (tipo === 'aggiuntiva') {
-            return sum + totale;
-        } else {
-            return sum + (totale - commissioni);
+        // Calcola il totale reale speso (versamenti + commissioni aggiuntive)
+        function calcolaTotaleRealeSpeso(investimenti) {
+            return investimenti.reduce((sum, inv) => {
+                const totale = inv.totale;
+                const commissioni = inv.commissioni || 0;
+                const tipo = inv.commissioniTipo || 'sottratta';
+                return sum + totale + (tipo === 'aggiuntiva' ? commissioni : 0);
+            }, 0);
         }
-    }, 0);
-}
-		
-		
-		
-		// Carica esposizioni
-const savedExposure = localStorage.getItem('exposureData');
-if (savedExposure) {
-    exposureData = JSON.parse(savedExposure);
-}
-		
-		        // Formattazione campo marketValue a 2 decimali
+
+        // Formattazione campo marketValue a 2 decimali
         const marketValueInput = document.getElementById('marketValue');
         if (marketValueInput) {
             marketValueInput.addEventListener('blur', function() {
@@ -1932,1320 +1943,847 @@ if (savedExposure) {
             });
         }
 
-
         // Aggiungi listener per aggiornare il conteggio caratteri
         document.getElementById('notesContent').addEventListener('input', updateCharCount);
 
         // Funzione per esportare i dati
-function exportData() {
-    if (investments.length === 0 && !localStorage.getItem('investmentNotes')) {
-        alert('Non ci sono dati da esportare!');
-        return;
-    }
+        function exportData() {
+            if (investments.length === 0 && !localStorage.getItem('investmentNotes')) {
+                alert('Non ci sono dati da esportare!');
+                return;
+            }
 
-    const notesContent = document.getElementById('notesContent');
-    const currentNotes = notesContent ? notesContent.innerHTML : (localStorage.getItem('investmentNotes') || '');
+            const notesContent = document.getElementById('notesContent');
+            const currentNotes = notesContent ? notesContent.innerHTML : (localStorage.getItem('investmentNotes') || '');
 
-const dataToExport = {
-    version: '1.0',
-    exportDate: new Date().toISOString(),
-    investments: investments,
-    allTags: Array.from(allTags),
-    allNomi: Array.from(allNomi),
-    notes: currentNotes,
-    forecastReturns: forecastReturns,
-    forecastDeposits: forecastDeposits,
-	forecastInflation: forecastInflation,
-    currentMarketValue: currentMarketValue,
-    exposureData: exposureData,
-    exposureTypes: exposureTypes  // AGGIUNGI QUESTA RIGA
-};
+            const dataToExport = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                investments: investments,
+                allTags: Array.from(allTags),
+                allNomi: Array.from(allNomi),
+                notes: currentNotes,
+                forecastReturns: forecastReturns,
+                forecastDeposits: forecastDeposits,
+                forecastInflation: forecastInflation,
+                currentMarketValue: currentMarketValue,
+                exposureData: exposureData,
+                exposureTypes: exposureTypes
+            };
 
-    const dataStr = JSON.stringify(dataToExport, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `investimenti_backup_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+            const dataStr = JSON.stringify(dataToExport, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `investimenti_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
 
-    alert('Dati esportati con successo!');
-}
+            alert('Dati esportati con successo!');
+        }
 
         // Funzione per importare i dati
-function importData(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const importedData = JSON.parse(e.target.result);
-            
-            if (!importedData.investments || !Array.isArray(importedData.investments)) {
-                throw new Error('Formato file non valido');
-            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (!importedData.investments || !Array.isArray(importedData.investments)) {
+                        throw new Error('Formato file non valido');
+                    }
 
-            if (investments.length > 0) {
-                const confirmMsg = 'Attenzione: ci sono già ' + investments.length + ' investimenti salvati.\n\n' +
-                                 'Scegli:\n' +
-                                 'OK = SOSTITUISCI tutti i dati attuali con quelli importati\n' +
-                                 'Annulla = AGGIUNGI i dati importati a quelli esistenti';
-                
-                if (confirm(confirmMsg)) {
-                    investments = importedData.investments;
-                } else {
-                    importedData.investments.forEach(inv => {
-                        inv.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-                        investments.push(inv);
+                    if (investments.length > 0) {
+                        const confirmMsg = 'Attenzione: ci sono già ' + investments.length + ' investimenti salvati.\n\n' +
+                                         'Scegli:\n' +
+                                         'OK = SOSTITUISCI tutti i dati attuali con quelli importati\n' +
+                                         'Annulla = AGGIUNGI i dati importati a quelli esistenti';
+                        
+                        if (confirm(confirmMsg)) {
+                            investments = importedData.investments;
+                        } else {
+                            importedData.investments.forEach(inv => {
+                                inv.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+                                investments.push(inv);
+                            });
+                        }
+                    } else {
+                        investments = importedData.investments;
+                    }
+
+                    allTags.clear();
+                    allNomi.clear();
+                    investments.forEach(inv => {
+                        if (inv.settori) inv.settori.forEach(tag => allTags.add(tag));
+                        allNomi.add(inv.nome);
                     });
+
+                    // IMPORTA ANCHE GLI APPUNTI
+                    if (importedData.notes !== undefined) {
+                        localStorage.setItem('investmentNotes', importedData.notes);
+                        const notesEl = document.getElementById('notesContent');
+                        if (notesEl) {
+                            notesEl.innerHTML = importedData.notes;
+                            updateCharCount();
+                        }
+                    }
+                    
+                    // Importa previsioni
+                    if (importedData.forecastReturns) {
+                        forecastReturns = importedData.forecastReturns;
+                        localStorage.setItem('forecastReturns', JSON.stringify(forecastReturns));
+                    }
+
+                    if (importedData.forecastDeposits) {
+                        forecastDeposits = importedData.forecastDeposits;
+                        localStorage.setItem('forecastDeposits', JSON.stringify(forecastDeposits));
+                    }
+
+                    if (importedData.forecastInflation) {
+                        forecastInflation = importedData.forecastInflation;
+                        localStorage.setItem('forecastInflation', JSON.stringify(forecastInflation));
+                    }		
+
+                    if (importedData.currentMarketValue !== undefined) {
+                        currentMarketValue = parseFloat(importedData.currentMarketValue);
+                        localStorage.setItem('currentMarketValue', currentMarketValue.toString());
+                    }
+                    
+                    // Importa esposizioni
+                    if (importedData.exposureData) {
+                        exposureData = importedData.exposureData;
+                        localStorage.setItem('exposureData', JSON.stringify(exposureData));
+                    }
+
+                    // Importa tipi esposizione
+                    if (importedData.exposureTypes) {
+                        exposureTypes = importedData.exposureTypes;
+                        localStorage.setItem('exposureTypes', JSON.stringify(exposureTypes));
+                    }
+                    
+                    saveData();
+                    updateNomiList();
+                    
+                    alert('Dati importati con successo!\nImportati: ' + importedData.investments.length + ' investimenti');
+                    
+                    const activeTab = document.querySelector('.nav-link.active');
+                    if (activeTab) {
+                        if (activeTab.id === 'summary-tab') loadSummary();
+                        else if (activeTab.id === 'matrix-tab') loadMatrix();
+                        else if (activeTab.id === 'analytics-tab') loadAnalytics();
+                    }
+
+                } catch (error) {
+                    alert('Errore durante l\'importazione: ' + error.message);
                 }
-            } else {
-                investments = importedData.investments;
-            }
-
-            allTags.clear();
-            allNomi.clear();
-            investments.forEach(inv => {
-                if (inv.settori) inv.settori.forEach(tag => allTags.add(tag));
-                allNomi.add(inv.nome);
-            });
-
-            // IMPORTA ANCHE GLI APPUNTI
-if (importedData.notes !== undefined) {
-    localStorage.setItem('investmentNotes', importedData.notes);
-    const notesEl = document.getElementById('notesContent');
-    if (notesEl) {
-        notesEl.innerHTML = importedData.notes;
-        updateCharCount();
-    }
-}
-	// Importa previsioni
-if (importedData.forecastReturns) {
-    forecastReturns = importedData.forecastReturns;
-    localStorage.setItem('forecastReturns', JSON.stringify(forecastReturns));
-}
-
-if (importedData.forecastDeposits) {
-    forecastDeposits = importedData.forecastDeposits;
-    localStorage.setItem('forecastDeposits', JSON.stringify(forecastDeposits));
-}
-
-if (importedData.forecastInflation) {
-    forecastInflation = importedData.forecastInflation;
-    localStorage.setItem('forecastInflation', JSON.stringify(forecastInflation));
-}		
-
-			if (importedData.currentMarketValue !== undefined) {
-    currentMarketValue = parseFloat(importedData.currentMarketValue);
-    localStorage.setItem('currentMarketValue', currentMarketValue.toString());
-}
-// Importa esposizioni
-if (importedData.exposureData) {
-    exposureData = importedData.exposureData;
-    localStorage.setItem('exposureData', JSON.stringify(exposureData));
-}
-
-// Importa tipi esposizione
-if (importedData.exposureTypes) {
-    exposureTypes = importedData.exposureTypes;
-    localStorage.setItem('exposureTypes', JSON.stringify(exposureTypes));
-}
-            saveData();
-            updateNomiList();
+            };
+            reader.readAsText(file);
             
-            alert('Dati esportati con successo!\nImportati: ' + importedData.investments.length + ' investimenti');
-            
-            const activeTab = document.querySelector('.nav-link.active');
-            if (activeTab) {
-                if (activeTab.id === 'summary-tab') loadSummary();
-                else if (activeTab.id === 'matrix-tab') loadMatrix();
-                else if (activeTab.id === 'analytics-tab') loadAnalytics();
-            }
-
-        } catch (error) {
-            alert('Errore durante l\'importazione: ' + error.message);
+            event.target.value = '';
         }
-    };
-    reader.readAsText(file);
-    
-    event.target.value = '';
-}
 
         // Funzione per tornare in cima alla pagina
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-		
-		
-		document.getElementById('notes-tab').addEventListener('shown.bs.tab', function () {
-    const savedNotes = localStorage.getItem('investmentNotes');
-    const notesEl = document.getElementById('notesContent');
-    if (savedNotes && notesEl && notesEl.innerHTML.trim() === '') {
-        notesEl.innerHTML = savedNotes;
-        updateCharCount();
-    }
-});
-
-
-
-// Inizializza Select2 con autocomplete e creazione tag
-$(document).ready(function() {
-    $('#tagSelect').select2({
-        tags: true,
-        tokenSeparators: [',', ' '],
-        placeholder: "Digita per cercare o aggiungere tag...",
-        allowClear: true,
-        createTag: function(params) {
-            const term = $.trim(params.term);
-            if (term === '') return null;
-            return { id: term, text: term, newTag: true };
-        }
-    }).on('select2:select', function(e) {
-        const tag = e.params.data.text;
-        if (!selectedTags.includes(tag)) {
-            selectedTags.push(tag);
-            allTags.add(tag);
-        }
-    }).on('select2:unselect', function(e) {
-        selectedTags = selectedTags.filter(t => t !== e.params.data.text);
-    });
-
-    // Carica tag esistenti
-    allTags.forEach(tag => $('#tagSelect').append(`<option value="${tag}">${tag}</option>`));
-    $('#tagSelect').val(selectedTags).trigger('change');
-});
-
-// Aggiorna selectedTags da Select2 prima del submit
-document.getElementById('investmentForm').addEventListener('submit', function(e) {
-    selectedTags = $('#tagSelect').val() || [];
-});
-
-
-
-
-// FUNZIONI PREVISIONI
-function loadForecast() {
-    if (investments.length === 0) {
-        document.getElementById('forecastResults').innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Non ci sono investimenti da analizzare. Inserisci prima alcuni investimenti.</div>';
-        return;
-    }
-
-   const currentYearNum = new Date().getFullYear();
-const targetYearInput = document.getElementById('targetYear');
-if (!targetYearInput.value) {
-    targetYearInput.value = currentYearNum + 2;  // Cambiato da +3 a +2
-}
-    
-    // Imposta valore di mercato
-// Imposta valore di mercato (sempre resettato al totale investito)
-const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
-const marketValueInput = document.getElementById('marketValue');
-
-// Usa sempre il totale investito come default
-marketValueInput.value = totalInvested.toFixed(2);
-currentMarketValue = totalInvested;
-localStorage.setItem('currentMarketValue', currentMarketValue.toString());
-
-    generateYearlyReturnsInputs();
-}
-
-function updateMarketValue() {
-    const marketValue = parseFloat(document.getElementById('marketValue').value) || 0;
-    currentMarketValue = marketValue;
-    localStorage.setItem('currentMarketValue', currentMarketValue.toString());
-    calculateForecast(); // Ricalcola tutto quando cambia il valore di mercato
-}
-
-function autoFillMarketValue() {
-    const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
-    document.getElementById('marketValue').value = totalInvested.toFixed(2);
-    updateMarketValue();
-}
-
-function generateYearlyReturnsInputs() {
-    const targetYear = parseInt(document.getElementById('targetYear').value);
-    const currentYearNum = new Date().getFullYear();
-    
-    if (!targetYear || targetYear <= currentYearNum) {
-        document.getElementById('yearlyReturnsInputs').innerHTML = '<div class="col-12"><p class="text-muted">Inserisci un anno target futuro per iniziare.</p></div>';
-        document.getElementById('forecastResults').innerHTML = '';
-        return;
-    }
-
-	// Verifica se è stato impostato il valore di mercato
-    const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
-    const marketValue = parseFloat(document.getElementById('marketValue').value) || 0;
-    const showWarning = marketValue === 0 || marketValue === totalInvested;
-
-    // Calcola versamenti effettivi per anno
-    const versamentiPerAnno = {};
-    investments.forEach(inv => {
-        if (!versamentiPerAnno[inv.anno]) {
-            versamentiPerAnno[inv.anno] = 0;
-        }
-        versamentiPerAnno[inv.anno] += inv.totale;
-    });
-
-    // Calcola versamento medio storico
-    const years = Object.keys(versamentiPerAnno).map(Number);
-    const avgAnnualDeposit = years.length > 0 
-        ? Math.round(Object.values(versamentiPerAnno).reduce((a, b) => a + b, 0) / years.length)
-        : 5000;
-
-    const numYears = targetYear - currentYearNum + 1;
-let html = '';
-
-if (showWarning) {
-    html += `
-        <div class="alert alert-warning mb-3">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <strong>Attenzione:</strong> Non hai impostato il valore attuale di mercato del tuo portafoglio, o è uguale al totale investito. 
-            Le previsioni useranno solo i versamenti senza considerare guadagni/perdite già maturati. 
-            <button class="btn btn-sm btn-outline-warning ms-2" onclick="document.getElementById('marketValue').focus()">
-                <i class="fas fa-edit me-1"></i>Imposta ora
-            </button>
-        </div>
-    `;
-}
-
-html += `
-    <div class="alert alert-info mb-3">
-        <i class="fas fa-info-circle me-2"></i>
-        <strong>Istruzioni:</strong> Inserisci il rendimento atteso (%) e eventuali versamenti aggiuntivi previsti (€) per ogni anno dal ${currentYearNum} al ${targetYear} (${numYears} anni). 
-        I calcoli si aggiornano in tempo reale. Il versamento medio storico è di €${avgAnnualDeposit.toLocaleString('it-IT')}/anno.
-    </div>
-`;
-    
-    for (let year = currentYearNum; year <= targetYear; year++) {
-        const savedReturn = forecastReturns[year] || '';
-        const savedDeposit = forecastDeposits[year] || (year > currentYearNum ? avgAnnualDeposit : '');
-        const versamentoEffettivo = versamentiPerAnno[year] || 0;
-        const hasVersamento = versamentoEffettivo > 0;
         
-const savedInflation = forecastInflation[year] || '';
+        document.getElementById('notes-tab').addEventListener('shown.bs.tab', function () {
+            const savedNotes = localStorage.getItem('investmentNotes');
+            const notesEl = document.getElementById('notesContent');
+            if (savedNotes && notesEl && notesEl.innerHTML.trim() === '') {
+                notesEl.innerHTML = savedNotes;
+                updateCharCount();
+            }
+        });
 
-html += `
-    <div class="year-forecast-inputs">
-        <div class="row align-items-center">
-            <div class="col-md-2">
-                <h6 class="mb-0 text-primary"><i class="fas fa-calendar me-1"></i><strong>${year}</strong></h6>
-                ${hasVersamento ? `<small class="text-success"><i class="fas fa-check-circle me-1"></i>Dati presenti</small>` : `<small class="text-muted">Previsione</small>`}
-            </div>
-            <div class="col-md-3">
-                <label class="form-label mb-1"><small>Rendimento Atteso (%)</small></label>
-                <div class="input-group">
-                    <input type="number" step="0.01" class="form-control" id="return_${year}" value="${savedReturn}" 
-                           placeholder="Es. 7.5" oninput="updateYearForecast(${year})">
-                    <span class="input-group-text">%</span>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label mb-1"><small>Inflazione (%)</small></label>
-                <div class="input-group">
-                    <input type="number" step="0.01" class="form-control" id="inflation_${year}" value="${savedInflation}" 
-                           placeholder="Es. 2.5" oninput="updateYearForecast(${year})">
-                    <span class="input-group-text">%</span>
-                </div>
-            </div>
-            <div class="col-md-5">
-                <label class="form-label mb-1">
-                    <small>Versamento ${hasVersamento ? 'Aggiuntivo' : 'Previsto'} (€)</small>
-                    ${hasVersamento ? `<span class="badge bg-success ms-2">Già investito: €${versamentoEffettivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</span>` : ''}
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text">€</span>
-                    <input type="number" step="100" class="form-control" id="deposit_${year}" value="${savedDeposit}" 
-                           placeholder="${hasVersamento ? 'Aggiungi altro...' : 'Es. ' + avgAnnualDeposit}" oninput="updateYearForecast(${year})">
-                    ${hasVersamento ? `<span class="input-group-text bg-info text-white" title="Totale con versamento già effettuato"><i class="fas fa-calculator"></i></span>` : ''}
-                </div>
-            </div>
-        </div>
-                <div class="row mt-2">
-                    <div class="col-12">
-                        <small class="text-primary fw-bold" id="preview_${year}"></small>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    document.getElementById('yearlyReturnsInputs').innerHTML = html;
-    calculateForecast();
-}
-
-function updateYearForecast(year) {
-    const returnVal = parseFloat(document.getElementById(`return_${year}`).value) || 0;
-    const depositVal = parseFloat(document.getElementById(`deposit_${year}`).value) || 0;
-    const inflationVal = parseFloat(document.getElementById(`inflation_${year}`).value) || 0;
-    
-    forecastReturns[year] = returnVal;
-    forecastDeposits[year] = depositVal;
-    forecastInflation[year] = inflationVal;
-    
-    localStorage.setItem('forecastReturns', JSON.stringify(forecastReturns));
-    localStorage.setItem('forecastDeposits', JSON.stringify(forecastDeposits));
-    localStorage.setItem('forecastInflation', JSON.stringify(forecastInflation));
-    
-    calculateForecast();
-}
-
-function calculateForecast() {
-    const targetYear = parseInt(document.getElementById('targetYear').value);
-    const currentYearNum = new Date().getFullYear();
-    const calcMode = document.getElementById('calcMode').value;
-
-    if (!targetYear || targetYear <= currentYearNum) {
-        document.getElementById('forecastResults').innerHTML = '';
-        return;
-    }
-
-// Calcola totale investito
-const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
-
-// Usa valore di mercato salvato o quello inserito nel campo
-let marketValue = parseFloat(document.getElementById('marketValue').value);
-if (!marketValue || marketValue === 0) {
-    // Se non c'è valore di mercato, usa il valore salvato o il totale investito
-    marketValue = currentMarketValue > 0 ? currentMarketValue : totalInvested;
-    document.getElementById('marketValue').value = marketValue;
-}
-
-// Aggiorna il valore salvato
-currentMarketValue = marketValue;
-localStorage.setItem('currentMarketValue', currentMarketValue.toString());
-
-const currentCapital = marketValue;
-const currentGainLoss = marketValue - totalInvested;
-const currentGainLossPerc = totalInvested > 0 ? ((currentGainLoss / totalInvested) * 100) : 0;
-
-    // Calcola TER medio
-    const byNome = {};
-    investments.forEach(inv => {
-        if (!byNome[inv.nome]) byNome[inv.nome] = [];
-        byNome[inv.nome].push(inv);
-    });
-    
-    let totaleTER = 0;
-    Object.keys(byNome).forEach(nome => {
-        const versamenti = byNome[nome].sort((a, b) => new Date(b.data) - new Date(a.data));
-        const ultimo = versamenti[0];
-        const totaleInv = versamenti.reduce((sum, inv) => sum + inv.totale, 0);
-        totaleTER += totaleInv * (ultimo.ter / 100);
-    });
-    const avgTER = (totaleTER / totalInvested * 100);
-
-    // Simulazioni
-    const scenarios = [
-        { name: 'Ottimistica (100%)', multiplier: 1, color: 'success' },
-        { name: 'Realistica (-30%)', multiplier: 0.7, color: 'info' },
-        { name: 'Moderata (-50%)', multiplier: 0.5, color: 'warning' },
-        { name: 'Prudente (-70%)', multiplier: 0.3, color: 'danger' }
-    ];
-
-const results = scenarios.map(scenario => {
-    // IMPORTANTE: Parte dal valore di mercato reale (currentCapital include già guadagni/perdite)
-    let capital = currentCapital;
-    const yearlyData = [];
-    // totalDeposited parte dal totale già investito finora
-    let totalDeposited = totalInvested;
-    
-    // Calcola versamenti effettivi per anno
-    const versamentiPerAnno = {};
-    investments.forEach(inv => {
-        if (!versamentiPerAnno[inv.anno]) {
-            versamentiPerAnno[inv.anno] = 0;
-        }
-        versamentiPerAnno[inv.anno] += inv.totale;
-    });
-    
-let cumulativeInflation = 1; // Per calcolare inflazione cumulativa
-
-for (let year = currentYearNum; year <= targetYear; year++) {
-    const depositPrevisto = parseFloat(forecastDeposits[year]) || 0;
-    const depositEffettivo = versamentiPerAnno[year] || 0;
-    const inflationRate = (forecastInflation[year] || 0) / 100;
-    
-    // Aggiorna inflazione cumulativa
-    cumulativeInflation *= (1 + inflationRate);
-    
-    // Gestione corretta dei versamenti
-    let depositTotale = 0;
-    if (year === currentYearNum) {
-        depositTotale = depositPrevisto;
-    } else if (year > currentYearNum) {
-        depositTotale = depositPrevisto + depositEffettivo;
-    }
-    
-    // Aggiungi versamento PRIMA di calcolare il rendimento
-    if (depositTotale > 0) {
-        capital += depositTotale;
-        totalDeposited += depositTotale;
-    }
-    
-    // Calcola rendimento sul capitale aggiornato
-    const returnRate = (forecastReturns[year] || 0) * scenario.multiplier / 100;
-    let gain = 0;
-    
-    if (returnRate !== 0) {
-        if (calcMode === 'compound') {
-            gain = capital * returnRate;
-        } else {
-            gain = totalDeposited * returnRate;
-        }
-        capital += gain;
-    }
-    
-    // Sottrai TER solo se c'è capitale
-    const terCost = capital > 0 ? capital * (avgTER / 100) : 0;
-    capital -= terCost;
-    
-    // Calcola capitale reale corretto per inflazione
-    const realCapital = capital / cumulativeInflation;
-    
-    yearlyData.push({
-        year,
-        capital: capital,
-        realCapital: realCapital,
-        gain: gain,
-        terCost: terCost,
-        deposited: totalDeposited,
-        inflation: inflationRate * 100,
-        cumulativeInflation: cumulativeInflation
-    });
-}
-        
-const finalData = yearlyData[yearlyData.length - 1];
-const totalGain = finalData.capital - finalData.deposited;
-const capitalGainTax = totalGain > 0 ? totalGain * 0.26 : 0;
-const netCapital = finalData.capital - capitalGainTax;
-const realNetCapital = finalData.realCapital - (capitalGainTax / finalData.cumulativeInflation);
-
-return {
-    ...scenario,
-    finalCapital: finalData.capital,
-    realFinalCapital: finalData.realCapital,
-    totalDeposited: finalData.deposited,
-    totalGain: totalGain,
-    capitalGainTax: capitalGainTax,
-    netCapital: netCapital,
-    realNetCapital: realNetCapital,
-    cumulativeInflation: finalData.cumulativeInflation,
-    yearlyData: yearlyData
-};
-    });
-
-    // Aggiorna guadagni in tempo reale
-// Aggiorna preview in tempo reale
-// Aggiorna preview in tempo reale
-const versamentiPerAnno = {};
-investments.forEach(inv => {
-    if (!versamentiPerAnno[inv.anno]) {
-        versamentiPerAnno[inv.anno] = 0;
-    }
-    versamentiPerAnno[inv.anno] += inv.totale;
-});
-
-// Calcola preview con capitale progressivo
-let capitalProgressivo = currentCapital;
-let totaleVersatoProgressivo = totalInvested;
-
-for (let year = currentYearNum; year <= targetYear; year++) {
-    const previewEl = document.getElementById(`preview_${year}`);
-    const returnVal = forecastReturns[year] || 0;
-    const depositPrevisto = forecastDeposits[year] || 0;
-    const depositEffettivo = versamentiPerAnno[year] || 0;
-    
-    let depositTotale = 0;
-    if (year === currentYearNum) {
-        depositTotale = depositPrevisto;
-    } else if (year > currentYearNum) {
-        depositTotale = depositPrevisto + depositEffettivo;
-    }
-    
-    // Aggiungi versamento al capitale progressivo
-    if (depositTotale > 0) {
-        capitalProgressivo += depositTotale;
-        totaleVersatoProgressivo += depositTotale;
-    }
-    
-    // Calcola guadagno basato sul capitale progressivo
-    const calcMode = document.getElementById('calcMode').value;
-    let estimatedGain = 0;
-    if (returnVal) {
-        if (calcMode === 'compound') {
-            estimatedGain = capitalProgressivo * (returnVal / 100);
-        } else {
-            estimatedGain = totaleVersatoProgressivo * (returnVal / 100);
-        }
-    }
-    
-    // Applica guadagno al capitale progressivo per anno successivo
-    capitalProgressivo += estimatedGain;
-    
-    // Sottrai TER
-    const terCost = capitalProgressivo * (avgTER / 100);
-    capitalProgressivo -= terCost;
-    
-    if (previewEl) {
-        let previewText = '';
-        
-        if (depositEffettivo > 0 && depositPrevisto > 0) {
-            previewText = `💰 TOTALE anno: €${depositTotale.toLocaleString('it-IT')} (già investito: €${depositEffettivo.toLocaleString('it-IT')} + previsto: €${depositPrevisto.toLocaleString('it-IT')})`;
-        } else if (depositTotale > 0) {
-            previewText = `💵 Versamento totale: €${depositTotale.toLocaleString('it-IT')}`;
-        }
-        
-        if (returnVal) {
-            previewText += (previewText ? ' | ' : '') + `📈 Guadagno stimato con ${returnVal}%: €${estimatedGain.toLocaleString('it-IT', {minimumFractionDigits: 0})} | 💼 Capitale fine anno: €${capitalProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}`;
-        }
-        
-        previewEl.textContent = previewText || '';
-    }
-}
-
-renderForecastResults(results, totalInvested, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear);
-}
-
-function renderForecastResults(results, totalInvested, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear) {
-    const currentYearNum = new Date().getFullYear();
-    const yearsToTarget = targetYear - currentYearNum + 1;
-
-let html = `
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card border-secondary">
-                <div class="card-body text-center">
-                    <h6 class="text-muted mb-2">Totale Investito</h6>
-                    <h3 class="text-secondary mb-0">€${totalInvested.toLocaleString('it-IT', {minimumFractionDigits: 0})}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-primary">
-                <div class="card-body text-center">
-                    <h6 class="text-muted mb-2">Valore di Mercato</h6>
-                    <h3 class="text-primary mb-0">€${currentCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</h3>
-                    <small class="${currentGainLoss >= 0 ? 'text-success' : 'text-danger'}">
-                        ${currentGainLoss >= 0 ? '+' : ''}€${currentGainLoss.toLocaleString('it-IT', {minimumFractionDigits: 0})} 
-                        (${currentGainLossPerc >= 0 ? '+' : ''}${currentGainLossPerc.toFixed(2)}%)
-                    </small>
-                </div>
-            </div>
-        </div>
-<div class="col-md-3">
-    <div class="card border-warning">
-        <div class="card-body text-center">
-            <h6 class="text-muted mb-2">TER Medio</h6>
-            <h3 class="text-warning mb-0">${avgTER.toFixed(2)}%</h3>
-        </div>
-    </div>
-</div>
-<div class="col-md-3">
-    <div class="card border-success">
-        <div class="card-body text-center">
-            <h6 class="text-muted mb-2">Anni di Investimento</h6>
-            <h3 class="text-success mb-0">${yearsToTarget}</h3>
-        </div>
-    </div>
-</div>
-        </div>  
-
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Simulazioni di Crescita al ${targetYear}</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-    `;
-
-results.forEach(result => {
-    const roi = ((result.finalCapital - result.totalDeposited) / result.totalDeposited * 100);
-    const realRoi = ((result.realNetCapital - result.totalDeposited) / result.totalDeposited * 100);
-    const purchasingPowerLoss = ((result.netCapital - result.realNetCapital) / result.netCapital * 100);
-    
-    html += `
-        <div class="col-md-6 mb-4">
-            <div class="card border-${result.color}">
-                <div class="card-header bg-${result.color} text-white">
-                    <h6 class="mb-0">${result.name}</h6>
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm table-borderless mb-0">
-                        <tr>
-                            <td><strong>Capitale Finale (lordo):</strong></td>
-                            <td class="text-end"><strong class="text-${result.color}">\u20AC${result.finalCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
-                        </tr>
-                        <tr>
-                            <td>Totale Versato:</td>
-                            <td class="text-end">\u20AC${result.totalDeposited.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
-                        </tr>
-                        <tr>
-                            <td>Guadagno Totale:</td>
-                            <td class="text-end text-success">+\u20AC${result.totalGain.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
-                        </tr>
-                        <tr>
-                            <td>ROI (nominale):</td>
-                            <td class="text-end"><span class="badge bg-${result.color}">${roi.toFixed(1)}%</span></td>
-                        </tr>
-                        <tr class="table-warning">
-                            <td><strong>Tasse Capital Gain (26%):</strong></td>
-                            <td class="text-end"><strong class="text-danger">-\u20AC${result.capitalGainTax.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
-                        </tr>
-                        <tr class="table-success">
-                            <td><strong>Capitale Finale (netto):</strong></td>
-                            <td class="text-end"><strong class="text-success">\u20AC${result.netCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
-                        </tr>
-                        <tr class="table-info">
-                            <td><strong>Capitale Reale (corretto inflazione):</strong></td>
-                            <td class="text-end"><strong class="text-info">\u20AC${result.realNetCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
-                        </tr>
-                        <tr>
-                            <td><small>ROI reale:</small></td>
-                            <td class="text-end"><small><span class="badge bg-secondary">${realRoi.toFixed(1)}%</span></small></td>
-                        </tr>
-                        <tr>
-                            <td><small>Perdita potere d'acquisto:</small></td>
-                            <td class="text-end"><small class="text-warning">-${purchasingPowerLoss.toFixed(1)}%</small></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-});
-
-    html += `
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Grafico Comparativo</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="forecastChart" style="height: 400px;"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-table me-2"></i>Dettaglio Anno per Anno</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Anno</th>
-                                <th class="text-end">Versato Progressivo</th>
-                                ${results.map(r => `<th class="text-end text-${r.color}">${r.name.split(' ')[0]}</th>`).join('')}
-                            </tr>
-                        </thead>
-                        <tbody>
-    `;
-
-    const maxYears = results[0].yearlyData.length;
-    for (let i = 0; i < maxYears; i++) {
-        const year = results[0].yearlyData[i].year;
-        html += `
-            <tr>
-                <td><strong>${year}</strong></td>
-                <td class="text-end">\u20AC${results[0].yearlyData[i].deposited.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
-                ${results.map(r => `<td class="text-end">\u20AC${r.yearlyData[i].capital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>`).join('')}
-            </tr>
-        `;
-    }
-
-    html += `
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.getElementById('forecastResults').innerHTML = html;
-    renderForecastChart(results);
-}
-
-function renderForecastChart(results) {
-    const ctx = document.getElementById('forecastChart');
-    if (!ctx) return;
-
-    if (forecastChart) {
-        forecastChart.destroy();
-    }
-
-    const colors = {
-        'success': 'rgba(25, 135, 84, 0.8)',
-        'info': 'rgba(13, 202, 240, 0.8)',
-        'warning': 'rgba(255, 193, 7, 0.8)',
-        'danger': 'rgba(220, 53, 69, 0.8)'
-    };
-
-    const datasets = results.map(result => ({
-        label: result.name,
-        data: result.yearlyData.map(d => d.capital),
-        borderColor: colors[result.color],
-        backgroundColor: colors[result.color].replace('0.8', '0.2'),
-        borderWidth: 2,
-        tension: 0.4,
-        fill: false
-    }));
-
-    datasets.push({
-        label: 'Totale Versato',
-        data: results[0].yearlyData.map(d => d.deposited),
-        borderColor: 'rgba(108, 117, 125, 0.8)',
-        backgroundColor: 'rgba(108, 117, 125, 0.1)',
-        borderWidth: 2,
-        borderDash: [5, 5],
-        tension: 0.4,
-        fill: false
-    });
-
-    forecastChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: results[0].yearlyData.map(d => d.year),
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
-            plugins: {
-                legend: { position: 'top' },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': \u20AC' + context.parsed.y.toLocaleString('it-IT', {minimumFractionDigits: 0});
-                        }
-                    }
+        // Inizializza Select2 con autocomplete e creazione tag
+        $(document).ready(function() {
+            $('#tagSelect').select2({
+                tags: true,
+                tokenSeparators: [',', ' '],
+                placeholder: "Digita per cercare o aggiungere tag...",
+                allowClear: true,
+                createTag: function(params) {
+                    const term = $.trim(params.term);
+                    if (term === '') return null;
+                    return { id: term, text: term, newTag: true };
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    ticks: {
-                        callback: function(value) {
-                            return '\u20AC' + value.toLocaleString('it-IT', {minimumFractionDigits: 0});
-                        }
-                    }
+            }).on('select2:select', function(e) {
+                const tag = e.params.data.text;
+                if (!selectedTags.includes(tag)) {
+                    selectedTags.push(tag);
+                    allTags.add(tag);
                 }
+            }).on('select2:unselect', function(e) {
+                selectedTags = selectedTags.filter(t => t !== e.params.data.text);
+            });
+
+            // Carica tag esistenti
+            allTags.forEach(tag => $('#tagSelect').append(`<option value="${tag}">${tag}</option>`));
+            $('#tagSelect').val(selectedTags).trigger('change');
+        });
+
+        // Aggiorna selectedTags da Select2 prima del submit
+        document.getElementById('investmentForm').addEventListener('submit', function(e) {
+            selectedTags = $('#tagSelect').val() || [];
+        });
+
+        // FUNZIONI PREVISIONI
+        function loadForecast() {
+            if (investments.length === 0) {
+                document.getElementById('forecastResults').innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Non ci sono investimenti da analizzare. Inserisci prima alcuni investimenti.</div>';
+                return;
             }
-        }
-    });
-}
 
-
-
-
-// ============================================
-// FUNZIONI ESPOSIZIONE GEOGRAFICA/SETTORIALE
-// ============================================
-
-function loadExposure() {
-    // Carica dati esposizione salvati
-    const saved = localStorage.getItem('exposureData');
-    if (saved) {
-        exposureData = JSON.parse(saved);
-    }
-    
-    // Carica tipi esposizione salvati
-    const savedTypes = localStorage.getItem('exposureTypes');
-    if (savedTypes) {
-        exposureTypes = JSON.parse(savedTypes);
-    }
-    
-    // Render tipi esposizione
-    renderExposureTypesList();
-    renderExposureTypeRadios();
-    renderExposureViewTypeRadios();
-    
-    // Popola select investimenti
-    const select = document.getElementById('exposureInvestmentSelect');
-    const filterSelect = document.getElementById('exposureFilterSelect');
-    
-    select.innerHTML = '<option value="">-- Seleziona --</option>';
-    filterSelect.innerHTML = '<option value="ALL" selected><i class="fa-solid fa-list-check"></i> Seleziona tutti gli investimenti</option>';
-    
-    // Ottieni lista investimenti unici
-    const uniqueInvestments = [...new Set(investments.map(inv => inv.nome))].sort();
-    
-    uniqueInvestments.forEach(nome => {
-        const option = document.createElement('option');
-        option.value = nome;
-        option.textContent = nome;
-        select.appendChild(option);
-        
-        const filterOption = document.createElement('option');
-        filterOption.value = nome;
-        filterOption.textContent = nome + (exposureData[nome] ? ' ✓' : '');
-        if (exposureData[nome]) {
-            filterOption.selected = true;
-        }
-        filterSelect.appendChild(filterOption);
-    });
-    
-    renderExposureAnalysis();
-}
-
-function renderExposureTypesList() {
-    const container = document.getElementById('exposureTypesList');
-    if (!container) return;
-    
-    let html = '';
-    exposureTypes.forEach(type => {
-        html += `
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="badge bg-secondary">${type}</span>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteExposureType('${type}')" title="Elimina tipo">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html || '<small class="text-muted">Nessun tipo definito</small>';
-}
-
-function renderExposureTypeRadios() {
-    const container = document.getElementById('exposureTypeRadios');
-    if (!container) return;
-    
-    let html = '<div class="btn-group w-100" role="group">';
-    exposureTypes.forEach((type, idx) => {
-        html += `
-            <input type="radio" class="btn-check" name="exposureType" id="exposureType${idx}" value="${type}" ${idx === 0 ? 'checked' : ''} onchange="loadExposureData()">
-            <label class="btn btn-outline-primary" for="exposureType${idx}">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
-        `;
-    });
-    html += '</div>';
-    
-    container.innerHTML = html;
-}
-
-function renderExposureViewTypeRadios() {
-    const container = document.getElementById('exposureViewTypeRadios');
-    if (!container) return;
-    
-    let html = '<div class="btn-group w-100" role="group">';
-    exposureTypes.forEach((type, idx) => {
-        html += `
-            <input type="radio" class="btn-check" name="viewType" id="viewType${idx}" value="${type}" ${idx === 0 ? 'checked' : ''} onchange="renderExposureAnalysis()">
-            <label class="btn btn-outline-info" for="viewType${idx}">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
-        `;
-    });
-    html += '</div>';
-    
-    container.innerHTML = html;
-}
-
-function addExposureType() {
-    const input = document.getElementById('newExposureType');
-    const newType = input.value.trim().toLowerCase();
-    
-    if (!newType) {
-        alert('Inserisci un nome per il tipo di esposizione!');
-        return;
-    }
-    
-    if (exposureTypes.includes(newType)) {
-        alert('Questo tipo esiste già!');
-        return;
-    }
-    
-    exposureTypes.push(newType);
-    localStorage.setItem('exposureTypes', JSON.stringify(exposureTypes));
-    
-    // Inizializza il nuovo tipo per tutti gli investimenti esistenti
-    Object.keys(exposureData).forEach(invName => {
-        if (!exposureData[invName][newType]) {
-            exposureData[invName][newType] = [];
-        }
-    });
-    localStorage.setItem('exposureData', JSON.stringify(exposureData));
-    
-    input.value = '';
-    loadExposure();
-    alert(`Tipo "${newType}" aggiunto con successo!`);
-}
-
-function deleteExposureType(type) {
-    if (exposureTypes.length <= 1) {
-        alert('Devi avere almeno un tipo di esposizione!');
-        return;
-    }
-    
-    if (!confirm(`Vuoi eliminare il tipo "${type}"?\n\nATTENZIONE: Verranno eliminati tutti i dati di esposizione di questo tipo per TUTTI gli investimenti!`)) {
-        return;
-    }
-    
-    // Rimuovi tipo dall'array
-    exposureTypes = exposureTypes.filter(t => t !== type);
-    localStorage.setItem('exposureTypes', JSON.stringify(exposureTypes));
-    
-    // Rimuovi dati di questo tipo da tutti gli investimenti
-    Object.keys(exposureData).forEach(invName => {
-        if (exposureData[invName][type]) {
-            delete exposureData[invName][type];
-        }
-        
-        // Se l'investimento non ha più dati, rimuovilo completamente
-        if (Object.keys(exposureData[invName]).length === 0) {
-            delete exposureData[invName];
-        }
-    });
-    localStorage.setItem('exposureData', JSON.stringify(exposureData));
-    
-    loadExposure();
-    alert(`Tipo "${type}" eliminato!`);
-}
-
-function loadExposureData() {
-    const investmentName = document.getElementById('exposureInvestmentSelect').value;
-    if (!investmentName || !exposureData[investmentName]) {
-        document.getElementById('exposureDataInput').value = '';
-        return;
-    }
-    
-    // Mostra i dati salvati in formato modificabile
-    const type = document.querySelector('input[name="exposureType"]:checked').value;
-    const data = exposureData[investmentName][type];
-    
-if (data && data.length > 0) {
-    const format = document.getElementById('inputFormatSelect').value;
-    let text = '';
-    
-    if (format === 'inline') {
-        // Formato in linea: "Nome 12,34"
-        data.forEach(item => {
-            text += `${item.nome} ${item.perc.toFixed(2)}\n`;
-        });
-    } else {
-        // Formato separato
-        data.forEach(item => {
-            text += item.perc.toFixed(2) + ' %\n';
-        });
-        data.forEach(item => {
-            text += item.nome + '\n';
-        });
-    }
-    
-    document.getElementById('exposureDataInput').value = text;
-} else {
-    document.getElementById('exposureDataInput').value = '';
-    }
-}
-
-function parseAndSaveExposure() {
-    const investmentName = document.getElementById('exposureInvestmentSelect').value;
-    if (!investmentName) {
-        alert('Seleziona un investimento!');
-        return;
-    }
-    
-    const rawData = document.getElementById('exposureDataInput').value.trim();
-    if (!rawData) {
-        alert('Inserisci i dati da parsare!');
-        return;
-    }
-    
-    const type = document.querySelector('input[name="exposureType"]:checked').value;
-    
-// Parse dei dati in base al formato selezionato
-const format = document.getElementById('inputFormatSelect').value;
-const lines = rawData.split('\n').map(l => l.trim()).filter(l => l);
-let parsedData = [];
-
-if (format === 'inline') {
-    // Formato: "Stati Uniti 71,94"
-    lines.forEach(line => {
-        // Cerca pattern: testo seguito da numero
-        const match = line.match(/^(.+?)\s+([\d,\.]+)\s*%?\s*$/);
-        if (match) {
-            const nome = match[1].trim();
-            const perc = parseFloat(match[2].replace(',', '.'));
-            if (!isNaN(perc)) {
-                parsedData.push({ nome, perc });
+            const currentYearNum = new Date().getFullYear();
+            const targetYearInput = document.getElementById('targetYear');
+            if (!targetYearInput.value) {
+                targetYearInput.value = currentYearNum + 2;
             }
-        }
-    });
-    
-    if (parsedData.length === 0) {
-        alert('Nessun dato valido trovato! Verifica il formato:\nOgni riga deve contenere: Nome Percentuale\nEs: Stati Uniti 71,94');
-        return;
-    }
-    
-} else {
-    // Formato separato: prima % poi nomi
-    const percentages = [];
-    const names = [];
-    
-    lines.forEach(line => {
-        // Controlla se la riga contiene una percentuale
-        if (line.match(/[\d,\.]+\s*%/)) {
-            // Estrai il numero
-            const num = parseFloat(line.replace(',', '.').replace('%', '').trim());
-            percentages.push(num);
-        } else {
-            names.push(line);
-        }
-    });
-    
-    if (percentages.length !== names.length) {
-        alert(`Errore: trovate ${percentages.length} percentuali e ${names.length} nomi. Devono essere uguali!`);
-        return;
-    }
-    
-    // Crea array di oggetti
-    parsedData = names.map((nome, idx) => ({
-        nome: nome,
-        perc: percentages[idx]
-    }));
-}
-    
-    // Salva
-    if (!exposureData[investmentName]) {
-        exposureData[investmentName] = {};
-        exposureTypes.forEach(t => {
-            exposureData[investmentName][t] = [];
-        });
-    }
-    
-    exposureData[investmentName][type] = parsedData;
-    localStorage.setItem('exposureData', JSON.stringify(exposureData));
-    
-    alert(`Salvati ${parsedData.length} elementi per ${investmentName} (${type})!`);
-    document.getElementById('exposureDataInput').value = '';
-    loadExposure();
-}
-
-function deleteExposureData() {
-    const investmentName = document.getElementById('exposureInvestmentSelect').value;
-    if (!investmentName) {
-        alert('Seleziona un investimento!');
-        return;
-    }
-    
-    const type = document.querySelector('input[name="exposureType"]:checked').value;
-    
-    if (confirm(`Vuoi eliminare i dati di esposizione ${type} per ${investmentName}?`)) {
-        if (exposureData[investmentName]) {
-            exposureData[investmentName][type] = [];
             
-            // Controlla se l'investimento ha ancora dati
-            const hasData = exposureTypes.some(t => exposureData[investmentName][t] && exposureData[investmentName][t].length > 0);
-            
-            if (!hasData) {
-                delete exposureData[investmentName];
-            }
+            // Imposta valore di mercato basato sul CAPITALE NETTO (escluse commissioni)
+            const capitaleNetto = calcolaCapitaleNetto(investments);
+            const marketValueInput = document.getElementById('marketValue');
+
+            // Usa il capitale netto come default
+            marketValueInput.value = capitaleNetto.toFixed(2);
+            currentMarketValue = capitaleNetto;
+            localStorage.setItem('currentMarketValue', currentMarketValue.toString());
+
+            generateYearlyReturnsInputs();
         }
-        localStorage.setItem('exposureData', JSON.stringify(exposureData));
-        document.getElementById('exposureDataInput').value = '';
-        loadExposure();
-        alert('Dati eliminati!');
-    }
-}
 
-function selectAllExposures() {
-    const select = document.getElementById('exposureFilterSelect');
-    for (let i = 0; i < select.options.length; i++) {
-        select.options[i].selected = true;
-    }
-    renderExposureAnalysis();
-}
+        function updateMarketValue() {
+            const marketValue = parseFloat(document.getElementById('marketValue').value) || 0;
+            currentMarketValue = marketValue;
+            localStorage.setItem('currentMarketValue', currentMarketValue.toString());
+            calculateForecast(); // Ricalcola tutto quando cambia il valore di mercato
+        }
 
-function deselectAllExposures() {
-    const select = document.getElementById('exposureFilterSelect');
-    for (let i = 0; i < select.options.length; i++) {
-        select.options[i].selected = false;
-    }
-    renderExposureAnalysis();
-}
+        function autoFillMarketValue() {
+            const capitaleNetto = calcolaCapitaleNetto(investments);
+            document.getElementById('marketValue').value = capitaleNetto.toFixed(2);
+            updateMarketValue();
+        }
 
-function renderExposureAnalysis() {
-    const viewType = document.querySelector('input[name="viewType"]:checked')?.value;
-    if (!viewType) return;
-    
-    const filterSelect = document.getElementById('exposureFilterSelect');
-    const selectedOptions = Array.from(filterSelect.selectedOptions).map(opt => opt.value);
-    
-    if (selectedOptions.length === 0) {
-        document.getElementById('exposureResults').innerHTML = '<div class="alert alert-warning">Seleziona almeno un investimento!</div>';
-        return;
-    }
-    
-    // Determina quali investimenti includere
-    let investmentsToAnalyze = [];
-    if (selectedOptions.includes('ALL')) {
-        investmentsToAnalyze = Object.keys(exposureData);
-    } else {
-        investmentsToAnalyze = selectedOptions.filter(name => exposureData[name]);
-    }
-    
-    if (investmentsToAnalyze.length === 0) {
-        document.getElementById('exposureResults').innerHTML = '<div class="alert alert-info">Nessun dato di esposizione disponibile per gli investimenti selezionati.</div>';
-        return;
-    }
-    
-// Calcola totale investito per ogni investimento
-const investmentTotals = {};
-investments.forEach(inv => {
-    if (!investmentTotals[inv.nome]) {
-        investmentTotals[inv.nome] = 0;
-    }
-    investmentTotals[inv.nome] += inv.totale;
-});
-
-// MODIFICA: Calcola totale SOLO degli investimenti analizzati (con dati esposizione)
-const totalPortfolio = investmentsToAnalyze.reduce((sum, invName) => {
-    return sum + (investmentTotals[invName] || 0);
-}, 0);
-    
-    // Aggrega esposizioni
-    const aggregated = {};
-    let totalWeightedExposure = 0;
-    
-    investmentsToAnalyze.forEach(invName => {
-        const invTotal = investmentTotals[invName] || 0;
-        const invWeight = totalPortfolio > 0 ? invTotal / totalPortfolio : 0;
-        
-        const exposures = exposureData[invName][viewType] || [];
-        
-        exposures.forEach(exp => {
-            if (!aggregated[exp.nome]) {
-                aggregated[exp.nome] = 0;
+        function generateYearlyReturnsInputs() {
+            const targetYear = parseInt(document.getElementById('targetYear').value);
+            const currentYearNum = new Date().getFullYear();
+            
+            if (!targetYear || targetYear <= currentYearNum) {
+                document.getElementById('yearlyReturnsInputs').innerHTML = '<div class="col-12"><p class="text-muted">Inserisci un anno target futuro per iniziare.</p></div>';
+                document.getElementById('forecastResults').innerHTML = '';
+                return;
             }
-            aggregated[exp.nome] += (exp.perc / 100) * invWeight * 100;
-        });
-        
-        totalWeightedExposure += invWeight * 100;
-    });
-    
-    // Normalizza le percentuali
-    const normalizedAggregated = {};
-    Object.keys(aggregated).forEach(key => {
-        normalizedAggregated[key] = totalWeightedExposure > 0 ? (aggregated[key] / totalWeightedExposure) * 100 : 0;
-    });
-    
-    // Ordina per percentuale
-    const sorted = Object.entries(normalizedAggregated).sort((a, b) => b[1] - a[1]);
-    
-    // Render risultati
-    let html = `
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-pie me-2"></i>
-                    Esposizione ${viewType.charAt(0).toUpperCase() + viewType.slice(1)} Aggregata
-                </h5>
-                <small>Analisi su ${investmentsToAnalyze.length} investiment${investmentsToAnalyze.length !== 1 ? 'i' : 'o'}</small>
-            </div>
-            <div class="card-body">
-                <div class="chart-container" style="height: 400px;">
-                    <canvas id="exposureChart"></canvas>
-                </div>
+
+            // Verifica se è stato impostato il valore di mercato
+            const capitaleNetto = calcolaCapitaleNetto(investments);
+            const marketValue = parseFloat(document.getElementById('marketValue').value) || 0;
+            const showWarning = marketValue === 0 || marketValue === capitaleNetto;
+
+            // Calcola versamenti netti per anno
+            const versamentiNettoPerAnno = {};
+            investments.forEach(inv => {
+                if (!versamentiNettoPerAnno[inv.anno]) {
+                    versamentiNettoPerAnno[inv.anno] = 0;
+                }
                 
-                <div class="table-responsive mt-4">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Posizione</th>
-                                <th>${viewType.charAt(0).toUpperCase() + viewType.slice(1)}</th>
-                                <th class="text-end">% Portafoglio</th>
-                                <th class="text-end">Valore Stimato (€)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-    `;
-    
-    sorted.forEach((item, idx) => {
-        const [nome, perc] = item;
-        const value = totalPortfolio * (perc / 100);
-        html += `
-            <tr>
-                <td><strong>#${idx + 1}</strong></td>
-                <td>${nome}</td>
-                <td class="text-end"><span class="badge bg-primary">${perc.toFixed(2)}%</span></td>
-                <td class="text-end">€${value.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-            </tr>
-        `;
-    });
-    
-    html += `
-                        </tbody>
-                        <tfoot class="table-dark">
-                            <tr>
-                                <td colspan="2"><strong>TOTALE</strong></td>
-                                <td class="text-end"><strong>100%</strong></td>
-                                <td class="text-end"><strong>€${totalPortfolio.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                const totale = inv.totale;
+                const commissioni = inv.commissioni || 0;
+                const tipo = inv.commissioniTipo || 'sottratta';
                 
-                <div class="mt-3">
-                    <h6>Investimenti Analizzati:</h6>
-                    <div>
-                        ${investmentsToAnalyze.map(name => `
-                            <span class="badge bg-secondary me-1 mb-1">
-                                ${name} (€${investmentTotals[name].toLocaleString('it-IT', {minimumFractionDigits: 0})})
-                            </span>
-                        `).join('')}
+                if (tipo === 'sottratta') {
+                    versamentiNettoPerAnno[inv.anno] += (totale - commissioni);
+                } else {
+                    versamentiNettoPerAnno[inv.anno] += totale;
+                }
+            });
+
+            // Calcola versamento medio storico netto
+            const years = Object.keys(versamentiNettoPerAnno).map(Number);
+            const avgAnnualDeposit = years.length > 0 
+                ? Math.round(Object.values(versamentiNettoPerAnno).reduce((a, b) => a + b, 0) / years.length)
+                : 5000;
+
+            const numYears = targetYear - currentYearNum + 1;
+            let html = '';
+
+            if (showWarning) {
+                html += `
+                    <div class="alert alert-warning mb-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Attenzione:</strong> Non hai impostato il valore attuale di mercato del tuo portafoglio, o è uguale al capitale netto investito. 
+                        Le previsioni useranno solo i versamenti senza considerare guadagni/perdite già maturati. 
+                        <button class="btn btn-sm btn-outline-warning ms-2" onclick="document.getElementById('marketValue').focus()">
+                            <i class="fas fa-edit me-1"></i>Imposta ora
+                        </button>
                     </div>
+                `;
+            }
+
+            html += `
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Istruzioni:</strong> Inserisci il rendimento atteso (%) e eventuali versamenti aggiuntivi previsti (€) per ogni anno dal ${currentYearNum} al ${targetYear} (${numYears} anni). 
+                    I calcoli si aggiornano in tempo reale. Il versamento medio storico netto è di €${avgAnnualDeposit.toLocaleString('it-IT')}/anno.
                 </div>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('exposureResults').innerHTML = html;
-    
-    // Render chart
-    setTimeout(() => {
-        const ctx = document.getElementById('exposureChart');
-        if (ctx) {
-            const chartColors = [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
-                '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384',
-                '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#06B6D4'
+            `;
+            
+            for (let year = currentYearNum; year <= targetYear; year++) {
+                const savedReturn = forecastReturns[year] || '';
+                const savedDeposit = forecastDeposits[year] || (year > currentYearNum ? avgAnnualDeposit : '');
+                const versamentoEffettivo = versamentiNettoPerAnno[year] || 0;
+                const hasVersamento = versamentoEffettivo > 0;
+                
+                const savedInflation = forecastInflation[year] || '';
+
+                html += `
+                    <div class="year-forecast-inputs">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <h6 class="mb-0 text-primary"><i class="fas fa-calendar me-1"></i><strong>${year}</strong></h6>
+                                ${hasVersamento ? `<small class="text-success"><i class="fas fa-check-circle me-1"></i>Dati presenti</small>` : `<small class="text-muted">Previsione</small>`}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label mb-1"><small>Rendimento Atteso (%)</small></label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" class="form-control" id="return_${year}" value="${savedReturn}" 
+                                           placeholder="Es. 7.5" oninput="updateYearForecast(${year})">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label mb-1"><small>Inflazione (%)</small></label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" class="form-control" id="inflation_${year}" value="${savedInflation}" 
+                                           placeholder="Es. 2.5" oninput="updateYearForecast(${year})">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label mb-1">
+                                    <small>Versamento ${hasVersamento ? 'Aggiuntivo' : 'Previsto'} (€)</small>
+                                    ${hasVersamento ? `<span class="badge bg-success ms-2">Già investito: €${versamentoEffettivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</span>` : ''}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">€</span>
+                                    <input type="number" step="100" class="form-control" id="deposit_${year}" value="${savedDeposit}" 
+                                           placeholder="${hasVersamento ? 'Aggiungi altro...' : 'Es. ' + avgAnnualDeposit}" oninput="updateYearForecast(${year})">
+                                    ${hasVersamento ? `<span class="input-group-text bg-info text-white" title="Totale con versamento già effettuato"><i class="fas fa-calculator"></i></span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <small class="text-primary fw-bold" id="preview_${year}"></small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('yearlyReturnsInputs').innerHTML = html;
+            calculateForecast();
+        }
+
+        function updateYearForecast(year) {
+            const returnVal = parseFloat(document.getElementById(`return_${year}`).value) || 0;
+            const depositVal = parseFloat(document.getElementById(`deposit_${year}`).value) || 0;
+            const inflationVal = parseFloat(document.getElementById(`inflation_${year}`).value) || 0;
+            
+            forecastReturns[year] = returnVal;
+            forecastDeposits[year] = depositVal;
+            forecastInflation[year] = inflationVal;
+            
+            localStorage.setItem('forecastReturns', JSON.stringify(forecastReturns));
+            localStorage.setItem('forecastDeposits', JSON.stringify(forecastDeposits));
+            localStorage.setItem('forecastInflation', JSON.stringify(forecastInflation));
+            
+            calculateForecast();
+        }
+
+        function calculateForecast() {
+            const targetYear = parseInt(document.getElementById('targetYear').value);
+            const currentYearNum = new Date().getFullYear();
+            const calcMode = document.getElementById('calcMode').value;
+
+            if (!targetYear || targetYear <= currentYearNum) {
+                document.getElementById('forecastResults').innerHTML = '';
+                return;
+            }
+
+            // Calcola CAPITALE NETTO INVESTITO (escluse commissioni)
+            const capitaleNetto = calcolaCapitaleNetto(investments);
+
+            // Usa valore di mercato salvato o quello inserito nel campo
+            let marketValue = parseFloat(document.getElementById('marketValue').value);
+            if (!marketValue || marketValue === 0) {
+                // Se non c'è valore di mercato, usa il valore salvato o il CAPITALE NETTO
+                marketValue = currentMarketValue > 0 ? currentMarketValue : capitaleNetto;
+                document.getElementById('marketValue').value = marketValue.toFixed(2);
+            }
+
+            // Aggiorna il valore salvato
+            currentMarketValue = marketValue;
+            localStorage.setItem('currentMarketValue', currentMarketValue.toString());
+
+            const currentCapital = marketValue;
+            // Guadagno/Perdita = Valore Mercato - Capitale Netto Investito
+            const currentGainLoss = marketValue - capitaleNetto;
+            const currentGainLossPerc = capitaleNetto > 0 ? ((currentGainLoss / capitaleNetto) * 100) : 0;
+
+            // Calcola TER medio sul capitale netto
+            const byNome = {};
+            investments.forEach(inv => {
+                if (!byNome[inv.nome]) byNome[inv.nome] = [];
+                byNome[inv.nome].push(inv);
+            });
+            
+            let totaleTER = 0;
+            Object.keys(byNome).forEach(nome => {
+                const versamenti = byNome[nome].sort((a, b) => new Date(b.data) - new Date(a.data));
+                const ultimo = versamenti[0];
+                const totaleInv = versamenti.reduce((sum, inv) => {
+                    const totale = inv.totale;
+                    const commissioni = inv.commissioni || 0;
+                    const tipo = inv.commissioniTipo || 'sottratta';
+                    
+                    if (tipo === 'sottratta') {
+                        return sum + (totale - commissioni);
+                    } else {
+                        return sum + totale;
+                    }
+                }, 0);
+                totaleTER += totaleInv * (ultimo.ter / 100);
+            });
+            const avgTER = capitaleNetto > 0 ? (totaleTER / capitaleNetto * 100) : 0;
+
+            // Simulazioni
+            const scenarios = [
+                { name: 'Ottimistica (100%)', multiplier: 1, color: 'success' },
+                { name: 'Realistica (-30%)', multiplier: 0.7, color: 'info' },
+                { name: 'Moderata (-50%)', multiplier: 0.5, color: 'warning' },
+                { name: 'Prudente (-70%)', multiplier: 0.3, color: 'danger' }
             ];
-            
-            new Chart(ctx, {
-                type: 'pie',
+
+            const results = scenarios.map(scenario => {
+                // IMPORTANTE: Parte dal valore di mercato reale (currentCapital include già guadagni/perdite)
+                let capital = currentCapital;
+                const yearlyData = [];
+                // totalDeposited parte dal CAPITALE NETTO già investito finora
+                let totalDeposited = capitaleNetto;
+                
+                // Calcola versamenti netti per anno
+                const versamentiNettoPerAnno = {};
+                investments.forEach(inv => {
+                    if (!versamentiNettoPerAnno[inv.anno]) {
+                        versamentiNettoPerAnno[inv.anno] = 0;
+                    }
+                    
+                    const totale = inv.totale;
+                    const commissioni = inv.commissioni || 0;
+                    const tipo = inv.commissioniTipo || 'sottratta';
+                    
+                    if (tipo === 'sottratta') {
+                        versamentiNettoPerAnno[inv.anno] += (totale - commissioni);
+                    } else {
+                        versamentiNettoPerAnno[inv.anno] += totale;
+                    }
+                });
+                
+                let cumulativeInflation = 1; // Per calcolare inflazione cumulativa
+
+                for (let year = currentYearNum; year <= targetYear; year++) {
+                    const depositPrevisto = parseFloat(forecastDeposits[year]) || 0;
+                    const depositEffettivo = versamentiNettoPerAnno[year] || 0;
+                    const inflationRate = (forecastInflation[year] || 0) / 100;
+                    
+                    // Aggiorna inflazione cumulativa
+                    cumulativeInflation *= (1 + inflationRate);
+                    
+                    // Gestione corretta dei versamenti
+                    let depositTotale = 0;
+                    if (year === currentYearNum) {
+                        depositTotale = depositPrevisto;
+                    } else if (year > currentYearNum) {
+                        depositTotale = depositPrevisto + depositEffettivo;
+                    }
+                    
+                    // Aggiungi versamento PRIMA di calcolare il rendimento
+                    if (depositTotale > 0) {
+                        capital += depositTotale;
+                        totalDeposited += depositTotale;
+                    }
+                    
+                    // Calcola rendimento sul capitale aggiornato
+                    const returnRate = (forecastReturns[year] || 0) * scenario.multiplier / 100;
+                    let gain = 0;
+                    
+                    if (returnRate !== 0) {
+                        if (calcMode === 'compound') {
+                            gain = capital * returnRate;
+                        } else {
+                            gain = totalDeposited * returnRate;
+                        }
+                        capital += gain;
+                    }
+                    
+                    // Sottrai TER solo se c'è capitale
+                    const terCost = capital > 0 ? capital * (avgTER / 100) : 0;
+                    capital -= terCost;
+                    
+                    // Calcola capitale reale corretto per inflazione
+                    const realCapital = capital / cumulativeInflation;
+                    
+                    yearlyData.push({
+                        year,
+                        capital: capital,
+                        realCapital: realCapital,
+                        gain: gain,
+                        terCost: terCost,
+                        deposited: totalDeposited,
+                        inflation: inflationRate * 100,
+                        cumulativeInflation: cumulativeInflation
+                    });
+                }
+                        
+                const finalData = yearlyData[yearlyData.length - 1];
+                const totalGain = finalData.capital - finalData.deposited;
+                const capitalGainTax = totalGain > 0 ? totalGain * 0.26 : 0;
+                const netCapital = finalData.capital - capitalGainTax;
+                const realNetCapital = finalData.realCapital - (capitalGainTax / finalData.cumulativeInflation);
+
+                return {
+                    ...scenario,
+                    finalCapital: finalData.capital,
+                    realFinalCapital: finalData.realCapital,
+                    totalDeposited: finalData.deposited,
+                    totalGain: totalGain,
+                    capitalGainTax: capitalGainTax,
+                    netCapital: netCapital,
+                    realNetCapital: realNetCapital,
+                    cumulativeInflation: finalData.cumulativeInflation,
+                    yearlyData: yearlyData
+                };
+            });
+
+            // Aggiorna preview in tempo reale
+            // Calcola versamenti netti per anno
+            const versamentiNettoPerAnno = {};
+            investments.forEach(inv => {
+                if (!versamentiNettoPerAnno[inv.anno]) {
+                    versamentiNettoPerAnno[inv.anno] = 0;
+                }
+                
+                const totale = inv.totale;
+                const commissioni = inv.commissioni || 0;
+                const tipo = inv.commissioniTipo || 'sottratta';
+                
+                if (tipo === 'sottratta') {
+                    versamentiNettoPerAnno[inv.anno] += (totale - commissioni);
+                } else {
+                    versamentiNettoPerAnno[inv.anno] += totale;
+                }
+            });
+
+            // Calcola preview con capitale progressivo
+            let capitalProgressivo = currentCapital;
+            let totaleVersatoProgressivo = capitaleNetto;
+
+            for (let year = currentYearNum; year <= targetYear; year++) {
+                const previewEl = document.getElementById(`preview_${year}`);
+                const returnVal = forecastReturns[year] || 0;
+                const depositPrevisto = forecastDeposits[year] || 0;
+                const depositEffettivo = versamentiNettoPerAnno[year] || 0;
+                
+                let depositTotale = 0;
+                if (year === currentYearNum) {
+                    depositTotale = depositPrevisto;
+                } else if (year > currentYearNum) {
+                    depositTotale = depositPrevisto + depositEffettivo;
+                }
+                
+                // Aggiungi versamento al capitale progressivo
+                if (depositTotale > 0) {
+                    capitalProgressivo += depositTotale;
+                    totaleVersatoProgressivo += depositTotale;
+                }
+                
+                // Calcola guadagno basato sul capitale progressivo
+                const calcMode = document.getElementById('calcMode').value;
+                let estimatedGain = 0;
+                if (returnVal) {
+                    if (calcMode === 'compound') {
+                        estimatedGain = capitalProgressivo * (returnVal / 100);
+                    } else {
+                        estimatedGain = totaleVersatoProgressivo * (returnVal / 100);
+                    }
+                }
+                
+                // Applica guadagno al capitale progressivo per anno successivo
+                capitalProgressivo += estimatedGain;
+                
+                // Sottrai TER
+                const terCost = capitalProgressivo * (avgTER / 100);
+                capitalProgressivo -= terCost;
+                
+                if (previewEl) {
+                    let previewText = '';
+                    
+                    if (depositEffettivo > 0 && depositPrevisto > 0) {
+                        previewText = `💰 TOTALE anno: €${depositTotale.toLocaleString('it-IT')} (già investito: €${depositEffettivo.toLocaleString('it-IT')} + previsto: €${depositPrevisto.toLocaleString('it-IT')})`;
+                    } else if (depositTotale > 0) {
+                        previewText = `💵 Versamento totale: €${depositTotale.toLocaleString('it-IT')}`;
+                    }
+                    
+                    if (returnVal) {
+                        previewText += (previewText ? ' | ' : '') + `📈 Guadagno stimato con ${returnVal}%: €${estimatedGain.toLocaleString('it-IT', {minimumFractionDigits: 0})} | 💼 Capitale fine anno: €${capitalProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}`;
+                    }
+                    
+                    previewEl.textContent = previewText || '';
+                }
+            }
+
+            renderForecastResults(results, capitaleNetto, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear);
+        }
+
+        function renderForecastResults(results, capitaleNetto, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear) {
+            const currentYearNum = new Date().getFullYear();
+            const yearsToTarget = targetYear - currentYearNum + 1;
+
+            let html = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card border-secondary">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted mb-2">Capitale Netto Investito</h6>
+                                <h3 class="text-secondary mb-0">€${capitaleNetto.toLocaleString('it-IT', {minimumFractionDigits: 0})}</h3>
+                                <small class="text-muted">(escluse commissioni)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted mb-2">Valore di Mercato</h6>
+                                <h3 class="text-primary mb-0">€${currentCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</h3>
+                                <small class="${currentGainLoss >= 0 ? 'text-success' : 'text-danger'}">
+                                    ${currentGainLoss >= 0 ? '+' : ''}€${currentGainLoss.toLocaleString('it-IT', {minimumFractionDigits: 0})} 
+                                    (${currentGainLossPerc >= 0 ? '+' : ''}${currentGainLossPerc.toFixed(2)}%)
+                                </small>
+                                <br>
+                                <small class="text-muted">vs capitale netto: €${capitaleNetto.toLocaleString('it-IT', {minimumFractionDigits: 0})}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted mb-2">TER Medio</h6>
+                                <h3 class="text-warning mb-0">${avgTER.toFixed(2)}%</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted mb-2">Anni di Investimento</h6>
+                                <h3 class="text-success mb-0">${yearsToTarget}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Simulazioni di Crescita al ${targetYear}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+            `;
+
+            results.forEach(result => {
+                const roi = ((result.finalCapital - result.totalDeposited) / result.totalDeposited * 100);
+                const realRoi = ((result.realNetCapital - result.totalDeposited) / result.totalDeposited * 100);
+                const purchasingPowerLoss = ((result.netCapital - result.realNetCapital) / result.netCapital * 100);
+                
+                html += `
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-${result.color}">
+                            <div class="card-header bg-${result.color} text-white">
+                                <h6 class="mb-0">${result.name}</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm table-borderless mb-0">
+                                    <tr>
+                                        <td><strong>Capitale Finale (lordo):</strong></td>
+                                        <td class="text-end"><strong class="text-${result.color}">\u20AC${result.finalCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Totale Versato:</td>
+                                        <td class="text-end">\u20AC${result.totalDeposited.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Guadagno Totale:</td>
+                                        <td class="text-end text-success">+\u20AC${result.totalGain.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>ROI (nominale):</td>
+                                        <td class="text-end"><span class="badge bg-${result.color}">${roi.toFixed(1)}%</span></td>
+                                    </tr>
+                                    <tr class="table-warning">
+                                        <td><strong>Tasse Capital Gain (26%):</strong></td>
+                                        <td class="text-end"><strong class="text-danger">-\u20AC${result.capitalGainTax.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
+                                    </tr>
+                                    <tr class="table-success">
+                                        <td><strong>Capitale Finale (netto):</strong></td>
+                                        <td class="text-end"><strong class="text-success">\u20AC${result.netCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
+                                    </tr>
+                                    <tr class="table-info">
+                                        <td><strong>Capitale Reale (corretto inflazione):</strong></td>
+                                        <td class="text-end"><strong class="text-info">\u20AC${result.realNetCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small>ROI reale:</small></td>
+                                        <td class="text-end"><small><span class="badge bg-secondary">${realRoi.toFixed(1)}%</span></small></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small>Perdita potere d'acquisto:</small></td>
+                                        <td class="text-end"><small class="text-warning">-${purchasingPowerLoss.toFixed(1)}%</small></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Grafico Comparativo</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="forecastChart" style="height: 400px;"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-table me-2"></i>Dettaglio Anno per Anno</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Anno</th>
+                                        <th class="text-end">Versato Progressivo</th>
+                                        ${results.map(r => `<th class="text-end text-${r.color}">${r.name.split(' ')[0]}</th>`).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            const maxYears = results[0].yearlyData.length;
+            for (let i = 0; i < maxYears; i++) {
+                const year = results[0].yearlyData[i].year;
+                html += `
+                    <tr>
+                        <td><strong>${year}</strong></td>
+                        <td class="text-end">\u20AC${results[0].yearlyData[i].deposited.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
+                        ${results.map(r => `<td class="text-end">\u20AC${r.yearlyData[i].capital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>`).join('')}
+                    </tr>
+                `;
+            }
+
+            html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('forecastResults').innerHTML = html;
+            renderForecastChart(results);
+        }
+
+        function renderForecastChart(results) {
+            const ctx = document.getElementById('forecastChart');
+            if (!ctx) return;
+
+            if (forecastChart) {
+                forecastChart.destroy();
+            }
+
+            const colors = {
+                'success': 'rgba(25, 135, 84, 0.8)',
+                'info': 'rgba(13, 202, 240, 0.8)',
+                'warning': 'rgba(255, 193, 7, 0.8)',
+                'danger': 'rgba(220, 53, 69, 0.8)'
+            };
+
+            const datasets = results.map(result => ({
+                label: result.name,
+                data: result.yearlyData.map(d => d.capital),
+                borderColor: colors[result.color],
+                backgroundColor: colors[result.color].replace('0.8', '0.2'),
+                borderWidth: 2,
+                tension: 0.4,
+                fill: false
+            }));
+
+            datasets.push({
+                label: 'Totale Versato',
+                data: results[0].yearlyData.map(d => d.deposited),
+                borderColor: 'rgba(108, 117, 125, 0.8)',
+                backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0.4,
+                fill: false
+            });
+
+            forecastChart = new Chart(ctx, {
+                type: 'line',
                 data: {
-                    labels: sorted.map(item => item[0]),
-                    datasets: [{
-                        data: sorted.map(item => item[1]),
-                        backgroundColor: chartColors
-                    }]
+                    labels: results[0].yearlyData.map(d => d.year),
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
                     plugins: {
-                        legend: { 
-                            position: 'right',
-                            labels: {
-                                font: { size: 11 }
-                            }
-                        },
+                        legend: { position: 'top' },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    const euroValue = totalPortfolio * (value / 100);
-                                    return `${label}: ${value.toFixed(2)}% (€${euroValue.toLocaleString('it-IT', {minimumFractionDigits: 0})})`;
+                                    return context.dataset.label + ': \u20AC' + context.parsed.y.toLocaleString('it-IT', {minimumFractionDigits: 0});
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return '\u20AC' + value.toLocaleString('it-IT', {minimumFractionDigits: 0});
                                 }
                             }
                         }
@@ -3253,42 +2791,544 @@ const totalPortfolio = investmentsToAnalyze.reduce((sum, invName) => {
                 }
             });
         }
-    }, 100);
-}
 
-// Event listener per cambio formato input
-document.addEventListener('DOMContentLoaded', function() {
-    const formatSelect = document.getElementById('inputFormatSelect');
-    if (formatSelect) {
-        formatSelect.addEventListener('change', updateFormatHint);
-        updateFormatHint(); // Inizializza
-    }
-});
+        // ============================================
+        // FUNZIONI ESPOSIZIONE GEOGRAFICA/SETTORIALE
+        // ============================================
 
-function updateFormatHint() {
-    const format = document.getElementById('inputFormatSelect').value;
-    const hintEl = document.getElementById('formatHint');
-    
-    if (format === 'separate') {
-        hintEl.innerHTML = `
-            <small>
-                <strong>Formato "Separato":</strong><br>
-                Incolla prima le percentuali, poi i nomi (uno per riga):<br>
-                <code>23,03 %<br>16,04 %<br>Regno Unito<br>Francia</code>
-            </small>
-        `;
-    } else {
-        hintEl.innerHTML = `
-            <small>
-                <strong>Formato "In linea":</strong><br>
-                Ogni riga contiene nome e percentuale separati da spazio:<br>
-                <code>Stati Uniti 71,94<br>Giappone 5,44<br>Regno Unito 3,68</code>
-            </small>
-        `;
-    }
-}
+        function loadExposure() {
+            // Render tipi esposizione
+            renderExposureTypesList();
+            renderExposureTypeRadios();
+            renderExposureViewTypeRadios();
+            
+            // Popola select investimenti
+            const select = document.getElementById('exposureInvestmentSelect');
+            const filterSelect = document.getElementById('exposureFilterSelect');
+            
+            select.innerHTML = '<option value="">-- Seleziona --</option>';
+            filterSelect.innerHTML = '<option value="ALL" selected><i class="fa-solid fa-list-check"></i> Seleziona tutti gli investimenti</option>';
+            
+            // Ottieni lista investimenti unici
+            const uniqueInvestments = [...new Set(investments.map(inv => inv.nome))].sort();
+            
+            uniqueInvestments.forEach(nome => {
+                const option = document.createElement('option');
+                option.value = nome;
+                option.textContent = nome;
+                select.appendChild(option);
+                
+                const filterOption = document.createElement('option');
+                filterOption.value = nome;
+                filterOption.textContent = nome + (exposureData[nome] ? ' ✓' : '');
+                if (exposureData[nome]) {
+                    filterOption.selected = true;
+                }
+                filterSelect.appendChild(filterOption);
+            });
+            
+            renderExposureAnalysis();
+        }
 
+        function renderExposureTypesList() {
+            const container = document.getElementById('exposureTypesList');
+            if (!container) return;
+            
+            let html = '';
+            exposureTypes.forEach(type => {
+                html += `
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="badge bg-secondary">${type}</span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteExposureType('${type}')" title="Elimina tipo">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html || '<small class="text-muted">Nessun tipo definito</small>';
+        }
 
+        function renderExposureTypeRadios() {
+            const container = document.getElementById('exposureTypeRadios');
+            if (!container) return;
+            
+            let html = '<div class="btn-group w-100" role="group">';
+            exposureTypes.forEach((type, idx) => {
+                html += `
+                    <input type="radio" class="btn-check" name="exposureType" id="exposureType${idx}" value="${type}" ${idx === 0 ? 'checked' : ''} onchange="loadExposureData()">
+                    <label class="btn btn-outline-primary" for="exposureType${idx}">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        function renderExposureViewTypeRadios() {
+            const container = document.getElementById('exposureViewTypeRadios');
+            if (!container) return;
+            
+            let html = '<div class="btn-group w-100" role="group">';
+            exposureTypes.forEach((type, idx) => {
+                html += `
+                    <input type="radio" class="btn-check" name="viewType" id="viewType${idx}" value="${type}" ${idx === 0 ? 'checked' : ''} onchange="renderExposureAnalysis()">
+                    <label class="btn btn-outline-info" for="viewType${idx}">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        function addExposureType() {
+            const input = document.getElementById('newExposureType');
+            const newType = input.value.trim().toLowerCase();
+            
+            if (!newType) {
+                alert('Inserisci un nome per il tipo di esposizione!');
+                return;
+            }
+            
+            if (exposureTypes.includes(newType)) {
+                alert('Questo tipo esiste già!');
+                return;
+            }
+            
+            exposureTypes.push(newType);
+            localStorage.setItem('exposureTypes', JSON.stringify(exposureTypes));
+            
+            // Inizializza il nuovo tipo per tutti gli investimenti esistenti
+            Object.keys(exposureData).forEach(invName => {
+                if (!exposureData[invName][newType]) {
+                    exposureData[invName][newType] = [];
+                }
+            });
+            localStorage.setItem('exposureData', JSON.stringify(exposureData));
+            
+            input.value = '';
+            loadExposure();
+            alert(`Tipo "${newType}" aggiunto con successo!`);
+        }
+
+        function deleteExposureType(type) {
+            if (exposureTypes.length <= 1) {
+                alert('Devi avere almeno un tipo di esposizione!');
+                return;
+            }
+            
+            if (!confirm(`Vuoi eliminare il tipo "${type}"?\n\nATTENZIONE: Verranno eliminati tutti i dati di esposizione di questo tipo per TUTTI gli investimenti!`)) {
+                return;
+            }
+            
+            // Rimuovi tipo dall'array
+            exposureTypes = exposureTypes.filter(t => t !== type);
+            localStorage.setItem('exposureTypes', JSON.stringify(exposureTypes));
+            
+            // Rimuovi dati di questo tipo da tutti gli investimenti
+            Object.keys(exposureData).forEach(invName => {
+                if (exposureData[invName][type]) {
+                    delete exposureData[invName][type];
+                }
+                
+                // Se l'investimento non ha più dati, rimuovilo completamente
+                if (Object.keys(exposureData[invName]).length === 0) {
+                    delete exposureData[invName];
+                }
+            });
+            localStorage.setItem('exposureData', JSON.stringify(exposureData));
+            
+            loadExposure();
+            alert(`Tipo "${type}" eliminato!`);
+        }
+
+        function loadExposureData() {
+            const investmentName = document.getElementById('exposureInvestmentSelect').value;
+            if (!investmentName || !exposureData[investmentName]) {
+                document.getElementById('exposureDataInput').value = '';
+                return;
+            }
+            
+            // Mostra i dati salvati in formato modificabile
+            const type = document.querySelector('input[name="exposureType"]:checked').value;
+            const data = exposureData[investmentName][type];
+            
+            if (data && data.length > 0) {
+                const format = document.getElementById('inputFormatSelect').value;
+                let text = '';
+                
+                if (format === 'inline') {
+                    // Formato in linea: "Nome 12,34"
+                    data.forEach(item => {
+                        text += `${item.nome} ${item.perc.toFixed(2)}\n`;
+                    });
+                } else {
+                    // Formato separato
+                    data.forEach(item => {
+                        text += item.perc.toFixed(2) + ' %\n';
+                    });
+                    data.forEach(item => {
+                        text += item.nome + '\n';
+                    });
+                }
+                
+                document.getElementById('exposureDataInput').value = text;
+            } else {
+                document.getElementById('exposureDataInput').value = '';
+            }
+        }
+
+        function parseAndSaveExposure() {
+            const investmentName = document.getElementById('exposureInvestmentSelect').value;
+            if (!investmentName) {
+                alert('Seleziona un investimento!');
+                return;
+            }
+            
+            const rawData = document.getElementById('exposureDataInput').value.trim();
+            if (!rawData) {
+                alert('Inserisci i dati da parsare!');
+                return;
+            }
+            
+            const type = document.querySelector('input[name="exposureType"]:checked').value;
+            
+            // Parse dei dati in base al formato selezionato
+            const format = document.getElementById('inputFormatSelect').value;
+            const lines = rawData.split('\n').map(l => l.trim()).filter(l => l);
+            let parsedData = [];
+
+            if (format === 'inline') {
+                // Formato: "Stati Uniti 71,94"
+                lines.forEach(line => {
+                    // Cerca pattern: testo seguito da numero
+                    const match = line.match(/^(.+?)\s+([\d,\.]+)\s*%?\s*$/);
+                    if (match) {
+                        const nome = match[1].trim();
+                        const perc = parseFloat(match[2].replace(',', '.'));
+                        if (!isNaN(perc)) {
+                            parsedData.push({ nome, perc });
+                        }
+                    }
+                });
+                
+                if (parsedData.length === 0) {
+                    alert('Nessun dato valido trovato! Verifica il formato:\nOgni riga deve contenere: Nome Percentuale\nEs: Stati Uniti 71,94');
+                    return;
+                }
+                
+            } else {
+                // Formato separato: prima % poi nomi
+                const percentages = [];
+                const names = [];
+                
+                lines.forEach(line => {
+                    // Controlla se la riga contiene una percentuale
+                    if (line.match(/[\d,\.]+\s*%/)) {
+                        // Estrai il numero
+                        const num = parseFloat(line.replace(',', '.').replace('%', '').trim());
+                        percentages.push(num);
+                    } else {
+                        names.push(line);
+                    }
+                });
+                
+                if (percentages.length !== names.length) {
+                    alert(`Errore: trovate ${percentages.length} percentuali e ${names.length} nomi. Devono essere uguali!`);
+                    return;
+                }
+                
+                // Crea array di oggetti
+                parsedData = names.map((nome, idx) => ({
+                    nome: nome,
+                    perc: percentages[idx]
+                }));
+            }
+            
+            // Salva
+            if (!exposureData[investmentName]) {
+                exposureData[investmentName] = {};
+                exposureTypes.forEach(t => {
+                    exposureData[investmentName][t] = [];
+                });
+            }
+            
+            exposureData[investmentName][type] = parsedData;
+            localStorage.setItem('exposureData', JSON.stringify(exposureData));
+            
+            alert(`Salvati ${parsedData.length} elementi per ${investmentName} (${type})!`);
+            document.getElementById('exposureDataInput').value = '';
+            loadExposure();
+        }
+
+        function deleteExposureData() {
+            const investmentName = document.getElementById('exposureInvestmentSelect').value;
+            if (!investmentName) {
+                alert('Seleziona un investimento!');
+                return;
+            }
+            
+            const type = document.querySelector('input[name="exposureType"]:checked').value;
+            
+            if (confirm(`Vuoi eliminare i dati di esposizione ${type} per ${investmentName}?`)) {
+                if (exposureData[investmentName]) {
+                    exposureData[investmentName][type] = [];
+                    
+                    // Controlla se l'investimento ha ancora dati
+                    const hasData = exposureTypes.some(t => exposureData[investmentName][t] && exposureData[investmentName][t].length > 0);
+                    
+                    if (!hasData) {
+                        delete exposureData[investmentName];
+                    }
+                }
+                localStorage.setItem('exposureData', JSON.stringify(exposureData));
+                document.getElementById('exposureDataInput').value = '';
+                loadExposure();
+                alert('Dati eliminati!');
+            }
+        }
+
+        function selectAllExposures() {
+            const select = document.getElementById('exposureFilterSelect');
+            for (let i = 0; i < select.options.length; i++) {
+                select.options[i].selected = true;
+            }
+            renderExposureAnalysis();
+        }
+
+        function deselectAllExposures() {
+            const select = document.getElementById('exposureFilterSelect');
+            for (let i = 0; i < select.options.length; i++) {
+                select.options[i].selected = false;
+            }
+            renderExposureAnalysis();
+        }
+
+        function renderExposureAnalysis() {
+            const viewType = document.querySelector('input[name="viewType"]:checked')?.value;
+            if (!viewType) return;
+            
+            const filterSelect = document.getElementById('exposureFilterSelect');
+            const selectedOptions = Array.from(filterSelect.selectedOptions).map(opt => opt.value);
+            
+            if (selectedOptions.length === 0) {
+                document.getElementById('exposureResults').innerHTML = '<div class="alert alert-warning">Seleziona almeno un investimento!</div>';
+                return;
+            }
+            
+            // Determina quali investimenti includere
+            let investmentsToAnalyze = [];
+            if (selectedOptions.includes('ALL')) {
+                investmentsToAnalyze = Object.keys(exposureData);
+            } else {
+                investmentsToAnalyze = selectedOptions.filter(name => exposureData[name]);
+            }
+            
+            if (investmentsToAnalyze.length === 0) {
+                document.getElementById('exposureResults').innerHTML = '<div class="alert alert-info">Nessun dato di esposizione disponibile per gli investimenti selezionati.</div>';
+                return;
+            }
+            
+            // Calcola capitale netto investito per ogni investimento
+            const investmentNetTotals = {};
+            investments.forEach(inv => {
+                if (!investmentNetTotals[inv.nome]) {
+                    investmentNetTotals[inv.nome] = 0;
+                }
+                const totale = inv.totale;
+                const commissioni = inv.commissioni || 0;
+                const tipo = inv.commissioniTipo || 'sottratta';
+                
+                if (tipo === 'sottratta') {
+                    investmentNetTotals[inv.nome] += (totale - commissioni);
+                } else {
+                    investmentNetTotals[inv.nome] += totale;
+                }
+            });
+
+            // Calcola totale SOLO degli investimenti analizzati (con dati esposizione)
+            const totalPortfolio = investmentsToAnalyze.reduce((sum, invName) => {
+                return sum + (investmentNetTotals[invName] || 0);
+            }, 0);
+            
+            // Aggrega esposizioni
+            const aggregated = {};
+            let totalWeightedExposure = 0;
+            
+            investmentsToAnalyze.forEach(invName => {
+                const invTotal = investmentNetTotals[invName] || 0;
+                const invWeight = totalPortfolio > 0 ? invTotal / totalPortfolio : 0;
+                
+                const exposures = exposureData[invName][viewType] || [];
+                
+                exposures.forEach(exp => {
+                    if (!aggregated[exp.nome]) {
+                        aggregated[exp.nome] = 0;
+                    }
+                    aggregated[exp.nome] += (exp.perc / 100) * invWeight * 100;
+                });
+                
+                totalWeightedExposure += invWeight * 100;
+            });
+            
+            // Normalizza le percentuali
+            const normalizedAggregated = {};
+            Object.keys(aggregated).forEach(key => {
+                normalizedAggregated[key] = totalWeightedExposure > 0 ? (aggregated[key] / totalWeightedExposure) * 100 : 0;
+            });
+            
+            // Ordina per percentuale
+            const sorted = Object.entries(normalizedAggregated).sort((a, b) => b[1] - a[1]);
+            
+            // Render risultati
+            let html = `
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            Esposizione ${viewType.charAt(0).toUpperCase() + viewType.slice(1)} Aggregata
+                        </h5>
+                        <small>Analisi su ${investmentsToAnalyze.length} investiment${investmentsToAnalyze.length !== 1 ? 'i' : 'o'}</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 400px;">
+                            <canvas id="exposureChart"></canvas>
+                        </div>
+                        
+                        <div class="table-responsive mt-4">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Posizione</th>
+                                        <th>${viewType.charAt(0).toUpperCase() + viewType.slice(1)}</th>
+                                        <th class="text-end">% Portafoglio</th>
+                                        <th class="text-end">Valore Stimato (€)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+            
+            sorted.forEach((item, idx) => {
+                const [nome, perc] = item;
+                const value = totalPortfolio * (perc / 100);
+                html += `
+                    <tr>
+                        <td><strong>#${idx + 1}</strong></td>
+                        <td>${nome}</td>
+                        <td class="text-end"><span class="badge bg-primary">${perc.toFixed(2)}%</span></td>
+                        <td class="text-end">€${value.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                                </tbody>
+                                <tfoot class="table-dark">
+                                    <tr>
+                                        <td colspan="2"><strong>TOTALE</strong></td>
+                                        <td class="text-end"><strong>100%</strong></td>
+                                        <td class="text-end"><strong>€${totalPortfolio.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6>Investimenti Analizzati:</h6>
+                            <div>
+                                ${investmentsToAnalyze.map(name => `
+                                    <span class="badge bg-secondary me-1 mb-1">
+                                        ${name} (€${investmentNetTotals[name].toLocaleString('it-IT', {minimumFractionDigits: 0})})
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('exposureResults').innerHTML = html;
+            
+            // Render chart
+            setTimeout(() => {
+                const ctx = document.getElementById('exposureChart');
+                if (ctx) {
+                    const chartColors = [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
+                        '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384',
+                        '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#06B6D4'
+                    ];
+                    
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: sorted.map(item => item[0]),
+                            datasets: [{
+                                data: sorted.map(item => item[1]),
+                                backgroundColor: chartColors
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { 
+                                    position: 'right',
+                                    labels: {
+                                        font: { size: 11 }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.parsed || 0;
+                                            const euroValue = totalPortfolio * (value / 100);
+                                            return `${label}: ${value.toFixed(2)}% (€${euroValue.toLocaleString('it-IT', {minimumFractionDigits: 0})})`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }, 100);
+        }
+
+        // Event listener per cambio formato input
+        document.addEventListener('DOMContentLoaded', function() {
+            const formatSelect = document.getElementById('inputFormatSelect');
+            if (formatSelect) {
+                formatSelect.addEventListener('change', updateFormatHint);
+                updateFormatHint(); // Inizializza
+            }
+        });
+
+        function updateFormatHint() {
+            const format = document.getElementById('inputFormatSelect').value;
+            const hintEl = document.getElementById('formatHint');
+            
+            if (format === 'separate') {
+                hintEl.innerHTML = `
+                    <small>
+                        <strong>Formato "Separato":</strong><br>
+                        Incolla prima le percentuali, poi i nomi (uno per riga):<br>
+                        <code>23,03 %<br>16,04 %<br>Regno Unito<br>Francia</code>
+                    </small>
+                `;
+            } else {
+                hintEl.innerHTML = `
+                    <small>
+                        <strong>Formato "In linea":</strong><br>
+                        Ogni riga contiene nome e percentuale separati da spazio:<br>
+                        <code>Stati Uniti 71,94<br>Giappone 5,44<br>Regno Unito 3,68</code>
+                    </small>
+                `;
+            }
+        }
+
+        // Inizializzazione
+        loadData();
     </script>
 </body>
 </html>
