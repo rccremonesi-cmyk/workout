@@ -464,12 +464,16 @@
                                     <input type="url" class="form-control" id="link" placeholder="https://...">
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label"><i class="fas fa-euro-sign me-1"></i> Importo Versamento (€)</label>
-                                    <input type="number" step="0.01" class="form-control" id="totaleInvestito" required>
-                                </div>
-                            </div>
+                          <div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="form-label"><i class="fas fa-euro-sign me-1"></i> Importo Versamento (€)</label>
+        <input type="number" step="0.01" class="form-control" id="totaleInvestito" required>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label class="form-label"><i class="fas fa-receipt me-1"></i> Commissioni (€) <small class="text-muted">(opzionale)</small></label>
+        <input type="number" step="0.01" class="form-control" id="commissioni" placeholder="0.00">
+    </div>
+</div>
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-1"></i> <strong>Nota:</strong> Per aggiungere denaro a un investimento esistente, usa lo stesso nome e cambia solo la data e l'importo del versamento.
                             </div>
@@ -808,21 +812,24 @@ if (savedMarketValue) {
 
 
         // Form submit
-        document.getElementById('investmentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const id = document.getElementById('investmentId').value || Date.now().toString();
-            const investment = {
-                id: id,
-                data: document.getElementById('dataInvestimento').value,
-                anno: new Date(document.getElementById('dataInvestimento').value).getFullYear(),
-                ter: parseFloat(document.getElementById('ter').value),
-                tipologia: document.getElementById('tipologia').value,
-                settori: [...selectedTags],
-                nome: document.getElementById('nome').value,
-                link: document.getElementById('link').value,
-                totale: parseFloat(document.getElementById('totaleInvestito').value)
-            };
+document.getElementById('investmentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const id = document.getElementById('investmentId').value || Date.now().toString();
+    const commissioni = parseFloat(document.getElementById('commissioni').value) || 0;
+    
+    const investment = {
+        id: id,
+        data: document.getElementById('dataInvestimento').value,
+        anno: new Date(document.getElementById('dataInvestimento').value).getFullYear(),
+        ter: parseFloat(document.getElementById('ter').value),
+        tipologia: document.getElementById('tipologia').value,
+        settori: [...selectedTags],
+        nome: document.getElementById('nome').value,
+        link: document.getElementById('link').value,
+        totale: parseFloat(document.getElementById('totaleInvestito').value),
+        commissioni: commissioni
+    };
 
             const existingIndex = investments.findIndex(inv => inv.id === id);
             if (existingIndex !== -1) {
@@ -838,44 +845,46 @@ if (savedMarketValue) {
             alert('Versamento salvato con successo!');
         });
 
-        function resetForm() {
-            document.getElementById('investmentForm').reset();
-            document.getElementById('investmentId').value = '';
-           
-        }
+function resetForm() {
+    document.getElementById('investmentForm').reset();
+    document.getElementById('investmentId').value = '';
+    document.getElementById('commissioni').value = '';
+}
 
-        function cloneInvestment(id) {
-            const inv = investments.find(i => i.id === id);
-            if (inv) {
-                document.getElementById('investmentId').value = '';
-                document.getElementById('dataInvestimento').value = '';
-                document.getElementById('ter').value = inv.ter;
-                document.getElementById('tipologia').value = inv.tipologia;
-                selectedTags = [...inv.settori];
-                document.getElementById('nome').value = inv.nome;
-                document.getElementById('link').value = inv.link;
-                document.getElementById('totaleInvestito').value = '';
-                
-                // Vai al tab inserimento
-                document.getElementById('input-tab').click();
-            }
-        }
+function cloneInvestment(id) {
+    const inv = investments.find(i => i.id === id);
+    if (inv) {
+        document.getElementById('investmentId').value = '';
+        document.getElementById('dataInvestimento').value = '';
+        document.getElementById('ter').value = inv.ter;
+        document.getElementById('tipologia').value = inv.tipologia;
+        selectedTags = [...inv.settori];
+        document.getElementById('nome').value = inv.nome;
+        document.getElementById('link').value = inv.link;
+        document.getElementById('totaleInvestito').value = '';
+        document.getElementById('commissioni').value = inv.commissioni || 0;
+        
+        // Vai al tab inserimento
+        document.getElementById('input-tab').click();
+    }
+}
 
-        function editInvestment(id) {
-            const inv = investments.find(i => i.id === id);
-            if (inv) {
-                document.getElementById('investmentId').value = id;
-                document.getElementById('dataInvestimento').value = inv.data;
-                document.getElementById('ter').value = inv.ter;
-                document.getElementById('tipologia').value = inv.tipologia;
-                selectedTags = [...inv.settori];
-                document.getElementById('nome').value = inv.nome;
-                document.getElementById('link').value = inv.link;
-                document.getElementById('totaleInvestito').value = inv.totale;
-                
-                document.getElementById('input-tab').click();
-            }
-        }
+function editInvestment(id) {
+    const inv = investments.find(i => i.id === id);
+    if (inv) {
+        document.getElementById('investmentId').value = id;
+        document.getElementById('dataInvestimento').value = inv.data;
+        document.getElementById('ter').value = inv.ter;
+        document.getElementById('tipologia').value = inv.tipologia;
+        selectedTags = [...inv.settori];
+        document.getElementById('nome').value = inv.nome;
+        document.getElementById('link').value = inv.link;
+        document.getElementById('totaleInvestito').value = inv.totale;
+        document.getElementById('commissioni').value = inv.commissioni || 0;
+        
+        document.getElementById('input-tab').click();
+    }
+}
 
         function deleteInvestment(id) {
             if (confirm('Sei sicuro di voler eliminare questo versamento?')) {
@@ -950,33 +959,37 @@ if (savedMarketValue) {
                             <div class="table-responsive">
                                 <table class="table table-sm sub-table">
                                     <thead>
-                                        <tr>
-                                            <th>Data</th>
-                                            <th>Anno</th>
-                                            <th>Settori</th>
-                                            <th>TER %</th>
-                                            <th>Versamento €</th>
-                                            <th>Progressivo €</th>
-                                            <th>Azioni</th>
-                                        </tr>
-                                    </thead>
+                                        <thead>
+										<tr>
+											<th>Data</th>
+											<th>Anno</th>
+											<th>Settori</th>
+											<th>TER %</th>
+											<th>Versamento €</th>
+											<th>Commissioni €</th>
+											<th>Progressivo €</th>
+											<th style="min-width:114px;">Azioni</th>
+										</tr>
+									</thead>
+
                                     <tbody>
                     `;
 
                     let progressivo = 0;
                     versamenti.forEach((inv, index) => {
                         progressivo += inv.totale;
-                        html += `
-                            <tr class="versamento-row">
-                                <td>${new Date(inv.data).toLocaleDateString('it-IT')}</td>
-                                <td>${inv.anno}</td>
-                                <td>
-                                    ${inv.settori.map(s => `<span class="badge bg-info badge-custom">${s}</span>`).join(' ')}
-                                </td>
-                                <td>${inv.ter}%</td>
-                                <td>€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                                <td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                                <td>
+						html += `
+							<tr class="versamento-row">
+								<td>${new Date(inv.data).toLocaleDateString('it-IT')}</td>
+								<td>${inv.anno}</td>
+								<td>
+									${inv.settori.map(s => `<span class="badge bg-info badge-custom">${s}</span>`).join(' ')}
+								</td>
+								<td>${inv.ter}%</td>
+								<td>€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+								<td>${inv.commissioni > 0 ? '€' + inv.commissioni.toLocaleString('it-IT', {minimumFractionDigits: 2}) : '-'}</td>
+								<td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+								<td>
                                     <button class="btn btn-sm btn-outline-secondary btn-clone custom-tooltip" onclick="cloneInvestment('${inv.id}')" title="Clona per nuovo versamento">
                                         <i class="fas fa-clone"></i>
                                         <span class="tooltip-text">Clona per nuovo versamento</span>
@@ -1327,33 +1340,57 @@ if (savedMarketValue) {
             const bondTotal = (byType['BOND'] || 0) + (byType['IBOND'] || 0) + (byType['METALLI PREZIOSI'] || 0);
             const etfTotal = byType['ETF'] || 0;
 
-            let html = `
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-value">€${totaleProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
-                            <div class="stat-label">Totale Investito ${currentYear !== 'all' ? 'al ' + currentYear : ''}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card" style="background: var(--gradient-warning);">
-                            <div class="stat-value">€${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                            <div class="stat-label">Costo TER Annuale</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card" style="background: var(--gradient-success);">
-                            <div class="stat-value">${Object.keys(byNome).length}</div>
-                            <div class="stat-label">Investimenti Attivi</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card" style="background: var(--gradient-info);">
-                            <div class="stat-value">${totaleProgressivo > 0 ? (totaleTER / totaleProgressivo * 100).toFixed(2) : 0}%</div>
-                            <div class="stat-label">TER Medio</div>
-                        </div>
-                    </div>
-                </div>
+            // Calcola totale commissioni
+const totaleCommissioni = filtered.reduce((sum, inv) => sum + (inv.commissioni || 0), 0);
+
+let html = `
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">€${totaleProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
+                <div class="stat-label">Totale Investito ${currentYear !== 'all' ? 'al ' + currentYear : ''}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: var(--gradient-warning);">
+                <div class="stat-value">€${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                <div class="stat-label">Costo TER Annuale</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: var(--gradient-danger);">
+                <div class="stat-value">€${totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                <div class="stat-label">Commissioni Totali</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: var(--gradient-success);">
+                <div class="stat-value">${Object.keys(byNome).length}</div>
+                <div class="stat-label">Investimenti Attivi</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <div class="stat-card" style="background: var(--gradient-info);">
+                <div class="stat-value">${totaleProgressivo > 0 ? (totaleTER / totaleProgressivo * 100).toFixed(2) : 0}%</div>
+                <div class="stat-label">TER Medio</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card" style="background: var(--gradient-secondary);">
+                <div class="stat-value">€${(totaleTER + totaleCommissioni).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                <div class="stat-label">Costi Totali (TER + Commissioni)</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card" style="background: var(--gradient-purple);">
+                <div class="stat-value">${totaleProgressivo > 0 ? ((totaleTER + totaleCommissioni) / totaleProgressivo * 100).toFixed(2) : 0}%</div>
+                <div class="stat-label">% Costi sul Totale</div>
+            </div>
+        </div>
+    </div>
 
                 ${years.length > 1 ? `
                 <div class="row mt-4">
@@ -1926,25 +1963,21 @@ function loadForecast() {
         return;
     }
 
-    const currentYearNum = new Date().getFullYear();
-    const targetYearInput = document.getElementById('targetYear');
-    if (!targetYearInput.value) {
-        targetYearInput.value = currentYearNum + 3;
-    }
+   const currentYearNum = new Date().getFullYear();
+const targetYearInput = document.getElementById('targetYear');
+if (!targetYearInput.value) {
+    targetYearInput.value = currentYearNum + 2;  // Cambiato da +3 a +2
+}
     
     // Imposta valore di mercato
-    const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
-    const marketValueInput = document.getElementById('marketValue');
-    
-if (currentMarketValue > 0) {
-    // Usa il valore salvato se esiste
-    marketValueInput.value = currentMarketValue.toFixed(2);
-} else {
-    // Di default usa il totale investito
-    marketValueInput.value = totalInvested.toFixed(2);
-    currentMarketValue = totalInvested;
-    localStorage.setItem('currentMarketValue', currentMarketValue.toString());
-}
+// Imposta valore di mercato (sempre resettato al totale investito)
+const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
+const marketValueInput = document.getElementById('marketValue');
+
+// Usa sempre il totale investito come default
+marketValueInput.value = totalInvested.toFixed(2);
+currentMarketValue = totalInvested;
+localStorage.setItem('currentMarketValue', currentMarketValue.toString());
 
     generateYearlyReturnsInputs();
 }
