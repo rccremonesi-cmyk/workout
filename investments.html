@@ -2141,13 +2141,13 @@ if (!targetYearInput.value) {
 }
     
     // Imposta valore di mercato
-// Imposta valore di mercato (sempre resettato al totale investito)
-const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
+// Imposta valore di mercato basato sul CAPITALE NETTO (escluse commissioni)
+const capitaleNetto = calcolaCapitaleNetto(investments);
 const marketValueInput = document.getElementById('marketValue');
 
-// Usa sempre il totale investito come default
-marketValueInput.value = totalInvested.toFixed(2);
-currentMarketValue = totalInvested;
+// Usa il capitale netto come default
+marketValueInput.value = capitaleNetto.toFixed(2);
+currentMarketValue = capitaleNetto;
 localStorage.setItem('currentMarketValue', currentMarketValue.toString());
 
     generateYearlyReturnsInputs();
@@ -2161,8 +2161,8 @@ function updateMarketValue() {
 }
 
 function autoFillMarketValue() {
-    const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
-    document.getElementById('marketValue').value = totalInvested.toFixed(2);
+    const capitaleNetto = calcolaCapitaleNetto(investments);
+    document.getElementById('marketValue').value = capitaleNetto.toFixed(2);
     updateMarketValue();
 }
 
@@ -2182,13 +2182,23 @@ function generateYearlyReturnsInputs() {
     const showWarning = marketValue === 0 || marketValue === totalInvested;
 
     // Calcola versamenti effettivi per anno
-    const versamentiPerAnno = {};
-    investments.forEach(inv => {
-        if (!versamentiPerAnno[inv.anno]) {
-            versamentiPerAnno[inv.anno] = 0;
-        }
-        versamentiPerAnno[inv.anno] += inv.totale;
-    });
+
+const versamentiNettoPerAnno = {};
+investments.forEach(inv => {
+    if (!versamentiNettoPerAnno[inv.anno]) {
+        versamentiNettoPerAnno[inv.anno] = 0;
+    }
+    
+    const totale = inv.totale;
+    const commissioni = inv.commissioni || 0;
+    const tipo = inv.commissioniTipo || 'sottratta';
+    
+    if (tipo === 'sottratta') {
+        versamentiNettoPerAnno[inv.anno] += (totale - commissioni);
+    } else {
+        versamentiNettoPerAnno[inv.anno] += totale;
+    }
+});
 
     // Calcola versamento medio storico
     const years = Object.keys(versamentiPerAnno).map(Number);
@@ -2303,15 +2313,15 @@ function calculateForecast() {
         return;
     }
 
-// Calcola totale investito
-const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
+// Calcola CAPITALE NETTO INVESTITO (escluse commissioni)
+const capitaleNetto = calcolaCapitaleNetto(investments);
 
 // Usa valore di mercato salvato o quello inserito nel campo
 let marketValue = parseFloat(document.getElementById('marketValue').value);
 if (!marketValue || marketValue === 0) {
-    // Se non c'è valore di mercato, usa il valore salvato o il totale investito
-    marketValue = currentMarketValue > 0 ? currentMarketValue : totalInvested;
-    document.getElementById('marketValue').value = marketValue;
+    // Se non c'è valore di mercato, usa il valore salvato o il CAPITALE NETTO
+    marketValue = currentMarketValue > 0 ? currentMarketValue : capitaleNetto;
+    document.getElementById('marketValue').value = marketValue.toFixed(2);
 }
 
 // Aggiorna il valore salvato
@@ -2319,8 +2329,9 @@ currentMarketValue = marketValue;
 localStorage.setItem('currentMarketValue', currentMarketValue.toString());
 
 const currentCapital = marketValue;
-const currentGainLoss = marketValue - totalInvested;
-const currentGainLossPerc = totalInvested > 0 ? ((currentGainLoss / totalInvested) * 100) : 0;
+// Guadagno/Perdita = Valore Mercato - Capitale Netto Investito
+const currentGainLoss = marketValue - capitaleNetto;
+const currentGainLossPerc = capitaleNetto > 0 ? ((currentGainLoss / capitaleNetto) * 100) : 0;
 
     // Calcola TER medio
     const byNome = {};
@@ -2336,7 +2347,7 @@ const currentGainLossPerc = totalInvested > 0 ? ((currentGainLoss / totalInveste
         const totaleInv = versamenti.reduce((sum, inv) => sum + inv.totale, 0);
         totaleTER += totaleInv * (ultimo.ter / 100);
     });
-    const avgTER = (totaleTER / totalInvested * 100);
+    const avgTER = capitaleNetto > 0 ? (totaleTER / capitaleNetto * 100) : 0;
 
     // Simulazioni
     const scenarios = [
@@ -2347,26 +2358,35 @@ const currentGainLossPerc = totalInvested > 0 ? ((currentGainLoss / totalInveste
     ];
 
 const results = scenarios.map(scenario => {
-    // IMPORTANTE: Parte dal valore di mercato reale (currentCapital include già guadagni/perdite)
-    let capital = currentCapital;
-    const yearlyData = [];
-    // totalDeposited parte dal totale già investito finora
-    let totalDeposited = totalInvested;
+// IMPORTANTE: Parte dal valore di mercato reale (currentCapital include già guadagni/perdite)
+let capital = currentCapital;
+const yearlyData = [];
+// totalDeposited parte dal CAPITALE NETTO già investito finora
+let totalDeposited = capitaleNetto;
     
-    // Calcola versamenti effettivi per anno
-    const versamentiPerAnno = {};
-    investments.forEach(inv => {
-        if (!versamentiPerAnno[inv.anno]) {
-            versamentiPerAnno[inv.anno] = 0;
-        }
-        versamentiPerAnno[inv.anno] += inv.totale;
-    });
+// Calcola versamenti NETTI per anno (escluse commissioni)
+const versamentiNettoPerAnno = {};
+investments.forEach(inv => {
+    if (!versamentiNettoPerAnno[inv.anno]) {
+        versamentiNettoPerAnno[inv.anno] = 0;
+    }
+    
+    const totale = inv.totale;
+    const commissioni = inv.commissioni || 0;
+    const tipo = inv.commissioniTipo || 'sottratta';
+    
+    if (tipo === 'sottratta') {
+        versamentiNettoPerAnno[inv.anno] += (totale - commissioni);
+    } else {
+        versamentiNettoPerAnno[inv.anno] += totale;
+    }
+});
     
 let cumulativeInflation = 1; // Per calcolare inflazione cumulativa
 
 for (let year = currentYearNum; year <= targetYear; year++) {
     const depositPrevisto = parseFloat(forecastDeposits[year]) || 0;
-    const depositEffettivo = versamentiPerAnno[year] || 0;
+    const depositEffettivo = versamentiNettoPerAnno[year] || 0;
     const inflationRate = (forecastInflation[year] || 0) / 100;
     
     // Aggiorna inflazione cumulativa
@@ -2438,15 +2458,23 @@ return {
 };
     });
 
-    // Aggiorna guadagni in tempo reale
-// Aggiorna preview in tempo reale
-// Aggiorna preview in tempo reale
-const versamentiPerAnno = {};
+
+// Calcola versamenti NETTI per anno
+const versamentiNettoPerAnno = {};
 investments.forEach(inv => {
-    if (!versamentiPerAnno[inv.anno]) {
-        versamentiPerAnno[inv.anno] = 0;
+    if (!versamentiNettoPerAnno[inv.anno]) {
+        versamentiNettoPerAnno[inv.anno] = 0;
     }
-    versamentiPerAnno[inv.anno] += inv.totale;
+    
+    const totale = inv.totale;
+    const commissioni = inv.commissioni || 0;
+    const tipo = inv.commissioniTipo || 'sottratta';
+    
+    if (tipo === 'sottratta') {
+        versamentiNettoPerAnno[inv.anno] += (totale - commissioni);
+    } else {
+        versamentiNettoPerAnno[inv.anno] += totale;
+    }
 });
 
 // Calcola preview con capitale progressivo
@@ -2457,7 +2485,7 @@ for (let year = currentYearNum; year <= targetYear; year++) {
     const previewEl = document.getElementById(`preview_${year}`);
     const returnVal = forecastReturns[year] || 0;
     const depositPrevisto = forecastDeposits[year] || 0;
-    const depositEffettivo = versamentiPerAnno[year] || 0;
+    const depositEffettivo = versamentiNettoPerAnno[year] || 0;
     
     let depositTotale = 0;
     if (year === currentYearNum) {
@@ -2507,32 +2535,35 @@ for (let year = currentYearNum; year <= targetYear; year++) {
     }
 }
 
-renderForecastResults(results, totalInvested, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear);
+renderForecastResults(results, capitaleNetto, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear);
 }
 
-function renderForecastResults(results, totalInvested, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear) {
+function renderForecastResults(results, capitaleNetto, currentCapital, currentGainLoss, currentGainLossPerc, avgTER, targetYear) {
     const currentYearNum = new Date().getFullYear();
     const yearsToTarget = targetYear - currentYearNum + 1;
 
 let html = `
     <div class="row">
-        <div class="col-md-3">
-            <div class="card border-secondary">
-                <div class="card-body text-center">
-                    <h6 class="text-muted mb-2">Totale Investito</h6>
-                    <h3 class="text-secondary mb-0">€${totalInvested.toLocaleString('it-IT', {minimumFractionDigits: 0})}</h3>
-                </div>
-            </div>
+       <div class="col-md-3">
+    <div class="card border-secondary">
+        <div class="card-body text-center">
+            <h6 class="text-muted mb-2">Capitale Netto Investito</h6>
+            <h3 class="text-secondary mb-0">€${capitaleNetto.toLocaleString('it-IT', {minimumFractionDigits: 0})}</h3>
+            <small class="text-muted">(escluse commissioni)</small>
         </div>
+    </div>
+</div>
         <div class="col-md-3">
             <div class="card border-primary">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Valore di Mercato</h6>
                     <h3 class="text-primary mb-0">€${currentCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</h3>
                     <small class="${currentGainLoss >= 0 ? 'text-success' : 'text-danger'}">
-                        ${currentGainLoss >= 0 ? '+' : ''}€${currentGainLoss.toLocaleString('it-IT', {minimumFractionDigits: 0})} 
-                        (${currentGainLossPerc >= 0 ? '+' : ''}${currentGainLossPerc.toFixed(2)}%)
-                    </small>
+    ${currentGainLoss >= 0 ? '+' : ''}€${currentGainLoss.toLocaleString('it-IT', {minimumFractionDigits: 0})} 
+    (${currentGainLossPerc >= 0 ? '+' : ''}${currentGainLossPerc.toFixed(2)}%)
+</small>
+<br>
+<small class="text-muted">vs capitale netto: €${capitaleNetto.toLocaleString('it-IT', {minimumFractionDigits: 0})}</small>
                 </div>
             </div>
         </div>
