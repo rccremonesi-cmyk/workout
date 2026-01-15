@@ -2040,16 +2040,17 @@ for (let year = currentYearNum; year <= targetYear; year++) {
     const returnRate = (forecastReturns[year] || 0) * scenario.multiplier / 100;
     let gain = 0;
     
-    if (calcMode === 'compound') {
-        gain = capital * returnRate;
-    } else {
-        gain = totalDeposited * returnRate;
+    if (returnRate !== 0) {
+        if (calcMode === 'compound') {
+            gain = capital * returnRate;
+        } else {
+            gain = totalDeposited * returnRate;
+        }
+        capital += gain;
     }
     
-    capital += gain;
-    
-    // Sottrai TER
-    const terCost = capital * (avgTER / 100);
+    // Sottrai TER solo se c'è capitale
+    const terCost = capital > 0 ? capital * (avgTER / 100) : 0;
     capital -= terCost;
         
         yearlyData.push({
