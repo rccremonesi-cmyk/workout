@@ -1788,21 +1788,27 @@ function loadForecast() {
     const currentYearNum = new Date().getFullYear();
     const targetYearInput = document.getElementById('targetYear');
     if (!targetYearInput.value) {
-        targetYearInput.value = currentYearNum + 5;
+        targetYearInput.value = currentYearNum + 3;
     }
     
-    // Carica valore di mercato salvato
+    // Imposta valore di mercato
+    const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
     const marketValueInput = document.getElementById('marketValue');
+    
     if (currentMarketValue > 0) {
+        // Usa il valore salvato se esiste
         marketValueInput.value = currentMarketValue;
     } else {
-        // Se non c'è un valore salvato, suggerisci il totale investito
-        const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
-        marketValueInput.placeholder = `Es. ${totalInvested.toLocaleString('it-IT')} (totale investito)`;
+        // Di default usa il totale investito
+        marketValueInput.value = totalInvested;
+        currentMarketValue = totalInvested;
+        localStorage.setItem('currentMarketValue', currentMarketValue.toString());
     }
-	
-	
-	function updateMarketValue() {
+
+    generateYearlyReturnsInputs();
+}
+
+function updateMarketValue() {
     const marketValue = parseFloat(document.getElementById('marketValue').value) || 0;
     currentMarketValue = marketValue;
     localStorage.setItem('currentMarketValue', currentMarketValue.toString());
@@ -1813,9 +1819,6 @@ function autoFillMarketValue() {
     const totalInvested = investments.reduce((sum, inv) => sum + inv.totale, 0);
     document.getElementById('marketValue').value = totalInvested;
     updateMarketValue();
-}
-
-    generateYearlyReturnsInputs();
 }
 
 function generateYearlyReturnsInputs() {
