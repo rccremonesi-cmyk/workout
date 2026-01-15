@@ -2563,7 +2563,7 @@ function loadExposure() {
     const filterSelect = document.getElementById('exposureFilterSelect');
     
     select.innerHTML = '<option value="">-- Seleziona --</option>';
-    filterSelect.innerHTML = '<option value="ALL" selected>TUTTI GLI INVESTIMENTI</option>';
+    filterSelect.innerHTML = '<option value="ALL" selected><i class="fa-solid fa-list-check"></i> Seleziona tutti gli investimenti</option>';
     
     // Ottieni lista investimenti unici
     const uniqueInvestments = [...new Set(investments.map(inv => inv.nome))].sort();
