@@ -1365,8 +1365,8 @@ let html = `
         </div>
         <div class="col-md-3">
     <div class="stat-card" style="background: var(--gradient-danger);">
-        <div class="stat-value">${totaleCommissioni > 0 ? '€' + totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</div>
-        <div class="stat-label">${totaleCommissioni > 0 ? 'Commissioni Totali' : 'Nessuna Commissione'}</div>
+        <div class="stat-value" style="color:#575252;">${totaleCommissioni > 0 ? '€' + totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</div>
+        <div class="stat-label" style="color:#575252;">${totaleCommissioni > 0 ? 'Commissioni Totali' : 'Nessuna Commissione'}</div>
     </div>
 </div>
         <div class="col-md-3">
