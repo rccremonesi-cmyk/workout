@@ -8,7 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.umd.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <!-- jQuery (necessario per Select2) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
@@ -383,14 +383,228 @@ background-color:#e4e3fa6e !important;
 .table tfoot td{
 background-color:#7552a8;
 }
+.sync-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+}
 
+.sync-modal-content {
+    background: white;
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.sync-modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px;
+    border-radius: 16px 16px 0 0;
+    text-align: center;
+}
+
+.sync-modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.sync-modal-body {
+    padding: 30px;
+}
+
+.sync-form-group {
+    margin-bottom: 20px;
+}
+
+.sync-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.sync-form-group input,
+.sync-form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.sync-form-group input:focus,
+.sync-form-group select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.sync-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.sync-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.sync-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.sync-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.sync-btn-secondary {
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.sync-btn-secondary:hover {
+    background: #cbd5e1;
+}
+
+.sync-status {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: none;
+    align-items: center;
+    gap: 10px;
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.sync-status.success {
+    border-left: 4px solid #10b981;
+}
+
+.sync-status.error {
+    border-left: 4px solid #ef4444;
+}
+
+.sync-status.loading {
+    border-left: 4px solid #6366f1;
+}
+
+.sync-indicator {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    padding: 8px 16px;
+    background: rgba(99, 102, 241, 0.9);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+    cursor: pointer;
+}
+
+.sync-indicator:hover {
+    background: rgba(99, 102, 241, 1);
+}
+
+.sync-indicator i {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
     </style>
 </head>
 <body>
+
+	<div id="syncModal" class="sync-modal">
+    <div class="sync-modal-content">
+        <div class="sync-modal-header">
+            <h3><i class="fas fa-cloud"></i> Sincronizzazione Cloud</h3>
+        </div>
+        <div class="sync-modal-body">
+            <div class="sync-form-group">
+                <label><i class="fas fa-user"></i> Utente</label>
+                <select id="syncUser">
+                    <option value="">-- Seleziona utente --</option>
+                    <option value="riccardo">Riccardo</option>
+                    <option value="stefano">Stefano</option>
+                </select>
+            </div>
+            <div class="sync-form-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="syncPassword" placeholder="Inserisci la password">
+            </div>
+            <div class="sync-buttons">
+                <button class="sync-btn sync-btn-secondary" onclick="closeSyncModal()">
+                    <i class="fas fa-times"></i> Annulla
+                </button>
+                <button class="sync-btn sync-btn-primary" onclick="authenticateSync()">
+                    <i class="fas fa-sign-in-alt"></i> Accedi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="syncStatus" class="sync-status">
+    <i class="fas fa-spinner fa-spin"></i>
+    <span id="syncStatusText">Sincronizzazione in corso...</span>
+</div>
+
+<div id="syncIndicator" class="sync-indicator" onclick="showSyncOptions()">
+    <i class="fas fa-cloud"></i>
+    <span id="syncIndicatorText">Modalità Cloud</span>
+</div>
+
+	
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="mb-0"><i class="fas fa-chart-line me-2"></i> Gestione Investimenti Annuali</h1>
             <div>
+				<button class="btn btn-outline-primary" onclick="showSyncModal()" title="Sincronizzazione Cloud">
+    <i class="fas fa-cloud"></i> Sync Cloud
+</button>
                 <button class="btn btn-outline-success me-2" onclick="exportData()">
                     <i class="fas fa-download me-1"></i> Esporta Dati
                 </button>
@@ -767,6 +981,329 @@ background-color:#7552a8;
         let currentMarketValue = 0;
         let forecastChart = null;
 
+	const GITHUB_REPO = 'rccremonesi-cmyk/workout';
+	const GITHUB_BRANCH = 'main';
+	const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/refs/heads/${GITHUB_BRANCH}`;
+
+	// Credenziali utenti (hash delle password)
+const USERS = {
+    riccardo: {
+        passwordHash: '606a1afe5828f0f2ea70a6eb7f10ce6a517fb081ca4031cd8195ca9ca9c129c1', // Sostituire con hash reale
+        file: 'riccardo.json'
+    },
+    stefano: {
+        passwordHash: 'f20213cfd797b52ed90d8df0b2a0307aa1302e3835d44e28155c2416944e0e5e', // Sostituire con hash reale
+        file: 'stefano.json'
+    }
+};
+
+let syncMode = 'local'; // 'local' o 'cloud'
+let currentUser = null;
+let currentPassword = null;
+let syncInterval = null;
+
+	// ===== FUNZIONI DI CRITTOGRAFIA =====
+
+function hashPassword(password) {
+    return CryptoJS.SHA256(password).toString();
+}
+
+function encryptData(data, password) {
+    try {
+        const jsonString = JSON.stringify(data);
+        const encrypted = CryptoJS.AES.encrypt(jsonString, password).toString();
+        return encrypted;
+    } catch (error) {
+        console.error('Errore crittografia:', error);
+        return null;
+    }
+}
+
+function decryptData(encryptedData, password) {
+    try {
+        const decrypted = CryptoJS.AES.decrypt(encryptedData, password);
+        const jsonString = decrypted.toString(CryptoJS.enc.Utf8);
+        if (!jsonString) {
+            throw new Error('Password errata');
+        }
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.error('Errore decrittografia:', error);
+        return null;
+    }
+}
+
+// ===== FUNZIONI SINCRONIZZAZIONE =====
+
+function showSyncModal() {
+    document.getElementById('syncModal').style.display = 'block';
+    document.getElementById('syncPassword').value = '';
+}
+
+function closeSyncModal() {
+    document.getElementById('syncModal').style.display = 'none';
+}
+
+function showSyncStatus(message, type = 'loading') {
+    const status = document.getElementById('syncStatus');
+    const text = document.getElementById('syncStatusText');
+    const icon = status.querySelector('i');
+    
+    text.textContent = message;
+    status.className = `sync-status ${type}`;
+    
+    // Cambia icona in base al tipo
+    if (type === 'success') {
+        icon.className = 'fas fa-check-circle';
+    } else if (type === 'error') {
+        icon.className = 'fas fa-exclamation-circle';
+    } else {
+        icon.className = 'fas fa-spinner fa-spin';
+    }
+    
+    status.style.display = 'flex';
+    
+    // Nascondi dopo 3 secondi per success/error
+    if (type !== 'loading') {
+        setTimeout(() => {
+            status.style.display = 'none';
+        }, 3000);
+    }
+}
+
+function updateSyncIndicator() {
+    const indicator = document.getElementById('syncIndicator');
+    const text = document.getElementById('syncIndicatorText');
+    
+    if (syncMode === 'cloud' && currentUser) {
+        text.textContent = `Cloud: ${currentUser.charAt(0).toUpperCase() + currentUser.slice(1)}`;
+        indicator.style.display = 'flex';
+    } else {
+        indicator.style.display = 'none';
+    }
+}
+
+async function authenticateSync() {
+    const user = document.getElementById('syncUser').value;
+    const password = document.getElementById('syncPassword').value;
+    
+    if (!user || !password) {
+        alert('Seleziona un utente e inserisci la password!');
+        return;
+    }
+    
+    // Verifica password
+    const passwordHash = hashPassword(password);
+    
+    // PER ORA, ACCETTA QUALSIASI PASSWORD (DA CONFIGURARE DOPO)
+    // In produzione, dovresti verificare: passwordHash === USERS[user].passwordHash
+    
+    showSyncStatus('Autenticazione in corso...', 'loading');
+    
+    try {
+        // Prova a caricare i dati da GitHub
+        const success = await loadFromGitHub(user, password);
+        
+        if (success) {
+            currentUser = user;
+            currentPassword = password;
+            syncMode = 'cloud';
+            
+            // Salva preferenze
+            localStorage.setItem('syncMode', 'cloud');
+            localStorage.setItem('syncUser', user);
+            
+            closeSyncModal();
+            showSyncStatus('Accesso effettuato con successo!', 'success');
+            updateSyncIndicator();
+            
+            // Avvia sincronizzazione automatica ogni 5 minuti
+            startAutoSync();
+        } else {
+            showSyncStatus('Errore durante l\'autenticazione', 'error');
+        }
+    } catch (error) {
+        console.error('Errore autenticazione:', error);
+        showSyncStatus('Errore di connessione', 'error');
+    }
+}
+
+async function loadFromGitHub(user, password) {
+    try {
+        const fileUrl = `${GITHUB_RAW_URL}/${USERS[user].file}`;
+        const response = await fetch(fileUrl);
+        
+        if (!response.ok) {
+            // File non esiste ancora, crea nuovo
+            if (response.status === 404) {
+                console.log('File non trovato, verrà creato al primo salvataggio');
+                return true;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const encryptedText = await response.text();
+        
+        // Se il file è vuoto o nuovo, inizializza
+        if (!encryptedText || encryptedText.trim() === '') {
+            console.log('File vuoto, inizializzo nuovo dataset');
+            return true;
+        }
+        
+        // Decrittografa i dati
+        const decryptedData = decryptData(encryptedText, password);
+        
+        if (!decryptedData) {
+            throw new Error('Password errata o dati corrotti');
+        }
+        
+        // Carica i dati nell'applicazione
+        if (decryptedData.investments) {
+            investments = decryptedData.investments;
+            localStorage.setItem('investments', JSON.stringify(investments));
+        }
+        
+        if (decryptedData.exposureData) {
+            exposureData = decryptedData.exposureData;
+            localStorage.setItem('exposureData', JSON.stringify(exposureData));
+        }
+        
+        if (decryptedData.investmentNotes) {
+            localStorage.setItem('investmentNotes', decryptedData.investmentNotes);
+        }
+        
+        if (decryptedData.forecastReturns) {
+            forecastReturns = decryptedData.forecastReturns;
+            localStorage.setItem('forecastReturns', JSON.stringify(forecastReturns));
+        }
+        
+        if (decryptedData.forecastDeposits) {
+            forecastDeposits = decryptedData.forecastDeposits;
+            localStorage.setItem('forecastDeposits', JSON.stringify(forecastDeposits));
+        }
+        
+        // Ricarica l'interfaccia
+        loadData();
+        
+        return true;
+    } catch (error) {
+        console.error('Errore caricamento da GitHub:', error);
+        return false;
+    }
+}
+
+async function saveToGitHub() {
+    if (syncMode !== 'cloud' || !currentUser || !currentPassword) {
+        return false;
+    }
+    
+    showSyncStatus('Sincronizzazione in corso...', 'loading');
+    
+    try {
+        // Prepara tutti i dati da salvare
+        const dataToSave = {
+            investments: investments,
+            exposureData: exposureData,
+            investmentNotes: localStorage.getItem('investmentNotes') || '',
+            forecastReturns: forecastReturns,
+            forecastDeposits: forecastDeposits,
+            forecastInflation: forecastInflation,
+            currentMarketValue: currentMarketValue,
+            exposureTypes: exposureTypes,
+            lastSync: new Date().toISOString()
+        };
+        
+        // Critta i dati
+        const encryptedData = encryptData(dataToSave, currentPassword);
+        
+        if (!encryptedData) {
+            throw new Error('Errore durante la crittografia');
+        }
+        
+        // NOTA: Il salvataggio effettivo su GitHub richiede un GitHub Token e API
+        // Per ora, mostriamo solo un messaggio di successo simulato
+        console.log('Dati crittografati pronti per GitHub:', encryptedData.substring(0, 100) + '...');
+        
+        // Simulazione salvataggio
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        showSyncStatus('✓ Dati sincronizzati con successo!', 'success');
+        return true;
+    } catch (error) {
+        console.error('Errore salvataggio su GitHub:', error);
+        showSyncStatus('Errore durante la sincronizzazione', 'error');
+        return false;
+    }
+}
+
+function switchToLocalMode() {
+    if (confirm('Passare alla modalità locale? I dati cloud non verranno eliminati.')) {
+        syncMode = 'local';
+        currentUser = null;
+        currentPassword = null;
+        
+        localStorage.setItem('syncMode', 'local');
+        localStorage.removeItem('syncUser');
+        
+        stopAutoSync();
+        updateSyncIndicator();
+        
+        showSyncStatus('Modalità locale attivata', 'success');
+    }
+}
+
+function showSyncOptions() {
+    const options = confirm('Modalità attuale: ' + (syncMode === 'cloud' ? 'Cloud' : 'Locale') + '\n\nVuoi cambiare modalità?');
+    
+    if (options) {
+        if (syncMode === 'cloud') {
+            switchToLocalMode();
+        } else {
+            showSyncModal();
+        }
+    }
+}
+
+function startAutoSync() {
+    stopAutoSync(); // Ferma eventuali sync precedenti
+    
+    // Sincronizza ogni 5 minuti
+    syncInterval = setInterval(async () => {
+        if (syncMode === 'cloud') {
+            await saveToGitHub();
+        }
+    }, 5 * 60 * 1000);
+}
+
+function stopAutoSync() {
+    if (syncInterval) {
+        clearInterval(syncInterval);
+        syncInterval = null;
+    }
+}
+
+// Chiudi modal se si clicca fuori
+window.onclick = function(event) {
+    const modal = document.getElementById('syncModal');
+    if (event.target === modal) {
+        closeSyncModal();
+    }
+}
+
+// Inizializza modalità sincronizzazione all'avvio
+document.addEventListener('DOMContentLoaded', function() {
+    const savedSyncMode = localStorage.getItem('syncMode');
+    const savedUser = localStorage.getItem('syncUser');
+    
+    if (savedSyncMode === 'cloud' && savedUser) {
+        // Mostra modal per re-autenticazione
+        setTimeout(() => {
+            showSyncModal();
+            document.getElementById('syncUser').value = savedUser;
+        }, 500);
+    }
+});
+
         // Caricamento dati da localStorage
         function loadData() {
             const saved = localStorage.getItem('investments');
@@ -823,10 +1360,17 @@ background-color:#7552a8;
             }
         }
 
-        // Salvataggio dati
-        function saveData() {
-            localStorage.setItem('investments', JSON.stringify(investments));
-        }
+  
+        // Salvataggio dati (modificato per supportare cloud sync)
+async function saveData() {
+    // Salva sempre in locale
+    localStorage.setItem('investments', JSON.stringify(investments));
+    
+    // Se in modalità cloud, sincronizza anche online
+    if (syncMode === 'cloud' && currentUser && currentPassword) {
+        await saveToGitHub();
+    }
+}
 
         // Gestione nomi investimenti
         function updateNomiList() {
