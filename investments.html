@@ -2675,10 +2675,10 @@ capitalProgressivo = Math.max(0, capitalProgressivo);
                             <div class="card-body text-center">
                                 <h6 class="text-muted mb-2">Valore di Mercato</h6>
                                 <h3 class="text-primary mb-0">€${currentCapital.toLocaleString('it-IT', {minimumFractionDigits: 0})}</h3>
-                                <small class="${currentGainLoss >= 0 ? 'text-success' : 'text-danger'}">
-                                    ${currentGainLoss >= 0 ? '+' : ''}€${currentGainLoss.toLocaleString('it-IT', {minimumFractionDigits: 0})} 
-                                    (${currentGainLossPerc >= 0 ? '+' : ''}${currentGainLossPerc.toFixed(2)}%)
-                                </small>
+                                <small class="${currentGainLoss > 0 ? 'text-success' : currentGainLoss < 0 ? 'text-danger' : 'text-muted'}">
+    ${currentGainLoss > 0 ? '+' : ''}${currentGainLoss === 0 ? '€0' : '€' + currentGainLoss.toLocaleString('it-IT', {minimumFractionDigits: 0})} 
+    (${currentGainLossPerc > 0 ? '+' : ''}${currentGainLossPerc.toFixed(2)}%)
+</small>
                                 <br>
                                 <small class="text-muted">vs capitale netto: €${capitaleNetto.toLocaleString('it-IT', {minimumFractionDigits: 0})}</small>
                             </div>
