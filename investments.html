@@ -361,6 +361,20 @@
     border-color: var(--primary-color);
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
 }
+.table-secondary td{
+background-color:#e4e3fa;
+}
+
+.table-hover>tbody>tr:hover>*,
+.table-hover>tbody>td:hover>*{
+background-color:#e4e3fa6e !important;
+--bs-table-bg-state:#e4e3fa6e !important;
+}
+
+.table tfoot td{
+background-color:#7552a8;
+}
+
     </style>
 </head>
 <body>
@@ -494,7 +508,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-1"></i> Salva Versamento
                             </button>
-                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <button type="button" class="btn btn-primary" onclick="resetForm()" style="margin-left:10px;">
                                 <i class="fas fa-times me-1"></i> Annulla
                             </button>
                         </form>
@@ -1110,14 +1124,15 @@
             const matrixData = Object.keys(byNome).sort().map(nome => {
                 const inv = byNome[nome];
                 const row = {
-                    nome: inv.nome,
-                    tipologia: inv.tipologia,
-                    link: inv.link,
-                    ter: inv.ter,
-                    versamenti: {},
-                    totale: 0,
-                    costoTER: 0
-                };
+    nome: inv.nome,
+    tipologia: inv.tipologia,
+    link: inv.link,
+    ter: inv.ter,
+    versamenti: {},
+    totale: 0,
+    commissioni: 0,  // AGGIUNGI QUESTA LINEA
+    costoTER: 0
+};
 
                 years.forEach(anno => {
                     const versamentiAnno = inv.versamenti.filter(v => v.anno === anno);
@@ -1135,20 +1150,26 @@
                 });
 
                 // Calcola totale investito NETTO
-                row.totale = inv.versamenti.reduce((sum, v) => {
-                    const totale = v.totale;
-                    const commissioni = v.commissioni || 0;
-                    const tipo = v.commissioniTipo || 'sottratta';
-                    
-                    if (tipo === 'sottratta') {
-                        return sum + (totale - commissioni);
-                    } else {
-                        return sum + totale;
-                    }
-                }, 0);
-                
-                // Calcola costo TER annuale sul capitale netto
-                row.costoTER = row.totale * (row.ter / 100);
+   // Calcola totale investito NETTO
+row.totale = inv.versamenti.reduce((sum, v) => {
+    const totale = v.totale;
+    const commissioni = v.commissioni || 0;
+    const tipo = v.commissioniTipo || 'sottratta';
+    
+    if (tipo === 'sottratta') {
+        return sum + (totale - commissioni);
+    } else {
+        return sum + totale;
+    }
+}, 0);
+
+// Calcola totale commissioni per questo investimento
+row.commissioni = inv.versamenti.reduce((sum, v) => {
+    return sum + (v.commissioni || 0);
+}, 0);
+
+// Calcola costo TER annuale sul capitale netto
+row.costoTER = row.totale * (row.ter / 100);
 
                 return row;
             });
@@ -1159,8 +1180,13 @@
                 totaliAnno[anno] = matrixData.reduce((sum, row) => sum + (row.versamenti[anno] || 0), 0);
             });
 
-            const granTotale = matrixData.reduce((sum, row) => sum + row.totale, 0);
-            const totaleCostiTER = matrixData.reduce((sum, row) => sum + row.costoTER, 0);
+           const granTotale = matrixData.reduce((sum, row) => sum + row.totale, 0);
+const totaleCostiTER = matrixData.reduce((sum, row) => sum + row.costoTER, 0);
+
+// Calcola totale commissioni globali
+const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
+    return sum + (inv.commissioni || 0);
+}, 0);
 
             // Calcola percentuali per tipologia
             const percentualiTipologia = {};
@@ -1183,17 +1209,18 @@
             let html = `
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Investimento</th>
-                                <th>Tipologia</th>
-                                <th>TER %</th>
-                                ${years.map(anno => `<th class="text-center">${anno}</th>`).join('')}
-                                <th class="text-end">Totale €</th>
-                                <th class="text-end">% sul Totale</th>
-                                <th class="text-end">Costo TER €/anno</th>
-                            </tr>
-                        </thead>
+                      <thead class="table-light">
+    <tr>
+        <th>Investimento</th>
+        <th>Tipologia</th>
+        <th>TER %</th>
+        ${years.map(anno => `<th class="text-center">${anno}</th>`).join('')}
+        <th class="text-end">Totale €</th>
+        <th class="text-end">% sul Totale</th>
+        <th class="text-end">Commissioni €</th> <!-- AGGIUNGI QUESTA COLONNA -->
+        <th class="text-end">Costo TER €/anno</th>
+    </tr>
+</thead>
                         <tbody>
             `;
 
@@ -1211,12 +1238,12 @@
                 // Header tipologia
                 html += `
                     <tr class="table-secondary">
-                        <td colspan="${3 + years.length + 3}" style="font-weight: bold;">
-                            <i class="fas fa-folder"></i> ${tipologia} 
-                            <span class="badge bg-primary ms-2">€${totaleTipologia.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
-                            <span class="badge bg-info ms-1">${((totaleTipologia / granTotale) * 100).toFixed(2)}%</span>
-                        </td>
-                    </tr>
+    <td colspan="${3 + years.length + 4}" style="font-weight: bold;"> <!-- CAMBIA 3 in 4 -->
+        <i class="fas fa-folder"></i> ${tipologia} 
+        <span class="badge bg-primary ms-2">€${totaleTipologia.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
+        <span class="badge bg-info ms-1">${((totaleTipologia / granTotale) * 100).toFixed(2)}%</span>
+    </td>
+</tr>
                 `;
 
                 // Righe investimenti
@@ -1228,13 +1255,19 @@
                             </td>
                             <td><span class="badge bg-secondary badge-custom">${row.tipologia}</span></td>
                             <td class="text-end">${row.ter}%</td>
-                            ${years.map(anno => {
-                                const val = row.versamenti[anno] || 0;
-                                return `<td class="text-end">${val > 0 ? '€' + val.toLocaleString('it-IT', {minimumFractionDigits: 2}) : '-'}</td>`;
-                            }).join('')}
-                            <td class="text-end"><strong>€${row.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                            <td class="text-end">${((row.totale / granTotale) * 100).toFixed(2)}%</td>
-                            <td class="text-end">€${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            
+							${years.map(anno => {
+    const val = row.versamenti[anno] || 0;
+    return `<td class="text-end">${val > 0 ? '€' + val.toLocaleString('it-IT', {minimumFractionDigits: 2}) : '-'}</td>`;
+}).join('')}
+<td class="text-end"><strong>€${row.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+<td class="text-end">${((row.totale / granTotale) * 100).toFixed(2)}%</td>
+<td class="text-end">
+    ${row.commissioni > 0 ? 
+        '€' + row.commissioni.toLocaleString('it-IT', {minimumFractionDigits: 2}) : 
+        '-'}
+</td>
+<td class="text-end">€${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         </tr>
                     `;
                 });
@@ -1244,14 +1277,15 @@
             html += `
                         </tbody>
                         <tfoot class="table-dark">
-                            <tr>
-                                <td colspan="3" style="position: sticky; left: 0; background-color: #212529; z-index: 2;"><strong>TOTALI</strong></td>
-                                ${years.map(anno => `<td class="text-end"><strong>€${totaliAnno[anno].toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>`).join('')}
-                                <td class="text-end"><strong>€${granTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                                <td class="text-end"><strong>100%</strong></td>
-                                <td class="text-end"><strong>€${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
-                            </tr>
-                        </tfoot>
+    <tr>
+        <td colspan="3" style="position: sticky; left: 0; background-color: #7552a8; z-index: 2;"><strong>TOTALI</strong></td>
+        ${years.map(anno => `<td class="text-end"><strong>€${totaliAnno[anno].toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>`).join('')}
+        <td class="text-end"><strong>€${granTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+        <td class="text-end"><strong>100%</strong></td>
+        <td class="text-end"><strong>€${totaleCommissioniGlobali.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+        <td class="text-end"><strong>€${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+    </tr>
+</tfoot>
                     </table>
                 </div>
 
@@ -1260,7 +1294,7 @@
                         <div class="card">
                             <div class="card-header">Riepilogo per Tipologia</div>
                             <div class="card-body">
-                                <table class="table table-sm">
+                                <table class="table ">
                                     <thead>
                                         <tr>
                                             <th>Tipologia</th>
@@ -1295,7 +1329,7 @@
                         <div class="card">
                             <div class="card-header">Costi TER per Investimento</div>
                             <div class="card-body">
-                                <table class="table table-sm">
+                                <table class="table ">
                                     <thead>
                                         <tr>
                                             <th>Investimento</th>
@@ -1311,10 +1345,12 @@
                                                 <td class="text-end">€${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                                             </tr>
                                         `).join('')}
+										<tfoot>
                                         <tr class="table-dark">
                                             <td colspan="2"><strong>TOTALE COSTI TER</strong></td>
                                             <td class="text-end"><strong>€${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
                                         </tr>
+										</tfoot>
                                     </tbody>
                                 </table>
                             </div>
@@ -2605,6 +2641,84 @@
                         <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Simulazioni di Crescita al ${targetYear}</h5>
                     </div>
                     <div class="card-body">
+					<!-- Accordion Bootstrap con versione semplificata -->
+<div class="accordion mt-3 mb-4" id="accordionCalcolo">
+    <div class="accordion-item border-0">
+        <h2 class="accordion-header" id="headingCalcolo">
+            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCalcolo" aria-expanded="false" aria-controls="collapseCalcolo" style="background-color: #f8f9fa; border-left: 4px solid #17a2b8;">
+                <div class="d-flex align-items-center w-100">
+                    <i class="fas fa-calculator me-3" style="color: #17a2b8;"></i>
+                    <div class="flex-grow-1 text-start">
+                        <span class="fw-bold">Nota sui calcoli</span>
+                        <span class="text-muted ms-2" style="font-size: 0.9rem;">I risultati usano la capitalizzazione composta con inclusione TER</span>
+                    </div>
+                    
+                </div>
+            </button>
+        </h2>
+        <div id="collapseCalcolo" class="accordion-collapse collapse" aria-labelledby="headingCalcolo" data-bs-parent="#accordionCalcolo">
+            <div class="accordion-body pt-3" style="background-color: #f8f9fa;">
+                <div class="row">
+                    <div class="col-md-6 border-end pe-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-chart-line me-2" style="color: #17a2b8;"></i>
+                            Formula utilizzata
+                        </h6>
+                        <div class="alert alert-light border bg-white">
+                            <code class="fs-6">Capitale × (1 + rendimento)<sup>tempo</sup></code>
+                            <div class="mt-2 text-muted" style="font-size: 0.9rem;">
+                                <strong>Esempio pratico:</strong><br>
+                                €52.000 × (1.0976)<sup>1</sup> = €57.076,53
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 ps-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-question-circle me-2" style="color: #17a2b8;"></i>
+                            Perché non è lineare?
+                        </h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex align-items-center py-2 px-0" style="background: transparent; border-color: #dee2e6;">
+                                <i class="fas fa-check-circle text-success me-3"></i>
+                                <div>
+                                    <strong>Rendimento netto:</strong> 10% - TER 0.20% = 9.80%
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex align-items-center py-2 px-0" style="background: transparent; border-color: #dee2e6;">
+                                <i class="fas fa-check-circle text-success me-3"></i>
+                                <div>
+                                    <strong>Capitalizzazione composta</strong> (non semplice)
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex align-items-center py-2 px-0" style="background: transparent; border-color: #dee2e6;">
+                                <i class="fas fa-check-circle text-success me-3"></i>
+                                <div>
+                                    <strong>Differenza:</strong> -€123,47 vs calcolo lineare
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-info border-info mb-0" style="background-color: rgba(23, 162, 184, 0.05);">
+                            <div class="d-flex">
+                                <i class="fas fa-lightbulb fs-5 me-3" style="color: #17a2b8;"></i>
+                                <div>
+                                    <strong>Perché questa differenza?</strong><br>
+                                    Con la capitalizzazione composta mensile e il TER, il rendimento effettivo netto è circa 
+                                    <span class="fw-bold">9.76%</span> invece del 10% atteso.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                         <div class="row">
             `;
 
