@@ -3430,16 +3430,19 @@ scales: {
                             </table>
                         </div>
                         
-                        <div class="mt-3">
-                            <h6>Investimenti Analizzati:</h6>
-                            <div>
-                                ${investmentsToAnalyze.map(name => `
-                                    <span class="badge bg-secondary me-1 mb-1">
-                                        ${name} (€${investmentNetTotals[name].toLocaleString('it-IT', {minimumFractionDigits: 0})})
-                                    </span>
-                                `).join('')}
-                            </div>
-                        </div>
+<div class="mt-3">
+    <h6>Investimenti Analizzati:</h6>
+    <div>
+        ${investmentsToAnalyze.map(name => {
+            const total = investmentNetTotals[name] || 0;
+            return `
+                <span class="badge bg-secondary me-1 mb-1">
+                    ${name} (€${total.toLocaleString('it-IT', {minimumFractionDigits: 0})})
+                </span>
+            `;
+        }).join('')}
+    </div>
+</div>
                     </div>
                 </div>
             `;
