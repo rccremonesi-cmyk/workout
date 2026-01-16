@@ -18,6 +18,24 @@
 <!-- Select2 JS (dopo jQuery) -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
+		.table-responsive {
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable both-edges;
+}
+
+		.table-scroll-top {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 16px; /* altezza scrollbar */
+}
+
+.table-scroll-top .scroll-inner {
+  height: 1px;
+}
+
+
+
+		
         :root {
             --primary-color: #6366f1;
             --secondary-color: #8b5cf6;
@@ -1207,6 +1225,12 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                                     (percentualiTipologia['STOCK'] || 0);
 
             let html = `
+			<div class="table-scroll-top">
+  <div class="scroll-inner"></div>
+</div>
+
+
+
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                       <thead class="table-light">
@@ -3443,6 +3467,25 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
 
         // Inizializzazione
         loadData();
+
+	 const topScroll = document.querySelector('.table-scroll-top');
+  const tableWrapper = document.querySelector('#tableWrapper');
+  const scrollInner = document.querySelector('.scroll-inner');
+
+  function syncWidths() {
+    scrollInner.style.width = tableWrapper.scrollWidth + 'px';
+  }
+
+  topScroll.addEventListener('scroll', () => {
+    tableWrapper.scrollLeft = topScroll.scrollLeft;
+  });
+
+  tableWrapper.addEventListener('scroll', () => {
+    topScroll.scrollLeft = tableWrapper.scrollLeft;
+  });
+
+  window.addEventListener('load', syncWidths);
+  window.addEventListener('resize', syncWidths);
     </script>
 </body>
 </html>
