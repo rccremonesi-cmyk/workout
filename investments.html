@@ -1523,6 +1523,54 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                 const tipo = inv.commissioniTipo || 'sottratta';
                 return sum + totale + (tipo === 'aggiuntiva' ? commissioni : 0);
             }, 0);
+			
+			// Calcola TER accumulato nel tempo (anno per anno)
+let terAccumulato = 0;
+const currentYearNum = new Date().getFullYear();
+const anniInvestimento = [...new Set(filtered.map(inv => inv.anno))].sort();
+
+// Per ogni anno dalla data del primo investimento ad oggi
+anniInvestimento.forEach(anno => {
+    if (anno > currentYearNum) return; // Non calcolare anni futuri
+    
+    // Calcola il capitale disponibile a fine anno precedente
+    const investimentiFinoAnnoCorrente = filtered.filter(inv => inv.anno <= anno);
+    
+    // Raggruppa per nome investimento
+    const byNomeAnno = {};
+    investimentiFinoAnnoCorrente.forEach(inv => {
+        if (!byNomeAnno[inv.nome]) byNomeAnno[inv.nome] = [];
+        byNomeAnno[inv.nome].push(inv);
+    });
+    
+    // Calcola TER per quest'anno
+    let terAnno = 0;
+    Object.keys(byNomeAnno).forEach(nome => {
+        const versamenti = byNomeAnno[nome];
+        // Prendi il TER più recente per questo investimento in quest'anno
+        const ultimo = versamenti.sort((a, b) => new Date(b.data) - new Date(a.data))[0];
+        
+        // Calcola capitale netto investito fino a quest'anno
+        const capitaleNetto = versamenti.reduce((sum, inv) => {
+            const totale = inv.totale;
+            const commissioni = inv.commissioni || 0;
+            const tipo = inv.commissioniTipo || 'sottratta';
+            
+            if (tipo === 'sottratta') {
+                return sum + (totale - commissioni);
+            } else {
+                return sum + totale;
+            }
+        }, 0);
+        
+        terAnno += capitaleNetto * (ultimo.ter / 100);
+    });
+    
+    terAccumulato += terAnno;
+});
+
+// Calcola costi totali reali (TER accumulato + Commissioni)
+const costiTotaliReali = terAccumulato + totaleCommissioni;
 
             let html = `
                 <div class="row">
@@ -1561,17 +1609,19 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="stat-card" style="background: var(--gradient-secondary);">
-                            <div class="stat-value">€${(totaleTER + totaleCommissioni).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                            <div class="stat-label">Costi Totali (TER + Commissioni)</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stat-card" >
-                            <div class="stat-value">${totaleProgressivo > 0 ? ((totaleTER + totaleCommissioni) / totaleProgressivo * 100).toFixed(2) : 0}%</div>
-                            <div class="stat-label">% Costi sul Totale</div>
-                        </div>
-                    </div>
+    <div class="stat-card" style="background: var(--gradient-secondary);">
+        <div class="stat-value">€${costiTotaliReali.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+        <div class="stat-label">Costi Totali Accumulati</div>
+        <small style="opacity: 0.9; font-size: 0.75rem;">TER: €${terAccumulato.toLocaleString('it-IT', {minimumFractionDigits: 2})} + Comm.: €${totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})}</small>
+    </div>
+</div>
+                  <div class="col-md-4">
+    <div class="stat-card" >
+        <div class="stat-value">${totaleProgressivo > 0 ? (costiTotaliReali / totaleProgressivo * 100).toFixed(2) : 0}%</div>
+        <div class="stat-label">% Costi Accumulati sul Capitale</div>
+        <small style="opacity: 0.9; font-size: 0.75rem;">TER annuale corrente: €${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2})}</small>
+    </div>
+</div>
                 </div>
                 <div class="row mt-3">
                     <div class="col-12">
@@ -2466,17 +2516,20 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                     }
                     
                     // Calcola rendimento sul capitale aggiornato
-                    const returnRate = (forecastReturns[year] || 0) * scenario.multiplier / 100;
-                    let gain = 0;
-                    
-                    if (returnRate !== 0) {
-                        if (calcMode === 'compound') {
-                            gain = capital * returnRate;
-                        } else {
-                            gain = totalDeposited * returnRate;
-                        }
-                        capital += gain;
-                    }
+// Calcola rendimento sul capitale aggiornato (può essere negativo)
+const returnRate = (forecastReturns[year] || 0) * scenario.multiplier / 100;
+let gain = 0;
+
+if (returnRate !== 0) {
+    if (calcMode === 'compound') {
+        gain = capital * returnRate;
+    } else {
+        gain = totalDeposited * returnRate;
+    }
+    capital += gain;
+    // Assicura che il capitale non diventi mai negativo
+    capital = Math.max(0, capital);
+}
                     
                     // Sottrai TER solo se c'è capitale
                     const terCost = capital > 0 ? capital * (avgTER / 100) : 0;
@@ -2559,23 +2612,26 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                     totaleVersatoProgressivo += depositTotale;
                 }
                 
-                // Calcola guadagno basato sul capitale progressivo
-                const calcMode = document.getElementById('calcMode').value;
-                let estimatedGain = 0;
-                if (returnVal) {
-                    if (calcMode === 'compound') {
-                        estimatedGain = capitalProgressivo * (returnVal / 100);
-                    } else {
-                        estimatedGain = totaleVersatoProgressivo * (returnVal / 100);
-                    }
-                }
-                
-                // Applica guadagno al capitale progressivo per anno successivo
-                capitalProgressivo += estimatedGain;
-                
-                // Sottrai TER
-                const terCost = capitalProgressivo * (avgTER / 100);
-                capitalProgressivo -= terCost;
+// Calcola guadagno basato sul capitale progressivo (può essere negativo)
+const calcMode = document.getElementById('calcMode').value;
+let estimatedGain = 0;
+if (returnVal) {
+    if (calcMode === 'compound') {
+        estimatedGain = capitalProgressivo * (returnVal / 100);
+    } else {
+        estimatedGain = totaleVersatoProgressivo * (returnVal / 100);
+    }
+}
+
+// Applica guadagno al capitale progressivo per anno successivo
+capitalProgressivo += estimatedGain;
+
+// Sottrai TER
+const terCost = capitalProgressivo * (avgTER / 100);
+capitalProgressivo -= terCost;
+
+// Assicura che il capitale non diventi mai negativo
+capitalProgressivo = Math.max(0, capitalProgressivo);
                 
                 if (previewEl) {
                     let previewText = '';
@@ -2587,8 +2643,10 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                     }
                     
                     if (returnVal) {
-                        previewText += (previewText ? ' | ' : '') + `📈 Guadagno stimato con ${returnVal}%: €${estimatedGain.toLocaleString('it-IT', {minimumFractionDigits: 0})} | 💼 Capitale fine anno: €${capitalProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}`;
-                    }
+    const gainIcon = estimatedGain >= 0 ? '📈' : '📉';
+    const gainLabel = estimatedGain >= 0 ? 'Guadagno' : 'Perdita';
+    previewText += (previewText ? ' | ' : '') + `${gainIcon} ${gainLabel} stimato con ${returnVal}%: €${estimatedGain.toLocaleString('it-IT', {minimumFractionDigits: 0})} | 💼 Capitale fine anno: €${capitalProgressivo.toLocaleString('it-IT', {minimumFractionDigits: 0})}`;
+}
                     
                     previewEl.textContent = previewText || '';
                 }
@@ -2751,10 +2809,10 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                                         <td>Totale Versato:</td>
                                         <td class="text-end">\u20AC${result.totalDeposited.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
                                     </tr>
-                                    <tr>
-                                        <td>Guadagno Totale:</td>
-                                        <td class="text-end text-success">+\u20AC${result.totalGain.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
-                                    </tr>
+                                   <tr>
+    <td>Guadagno Totale:</td>
+    <td class="text-end ${result.totalGain >= 0 ? 'text-success' : 'text-danger'}">${result.totalGain >= 0 ? '+' : ''}\u20AC${result.totalGain.toLocaleString('it-IT', {minimumFractionDigits: 0})}</td>
+</tr>
                                     <tr>
                                         <td>ROI (nominale):</td>
                                         <td class="text-end"><span class="badge bg-${result.color}">${roi.toFixed(1)}%</span></td>
@@ -2900,16 +2958,32 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                             }
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            ticks: {
-                                callback: function(value) {
-                                    return '\u20AC' + value.toLocaleString('it-IT', {minimumFractionDigits: 0});
-                                }
-                            }
-                        }
-                    }
+scales: {
+    y: {
+        beginAtZero: true,
+        ticks: {
+            callback: function(value) {
+                const sign = value < 0 ? '-' : '';
+                return sign + '\u20AC' + Math.abs(value).toLocaleString('it-IT', {minimumFractionDigits: 0});
+            }
+        },
+        // Linea zero più evidente
+        grid: {
+            color: function(context) {
+                if (context.tick.value === 0) {
+                    return 'rgba(0, 0, 0, 0.3)';
+                }
+                return 'rgba(0, 0, 0, 0.1)';
+            },
+            lineWidth: function(context) {
+                if (context.tick.value === 0) {
+                    return 2;
+                }
+                return 1;
+            }
+        }
+    }
+}
                 }
             });
         }
