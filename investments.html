@@ -952,6 +952,11 @@ function deleteInvestment(id) {
         
         saveData();
         loadSummary();
+        
+        // Ricarica anche la sezione esposizioni se esiste
+        if (typeof loadExposure === 'function') {
+            loadExposure();
+        }
     }
 }
 
