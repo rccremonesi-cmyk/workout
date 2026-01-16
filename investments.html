@@ -932,13 +932,28 @@ background-color:#7552a8;
             }
         }
 
-        function deleteInvestment(id) {
-            if (confirm('Sei sicuro di voler eliminare questo versamento?')) {
-                investments = investments.filter(inv => inv.id !== id);
-                saveData();
-                loadSummary();
-            }
+function deleteInvestment(id) {
+    if (confirm('Sei sicuro di voler eliminare questo versamento?')) {
+        // Trova il nome dell'investimento da eliminare
+        const investmentToDelete = investments.find(inv => inv.id === id);
+        const investmentName = investmentToDelete ? investmentToDelete.nome : null;
+        
+        // Rimuovi il versamento
+        investments = investments.filter(inv => inv.id !== id);
+        
+        // Controlla se esistono ancora altri versamenti con lo stesso nome
+        const stillExists = investments.some(inv => inv.nome === investmentName);
+        
+        // Se non esistono più versamenti con quel nome, elimina anche i dati di esposizione
+        if (!stillExists && investmentName && exposureData[investmentName]) {
+            delete exposureData[investmentName];
+            localStorage.setItem('exposureData', JSON.stringify(exposureData));
         }
+        
+        saveData();
+        loadSummary();
+    }
+}
 
         function loadSummary() {
             const years = [...new Set(investments.map(inv => inv.anno))].sort((a, b) => b - a);
