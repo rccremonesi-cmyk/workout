@@ -1079,8 +1079,9 @@ function deleteInvestment(id) {
                                             <th>TER %</th>
                                             <th>Versamento €</th>
                                             <th>Commissioni €</th>
-                                            <th>Progressivo €</th>
 											<th>Guadagno/Perdita €</th>
+                                            <th>Progressivo €</th>
+											
                                             <th style="min-width:114px;">Azioni</th>
                                         </tr>
                                     </thead>
@@ -1110,21 +1111,21 @@ function deleteInvestment(id) {
                                     ${inv.settori.map(s => `<span class="badge bg-info badge-custom">${s}</span>`).join(' ')}
                                 </td>
                                 <td>${inv.ter}%</td>
-                                <td>€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
-                                <td>
-                                    ${inv.commissioni > 0 ? 
-                                        `€${inv.commissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
-                                        <small class="text-muted">(${inv.commissioniTipo === 'aggiuntiva' ? '+' : 'incl.'})</small>` 
-                                        : '-'}
-                                </td>
-								<td>
+<td>€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+<td>
+    ${inv.commissioni > 0 ? 
+        `€${inv.commissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
+        <small class="text-muted">(${inv.commissioniTipo === 'aggiuntiva' ? '+' : 'incl.'})</small>` 
+        : '-'}
+</td>
+<td>
     ${inv.guadagnoAttuale ? 
         `<span class="${inv.guadagnoAttuale >= 0 ? 'text-success' : 'text-danger'}">
             ${inv.guadagnoAttuale >= 0 ? '+' : ''}€${inv.guadagnoAttuale.toLocaleString('it-IT', {minimumFractionDigits: 2})}
         </span>` 
         : '-'}
 </td>
-                                <td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
+<td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
                                 <td>
                                     <button class="btn btn-sm btn-outline-secondary btn-clone custom-tooltip" onclick="cloneInvestment('${inv.id}')" title="Clona per nuovo versamento">
                                         <i class="fas fa-clone"></i>
