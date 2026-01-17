@@ -1467,49 +1467,68 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
             });
 
             // Calcola capitale netto investito (escluse commissioni)
-            const capitaleNettoInvestito = calcolaCapitaleNetto(filtered);
+            // Calcola capitale netto investito SENZA guadagni
+const capitaleNettoSenzaGuadagni = calcolaCapitaleNettoSenzaGuadagni(filtered);
+
+// Calcola valore totale di mercato (capitale netto + guadagni)
+const valoreTotaleMercato = calcolaCapitaleNetto(filtered);
+
+// Calcola guadagno totale
+const guadagnoTotale = valoreTotaleMercato - capitaleNettoSenzaGuadagni;
+const percGuadagno = capitaleNettoSenzaGuadagni > 0 ? ((guadagnoTotale / capitaleNettoSenzaGuadagni) * 100) : 0;
             
-            // Calcola TER sul totale progressivo dell'anno selezionato (sul capitale netto)
-            let totaleTER = 0;
-            if (currentYear === 'all') {
-                // Per "tutti gli anni" calcola il TER più recente di ogni investimento
-                Object.keys(byNome).forEach(nome => {
-                    const versamenti = byNome[nome].sort((a, b) => new Date(b.data) - new Date(a.data));
-                    const ultimo = versamenti[0];
-                    const totaleInv = versamenti.reduce((sum, inv) => {
-                        const totale = inv.totale;
-                        const commissioni = inv.commissioni || 0;
-                        const tipo = inv.commissioniTipo || 'sottratta';
-                        
-                        if (tipo === 'sottratta') {
-                            return sum + (totale - commissioni);
-                        } else {
-                            return sum + totale;
-                        }
-                    }, 0);
-                    totaleTER += totaleInv * (ultimo.ter / 100);
-                });
+
+
+// Calcola capitale netto SENZA guadagni
+const capitaleNettoSenzaGuadagni = calcolaCapitaleNettoSenzaGuadagni(filtered);
+
+// Calcola valore totale di mercato (capitale netto + guadagni)
+const valoreTotaleMercato = calcolaCapitaleNetto(filtered);
+
+// Calcola guadagno totale
+const guadagnoTotale = valoreTotaleMercato - capitaleNettoSenzaGuadagni;
+const percGuadagno = capitaleNettoSenzaGuadagni > 0 ? ((guadagnoTotale / capitaleNettoSenzaGuadagni) * 100) : 0;
+
+let totaleTER = 0;
+if (currentYear === 'all') {
+    // Per "tutti gli anni" calcola il TER più recente di ogni investimento
+    Object.keys(byNome).forEach(nome => {
+        const versamenti = byNome[nome].sort((a, b) => new Date(b.data) - new Date(a.data));
+        const ultimo = versamenti[0];
+        const totaleInv = versamenti.reduce((sum, inv) => {
+            const totale = inv.totale;
+            const commissioni = inv.commissioni || 0;
+            const tipo = inv.commissioniTipo || 'sottratta';
+            
+            if (tipo === 'sottratta') {
+                return sum + (totale - commissioni);
             } else {
-                // Per un anno specifico, calcola TER sui versamenti di quell'anno
-                Object.keys(byNome).forEach(nome => {
-                    const versamentiAnno = byNome[nome].filter(inv => inv.anno === currentYear);
-                    if (versamentiAnno.length > 0) {
-                        const totaleInv = byNome[nome].filter(inv => inv.anno <= currentYear).reduce((sum, inv) => {
-                            const totale = inv.totale;
-                            const commissioni = inv.commissioni || 0;
-                            const tipo = inv.commissioniTipo || 'sottratta';
-                            
-                            if (tipo === 'sottratta') {
-                                return sum + (totale - commissioni);
-                            } else {
-                                return sum + totale;
-                            }
-                        }, 0);
-                        const ultimo = versamentiAnno.sort((a, b) => new Date(b.data) - new Date(a.data))[0];
-                        totaleTER += totaleInv * (ultimo.ter / 100);
-                    }
-                });
+                return sum + totale;
             }
+        }, 0);
+        totaleTER += totaleInv * (ultimo.ter / 100);
+    });
+} else {
+    // Per un anno specifico, calcola TER sui versamenti di quell'anno
+    Object.keys(byNome).forEach(nome => {
+        const versamentiAnno = byNome[nome].filter(inv => inv.anno === currentYear);
+        if (versamentiAnno.length > 0) {
+            const totaleInv = byNome[nome].filter(inv => inv.anno <= currentYear).reduce((sum, inv) => {
+                const totale = inv.totale;
+                const commissioni = inv.commissioni || 0;
+                const tipo = inv.commissioniTipo || 'sottratta';
+                
+                if (tipo === 'sottratta') {
+                    return sum + (totale - commissioni);
+                } else {
+                    return sum + totale;
+                }
+            }, 0);
+            const ultimo = versamentiAnno.sort((a, b) => new Date(b.data) - new Date(a.data))[0];
+            totaleTER += totaleInv * (ultimo.ter / 100);
+        }
+    });
+}
 
             // Calcoli per tipologia (sul totale progressivo NETTO)
             const byType = {};
@@ -1564,6 +1583,11 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
             const totaleProgressivo = currentYear === 'all' ? 
                 Object.values(byType).reduce((sum, val) => sum + val, 0) : 
                 totaliPerAnno[currentYear] || 0;
+				
+				// Calcola totale progressivo SENZA guadagni per calcolo TER medio
+const totaleProgressivoSenzaGuadagni = currentYear === 'all' ? 
+    Object.values(byType).reduce((sum, val) => sum + val, 0) : 
+    totaliPerAnno[currentYear] || 0;
 
             // Totali specifici
             const stockTotal = byType['STOCK'] || 0;
@@ -1632,12 +1656,17 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
             let html = `
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-value">€${capitaleNettoInvestito.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
-                            <div class="stat-label">Capitale Netto Investito</div>
-                            <small style="opacity: 0.9; font-size: 0.75rem;">Totale speso: €${totaleRealeSpeso.toLocaleString('it-IT', {minimumFractionDigits: 0})}</small>
-                        </div>
-                    </div>
+    <div class="stat-card">
+        <div class="stat-value">€${valoreTotaleMercato.toLocaleString('it-IT', {minimumFractionDigits: 0})}</div>
+        <div class="stat-label">Valore Totale di Mercato</div>
+        <small style="opacity: 0.9; font-size: 0.75rem;">
+            Capitale investito: €${capitaleNettoSenzaGuadagni.toLocaleString('it-IT', {minimumFractionDigits: 0})}<br>
+            <span class="${guadagnoTotale >= 0 ? 'text-success' : 'text-danger'}">
+                ${guadagnoTotale >= 0 ? '+' : ''}€${guadagnoTotale.toLocaleString('it-IT', {minimumFractionDigits: 0})} (${percGuadagno >= 0 ? '+' : ''}${percGuadagno.toFixed(2)}%)
+            </span>
+        </small>
+    </div>
+</div>
                     <div class="col-md-3">
                         <div class="stat-card" style="background: var(--gradient-warning);">
                             <div class="stat-value">€${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
@@ -1661,7 +1690,7 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
                 <div class="row mt-3">
                     <div class="col-md-4">
                         <div class="stat-card" style="background: var(--gradient-info);">
-                            <div class="stat-value">${totaleProgressivo > 0 ? (totaleTER / totaleProgressivo * 100).toFixed(2) : 0}%</div>
+                            <div class="stat-value">${totaleProgressivoSenzaGuadagni > 0 ? (totaleTER / totaleProgressivoSenzaGuadagni * 100).toFixed(2) : 0}%</div>
                             <div class="stat-label">TER Medio</div>
                         </div>
                     </div>
@@ -1674,7 +1703,7 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
 </div>
                   <div class="col-md-4">
     <div class="stat-card" >
-        <div class="stat-value">${totaleProgressivo > 0 ? (costiTotaliReali / totaleProgressivo * 100).toFixed(2) : 0}%</div>
+        <div class="stat-value">${totaleProgressivoSenzaGuadagni > 0 ? (totaleTER / totaleProgressivoSenzaGuadagni * 100).toFixed(2) : 0}%</div>
         <div class="stat-label">% Costi Accumulati sul Capitale</div>
         <small style="opacity: 0.9; font-size: 0.75rem;">TER annuale corrente: €${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2})}</small>
     </div>
@@ -1684,11 +1713,18 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
                     <div class="col-12">
                         <div class="alert alert-info">
                             <div class="row">
-                                <div class="col-md-4">
-                                    <strong><i class="fas fa-info-circle me-2"></i>Capitale Netto Investito:</strong><br>
-                                    <small>Importo effettivamente al lavoro (escluse commissioni)</small><br>
-                                    <strong class="text-primary">€${capitaleNettoInvestito.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
-                                </div>
+                               <div class="col-md-4">
+    <strong><i class="fas fa-chart-line me-2"></i>Valore Totale di Mercato:</strong><br>
+    <small>Capitale investito + guadagni/perdite</small><br>
+    <strong class="text-primary">€${valoreTotaleMercato.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong>
+    <br>
+    <small class="text-muted">
+        Capitale: €${capitaleNettoSenzaGuadagni.toLocaleString('it-IT', {minimumFractionDigits: 0})} | 
+        <span class="${guadagnoTotale >= 0 ? 'text-success' : 'text-danger'}">
+            ${guadagnoTotale >= 0 ? '+' : ''}€${guadagnoTotale.toLocaleString('it-IT', {minimumFractionDigits: 0})}
+        </span>
+    </small>
+</div>
                                 <div class="col-md-4">
                                     <strong><i class="fas fa-wallet me-2"></i>Totale Realmente Speso:</strong><br>
                                     <small>Versamenti + commissioni aggiuntive</small><br>
@@ -2061,32 +2097,8 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
         }
 
         // Calcola il capitale netto investito (escluse commissioni)
-        function calcolaCapitaleNetto(investimenti) {
-            return investimenti.reduce((sum, inv) => {
-                const totale = inv.totale;
-                const commissioni = inv.commissioni || 0;
-                const tipo = inv.commissioniTipo || 'sottratta';
-                
-                if (tipo === 'aggiuntiva') {
-                    return sum + totale;
-                } else {
-                    return sum + (totale - commissioni);
-                }
-            }, 0);
-        }
-
-        // Calcola il totale reale speso (versamenti + commissioni aggiuntive)
-        function calcolaTotaleRealeSpeso(investimenti) {
-            return investimenti.reduce((sum, inv) => {
-                const totale = inv.totale;
-                const commissioni = inv.commissioni || 0;
-                const tipo = inv.commissioniTipo || 'sottratta';
-                return sum + totale + (tipo === 'aggiuntiva' ? commissioni : 0);
-            }, 0);
-        }
-		
-		// Calcola il valore totale di mercato (capitale netto + guadagni/perdite registrati)
-function calcolaValoreTotaleMercato(investimenti) {
+// Calcola il capitale netto investito (escluse commissioni) + guadagni/perdite
+function calcolaCapitaleNetto(investimenti) {
     // Raggruppa per nome investimento
     const byNome = {};
     investimenti.forEach(inv => {
@@ -2108,21 +2120,57 @@ function calcolaValoreTotaleMercato(investimenti) {
             byNome[inv.nome].capitaleNetto += totale;
         }
         
-        // Prendi l'ultimo guadagno registrato (il più recente)
+        // Prendi l'ultimo guadagno registrato (sovrascrive i precedenti)
         if (inv.guadagnoAttuale !== undefined && inv.guadagnoAttuale !== 0) {
             byNome[inv.nome].guadagnoAttuale = inv.guadagnoAttuale;
         }
     });
     
-    // Calcola valore totale di mercato (capitale netto + guadagni)
-    let valoreTotale = 0;
+    // Calcola totale (capitale netto + guadagni)
+    let totale = 0;
     Object.keys(byNome).forEach(nome => {
         const dati = byNome[nome];
-        valoreTotale += dati.capitaleNetto + dati.guadagnoAttuale;
+        totale += dati.capitaleNetto + dati.guadagnoAttuale;
     });
     
-    return valoreTotale;
+    return totale;
 }
+
+// Calcola SOLO il capitale netto investito (senza guadagni/perdite)
+function calcolaCapitaleNettoSenzaGuadagni(investimenti) {
+    // Raggruppa per nome investimento
+    const byNome = {};
+    investimenti.forEach(inv => {
+        if (!byNome[inv.nome]) {
+            byNome[inv.nome] = 0;
+        }
+        
+        const totale = inv.totale;
+        const commissioni = inv.commissioni || 0;
+        const tipo = inv.commissioniTipo || 'sottratta';
+        
+        if (tipo === 'sottratta') {
+            byNome[inv.nome] += (totale - commissioni);
+        } else {
+            byNome[inv.nome] += totale;
+        }
+    });
+    
+    // Calcola totale
+    return Object.values(byNome).reduce((sum, val) => sum + val, 0);
+}
+
+        // Calcola il totale reale speso (versamenti + commissioni aggiuntive)
+        function calcolaTotaleRealeSpeso(investimenti) {
+            return investimenti.reduce((sum, inv) => {
+                const totale = inv.totale;
+                const commissioni = inv.commissioni || 0;
+                const tipo = inv.commissioniTipo || 'sottratta';
+                return sum + totale + (tipo === 'aggiuntiva' ? commissioni : 0);
+            }, 0);
+        }
+		
+
 
 
         // Formattazione campo marketValue a 2 decimali
