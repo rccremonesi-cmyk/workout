@@ -1030,31 +1030,45 @@ function deleteInvestment(id) {
                     <h5 class="mt-4 mb-3">${tipo} <span class="badge bg-secondary">${Object.keys(investimenti).length} investimenti - €${totaleType.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span></h5>
                 `;
 
-const lastVersamento = versamenti[versamenti.length - 1];
+                Object.keys(investimenti).sort().forEach(nomeInv => {
+    const versamenti = investimenti[nomeInv].sort((a, b) => new Date(a.data) - new Date(b.data));
+    const totaleInvestimento = versamenti.reduce((sum, inv) => {
+        const totale = inv.totale;
+        const commissioni = inv.commissioni || 0;
+        const tipo = inv.commissioniTipo || 'sottratta';
+        
+        if (tipo === 'sottratta') {
+            return sum + (totale - commissioni);
+        } else {
+            return sum + totale;
+        }
+    }, 0);
+    
+    const lastVersamento = versamenti[versamenti.length - 1];
 
-// Calcola guadagno totale per questo investimento (prende l'ultimo valore registrato)
-const guadagnoInvestimento = versamenti.reduce((max, v) => {
-    // Prende il guadagno dell'ultimo versamento che ha un valore
-    if (v.guadagnoAttuale !== undefined && v.guadagnoAttuale !== 0) {
-        return v.guadagnoAttuale;
-    }
-    return max;
-}, 0);
-const valoreMercatoInvestimento = totaleInvestimento + guadagnoInvestimento;
+    // Calcola guadagno totale per questo investimento (prende l'ultimo valore registrato)
+    const guadagnoInvestimento = versamenti.reduce((max, v) => {
+        // Prende il guadagno dell'ultimo versamento che ha un valore
+        if (v.guadagnoAttuale !== undefined && v.guadagnoAttuale !== 0) {
+            return v.guadagnoAttuale;
+        }
+        return max;
+    }, 0);
+    const valoreMercatoInvestimento = totaleInvestimento + guadagnoInvestimento;
 
-html += `
-    <div class="investment-group">
-        <h6 class="mb-3">
-            ${lastVersamento.link ? `<a href="${lastVersamento.link}" target="_blank">${nomeInv}</a>` : nomeInv}
-            <span class="badge bg-primary ms-2">€${totaleInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})} netto</span>
-            ${guadagnoInvestimento !== 0 ? 
-                `<span class="badge ${guadagnoInvestimento >= 0 ? 'bg-success' : 'bg-danger'} ms-1">
-                    ${guadagnoInvestimento >= 0 ? '+' : ''}€${guadagnoInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})}
-                </span>
-                <span class="badge bg-secondary ms-1">Valore: €${valoreMercatoInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>` 
-                : ''}
-            <span class="badge bg-info ms-1">${versamenti.length} versament${versamenti.length !== 1 ? 'i' : 'o'}</span>
-        </h6>
+    html += `
+        <div class="investment-group">
+            <h6 class="mb-3">
+                ${lastVersamento.link ? `<a href="${lastVersamento.link}" target="_blank">${nomeInv}</a>` : nomeInv}
+                <span class="badge bg-primary ms-2">€${totaleInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})} netto</span>
+                ${guadagnoInvestimento !== 0 ? 
+                    `<span class="badge ${guadagnoInvestimento >= 0 ? 'bg-success' : 'bg-danger'} ms-1">
+                        ${guadagnoInvestimento >= 0 ? '+' : ''}€${guadagnoInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})}
+                    </span>
+                    <span class="badge bg-secondary ms-1">Valore: €${valoreMercatoInvestimento.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>` 
+                    : ''}
+                <span class="badge bg-info ms-1">${versamenti.length} versament${versamenti.length !== 1 ? 'i' : 'o'}</span>
+            </h6>
                             <div class="table-responsive">
                                 <table class="table table-sm sub-table">
                                     <thead>
