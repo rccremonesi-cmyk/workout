@@ -1,0 +1,648 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIRE Calculator con Inflazione</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .slider-group {
+            margin-bottom: 25px;
+        }
+
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .slider-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border: none;
+        }
+
+        .results {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .result-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .result-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .chart-container {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: 400px !important;
+        }
+
+        .info-text {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .result-card .value {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 FIRE Calculator</h1>
+            <p>Calcola quando potrai raggiungere l'indipendenza finanziaria</p>
+        </div>
+
+        <div class="content">
+            <!-- Situazione Attuale -->
+            <div class="section">
+                <h2>📊 La tua situazione</h2>
+                
+                <div class="input-group">
+                    <label for="age">Età attuale</label>
+                    <input type="number" id="age" value="41" min="18" max="80">
+                </div>
+
+                <div class="input-group">
+                    <label for="currentSavings">Risparmi attuali (€)</label>
+                    <input type="number" id="currentSavings" value="50000" min="0" step="1000">
+                </div>
+
+                <div class="input-group">
+                    <label for="monthlyContribution">Risparmio mensile (€)</label>
+                    <input type="number" id="monthlyContribution" value="800" min="0" step="50">
+                </div>
+
+                <div class="input-group">
+                    <label for="annualSpending">Spesa annua desiderata in pensione (€)</label>
+                    <input type="number" id="annualSpending" value="30000" min="0" step="1000">
+                </div>
+
+                <div class="input-group">
+                    <label for="inflationRate">Tasso di inflazione annuo (%)</label>
+                    <input type="number" id="inflationRate" value="2.5" min="0" max="10" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label for="lifeExpectancy">Aspettativa di vita</label>
+                    <input type="number" id="lifeExpectancy" value="90" min="60" max="110">
+                </div>
+            </div>
+
+            <!-- Strategia di Investimento -->
+            <div class="section">
+                <h2>💼 Strategia di investimento</h2>
+                
+                <h3 style="margin-bottom: 15px; color: #667eea;">Azioni / ETF</h3>
+                
+                <div class="slider-group">
+                    <label>
+                        <span>Allocazione</span>
+                        <span id="stockAllocationValue">80%</span>
+                    </label>
+                    <input type="range" id="stockAllocation" min="0" max="100" value="80" step="5">
+                </div>
+
+                <div class="input-group">
+                    <label for="stockGrowth">Tasso di crescita annuo (%)</label>
+                    <input type="number" id="stockGrowth" value="5" min="0" max="20" step="0.5">
+                </div>
+
+                <h3 style="margin: 25px 0 15px; color: #667eea;">Obbligazioni / Conti Risparmio</h3>
+                
+                <div class="slider-group">
+                    <label>
+                        <span>Allocazione</span>
+                        <span id="bondsAllocationValue">10%</span>
+                    </label>
+                    <input type="range" id="bondsAllocation" min="0" max="100" value="10" step="5">
+                </div>
+
+                <div class="input-group">
+                    <label for="bondsGrowth">Tasso di crescita annuo (%)</label>
+                    <input type="number" id="bondsGrowth" value="2" min="0" max="10" step="0.1">
+                </div>
+
+                <h3 style="margin: 25px 0 15px; color: #667eea;">Liquidità</h3>
+                
+                <div class="slider-group">
+                    <label>
+                        <span>Allocazione</span>
+                        <span id="cashAllocationValue">10%</span>
+                    </label>
+                    <input type="range" id="cashAllocation" min="0" max="100" value="10" step="5">
+                </div>
+
+                <div class="input-group">
+                    <label>Tasso effettivo complessivo: <strong id="effectiveRate">4.2%</strong></label>
+                </div>
+            </div>
+
+            <!-- Risultati -->
+            <div class="results">
+                <h2>🎯 I tuoi risultati</h2>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="value" id="fireTarget">€750,000</div>
+                        <div class="label">Obiettivo FIRE</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="value" id="retirementAge">72</div>
+                        <div class="label">Età pensionamento</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="value" id="yearsToFire">31</div>
+                        <div class="label">Anni al FIRE</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="value" id="totalSavings">€9,600</div>
+                        <div class="label">Risparmio annuo</div>
+                    </div>
+                </div>
+
+                <div class="info-text">
+                    💡 L'obiettivo FIRE è calcolato usando la regola del 4%: spesa annua desiderata × 25. 
+                    I calcoli includono l'inflazione del <span id="inflationDisplay">2.5%</span> annuo.
+                </div>
+            </div>
+
+            <!-- Grafico -->
+            <div class="chart-container">
+                <h2 style="margin-bottom: 20px; color: #333;">📈 Proiezione nel tempo</h2>
+                <canvas id="projectionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Elementi DOM
+        const elements = {
+            age: document.getElementById('age'),
+            currentSavings: document.getElementById('currentSavings'),
+            monthlyContribution: document.getElementById('monthlyContribution'),
+            annualSpending: document.getElementById('annualSpending'),
+            inflationRate: document.getElementById('inflationRate'),
+            lifeExpectancy: document.getElementById('lifeExpectancy'),
+            stockAllocation: document.getElementById('stockAllocation'),
+            stockGrowth: document.getElementById('stockGrowth'),
+            bondsAllocation: document.getElementById('bondsAllocation'),
+            bondsGrowth: document.getElementById('bondsGrowth'),
+            cashAllocation: document.getElementById('cashAllocation'),
+            stockAllocationValue: document.getElementById('stockAllocationValue'),
+            bondsAllocationValue: document.getElementById('bondsAllocationValue'),
+            cashAllocationValue: document.getElementById('cashAllocationValue'),
+            effectiveRate: document.getElementById('effectiveRate'),
+            fireTarget: document.getElementById('fireTarget'),
+            retirementAge: document.getElementById('retirementAge'),
+            yearsToFire: document.getElementById('yearsToFire'),
+            totalSavings: document.getElementById('totalSavings'),
+            inflationDisplay: document.getElementById('inflationDisplay')
+        };
+
+        let chart = null;
+
+        // Aggiorna i valori degli slider
+        elements.stockAllocation.addEventListener('input', (e) => {
+            elements.stockAllocationValue.textContent = e.target.value + '%';
+            autoAdjustAllocations('stock');
+            calculate();
+        });
+
+        elements.bondsAllocation.addEventListener('input', (e) => {
+            elements.bondsAllocationValue.textContent = e.target.value + '%';
+            autoAdjustAllocations('bonds');
+            calculate();
+        });
+
+        elements.cashAllocation.addEventListener('input', (e) => {
+            elements.cashAllocationValue.textContent = e.target.value + '%';
+            autoAdjustAllocations('cash');
+            calculate();
+        });
+
+        // Auto-aggiusta le allocazioni per sommare a 100%
+        function autoAdjustAllocations(changed) {
+            const stock = parseInt(elements.stockAllocation.value);
+            const bonds = parseInt(elements.bondsAllocation.value);
+            const cash = parseInt(elements.cashAllocation.value);
+            const total = stock + bonds + cash;
+
+            if (total !== 100) {
+                const diff = 100 - total;
+                if (changed === 'stock') {
+                    const remaining = bonds + cash;
+                    if (remaining > 0) {
+                        const bondsRatio = bonds / remaining;
+                        const newBonds = Math.max(0, Math.min(100, Math.round(bonds + diff * bondsRatio)));
+                        const newCash = Math.max(0, 100 - stock - newBonds);
+                        elements.bondsAllocation.value = newBonds;
+                        elements.cashAllocation.value = newCash;
+                        elements.bondsAllocationValue.textContent = newBonds + '%';
+                        elements.cashAllocationValue.textContent = newCash + '%';
+                    }
+                } else if (changed === 'bonds') {
+                    const remaining = stock + cash;
+                    if (remaining > 0) {
+                        const stockRatio = stock / remaining;
+                        const newStock = Math.max(0, Math.min(100, Math.round(stock + diff * stockRatio)));
+                        const newCash = Math.max(0, 100 - newStock - bonds);
+                        elements.stockAllocation.value = newStock;
+                        elements.cashAllocation.value = newCash;
+                        elements.stockAllocationValue.textContent = newStock + '%';
+                        elements.cashAllocationValue.textContent = newCash + '%';
+                    }
+                } else {
+                    const remaining = stock + bonds;
+                    if (remaining > 0) {
+                        const stockRatio = stock / remaining;
+                        const newStock = Math.max(0, Math.min(100, Math.round(stock + diff * stockRatio)));
+                        const newBonds = Math.max(0, 100 - newStock - cash);
+                        elements.stockAllocation.value = newStock;
+                        elements.bondsAllocation.value = newBonds;
+                        elements.stockAllocationValue.textContent = newStock + '%';
+                        elements.bondsAllocationValue.textContent = newBonds + '%';
+                    }
+                }
+            }
+        }
+
+        // Calcola il tasso effettivo
+        function calculateEffectiveRate() {
+            const stockAlloc = parseFloat(elements.stockAllocation.value) / 100;
+            const bondsAlloc = parseFloat(elements.bondsAllocation.value) / 100;
+            const cashAlloc = parseFloat(elements.cashAllocation.value) / 100;
+            
+            const stockGrowth = parseFloat(elements.stockGrowth.value);
+            const bondsGrowth = parseFloat(elements.bondsGrowth.value);
+            
+            const effectiveRate = (stockAlloc * stockGrowth) + (bondsAlloc * bondsGrowth) + (cashAlloc * 0);
+            return effectiveRate;
+        }
+
+        // Funzione principale di calcolo
+        function calculate() {
+            const age = parseInt(elements.age.value);
+            const currentSavings = parseFloat(elements.currentSavings.value);
+            const monthlyContribution = parseFloat(elements.monthlyContribution.value);
+            const annualSpending = parseFloat(elements.annualSpending.value);
+            const inflationRate = parseFloat(elements.inflationRate.value) / 100;
+            const lifeExpectancy = parseInt(elements.lifeExpectancy.value);
+            
+            const effectiveRate = calculateEffectiveRate() / 100;
+            
+            // Aggiorna display tasso effettivo
+            elements.effectiveRate.textContent = (effectiveRate * 100).toFixed(2) + '%';
+            elements.inflationDisplay.textContent = (inflationRate * 100).toFixed(1) + '%';
+            
+            // Calcola obiettivo FIRE aggiustato per inflazione
+            // Usiamo la spesa attuale come base, ma l'obiettivo sarà dinamico
+            const fireTarget = annualSpending * 25;
+            
+            // Simula la crescita anno per anno
+            let currentAge = age;
+            let portfolio = currentSavings;
+            let retirementAge = null;
+            const projectionData = [];
+            const contributionsData = [];
+            const growthData = [];
+            
+            // Aggiungi punto iniziale
+            projectionData.push({year: 0, age: currentAge, value: portfolio});
+            contributionsData.push({year: 0, value: currentSavings});
+            growthData.push({year: 0, value: 0});
+            
+            let totalContributions = currentSavings;
+            let year = 0;
+            
+            // Calcola fino a raggiungere il target o l'aspettativa di vita
+            while (currentAge < lifeExpectancy && year < 50) {
+                year++;
+                currentAge++;
+                
+                // Contributi annuali
+                const annualContribution = monthlyContribution * 12;
+                portfolio += annualContribution;
+                totalContributions += annualContribution;
+                
+                // Crescita del portfolio (tasso nominale)
+                const growth = portfolio * effectiveRate;
+                portfolio += growth;
+                
+                // Calcola l'obiettivo FIRE aggiustato per inflazione a questo anno
+                const inflationAdjustedSpending = annualSpending * Math.pow(1 + inflationRate, year);
+                const inflationAdjustedTarget = inflationAdjustedSpending * 25;
+                
+                projectionData.push({
+                    year: year,
+                    age: currentAge,
+                    value: portfolio,
+                    target: inflationAdjustedTarget
+                });
+                contributionsData.push({year: year, value: totalContributions});
+                growthData.push({year: year, value: portfolio - totalContributions});
+                
+                // Verifica se ha raggiunto il target
+                if (retirementAge === null && portfolio >= inflationAdjustedTarget) {
+                    retirementAge = currentAge;
+                }
+            }
+            
+            // Aggiorna risultati
+            elements.fireTarget.textContent = '€' + formatNumber(fireTarget);
+            elements.retirementAge.textContent = retirementAge ? retirementAge : '>' + lifeExpectancy;
+            elements.yearsToFire.textContent = retirementAge ? (retirementAge - age) : '>' + (lifeExpectancy - age);
+            elements.totalSavings.textContent = '€' + formatNumber(monthlyContribution * 12);
+            
+            // Aggiorna grafico
+            updateChart(projectionData, contributionsData, growthData);
+        }
+
+        // Formattazione numeri
+        function formatNumber(num) {
+            return new Intl.NumberFormat('it-IT', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        // Aggiorna grafico
+        function updateChart(projectionData, contributionsData, growthData) {
+            const ctx = document.getElementById('projectionChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const labels = projectionData.map(d => 'Y' + d.year);
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Obiettivo FIRE (aggiustato inflazione)',
+                            data: projectionData.map(d => d.target),
+                            borderColor: '#ff6b6b',
+                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                            borderWidth: 3,
+                            borderDash: [10, 5],
+                            fill: false,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Valore Portfolio Totale',
+                            data: projectionData.map(d => d.value),
+                            borderColor: '#51cf66',
+                            backgroundColor: 'rgba(81, 207, 102, 0.2)',
+                            borderWidth: 3,
+                            fill: true,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Contributi Totali',
+                            data: contributionsData.map(d => d.value),
+                            borderColor: '#4dabf7',
+                            backgroundColor: 'rgba(77, 171, 247, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Crescita Investimenti',
+                            data: growthData.map(d => d.value),
+                            borderColor: '#a78bfa',
+                            backgroundColor: 'rgba(167, 139, 250, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += '€' + formatNumber(context.parsed.y);
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + formatNumber(value);
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Event listeners per tutti gli input
+        Object.values(elements).forEach(element => {
+            if (element && (element.tagName === 'INPUT' || element.tagName === 'SELECT')) {
+                element.addEventListener('input', calculate);
+            }
+        });
+
+        // Calcolo iniziale
+        calculate();
+    </script>
+</body>
+</html>
