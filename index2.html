@@ -237,7 +237,7 @@
                      <button onclick="app.handlers.adjustWeight(1)" class="w-12 h-12 rounded-full bg-gray-800 border border-gray-600 text-xl active:scale-95">+</button>
                   </div>
                </div>
-               <!-- Timer / Rest Overlay -->
+             
                <!-- Timer / Rest Overlay -->
                <div id="rest-overlay" class="hidden flex-col items-center justify-center w-full py-0">
                   <div class="relative w-40 h-40">
@@ -251,6 +251,16 @@
                      </div>
                   </div>
                </div>
+
+				<!-- AGGIUNGI QUESTO NUOVO BLOCCO -->
+<div id="work-overlay" class="flex-col items-center justify-center w-full py-6">
+   <div class="text-center">
+      <i class="fa-solid fa-dumbbell text-primary text-4xl mb-3 animate-pulse"></i>
+      <span class="text-gray-400 text-sm uppercase tracking-widest block">Serie in corso</span>
+      <span class="text-xl font-bold mt-2 block">Dai il massimo! 💪</span>
+   </div>
+</div>
+				
             </div>
             <!-- Controls Footer -->
            <!-- Controls Footer -->
@@ -829,19 +839,25 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
                      
 
 					 
-                     if (session.status === 'rest') {
-                         btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa</span>`;
-                         btn.classList.replace('bg-primary', 'bg-gray-600');
-                         btn.onclick = app.handlers.skipRest;
-                         restOverlay.classList.remove('hidden');
-                         restOverlay.classList.add('flex');
-                     } else {
-                         btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
-                         btn.classList.replace('bg-gray-600', 'bg-primary');
-                         btn.onclick = app.handlers.completeSet;
-                         restOverlay.classList.add('hidden');
-                         restOverlay.classList.remove('flex');
-                     }
+const workOverlay = document.getElementById('work-overlay'); // AGGIUNGI QUESTA RIGA
+
+if (session.status === 'rest') {
+    btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa</span>`;
+    btn.classList.replace('bg-primary', 'bg-gray-600');
+    btn.onclick = app.handlers.skipRest;
+    restOverlay.classList.remove('hidden');
+    restOverlay.classList.add('flex');
+    workOverlay.classList.add('hidden');        // AGGIUNGI
+    workOverlay.classList.remove('flex');       // AGGIUNGI
+} else {
+    btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
+    btn.classList.replace('bg-gray-600', 'bg-primary');
+    btn.onclick = app.handlers.completeSet;
+    restOverlay.classList.add('hidden');
+    restOverlay.classList.remove('flex');
+    workOverlay.classList.remove('hidden');     // AGGIUNGI
+    workOverlay.classList.add('flex');          // AGGIUNGI
+}
 					 
 					 // Update Footer Progress Bar (SINGOLO ESERCIZIO)
 // Update Footer Progress Bar (SINGOLO ESERCIZIO)
