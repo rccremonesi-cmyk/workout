@@ -227,22 +227,37 @@
 
 
             <!-- Active Header -->
-            <div class="px-4 py-4 flex justify-between items-center border-b border-gray-700">
-                <div class="flex items-center gap-3">
-        <button onclick="app.handlers.confirmExitWorkout()" class="text-gray-400"><i class="fa-solid fa-xmark text-2xl mr-4"></i></button>
-        <button onclick="app.handlers.showWorkoutPreview()" class="text-gray-400"><i class="fa-solid fa-list-ul text-xl"></i></button>
-    </div>
-   
-               <div class="text-center" onclick="app.handlers.showWorkoutPreview()">
-                  <h3 id="active-workout-name" class="font-bold text-sm text-gray-300">Workout</h3>
-                  <div class="flex items-center gap-2 justify-center text-xs">
-                     <span id="active-timer-total" class="text-primary font-mono">00:00</span>
-                     <span class="text-gray-500">•</span>
-                     <span id="active-exercise-count" class="text-gray-400">0/0 es.</span>
-                  </div>
-               </div>
-               <button onclick="app.handlers.toggleSound()" id="sound-toggle" class="text-gray-400 ml-6"><i class="fa-solid fa-volume-high"></i></button>
+<div class="px-4 py-4 flex items-center border-b border-gray-700">
+
+    <!-- Sinistra -->
+    <button onclick="app.handlers.confirmExitWorkout()" class="text-gray-400">
+        <i class="fa-solid fa-xmark text-2xl"></i>
+    </button>
+
+    <!-- Centro -->
+    <div class="flex-1 flex justify-center" onclick="app.handlers.showWorkoutPreview()">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-list-ul text-xl text-gray-400"></i>
+
+            <div class="text-left">
+                <h3 id="active-workout-name" class="font-bold text-sm text-gray-300">
+                    A – Upper Push (Petto alto &amp; Spalle)
+                </h3>
+                <div class="flex items-center gap-2 text-xs">
+                    <span id="active-timer-total" class="text-primary font-mono">00:10</span>
+                    <span class="text-gray-500">•</span>
+                    <span id="active-exercise-count" class="text-gray-400">1/5 es.</span>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Destra -->
+    <button onclick="app.handlers.toggleSound()" id="sound-toggle" class="text-gray-400">
+        <i class="fa-solid fa-volume-high"></i>
+    </button>
+
+</div>
             <!-- Progress Bar -->
             <!-- Progress Bar with Exercise Navigation -->
             <div class="bg-gray-800 w-full">
@@ -265,7 +280,7 @@
             <div class="p-5">
                <!-- Current Exercise Info -->
                <div class="text-center w-full animate-fade-in">
-                  <h2 id="active-exercise-name" class="text-3xl font-bold mb-5 break-words">Nome Esercizio</h2>
+                  <h2 id="active-exercise-name" class="text-2xl font-bold mb-5 break-words">Nome Esercizio</h2>
                   <div class="flex justify-center gap-4 text-gray-400 text-sm mb-4">
                      <span id="active-set-display" class="bg-primary px-3 py-1 rounded-full border border-gray-700" style="color:#FFF;">Serie 1/4</span>
                      <span id="active-target-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700" style="color:#FFF;">10 Reps</span>
