@@ -1402,7 +1402,7 @@ startWorkout: (id) => {
                     <div class="font-bold">${ex.lastWeight || 0}kg${ex.isDouble ? ' x2' : ''}</div>
                 </div>
             </div>
-            ${isCurrent ? `<div class="mt-2 text-xs text-primary font-semibold">Serie ${session.currentSet + 1}/${ex.sets}</div>` : ''}
+            ${isCurrent ? `<div class="mt-2 text-xs font-semibold">Serie ${session.currentSet + 1}/${ex.sets}</div>` : ''}
         </div>
         `;
     }).join('');
@@ -1463,12 +1463,18 @@ startWorkout: (id) => {
              }
          };
          
-         // Dark Mode Logic
-         document.getElementById('themeToggle').addEventListener('click', () => {
-             app.state.settings.theme = app.state.settings.theme === 'dark' ? 'light' : 'dark';
-             app.db.put('settings', { key: 'theme', value: app.state.settings.theme });
-             app.ui.applyTheme();
-         });
+         
+// Dark Mode Logic
+document.getElementById('themeToggle').addEventListener('click', () => {
+    // Previeni cambio tema durante workout attivo
+    if (app.state.currentView === 'active') {
+        return; // Oppure mostra un messaggio: alert('Tema non modificabile durante workout');
+    }
+    
+    app.state.settings.theme = app.state.settings.theme === 'dark' ? 'light' : 'dark';
+    app.db.put('settings', { key: 'theme', value: app.state.settings.theme });
+    app.ui.applyTheme();
+});
          
          // Personal Settings Listeners
          ['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender', 'setting-training-level'].forEach(id => {
