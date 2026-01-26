@@ -110,7 +110,7 @@
       </style>
       <script>
          tailwind.config = {
-             darkMode: 'class',
+             
              theme: {
                  extend: {
                      colors: {
@@ -125,9 +125,10 @@
          }
       </script>
    </head>
-   <body class="bg-gray-100 dark:bg-darkBg text-gray-800 dark:text-gray-100 h-screen flex flex-col overflow-hidden transition-colors duration-300">
+   <body class="bg-darkBg text-gray-100 h-screen flex flex-col overflow-hidden">
+
       <!-- HEADER -->
-<header class="bg-white dark:bg-darkCard shadow-sm z-20 px-4 py-3 grid grid-cols-3 items-center transition-colors duration-300">
+<header class="bg-darkCard shadow-sm z-20 px-4 py-3 grid grid-cols-3 items-center">
   
   <!-- Sinistra (vuoto o future azioni) -->
   <div></div>
@@ -140,10 +141,7 @@
 
   <!-- Destra -->
   <div class="flex justify-end">
-    <button id="themeToggle" style="visibility:hidden;"
-      class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-      <i class="fa-solid fa-moon"></i>
-    </button>
+  
   </div>
 
 </header>
@@ -197,7 +195,7 @@
             </div>
          </section>
          <!-- VIEW: WORKOUT EDITOR -->
-         <section id="view-editor" class="view-section p-4 bg-white dark:bg-darkBg min-h-full absolute inset-0 z-30">
+         <section id="view-editor" class="view-section p-4 bg-darkBg bg-darkBg min-h-full absolute inset-0 z-30">
             <div class="flex items-center gap-4 mb-6">
                <button onclick="app.router.go('dashboard')" class="p-2 -ml-2 text-gray-500 hover:text-primary"><i class="fa-solid fa-arrow-left text-xl"></i></button>
                <input type="text" id="editor-name" style="padding:5px; border:1px solid #CCC;" class="flex-1  font-bold bg-transparent border-none focus:ring-0 placeholder-gray-400" placeholder="Nome Workout (es. Leg Day)">
@@ -212,7 +210,7 @@
                </button>
             </div>
             <div class="fixed bottom-6 left-6 z-40">
-               <button onclick="app.handlers.saveWorkout()" class="bg-gray-800 dark:bg-white dark:text-gray-900 text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2">
+               <button onclick="app.handlers.saveWorkout()" class="bg-gray-800 bg-darkBg dark:text-gray-900 text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2">
                <i class="fa-solid fa-save"></i> Salva
                </button>
             </div>
@@ -354,15 +352,15 @@
          <section id="view-stats" class="view-section p-4 space-y-6 pb-20">
             <h2 class="text-2xl font-bold">I tuoi Progressi</h2>
             <!-- Charts Container -->
-            <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm">
+            <div class="bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm">
                <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Volume Settimanale (Kg)</h3>
                <canvas id="chart-volume" height="200"></canvas>
             </div>
-            <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm">
+            <div class="bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm">
                <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Calorie Bruciate (kcal)</h3>
                <canvas id="chart-calories" height="200"></canvas>
             </div>
-            <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm">
+            <div class="bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm">
                <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Allenamenti Mensili</h3>
                <canvas id="chart-consistency" height="200"></canvas>
             </div>
@@ -397,33 +395,33 @@
          <!-- VIEW: SETTINGS -->
          <section id="view-settings" class="view-section p-4 space-y-6">
             <h2 class="text-2xl font-bold">Impostazioni</h2>
-            <div class="bg-white dark:bg-darkCard rounded-xl overflow-hidden shadow-sm">
-               <div class="bg-white dark:bg-darkCard rounded-xl overflow-hidden shadow-sm">
-                  <h3 class="font-bold p-4 border-b border-gray-100 dark:border-gray-700">Dati Personali</h3>
-                  <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+            <div class="bg-darkBg bg-darkCard rounded-xl overflow-hidden shadow-sm">
+               <div class="bg-darkBg bg-darkCard rounded-xl overflow-hidden shadow-sm">
+                  <h3 class="font-bold p-4 border-b border-gray-100 border-gray-700">Dati Personali</h3>
+                  <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Peso corporeo (kg)</span>
-                     <input type="number" id="setting-body-weight" step="0.1" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="70">
+                     <input type="number" id="setting-body-weight" step="0.1" class="bg-gray-100 bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="70">
                   </div>
-                  <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                  <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Altezza (cm)</span>
-                     <input type="number" id="setting-height" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="175">
+                     <input type="number" id="setting-height" class="bg-gray-100 bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="175">
                   </div>
-                  <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                  <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Età (anni)</span>
-                     <input type="number" id="setting-age" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="30">
+                     <input type="number" id="setting-age" class="bg-gray-100 bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="30">
                   </div>
-                  <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                  <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Sesso</span>
-                     <select id="setting-gender" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1">
+                     <select id="setting-gender" class="bg-gray-100 bg-gray-800 rounded px-3 py-1">
                         <option value="">Non specificato</option>
                         <option value="male">Maschio</option>
                         <option value="female">Femmina</option>
                      </select>
                   </div>
                   <!-- Aggiungi dopo il campo sesso nelle impostazioni -->
-                  <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                  <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Livello di Allenamento</span>
-                     <select id="setting-training-level" class="bg-gray-100 dark:bg-gray-800 rounded px-3 py-1">
+                     <select id="setting-training-level" class="bg-gray-100 bg-gray-800 rounded px-3 py-1">
                         <option value="beginner">Principiante</option>
                         <option value="intermediate" selected>Intermedio</option>
                         <option value="advanced">Avanzato</option>
@@ -431,14 +429,14 @@
                      </select>
                   </div>
                </div>
-               <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+               <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                   <span>Unità di peso</span>
-                  <select id="setting-unit" class="bg-gray-100 dark:bg-gray-800 rounded px-2 py-1">
+                  <select id="setting-unit" class="bg-gray-100 bg-gray-800 rounded px-2 py-1">
                      <option value="kg">KG</option>
                      <option value="lb">LB</option>
                   </select>
                </div>
-               <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+               <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                   <span>Suoni Timer</span>
                   <input type="checkbox" id="setting-sound" checked class="accent-primary w-5 h-5">
                </div>
@@ -447,7 +445,7 @@
                   <input type="checkbox" id="setting-vibrate" checked class="accent-primary w-5 h-5">
                </div>
             </div>
-            <div class="bg-white dark:bg-darkCard rounded-xl p-4 shadow-sm space-y-4">
+            <div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm space-y-4">
                <h3 class="font-bold">Dati</h3>
                <div class="grid grid-cols-2 gap-4">
                   <button onclick="app.handlers.exportData()" class="bg-blue-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-600">Esporta JSON</button>
@@ -465,7 +463,7 @@
          </section>
       </main>
       <!-- BOTTOM NAVIGATION -->
-      <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-darkCard border-t border-gray-200 dark:border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300">
+      <nav class="fixed bottom-0 left-0 right-0 bg-darkCard border-t border-gray-200 border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300">
          <button onclick="app.router.go('dashboard')" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
          <i class="fa-solid fa-house mb-1"></i>
         <span class="text-[10px] font-medium">Home</span> 
@@ -481,23 +479,23 @@
       </nav>
       <!-- Modal Template for Exercise Form -->
       <div id="exercise-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-         <div class="bg-white dark:bg-darkCard rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl animate-fade-in-up">
+         <div class="bg-darkBg bg-darkCard rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl animate-fade-in-up">
             <h3 class="font-bold text-xl mb-2">Aggiungi Esercizio</h3>
-            <input type="text" id="modal-ex-name" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3 border-none focus:ring-2 focus:ring-primary" placeholder="Nome (es. Panca Piana)">
+            <input type="text" id="modal-ex-name" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3 border-none focus:ring-2 focus:ring-primary" placeholder="Nome (es. Panca Piana)">
             <div class="grid grid-cols-2 gap-4">
                <div>
                   <label class="text-xs text-gray-500 ml-1">Serie</label>
-                  <input type="number" id="modal-ex-sets" value="3" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+                  <input type="number" id="modal-ex-sets" value="3" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3">
                </div>
                <div>
                   <label class="text-xs text-gray-500 ml-1">Reps</label>
-                  <input type="text" id="modal-ex-reps" value="10" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3" placeholder="es. 8-10">
+                  <input type="text" id="modal-ex-reps" value="10" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3" placeholder="es. 8-10">
                </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
                <div>
                   <label class="text-xs text-gray-500 ml-1">Pausa</label>
-                  <select id="modal-ex-rest" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+                  <select id="modal-ex-rest" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3">
     <option value="30">30 secondi</option>
     <option value="60">1 minuto</option>
     <option value="90" selected>1:30 minuti</option>
@@ -516,10 +514,10 @@
                </div>
                <div>
                   <label class="text-xs text-gray-500 ml-1">Peso Iniziale</label>
-                  <input type="number" id="modal-ex-weight" value="0" class="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+                  <input type="number" id="modal-ex-weight" value="0" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3">
                </div>
             </div>
-            <div class="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+            <div class="flex items-center gap-2 bg-gray-50 bg-gray-800 p-3 rounded-lg">
                <input type="checkbox" id="modal-ex-double" class="accent-primary w-5 h-5">
                <label class="text-sm">Peso doppio (2 manubri)<br/><small>(usato solo per staistiche per calcoli peso totale)</small></label>
             </div>
@@ -628,7 +626,7 @@
                  editingWorkout: null,
          editingExerciseIndex: null,
                  activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
-                 settings: { unit: 'kg', sound: true, vibrate: true, theme: 'dark', bodyWeight: null, height: null, age: null, gender: '' }
+                 settings: { unit: 'kg', sound: true, vibrate: true, bodyWeight: null, height: null, age: null, gender: '' }
              },
              
              init: async () => {
@@ -763,8 +761,7 @@
          
              ui: {
                  applyTheme: () => {
-                     const isDark = app.state.settings.theme === 'dark';
-                     document.documentElement.classList.toggle('dark', isDark);
+                    
                  },
                  
                  renderDashboard: () => {
@@ -797,7 +794,7 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
          
                      // Render Workouts
                      if (app.state.workouts.length === 0) {
-                         list.innerHTML = `<div class="text-center p-8 bg-white dark:bg-darkCard rounded-xl shadow-sm">
+                         list.innerHTML = `<div class="text-center p-8 bg-darkBg bg-darkCard rounded-xl shadow-sm">
                              <i class="fa-solid fa-person-running text-4xl text-gray-300 mb-3"></i>
                              <p class="text-gray-500">Nessun workout creato.<br>Inizia creandone uno!</p>
 							 <p onclick="app.router.go('settings')"><br/><br/><i class="fa-solid fa-triangle-exclamation"></i> Prima di iniziare, ricorda di configurare i tuoi parametri nella sezione <strong>Settaggi <i class="fa-solid fa-arrow-right-long"></i></strong></p>
@@ -807,7 +804,7 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
          
                      app.state.workouts.forEach(w => {
                          const el = document.createElement('div');
-                         el.className = 'bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
+                         el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
                          el.innerHTML = `
                              <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
                                  <h4 class="font-bold text-lg">${w.name}</h4>
@@ -827,7 +824,7 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
          
          app.state.editingWorkout.exercises.forEach((ex, idx) => {
          const el = document.createElement('div');
-         el.className = 'bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
+         el.className = 'bg-gray-50 bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
          el.innerHTML = `
          <div class="flex items-center gap-3 flex-1 overflow-hidden">
          <i class="fa-solid fa-grip-lines text-gray-400 cursor-move"></i>
@@ -837,10 +834,10 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
          </div>
          </div>
          <div class="flex items-center gap-1">
-         <button onclick="app.handlers.editExercise(${idx})" class="text-blue-500 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+         <button onclick="app.handlers.editExercise(${idx})" class="text-blue-500 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50 hover:bg-gray-700 transition">
          	<i class="fa-solid fa-pencil"></i>
          </button>
-         <button onclick="app.handlers.removeExercise(${idx})" class="text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 dark:hover:bg-gray-700 transition">
+         <button onclick="app.handlers.removeExercise(${idx})" class="text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 hover:bg-gray-700 transition">
          	<i class="fa-solid fa-times"></i>
          </button>
          </div>
@@ -954,7 +951,7 @@ for (let i = 0; i < parseInt(currentEx.sets); i++) {
     marker.innerHTML = `
         <div class="w-3 h-3 rounded-full border-2 ${
             isPast ? 'bg-primary border-primary' : 
-            isCurrent && session.status === 'work' ? 'bg-white border-primary animate-pulse' :
+            isCurrent && session.status === 'work' ? 'bg-darkBg border-primary animate-pulse' :
             isCurrent && session.status === 'rest' ? 'bg-purple-500 border-purple-500 animate-pulse' :
             'bg-gray-700 border-gray-600'
         } shadow-lg"></div>
@@ -1053,7 +1050,7 @@ if (estimatedMinutesEx > 0) {
          } else {
          // Show message if no calorie data
          const container = ctxCal.parentElement;
-         container.innerHTML = '<div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm"><h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Calorie Bruciate (kcal)</h3><p class="text-gray-400 text-center py-8 text-sm">💡 Imposta peso corporeo nelle impostazioni per vedere le calorie</p></div>';
+         container.innerHTML = '<div class="bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm"><h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Calorie Bruciate (kcal)</h3><p class="text-gray-400 text-center py-8 text-sm">💡 Imposta peso corporeo nelle impostazioni per vedere le calorie</p></div>';
          }
          
 		 // Calcolo totali storici
@@ -1070,7 +1067,7 @@ document.getElementById('total-fat-burned').innerText = totalFatGrams.toLocaleSt
                      // List
                      const list = document.getElementById('history-list');
          list.innerHTML = history.slice().reverse().slice(0, 10).map(h => `
-         <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-2">
+         <div class="flex justify-between items-center border-b border-gray-100 border-gray-700 pb-2">
          <div class="flex-1">
              <div class="font-bold">${h.workoutName}</div>
              <div class="text-xs text-gray-400">${new Date(h.date).toLocaleString()}</div>
