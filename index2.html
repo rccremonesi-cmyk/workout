@@ -62,35 +62,7 @@
     pointer-events: none;
 }
 
-/* Pulsazioni radiali - nascoste di default */
-.radial-pulse {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300px;
-    height: 300px;
-    margin: -150px 0 0 -150px;
-    border: 2px solid #5127F2;
-    border-radius: 50%;
-    pointer-events: none;
-    display: none; /* Nascoste di default */
-}
 
-/* Mostrale e animale SOLO quando workout-active-bg è attivo */
-.workout-active-bg .radial-pulse {
-    display: block;
-    animation: radial-expand 2s ease-out infinite;
-}
-
-.workout-active-bg .radial-pulse:nth-child(2) {
-    animation-delay: 0.6s;
-    border-color: #7c3aed;
-}
-
-.workout-active-bg .radial-pulse:nth-child(3) {
-    animation-delay: 1.2s;
-    border-color: #a855f7;
-}
 
 .workout-rest-bg {
     background: #111827;
@@ -211,10 +183,7 @@
          <!-- VIEW: ACTIVE WORKOUT MODE -->
 
 <section id="view-active" class="view-section bg-gray-900 text-white min-h-full absolute inset-0 z-50 flex flex-col">
-<!-- Pulsazioni radiali animate -->
-<div class="radial-pulse" style="display: none;"></div>
-<div class="radial-pulse" style="display: none;"></div>
-<div class="radial-pulse" style="display: none;"></div>
+
 
 
             <!-- Active Header -->
@@ -858,23 +827,7 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
                      const btn = document.getElementById('btn-main-action');
                      const restOverlay = document.getElementById('rest-overlay');
                      
-// Apply animated background con delay per evitare flash iniziale
-const activeSection = document.getElementById('view-active');
-const pulses = activeSection.querySelectorAll('.radial-pulse');
 
-if (session.status === 'rest') {
-    activeSection.classList.remove('workout-active-bg');
-    activeSection.classList.add('workout-rest-bg');
-    // Nascondi immediatamente durante riposo
-    pulses.forEach(p => p.style.display = 'none');
-} else {
-    activeSection.classList.remove('workout-rest-bg');
-    activeSection.classList.add('workout-active-bg');
-    // Mostra con piccolo delay per evitare flash
-    setTimeout(() => {
-        pulses.forEach(p => p.style.display = 'block');
-    }, 100);
-}
 					 
                      if (session.status === 'rest') {
                          btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa</span>`;
