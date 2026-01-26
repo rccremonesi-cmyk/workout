@@ -1519,17 +1519,7 @@ startWorkout: (id) => {
          };
          
          
-// Dark Mode Logic
-document.getElementById('themeToggle').addEventListener('click', () => {
-    // Previeni cambio tema durante workout attivo
-    if (app.state.currentView === 'active') {
-        return; // Oppure mostra un messaggio: alert('Tema non modificabile durante workout');
-    }
-    
-    app.state.settings.theme = app.state.settings.theme === 'dark' ? 'light' : 'dark';
-    app.db.put('settings', { key: 'theme', value: app.state.settings.theme });
-    app.ui.applyTheme();
-});
+
          
          // Personal Settings Listeners
          ['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender', 'setting-training-level'].forEach(id => {
