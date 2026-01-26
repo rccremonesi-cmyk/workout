@@ -3,7 +3,7 @@
    <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      <title>FitTracker Web</title>
+      <title>WorkoutTracker Web</title>
       <meta name="description" content="Il tuo tracker di allenamento locale.">
       <meta name="theme-color" content="#5127F2">
       <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3C!-- Icona dumbbell di Font Awesome (simil-v6) --%3E%3Cpath fill='%235127F2' d='M88.75 35.5h-9.87c-1.39 0-2.5 1.12-2.5 2.5v22c0 1.38 1.11 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zm-66.25 0h-9.87c-1.38 0-2.5 1.12-2.5 2.5v22c0 1.38 1.12 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zM36.1 48h27.8c1.38 0 2.5-1.12 2.5-2.5s-1.12-2.5-2.5-2.5h-27.8c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5z' /%3E%3C/svg%3E">
@@ -98,7 +98,7 @@
       <header class="bg-white dark:bg-darkCard shadow-sm z-20 px-4 py-3 flex justify-between items-center transition-colors duration-300">
          <div class="flex items-center gap-2">
             <i class="fa-solid fa-dumbbell text-primary text-xl"></i>
-            <h1 class="font-bold text-lg tracking-tight">FitTracker</h1>
+            <h1 class="font-bold text-lg tracking-tight">WorkoutTracker</h1>
          </div>
          <div class="flex gap-3">
             <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
@@ -232,7 +232,7 @@
 <div class="flex items-center justify-center gap-3 my-6">
    <!-- Pulsanti -5 e -1 -->
    <div class="flex flex-col gap-1">
-      <button onclick="app.handlers.adjustWeight(-0.5)" style="width: 6.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-0.5 kg</button>
+      <button onclick="app.handlers.adjustWeight(-0.5)" style="width: 6.5rem; margin-bottom:7px;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-0.5 kg</button>
       <button onclick="app.handlers.adjustWeight(-1)" style="width: 6.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-lg active:scale-95">+1 kg</button>
    </div>
    
@@ -244,7 +244,7 @@
    
    <!-- Pulsanti +1 e +5 -->
    <div class="flex flex-col gap-1">
-      <button onclick="app.handlers.adjustWeight(0.5)" style="width: 6.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+0.5 kg</button>
+      <button onclick="app.handlers.adjustWeight(0.5)" style="width: 6.5rem; margin-bottom:7px;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+0.5 kg</button>
       <button onclick="app.handlers.adjustWeight(1)" style="width: 6.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-lg active:scale-95">+1 kg</button>
    </div>
 </div>
@@ -414,7 +414,7 @@
                <button onclick="app.handlers.resetAllData()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg text-sm font-semibold hover:bg-red-50">Cancellazione Totale</button>
             </div>
             <div class="text-center text-xs text-gray-400 mt-8">
-               FitTracker Web v1.0 • Browser-Based
+               WorkoutTracker Web v1.0
             </div>
          </section>
       </main>
@@ -422,15 +422,15 @@
       <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-darkCard border-t border-gray-200 dark:border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300">
          <button onclick="app.router.go('dashboard')" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
          <i class="fa-solid fa-house mb-1"></i>
-         <!-- <span class="text-[10px] font-medium">Home</span> -->
+        <span class="text-[10px] font-medium">Home</span> 
          </button>
          <button onclick="app.router.go('stats')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
          <i class="fa-solid fa-chart-simple mb-1"></i>
-         <!-- <span class="text-[10px] font-medium">Stats</span> -->
+         <span class="text-[10px] font-medium">Statistiche</span>
          </button>
          <button onclick="app.router.go('settings')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
          <i class="fa-solid fa-gear mb-1"></i>
-         <!-- <span class="text-[10px] font-medium">Set</span> -->
+         <span class="text-[10px] font-medium">Settaggi</span>
          </button>
       </nav>
       <!-- Modal Template for Exercise Form -->
