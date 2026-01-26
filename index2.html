@@ -30,7 +30,30 @@
          .sortable-drag { cursor: grabbing; }
          .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
          .footer-action{ position: fixed; bottom: 0px; width: 100%; }
-		
+		  
+		/* Scrollbar personalizzata per workout preview */
+#workout-preview-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+#workout-preview-content::-webkit-scrollbar-track {
+    background: #111827;
+}
+
+#workout-preview-content::-webkit-scrollbar-thumb {
+    background: #5127F2;
+    border-radius: 4px;
+}
+
+#workout-preview-content::-webkit-scrollbar-thumb:hover {
+    background: #401eb5;
+}
+
+/* Per Firefox */
+#workout-preview-content {
+    scrollbar-width: thin;
+    scrollbar-color: #5127F2 #111827;
+}
 
 .workout-active-bg {
     background: #111827;
