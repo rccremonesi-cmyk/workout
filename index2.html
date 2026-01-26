@@ -127,17 +127,27 @@
    </head>
    <body class="bg-gray-100 dark:bg-darkBg text-gray-800 dark:text-gray-100 h-screen flex flex-col overflow-hidden transition-colors duration-300">
       <!-- HEADER -->
-      <header class="bg-white dark:bg-darkCard shadow-sm z-20 px-4 py-3 flex justify-between items-center transition-colors duration-300">
-         <div class="flex items-center gap-2">
-            <i class="fa-solid fa-dumbbell text-primary text-xl"></i>
-            <h1 class="font-bold text-lg tracking-tight">WorkoutTracker</h1>
-         </div>
-         <div class="flex gap-3">
-             <button id="themeToggle" style="visibility:hidden;" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-            <i class="fa-solid fa-moon"></i>
-            </button> 
-         </div>
-      </header>
+<header class="bg-white dark:bg-darkCard shadow-sm z-20 px-4 py-3 grid grid-cols-3 items-center transition-colors duration-300">
+  
+  <!-- Sinistra (vuoto o future azioni) -->
+  <div></div>
+
+  <!-- Centro: LOGO -->
+  <div class="flex items-center justify-center gap-2">
+    <i class="fa-solid fa-dumbbell text-primary text-xl"></i>
+    <h1 class="font-bold text-lg tracking-tight">WorkoutTracker</h1>
+  </div>
+
+  <!-- Destra -->
+  <div class="flex justify-end">
+    <button id="themeToggle" style="visibility:hidden;"
+      class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+  </div>
+
+</header>
+
       <!-- MAIN CONTENT AREA -->
       <main id="app-container" class="flex-1 overflow-y-auto overflow-x-hidden relative hide-scrollbar" style="padding-bottom: 8rem;">
          <!-- VIEW: DASHBOARD (HOME) -->
@@ -790,7 +800,7 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
                          list.innerHTML = `<div class="text-center p-8 bg-white dark:bg-darkCard rounded-xl shadow-sm">
                              <i class="fa-solid fa-person-running text-4xl text-gray-300 mb-3"></i>
                              <p class="text-gray-500">Nessun workout creato.<br>Inizia creandone uno!</p>
-							 <p><br/><br/><i class="fa-solid fa-triangle-exclamation"></i> Prima di iniziare, ricorda di configurare i tuoi parametri nella sezione <strong>Settaggi <i class="fa-solid fa-arrow-right-long"></i></strong></p>
+							 <p onclick="app.router.go('settings')"><br/><br/><i class="fa-solid fa-triangle-exclamation"></i> Prima di iniziare, ricorda di configurare i tuoi parametri nella sezione <strong>Settaggi <i class="fa-solid fa-arrow-right-long"></i></strong></p>
                          </div>`;
                          return;
                      }
