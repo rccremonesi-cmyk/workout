@@ -1480,13 +1480,14 @@ startWorkout: (id) => {
                      }
                  },
                  
-                 exportData: async () => {
-                     const data = {
-                         workouts: app.state.workouts,
-                         history: app.state.history,
-                         settings: app.state.settings
-                     };
-                     const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+exportData: async () => {
+    const settingsArray = await app.db.getAll('settings'); // AGGIUNTO
+    const data = {
+        workouts: app.state.workouts,
+        history: app.state.history,
+        settings: settingsArray  // MODIFICATO (era: app.state.settings)
+    };
+    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
                      const url = URL.createObjectURL(blob);
                      const a = document.createElement('a');
                      a.href = url;
@@ -1495,20 +1496,24 @@ startWorkout: (id) => {
                  },
          
                  importData: (input) => {
-                     const file = input.files[0];
-                     if(!file) return;
-                     const reader = new FileReader();
-                     reader.onload = async (e) => {
-                         try {
-                             const data = JSON.parse(e.target.result);
-                             if(data.workouts) {
-                                 for (const w of data.workouts) await app.db.put('workouts', w);
-                             }
-                             if(data.history) {
-                                 for (const h of data.history) await app.db.put('history', h);
-                             }
-                             alert("Importazione completata!");
-                             location.reload();
+    const file = input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if(data.workouts) {
+                for (const w of data.workouts) await app.db.put('workouts', w);
+            }
+            if(data.history) {
+                for (const h of data.history) await app.db.put('history', h);
+            }
+            // ✅ AGGIUNGI QUESTE 3 RIGHE
+            if(data.settings) {
+                for (const s of data.settings) await app.db.put('settings', s);
+            }
+            alert("Importazione completata!");
+            location.reload();
                          } catch(err) {
                              alert("Errore nel file JSON.");
                          }
