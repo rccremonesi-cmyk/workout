@@ -673,94 +673,80 @@
          
          
          
-         calculateCalories: (session) => {
-         const settings = app.state.settings;
-         
-         // 1. Recupero Dati Utente (con fallback robusti)
-         const weight = parseFloat(settings.bodyWeight) || 75; 
-         const height = parseFloat(settings.height) || 175;    
-         const age = parseFloat(settings.age) || 30;           
-         const gender = settings.gender || 'male';
-         // Recupero il livello selezionato (default intermediate)
-         const trainingLevel = settings.trainingLevel || 'intermediate';
-         
-         // 2. Calcolo Volume Totale
-         let totalVolume = 0;
-         if (session.logs && session.logs.length > 0) {
-         session.logs.forEach(l => {
+calculateCalories: (session) => {
+    const settings = app.state.settings;
+    
+    // 1. Recupero Dati Utente (con fallback robusti)
+    const weight = parseFloat(settings.bodyWeight) || 75; 
+    const height = parseFloat(settings.height) || 175;    
+    const age = parseFloat(settings.age) || 30;           
+    const gender = settings.gender || 'male';
+    const trainingLevel = settings.trainingLevel || 'intermediate';
+    
+    // 2. Calcolo Volume Totale (kg alzati)
+    let totalVolume = 0;
+    if (session.logs && session.logs.length > 0) {
+        session.logs.forEach(l => {
             const w = parseFloat(l.weight) || 0;
             const r = parseFloat(l.reps) || 0;
             const m = l.multiplier || 1;
             totalVolume += (w * r * m);
-         });
-         }
-         
-         // 3. Calcolo Durata (minimo 1 minuto)
-         let durationMinutes = session.durationMinutes || Math.round((Date.now() - session.startTime) / 1000 / 60);
-         if (durationMinutes < 1) durationMinutes = 1;
-         
-         // --- ALGORITMO CALORIE ---
-         
-         // A. BMR (Mifflin-St Jeor)
-         let bmr = 0;
-         if (gender === 'male') {
-         bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
-         } else {
-         bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
-         }
-         
-         // B. Calcolo METs Base (Intensità)
-         // Determiniamo l'intensità in base alla "Densità" (kg spostati al minuto)
-         let metValue = 5.0; 
-         const volumeDensity = totalVolume / durationMinutes; 
-         
-         if (volumeDensity > 800) metValue = 7.5;      // Alta intensità
-         else if (volumeDensity > 400) metValue = 6.0; // Media
-         else metValue = 4.5;                          // Bassa
-         
-         // C. APPLICAZIONE LIVELLI (Tutti e 4 i casi)
-         // Modifichiamo i METs in base all'efficienza neuromuscolare
-         switch (trainingLevel) {
-         case 'beginner':
-            // I principianti sono meno coordinati e bruciano circa il 10% in più per stabilizzarsi
-            metValue *= 1.10; 
+        });
+    }
+    
+    // --- ALGORITMO CALORIE ---
+    
+    // A. BMR (Mifflin-St Jeor) - Mantenuto per contesto metabolico
+    let bmr = 0;
+    if (gender === 'male') {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+    } else {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+    }
+    
+    // B. Coefficiente Base per Lavoro Meccanico
+    // Circa 0.04-0.05 kcal per kg spostato
+    let caloriesPerKg = 0.045;
+    
+    // C. Aggiustamento per Metabolismo Individuale (basato su BMR)
+    // Chi ha BMR più alto tende a bruciare più calorie anche durante l'esercizio
+    const bmrFactor = bmr / 1600; // Normalizzato su BMR medio (~1600 kcal/day)
+    caloriesPerKg *= (0.85 + (bmrFactor * 0.15)); // Range: 0.85x - 1.15x circa
+    
+    // D. APPLICAZIONE LIVELLI (efficienza neuromuscolare)
+    switch (trainingLevel) {
+        case 'beginner':
+            // I principianti sono meno coordinati e bruciano circa il 15% in più
+            caloriesPerKg *= 1.15; 
             break;
-         case 'intermediate':
+        case 'intermediate':
             // Valore standard di riferimento
-            metValue *= 1.00; 
+            caloriesPerKg *= 1.00; 
             break;
-         case 'advanced':
-            // Gli avanzati sono più efficienti, bruciano leggermente meno a parità di sforzo
-            metValue *= 0.95; 
+        case 'advanced':
+            // Gli avanzati sono più efficienti
+            caloriesPerKg *= 0.92; 
             break;
-         case 'elite':
-            // Massima efficienza biomeccanica, minimo dispendio inutile
-            metValue *= 0.90; 
+        case 'elite':
+            // Massima efficienza biomeccanica
+            caloriesPerKg *= 0.85; 
             break;
-         default:
-            metValue *= 1.00;
-         }
-         
-         // Calcolo Calorie da Attività
-         // Formula: (METs * 3.5 * pesoInKg) / 200 * minuti
-         const activityCalories = ((metValue * 3.5 * weight) / 200) * durationMinutes;
-         
-         // D. Bonus Volume (Lavoro Meccanico Puro)
-         // Questo compensa il fatto che gli Elite, pur essendo efficienti, spostano carichi enormi
-         // che la formula METs base potrebbe sottostimare.
-         const volumeBonus = totalVolume * 0.035; 
-         
-         const totalCalories = activityCalories + volumeBonus;
-         
-         console.log(`📊 CALORIE REPORT:
-         • Level: ${trainingLevel}
-         • METs Adjusted: ${metValue.toFixed(2)}
-         • Activity: ${Math.round(activityCalories)}
-         • Volume Bonus: ${Math.round(volumeBonus)}
-         👉 TOTAL: ${Math.round(totalCalories)}`);
-         
-         return Math.round(totalCalories);
-         },
+        default:
+            caloriesPerKg *= 1.00;
+    }
+    
+    // E. Calcolo Finale
+    const totalCalories = totalVolume * caloriesPerKg;
+    
+    console.log(`📊 CALORIE REPORT:
+    • Level: ${trainingLevel}
+    • BMR: ${Math.round(bmr)} kcal/day
+    • Total Volume: ${totalVolume.toFixed(0)} kg
+    • Cal/kg Rate: ${caloriesPerKg.toFixed(4)}
+    👉 TOTAL: ${Math.round(totalCalories)} kcal`);
+    
+    return Math.round(totalCalories);
+},
          
          
              router: {
