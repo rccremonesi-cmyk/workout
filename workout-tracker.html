@@ -15,7 +15,24 @@
 	   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-      <style>
+      <style>	  
+	  #exercise-modal input{
+		border:1px solid #5127f2;
+	  }
+	  
+	  	  #exercise-modal select{
+		border:1px solid #5127f2;
+	  }
+	  
+	  @keyframes blink-rest {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.rest-blink {
+  animation: blink-rest 0.6s ease-in-out infinite;
+}
+
 
 		  /* Layout mobile-first responsive */
 @media (min-width: 768px) {
@@ -97,7 +114,18 @@
     animation: energy-pulse-2 4s ease-in-out infinite;
     pointer-events: none;
 }
-
+/* Toggle Switch */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
 
 
 .workout-rest-bg {
@@ -230,8 +258,7 @@
          </section>
          <!-- VIEW: ACTIVE WORKOUT MODE -->
 
-<section id="view-active" class="view-section bg-gray-900 text-white min-h-full absolute inset-0 z-50 flex flex-col">
-
+<section id="view-active" class="view-section bg-gray-900 text-white h-screen absolute inset-0 z-50 flex flex-col overflow-hidden">
 
 
             <!-- Active Header -->
@@ -252,7 +279,7 @@
                     A – Upper Push (Petto alto &amp; Spalle)
                 </h3>
                 <div class="flex items-center gap-2 text-xs">
-                    <span id="active-timer-total" class="text-primary font-mono">00:10</span>
+                    <span><i class="fa-regular fa-clock" style="font-size: 10px; color:#b9a9f6; margin-right:5px;"></i><span id="active-timer-total" class=" font-mono" style="color:#b9a9f6;"> 00:10</span>
                     <span class="text-gray-500">•</span>
                     <span id="active-exercise-count" class="text-gray-400">1/5 es.</span>
                 </div>
@@ -274,7 +301,7 @@
                      <i class="fa-solid fa-check text-green-500 mr-1"></i>
                      <span>-</span>
                   </div>
-                  <div class="text-gray-400 px-2">→</div>
+                  <div class="text-gray-400 px-2"><i class="fa-solid fa-caret-right"></i></div>
                   <div id="next-exercise" class="text-gray-400 flex-1 text-right truncate">
                      <span>-</span>
                      <i class="fa-solid fa-arrow-right ml-1"></i>
@@ -285,7 +312,7 @@
                </div>
             </div>
             <!-- Main Exercise Area -->
-            <div class="p-5">
+           <div class="flex-1 overflow-y-auto p-5 hide-scrollbar" style="padding-bottom: 220px;">
                <!-- Current Exercise Info -->
                <div class="text-center w-full animate-fade-in">
                   <h2 id="active-exercise-name" class="text-2xl font-bold mb-5 break-words">Nome Esercizio</h2>
@@ -326,8 +353,28 @@
                      <div class="absolute inset-0 flex items-center justify-center flex-col">
                         <span class="text-gray-400 text-xs uppercase tracking-widest">Pausa</span>
                         <span id="rest-timer-text" class="text-3xl font-mono font-bold">00:00</span>
+<div class="flex flex-col items-center gap-2">
+   <label for="auto-next-toggle" class="text-sm text-gray-300">
+      Auto-continua
+   </label>
+
+   <div class="relative">
+      <input type="checkbox" id="auto-next-toggle" class="sr-only peer">
+
+      <div
+         class="w-11 h-6 bg-gray-700 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"
+         onclick="document.getElementById('auto-next-toggle').click()"
+      ></div>
+
+      <div
+         class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 pointer-events-none"
+      ></div>
+   </div>
+</div>
+
                      </div>
                   </div>
+				  
                </div>
 
 				<!-- AGGIUNGI QUESTO NUOVO BLOCCO -->
@@ -335,6 +382,8 @@
    <div class="text-center">
       <i class="fa-solid fa-dumbbell text-primary text-4xl mb-3 animate-pulse"></i>
       <span class="text-gray-400 text-sm uppercase tracking-widest block">Serie in corso</span>
+      <!-- ✨ AGGIUNGI TIMER ESERCIZIO -->
+      <span class="text-gray-400 text-sm  tracking-widest block">Iniziata da: <span id="exercise-timer">00:00</span></span>
       <span class="text-xl font-bold mt-2 block">Dai il massimo! 💪</span>
    </div>
 </div>
@@ -477,7 +526,7 @@
                <h3 class="font-bold">Dati</h3>
                <div class="grid grid-cols-2 gap-4">
                   <button onclick="app.handlers.exportData()" class="bg-blue-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-600">Esporta JSON</button>
-                  <label class="bg-gray-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-gray-600 text-center cursor-pointer">
+                  <label class="0 text-white py-2 rounded-lg text-sm font-semibold hover:bg-gray-600 text-center cursor-pointer">
                   Importa JSON
                   <input type="file" onchange="app.handlers.importData(this)" class="hidden" accept=".json">
                   </label>
@@ -542,7 +591,7 @@
                   <input type="number" id="modal-ex-weight" value="0" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3">
                </div>
             </div>
-            <div class="flex items-center gap-2 bg-gray-50 bg-gray-800 p-3 rounded-lg">
+            <div class="flex items-center gap-2  bg-gray-800 p-3 rounded-lg">
                <input type="checkbox" id="modal-ex-double" class="accent-primary w-5 h-5">
                <label class="text-sm">Peso doppio (es. 2 manubri)<br/><small>(usato solo per statistiche per calcoli peso totale)</small></label>
             </div>
@@ -572,6 +621,7 @@
       <!-- <audio id="audio-beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio> -->
 	   <audio id="audio-beep" src="https://cdn.freesound.org/previews/22/22627_7037-lq.ogg" preload="auto"></audio>
       <audio id="audio-complete" src="https://cdn.freesound.org/previews/619/619839_7614679-lq.ogg" preload="auto"></audio>
+	  <audio id="audio-auto-next" src="https://cdn.freesound.org/previews/108/108897_7037-lq.ogg" preload="auto"></audio>
       <!-- LOGIC SCRIPT -->
       <script>
          /**
@@ -651,7 +701,7 @@
                  editingWorkout: null,
          editingExerciseIndex: null,
                  activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
-                 settings: { unit: 'kg', sound: true, vibrate: true, bodyWeight: null, height: null, age: null, gender: '' }
+                 settings: { unit: 'kg', sound: true, vibrate: true, bodyWeight: null, height: null, age: null, gender: '', autoNext: false }
              },
              
              init: async () => {
@@ -749,26 +799,29 @@ calculateCalories: (session) => {
 },
          
          
-             router: {
-                 go: (viewId) => {
-                     // Hide bottom nav if active workout
-                     document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'flex';
-                     
-                     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-                     document.getElementById(`view-${viewId}`).classList.add('active');
-                     
-                     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-primary'));
-                     if(viewId !== 'editor' && viewId !== 'active') {
-                         // Highlight nav
-                         const navIndices = {'dashboard': 0, 'stats': 1, 'settings': 2};
-                         document.querySelectorAll('.nav-btn')[navIndices[viewId]]?.classList.add('text-primary');
-                     }
-         
-                     app.state.currentView = viewId;
-                     if (viewId === 'dashboard') app.ui.renderDashboard();
-                     if (viewId === 'stats') app.ui.renderStats();
-                 }
-             },
+router: {
+    go: (viewId) => {
+        // Hide bottom nav if active workout
+        document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'flex';
+        
+        // ✨ AGGIUNGI QUESTA RIGA - Nascondi header in workout attivo
+        document.querySelector('header').style.display = viewId === 'active' ? 'none' : 'grid';
+        
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(`view-${viewId}`).classList.add('active');
+        
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-primary'));
+        if(viewId !== 'editor' && viewId !== 'active') {
+            // Highlight nav
+            const navIndices = {'dashboard': 0, 'stats': 1, 'settings': 2};
+            document.querySelectorAll('.nav-btn')[navIndices[viewId]]?.classList.add('text-primary');
+        }
+
+        app.state.currentView = viewId;
+        if (viewId === 'dashboard') app.ui.renderDashboard();
+        if (viewId === 'stats') app.ui.renderStats();
+    }
+},
          
              ui: {
                  applyTheme: () => {
@@ -835,7 +888,7 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
          
          app.state.editingWorkout.exercises.forEach((ex, idx) => {
          const el = document.createElement('div');
-         el.className = 'bg-gray-50 bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
+         el.className = ' bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
          el.innerHTML = `
          <div class="flex items-center gap-3 flex-1 overflow-hidden">
          <i class="fa-solid fa-grip-lines text-gray-400 cursor-move"></i>
@@ -1218,6 +1271,7 @@ startWorkout: (id) => {
         currentSet: 0,
         status: 'work',
         startTime: Date.now(),
+		exerciseStartTime: Date.now(), // ✨ AGGIUNGI QUESTO
         logs: [] // Track actual reps/weight
     };
     app.router.go('active');
@@ -1226,6 +1280,7 @@ startWorkout: (id) => {
     setTimeout(() => {
         app.ui.updateActiveView();
         app.handlers.startTotalTimer();
+		app.handlers.startExerciseTimer(); // ✨ AGGIUNGI QUESTO
     }, 250);
 },
          
@@ -1284,55 +1339,82 @@ startWorkout: (id) => {
                      }
                  },
          
-                 startRest: (seconds, isNextExercise = false) => {
-                     const session = app.state.activeSession;
-                     session.status = 'rest';
-                     app.ui.updateActiveView();
-                     
-                     let timeLeft = parseInt(seconds);
-                     const timerEl = document.getElementById('rest-timer-text');
-                     const circle = document.getElementById('rest-timer-circle');
-                     
-                     // 452 is circumference of r=88 circle
-                     const maxOffset = 452;
-                     circle.style.strokeDasharray = maxOffset;
-                     
-                     app.restInterval = setInterval(() => {
-                         timeLeft--;
-                         const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-                         const secs = (timeLeft % 60).toString().padStart(2, '0');
-                         timerEl.innerText = `${mins}:${secs}`;
-                         
-                         const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
-                         circle.style.strokeDashoffset = offset;
+startRest: (seconds, isNextExercise = false) => {
+    const session = app.state.activeSession;
+    session.status = 'rest';
+    app.ui.updateActiveView();
+    
+    // ✨ CARICA STATO TOGGLE
+    const autoNextCheckbox = document.getElementById('auto-next-toggle');
+    if (autoNextCheckbox) {
+        autoNextCheckbox.checked = app.state.settings.autoNext || false;
+    }
+    
+    let timeLeft = parseInt(seconds);
+    const timerEl = document.getElementById('rest-timer-text');
+    const circle = document.getElementById('rest-timer-circle');
+    
+    const maxOffset = 452;
+    circle.style.strokeDasharray = maxOffset;
+    
+    app.restInterval = setInterval(() => {
+        timeLeft--;
+        const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const secs = (timeLeft % 60).toString().padStart(2, '0');
+        timerEl.innerText = `${mins}:${secs}`;
+        
+        const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
+        circle.style.strokeDashoffset = offset;
+
+        if (timeLeft <= 0) {
+            clearInterval(app.restInterval);
+			
+			const restText = document.getElementById('rest-timer-text');
+			restText.classList.add('rest-blink');
+
+            
+            // ✨ LOGICA AUTO-NEXT
+            const isAutoNext = document.getElementById('auto-next-toggle')?.checked || false;
+            
+            if (isAutoNext) {
+                // Suono dedicato per auto-next
+                if(app.state.settings.sound) {
+                    document.getElementById('audio-auto-next').play().catch(e=>{});
+                }
+                if(app.state.settings.vibrate && navigator.vibrate) {
+                    navigator.vibrate([300, 100, 300]);
+                }
+                
+                // Continua automaticamente dopo 1 secondo
+                setTimeout(() => {
+                    app.handlers.skipRest(null, isNextExercise);
+                }, 1000);
+            } else {
+                // Comportamento normale
+                app.handlers.notify();
+            }
+        }
+    }, 1000);
+},
          
-                         if (timeLeft <= 0) {
-                             clearInterval(app.restInterval);
-                             app.handlers.notify();
-                             app.handlers.skipRest(null, isNextExercise);
-                         }
-                     }, 1000);
-                 },
-         
-                 skipRest: (_, isNextExercise = false) => {
-                     if (app.restInterval) clearInterval(app.restInterval);
-                     const session = app.state.activeSession;
-                     
-                     // Advance Logic
-                     const ex = session.workout.exercises[session.currentExIdx];
-                     
-                     // If we were resting after a set...
-                     if(session.currentSet < ex.sets - 1) {
-                         session.currentSet++;
-                     } else {
-                         // We were resting between exercises
-                         session.currentExIdx++;
-                         session.currentSet = 0;
-                     }
-                     
-                     session.status = 'work';
-                     app.ui.updateActiveView();
-                 },
+skipRest: (_, isNextExercise = false) => {
+    if (app.restInterval) clearInterval(app.restInterval);
+    const session = app.state.activeSession;
+    
+    const ex = session.workout.exercises[session.currentExIdx];
+    
+    if(session.currentSet < ex.sets - 1) {
+        session.currentSet++;
+    } else {
+        session.currentExIdx++;
+        session.currentSet = 0;
+        // ✨ RESETTA TIMER QUANDO CAMBI ESERCIZIO
+        app.handlers.startExerciseTimer();
+    }
+    
+    session.status = 'work';
+    app.ui.updateActiveView();
+},
          
                  skipExercise: () => {
                      const session = app.state.activeSession;
@@ -1357,6 +1439,7 @@ startWorkout: (id) => {
                      if(confirm("Vuoi uscire senza salvare?")) {
                          if (app.restInterval) clearInterval(app.restInterval);
                          if (app.totalTimerInt) clearInterval(app.totalTimerInt);
+						 if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
                          app.router.go('dashboard');
                      }
                  },
@@ -1364,6 +1447,7 @@ startWorkout: (id) => {
                  finishWorkout: async () => {
                      if (app.restInterval) clearInterval(app.restInterval);
                      if (app.totalTimerInt) clearInterval(app.totalTimerInt);
+					  if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
                      
                      document.getElementById('audio-complete').play().catch(e=>{});
                      if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
@@ -1414,6 +1498,32 @@ startWorkout: (id) => {
                          el.innerText = `${m}:${s}`;
                      }, 1000);
                  },
+				 
+				 startExerciseTimer: () => {
+    const session = app.state.activeSession;
+    if (!session) return;
+    
+    // Resetta il tempo di inizio esercizio
+    session.exerciseStartTime = Date.now();
+    
+    const el = document.getElementById('exercise-timer');
+    if (!el) return;
+    
+    // Pulisci eventuale timer precedente
+    if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
+    
+    app.exerciseTimerInt = setInterval(() => {
+        if (!app.state.activeSession || app.state.activeSession.status === 'rest') {
+            // Non mostrare durante il riposo
+            return;
+        }
+        
+        const diff = Math.floor((Date.now() - session.exerciseStartTime) / 1000);
+        const m = Math.floor(diff / 60).toString().padStart(2, '0');
+        const s = (diff % 60).toString().padStart(2, '0');
+        el.innerText = `${m}:${s}`;
+    }, 1000);
+},
          
                  // Notifications & Sounds
                  requestNotificationPermission: () => {
@@ -1452,7 +1562,7 @@ startWorkout: (id) => {
                     ${isPast ? '<i class="fa-solid fa-check text-green-500"></i>' : isCurrent ? '<i class="fa-solid fa-arrow-right text-primary"></i>' : '<i class="fa-solid fa-circle text-gray-600 text-xs"></i>'}
                     <span class="font-bold text-lg">${ex.name}</span>
                 </div>
-                ${isCurrent ? '<span class="text-xs bg-primary px-2 py-1 rounded-full">IN CORSO</span>' : ''}
+                ${isCurrent ? '<span class="text-xs bg-primary px-2 py-1 rounded-full" style="white-space: nowrap;">IN CORSO</span>' : ''}
             </div>
             <div class="grid grid-cols-3 gap-3 text-sm mt-3">
                 <div class="bg-gray-900 px-3 py-2 rounded-lg text-center">
@@ -1575,6 +1685,14 @@ exportData: async () => {
              app.db.put('settings', { key: key, value: el.value });
          });
          });
+		 
+		 document.addEventListener('change', (e) => {
+				if (e.target.id === 'auto-next-toggle') {
+					app.state.settings.autoNext = e.target.checked;
+					app.db.put('settings', { key: 'autoNext', value: e.target.checked });
+				}
+			});
+		 
          });
          
       </script>
