@@ -1312,16 +1312,20 @@
          }, 250);
          },
          
-                 adjustWeight: (delta) => {
-         const session = app.state.activeSession;
-         const ex = session.workout.exercises[session.currentExIdx];
-         let w = parseFloat(ex.lastWeight);
-         if (isNaN(w)) w = 0;
-         w += delta;
-         if(w < 0) w = 0;
-         ex.lastWeight = w;
-         app.ui.updateActiveView();
-         },
+// CERCA QUESTA FUNZIONE (circa riga 1040)
+adjustWeight: (delta) => {
+  const session = app.state.activeSession;
+  const ex = session.workout.exercises[session.currentExIdx];
+  let w = parseFloat(ex.lastWeight);
+  if (isNaN(w)) w = 0;
+  w += delta;
+  if(w < 0) w = 0;
+  ex.lastWeight = w;
+  app.ui.updateActiveView();
+  
+  // ✨ AGGIUNGI QUI SE VUOI: (opzionale)
+  // app.handlers.startExerciseTimer(); // Resetta il timer quando cambi peso
+},
          
                  completeSet: () => {
                      const session = app.state.activeSession;
@@ -1354,10 +1358,13 @@
                      // Check if exercise finished
                      if (session.currentSet < ex.sets - 1) {
                          // Start Rest
-                         app.handlers.startRest(ex.rest);
+                         app.handlers.startExerciseTimer();
+    // Start Rest
+    app.handlers.startRest(ex.rest);
                      } else {
                          // Exercise Finished
                          if (session.currentExIdx < session.workout.exercises.length - 1) {
+							  app.handlers.startExerciseTimer();
                              // Move to next exercise (with rest)
                              app.handlers.startRest(ex.rest, true);
                          } else {
@@ -1428,39 +1435,43 @@
          }, 1000);
          },
          
-         skipRest: (_, isNextExercise = false) => {
-         if (app.restInterval) clearInterval(app.restInterval);
-         const session = app.state.activeSession;
+// CERCA QUESTA FUNZIONE (circa riga 1100)
+skipRest: (_, isNextExercise = false) => {
+  if (app.restInterval) clearInterval(app.restInterval);
+  const session = app.state.activeSession;
+  
+  const ex = session.workout.exercises[session.currentExIdx];
+  
+  if(session.currentSet < ex.sets - 1) {
+    session.currentSet++;
+  } else {
+    session.currentExIdx++;
+    session.currentSet = 0;
+  }
+  
+  // ✨ SPOSTA QUI: Resetta il timer PRIMA di cambiare status
+  app.handlers.startExerciseTimer();
+  app.handlers.setRandomMotivation();
+  
+  session.status = 'work';
+  app.ui.updateActiveView();
+},
          
-         const ex = session.workout.exercises[session.currentExIdx];
-         
-         if(session.currentSet < ex.sets - 1) {
-         session.currentSet++;
-         } else {
-         session.currentExIdx++;
-         session.currentSet = 0;
-         // ✨ RESETTA TIMER QUANDO CAMBI ESERCIZIO
-         app.handlers.startExerciseTimer();
-		 app.handlers.setRandomMotivation();
-         }
-         
-         session.status = 'work';
-         app.ui.updateActiveView();
-		 app.handlers.setRandomMotivation();
-         },
-         
-                 skipExercise: () => {
-                     const session = app.state.activeSession;
-                     if (session.currentExIdx < session.workout.exercises.length - 1) {
-                         session.currentExIdx++;
-                         session.currentSet = 0;
-                         session.status = 'work';
-                         if (app.restInterval) clearInterval(app.restInterval);
-                         app.ui.updateActiveView();
-                     } else {
-                         app.handlers.finishWorkout();
-                     }
-                 },
+// CERCA QUESTA FUNZIONE (circa riga 1150)
+skipExercise: () => {
+  const session = app.state.activeSession;
+  if (session.currentExIdx < session.workout.exercises.length - 1) {
+    session.currentExIdx++;
+    session.currentSet = 0;
+    // ✨ AGGIUNGI QUI:
+    app.handlers.startExerciseTimer();
+    session.status = 'work';
+    if (app.restInterval) clearInterval(app.restInterval);
+    app.ui.updateActiveView();
+  } else {
+    app.handlers.finishWorkout();
+  }
+},
          
                  finishWorkoutEarly: () => {
                      if(confirm("Terminare l'allenamento ora?")) {
@@ -1532,31 +1543,36 @@
                      }, 1000);
                  },
          
-         startExerciseTimer: () => {
-         const session = app.state.activeSession;
-         if (!session) return;
-         
-         // Resetta il tempo di inizio esercizio
-         session.exerciseStartTime = Date.now();
-         
-         const el = document.getElementById('exercise-timer');
-         if (!el) return;
-         
-         // Pulisci eventuale timer precedente
-         if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
-         
-         app.exerciseTimerInt = setInterval(() => {
-         if (!app.state.activeSession || app.state.activeSession.status === 'rest') {
-            // Non mostrare durante il riposo
-            return;
-         }
-         
-         const diff = Math.floor((Date.now() - session.exerciseStartTime) / 1000);
-         const m = Math.floor(diff / 60).toString().padStart(2, '0');
-         const s = (diff % 60).toString().padStart(2, '0');
-         el.innerText = `${m}:${s}`;
-         }, 1000);
-         },
+// CERCA QUESTA FUNZIONE (circa riga 1300)
+startExerciseTimer: () => {
+  const session = app.state.activeSession;
+  if (!session) return;
+
+  // ✨ MODIFICA: Resetta SEMPRE il tempo di inizio esercizio
+  session.exerciseStartTime = Date.now();
+
+  const el = document.getElementById('exercise-timer');
+  if (!el) return;
+
+  // ✨ AGGIUNGI: Reset immediato del display
+  el.innerText = '00:00';
+
+  // Pulisci eventuale timer precedente
+  if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
+
+  app.exerciseTimerInt = setInterval(() => {
+    if (!app.state.activeSession || app.state.activeSession.status === 'rest') {
+      // ✨ MODIFICA: Durante il riposo, NON nascondere, ma mostra "00:00"
+      el.innerText = '00:00';
+      return;
+    }
+
+    const diff = Math.floor((Date.now() - session.exerciseStartTime) / 1000);
+    const m = Math.floor(diff / 60).toString().padStart(2, '0');
+    const s = (diff % 60).toString().padStart(2, '0');
+    el.innerText = `${m}:${s}`;
+  }, 1000);
+},
          
                  // Notifications & Sounds
                  requestNotificationPermission: () => {
