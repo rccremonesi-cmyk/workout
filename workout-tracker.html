@@ -290,7 +290,7 @@
             <!-- Progress Bar -->
             <!-- Progress Bar with Exercise Navigation -->
             <div class="bg-gray-800 w-full">
-               <div class="px-4 py-2 flex items-center justify-between text-xs">
+               <div class="px-4 py-2 flex items-center justify-between text-xs" style="font-weight: 700;">
                   <div id="prev-exercise" class="text-gray-500 flex-1 text-left truncate">
                      <i class="fa-solid fa-check text-green-500 mr-1"></i>
                      <span>-</span>
@@ -310,9 +310,9 @@
                <!-- Current Exercise Info -->
                <div class="text-center w-full animate-fade-in">
                   <h2 id="active-exercise-name" class="text-2xl font-bold mb-5 break-words">Nome Esercizio</h2>
-                  <div class="flex justify-center gap-4 text-gray-400 text-sm mb-4">
+                  <div class="flex justify-center gap-2 text-gray-400 text-sm mb-4">
                      <span id="active-set-display" class="bg-primary px-3 py-1 rounded-full border border-gray-700" style="color:#FFF;">Serie 1/4</span>
-                     <span id="active-target-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700" style="color:#FFF;">10 Reps</span>
+                     <span id="active-target-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700" style="color:#FFF; background-color: #425267;">10 Reps</span>
                   </div>
                   <!-- Weight Control -->
                   <!-- Weight Control -->
@@ -380,7 +380,7 @@
                      <div id="exercise-notes-container" class="mt-4 hidden">
                         <button onclick="app.handlers.toggleNotes()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 mx-auto transition">
                         <i class="fa-regular fa-note-sticky"></i>
-                        <span>Vedi Note</span>
+                        <span>Leggi Note</span>
                         <i id="notes-chevron" class="fa-solid fa-chevron-down text-xs"></i>
                         </button>
                         <div id="exercise-notes-content" class="hidden  bg-gray-800 rounded-lg p-4 text-left text-sm text-gray-300 max-w-md mx-auto">
