@@ -11,37 +11,59 @@
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-	   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+      <meta http-equiv="Pragma" content="no-cache">
+      <meta http-equiv="Expires" content="0">
       <style>	  
-	  #exercise-modal input{
-		border:1px solid #5127f2;
-	  }
 	  
-	  	  #exercise-modal select{
-		border:1px solid #5127f2;
-	  }
-	  
-	  @keyframes blink-rest {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.2; }
+@keyframes beastShake {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  70% {
+    transform: scale(0.98) rotate(-1deg);
+  }
+  85% {
+    transform: scale(1.02) rotate(1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
 }
 
-.rest-blink {
-  animation: blink-rest 0.6s ease-in-out infinite;
+#motivational-text {
+  animation: beastShake 0.5s ease-out both;
 }
 
 
-		  /* Layout mobile-first responsive */
-@media (min-width: 768px) {
-    nav, main {
-        max-width: 480px;
-        margin: 0 auto;
-        box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-    }
-}
+
+
+         #exercise-modal input, #exercise-modal textarea{
+         border:1px solid #5127f2;
+         }
+         #exercise-modal select{
+         border:1px solid #5127f2;
+         }
+         @keyframes blink-rest {
+         0%, 100% { opacity: 1; }
+         50% { opacity: 0.2; }
+         }
+         .rest-blink {
+         animation: blink-rest 0.6s ease-in-out infinite;
+         }
+         /* Layout mobile-first responsive */
+         @media (min-width: 768px) {
+         nav, main {
+         max-width: 480px;
+         margin: 0 auto;
+         box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+         }
+         }
          /* ... (mantieni il tuo stile CSS esistente qui) ... */
          /* Assicurati solo di non aver cancellato i tuoi stili custom */
          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -60,85 +82,74 @@
          .sortable-drag { cursor: grabbing; }
          .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
          .footer-action{ position: fixed; bottom: 0px; width: 100%; }
-		  
-		/* Scrollbar personalizzata per workout preview */
-#workout-preview-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-#workout-preview-content::-webkit-scrollbar-track {
-    background: #111827;
-}
-
-#workout-preview-content::-webkit-scrollbar-thumb {
-    background: #5127F2;
-    border-radius: 4px;
-}
-
-#workout-preview-content::-webkit-scrollbar-thumb:hover {
-    background: #401eb5;
-}
-
-/* Per Firefox */
-#workout-preview-content {
-    scrollbar-width: thin;
-    scrollbar-color: #5127F2 #111827;
-}
-
-.workout-active-bg {
-    background: #111827;
-    position: relative;
-    overflow: hidden;
-}
-
-.workout-active-bg::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, #5127F2 0%, transparent 70%);
-    animation: energy-pulse 3s ease-in-out infinite;
-    pointer-events: none;
-}
-
-.workout-active-bg::after {
-    content: '';
-    position: absolute;
-    bottom: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
-    animation: energy-pulse-2 4s ease-in-out infinite;
-    pointer-events: none;
-}
-/* Toggle Switch */
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-}
-
-
-.workout-rest-bg {
-    background: #111827;
-    transition: background 0.5s ease;
-    position: relative;
-}
-
-/* Rimuovi gli pseudo-elementi durante il riposo */
-.workout-rest-bg::before,
-.workout-rest-bg::after {
-    display: none;
-}
+         /* Scrollbar personalizzata per workout preview */
+         #workout-preview-content::-webkit-scrollbar {
+         width: 8px;
+         }
+         #workout-preview-content::-webkit-scrollbar-track {
+         background: #111827;
+         }
+         #workout-preview-content::-webkit-scrollbar-thumb {
+         background: #5127F2;
+         border-radius: 4px;
+         }
+         #workout-preview-content::-webkit-scrollbar-thumb:hover {
+         background: #401eb5;
+         }
+         /* Per Firefox */
+         #workout-preview-content {
+         scrollbar-width: thin;
+         scrollbar-color: #5127F2 #111827;
+         }
+         .workout-active-bg {
+         background: #111827;
+         position: relative;
+         overflow: hidden;
+         }
+         .workout-active-bg::before {
+         content: '';
+         position: absolute;
+         top: -50%;
+         left: -50%;
+         width: 200%;
+         height: 200%;
+         background: radial-gradient(circle, #5127F2 0%, transparent 70%);
+         animation: energy-pulse 3s ease-in-out infinite;
+         pointer-events: none;
+         }
+         .workout-active-bg::after {
+         content: '';
+         position: absolute;
+         bottom: -50%;
+         right: -50%;
+         width: 200%;
+         height: 200%;
+         background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+         animation: energy-pulse-2 4s ease-in-out infinite;
+         pointer-events: none;
+         }
+         /* Toggle Switch */
+         .sr-only {
+         position: absolute;
+         width: 1px;
+         height: 1px;
+         padding: 0;
+         margin: -1px;
+         overflow: hidden;
+         clip: rect(0, 0, 0, 0);
+         white-space: nowrap;
+         border-width: 0;
+         }
+         .workout-rest-bg {
+         background: #111827;
+         transition: background 0.5s ease;
+         position: relative;
+         }
+         /* Rimuovi gli pseudo-elementi durante il riposo */
+         .workout-rest-bg::before,
+         .workout-rest-bg::after {
+         display: none;
+         }
       </style>
       <script>
          tailwind.config = {
@@ -158,67 +169,58 @@
       </script>
    </head>
    <body class="bg-darkBg text-gray-100 h-screen flex flex-col overflow-hidden">
-
       <!-- HEADER -->
-<header class="bg-darkCard shadow-sm z-20 px-4 py-3 grid grid-cols-3 items-center">
-  
-  <!-- Sinistra (vuoto o future azioni) -->
-  <div></div>
-
-  <!-- Centro: LOGO -->
-  <div class="flex items-center justify-center gap-2">
-    <i class="fa-solid fa-dumbbell text-primary text-xl"></i>
-    <h1 class="font-bold text-lg tracking-tight">WorkoutTracker</h1>
-  </div>
-
-  <!-- Destra -->
-  <div class="flex justify-end">
-  
-  </div>
-
-</header>
-
+      <header class="bg-darkCard shadow-sm z-20 px-4 py-3 grid grid-cols-3 items-center">
+         <!-- Sinistra (vuoto o future azioni) -->
+         <div></div>
+         <!-- Centro: LOGO -->
+         <div class="flex items-center justify-center gap-2">
+            <i class="fa-solid fa-dumbbell text-primary text-xl"></i>
+            <h1 class="font-bold text-lg tracking-tight">WorkoutTracker</h1>
+         </div>
+         <!-- Destra -->
+         <div class="flex justify-end">
+         </div>
+      </header>
       <!-- MAIN CONTENT AREA -->
       <main id="app-container" class="flex-1 overflow-y-auto overflow-x-hidden relative hide-scrollbar" style="padding-bottom: 8rem;">
          <!-- VIEW: DASHBOARD (HOME) -->
          <section id="view-dashboard" class="view-section active p-4 space-y-6">
             <!-- Quick Stats Card -->
-<!-- Quick Stats Card -->
-<div class="bg-gradient-to-r from-primary to-primaryDark rounded-2xl p-5 text-white shadow-lg">
-   <h2 class="text-sm opacity-90 uppercase tracking-wider font-semibold">Questo Mese</h2>
-   <div class="grid grid-cols-2 gap-4 mt-3">
-      <div>
-         <span id="monthly-workouts-count" class="text-4xl font-bold">0</span>
-         <span class="text-sm opacity-80 block">Allenamenti</span>
-      </div>
-      <div class="text-right">
-         <span id="monthly-volume" class="text-xl font-bold">0</span>
-         <span class="text-sm opacity-80 block">kg Sollevati</span>
-      </div>
-      <div>
-         <span id="monthly-calories" class="text-4xl font-bold">0</span>
-         <span class="text-sm opacity-80 block">kcal Bruciate</span>
-      </div>
-      <div class="text-right">
-         <span id="monthly-fat-burned" class="text-xl font-bold">0</span>
-         <span class="text-sm opacity-80 block">g Grasso</span>
-      </div>
-   </div>
-</div>
+            <!-- Quick Stats Card -->
+            <div class="bg-gradient-to-r from-primary to-primaryDark rounded-2xl p-5 text-white shadow-lg">
+               <h2 class="text-sm opacity-90 uppercase tracking-wider font-semibold">Questo Mese</h2>
+               <div class="grid grid-cols-2 gap-4 mt-3">
+                  <div>
+                     <span id="monthly-workouts-count" class="text-4xl font-bold">0</span>
+                     <span class="text-sm opacity-80 block">Allenamenti</span>
+                  </div>
+                  <div class="text-right">
+                     <span id="monthly-volume" class="text-xl font-bold">0</span>
+                     <span class="text-sm opacity-80 block">kg Sollevati</span>
+                  </div>
+                  <div>
+                     <span id="monthly-calories" class="text-4xl font-bold">0</span>
+                     <span class="text-sm opacity-80 block">kcal Bruciate</span>
+                  </div>
+                  <div class="text-right">
+                     <span id="monthly-fat-burned" class="text-xl font-bold">0</span>
+                     <span class="text-sm opacity-80 block">g Grasso</span>
+                  </div>
+               </div>
+            </div>
             <!-- Workouts List -->
             <div>
                <div class="flex justify-between items-center mb-4">
                   <h3 class="font-bold text-lg">I miei Workout</h3>
-                  
-				  
-				  <button onclick="app.handlers.createNewWorkout()" id="add-workout-fab" 
-    class="fixed bottom-[calc(3rem+env(safe-area-inset-bottom))] right-4 
-           bg-primary text-white p-4 rounded-full shadow-lg 
-           hover:bg-primaryDark transition duration-300 
-           z-50 text-xl w-14 h-14 flex items-center justify-center 
-           transform active:scale-95">
-    <i class="fa-solid fa-plus"></i>
-</button>
+                  <button onclick="app.handlers.createNewWorkout()" id="add-workout-fab" 
+                     class="fixed bottom-[calc(3rem+env(safe-area-inset-bottom))] right-4 
+                     bg-primary text-white p-4 rounded-full shadow-lg 
+                     hover:bg-primaryDark transition duration-300 
+                     z-50 text-xl w-14 h-14 flex items-center justify-center 
+                     transform active:scale-95">
+                  <i class="fa-solid fa-plus"></i>
+                  </button>
                </div>
                <div id="workout-list" class="space-y-3">
                   <!-- Dynamic Workout Cards injected here -->
@@ -231,10 +233,10 @@
             <div class="flex items-center gap-4 mb-6">
                <button onclick="app.router.go('dashboard')" class="p-2 -ml-2 text-gray-500 hover:text-primary"><i class="fa-solid fa-arrow-left text-xl"></i></button>
                <input type="text" id="editor-name" style="padding: 5px 35px 5px 10px;
-    border: 1px solid #FFF;
-    border-radius: 7px;
-    -webkit-box-shadow: 0px 0px 10px 1px #5127F2;
-    box-shadow: 0px 0px 10px 1px #5127F2;" class="flex-1  font-bold bg-transparent border-none focus:ring-0 placeholder-gray-400" placeholder="Nome Workout (es. Leg Day)">
+                  border: 1px solid #FFF;
+                  border-radius: 7px;
+                  -webkit-box-shadow: 0px 0px 10px 1px #5127F2;
+                  box-shadow: 0px 0px 10px 1px #5127F2;" class="flex-1  font-bold bg-transparent border-none focus:ring-0 placeholder-gray-400" placeholder="Nome Workout (es. Leg Day)">
             </div>
             <div id="editor-exercises-list" class="space-y-4 mb-20">
                <!-- Exercises injected here via SortableJS -->
@@ -257,42 +259,34 @@
             </div>
          </section>
          <!-- VIEW: ACTIVE WORKOUT MODE -->
-
-<section id="view-active" class="view-section bg-gray-900 text-white h-screen absolute inset-0 z-50 flex flex-col overflow-hidden">
-
-
+         <section id="view-active" class="view-section bg-gray-900 text-white h-screen absolute inset-0 z-50 flex flex-col overflow-hidden">
             <!-- Active Header -->
-<div class="px-4 py-4 flex items-center border-b border-gray-700">
-
-    <!-- Sinistra -->
-    <button onclick="app.handlers.confirmExitWorkout()" class="text-gray-400">
-        <i class="fa-solid fa-xmark text-2xl"></i>
-    </button>
-
-    <!-- Centro -->
-    <div class="flex-1 flex justify-center" onclick="app.handlers.showWorkoutPreview()">
-        <div class="flex items-center gap-3">
-            <i class="fa-solid fa-list-ul text-xl text-gray-400"></i>
-
-            <div class="text-left">
-                <h3 id="active-workout-name" class="font-bold text-xs text-gray-300">
-                    A – Upper Push (Petto alto &amp; Spalle)
-                </h3>
-                <div class="flex items-center gap-2 text-xs">
-                    <span><i class="fa-regular fa-clock" style="font-size: 10px; color:#b9a9f6; margin-right:5px;"></i><span id="active-timer-total" class=" font-mono" style="color:#b9a9f6;"> 00:10</span>
-                    <span class="text-gray-500">•</span>
-                    <span id="active-exercise-count" class="text-gray-400">1/5 es.</span>
-                </div>
+            <div class="px-4 py-4 flex items-center border-b border-gray-700">
+               <!-- Sinistra -->
+               <button onclick="app.handlers.confirmExitWorkout()" class="text-gray-400">
+               <i class="fa-solid fa-xmark text-2xl"></i>
+               </button>
+               <!-- Centro -->
+               <div class="flex-1 flex justify-center" onclick="app.handlers.showWorkoutPreview()">
+                  <div class="flex items-center gap-3">
+                     <i class="fa-solid fa-list-check text-xl text-gray-400"></i>
+                     <div class="text-left">
+                        <h3 id="active-workout-name" class="font-bold text-xs text-gray-300">
+                           A – Upper Push (Petto alto &amp; Spalle)
+                        </h3>
+                        <div class="flex items-center gap-2 text-xs">
+                           <span><i class="fa-regular fa-clock" style="font-size: 10px; color:#b9a9f6; margin-right:5px;"></i><span id="active-timer-total" class=" font-mono" style="color:#b9a9f6;"> 00:10</span>
+                           <span class="text-gray-500">•</span>
+                           <span id="active-exercise-count" class="text-gray-400">1/5 es.</span>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <!-- Destra -->
+               <button onclick="app.handlers.toggleSound()" id="sound-toggle" class="text-gray-400">
+               <i class="fa-solid fa-volume-high"></i>
+               </button>
             </div>
-        </div>
-    </div>
-
-    <!-- Destra -->
-    <button onclick="app.handlers.toggleSound()" id="sound-toggle" class="text-gray-400">
-        <i class="fa-solid fa-volume-high"></i>
-    </button>
-
-</div>
             <!-- Progress Bar -->
             <!-- Progress Bar with Exercise Navigation -->
             <div class="bg-gray-800 w-full">
@@ -312,7 +306,7 @@
                </div>
             </div>
             <!-- Main Exercise Area -->
-           <div class="flex-1 overflow-y-auto p-5 hide-scrollbar" style="padding-bottom: 220px;">
+            <div class="flex-1 overflow-y-auto p-5 hide-scrollbar" style="padding-bottom: 220px;">
                <!-- Current Exercise Info -->
                <div class="text-center w-full animate-fade-in">
                   <h2 id="active-exercise-name" class="text-2xl font-bold mb-5 break-words">Nome Esercizio</h2>
@@ -321,28 +315,25 @@
                      <span id="active-target-display" class="bg-gray-800 px-3 py-1 rounded-full border border-gray-700" style="color:#FFF;">10 Reps</span>
                   </div>
                   <!-- Weight Control -->
-               <!-- Weight Control -->
-<div class="flex items-center justify-center gap-3 my-4">
-   <!-- Pulsanti -5 e -1 -->
-   <div class="flex flex-col gap-1">
-      <button onclick="app.handlers.adjustWeight(-0.5)" style="width: 6.5rem; margin-bottom:7px;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-0.5 kg</button>
-      <button onclick="app.handlers.adjustWeight(-1)" style="width: 6.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-1 kg</button>
-   </div>
-   
-   <!-- Display Peso -->
-   <div class="text-center px-2">
-      <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
-      <span class="text-sm text-gray-500 block uppercase">kg</span>
-   </div>
-   
-   <!-- Pulsanti +1 e +5 -->
-   <div class="flex flex-col gap-1">
-      <button onclick="app.handlers.adjustWeight(0.5)" style="width: 6.5rem; margin-bottom:7px;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+0.5 kg</button>
-      <button onclick="app.handlers.adjustWeight(1)" style="width: 6.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+1 kg</button>
-   </div>
-</div>
+                  <!-- Weight Control -->
+                  <div class="flex items-center justify-center gap-3 my-4">
+                     <!-- Pulsanti -5 e -1 -->
+                     <div class="flex flex-col gap-1">
+                        <button onclick="app.handlers.adjustWeight(-0.5)" style="width: 5.5rem; margin-bottom:7px;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-0.5 kg</button>
+                        <button onclick="app.handlers.adjustWeight(-1)" style="width: 5.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-1 kg</button>
+                     </div>
+                     <!-- Display Peso -->
+                     <div class="text-center px-2">
+                        <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
+                        <span class="text-sm text-gray-500 block uppercase">kg</span>
+                     </div>
+                     <!-- Pulsanti +1 e +5 -->
+                     <div class="flex flex-col gap-1">
+                        <button onclick="app.handlers.adjustWeight(0.5)" style="width: 5.5rem; margin-bottom:7px;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+0.5 kg</button>
+                        <button onclick="app.handlers.adjustWeight(1)" style="width: 5.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+1 kg</button>
+                     </div>
+                  </div>
                </div>
-             
                <!-- Timer / Rest Overlay -->
                <div id="rest-overlay" class="hidden flex-col items-center justify-center w-full py-0">
                   <div class="relative w-40 h-40">
@@ -353,72 +344,81 @@
                      <div class="absolute inset-0 flex items-center justify-center flex-col">
                         <span class="text-gray-400 text-xs uppercase tracking-widest">Pausa</span>
                         <span id="rest-timer-text" class="text-3xl font-mono font-bold">00:00</span>
-<div class="flex flex-col items-center gap-2">
-   <label for="auto-next-toggle" class="text-sm text-gray-300">
-      Auto-continua
-   </label>
-
-   <div class="relative">
-      <input type="checkbox" id="auto-next-toggle" class="sr-only peer">
-
-      <div
-         class="w-11 h-6 bg-gray-700 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"
-         onclick="document.getElementById('auto-next-toggle').click()"
-      ></div>
-
-      <div
-         class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 pointer-events-none"
-      ></div>
-   </div>
-</div>
-
+                        <div class="flex flex-col items-center gap-2">
+                           <label for="auto-next-toggle" class="text-sm text-gray-300">
+                           Auto-continua
+                           </label>
+                           <div class="relative">
+                              <input type="checkbox" id="auto-next-toggle" class="sr-only peer">
+                              <div
+                                 class="w-11 h-6 bg-gray-700 rounded-full peer-checked:bg-primary transition-colors cursor-pointer"
+                                 onclick="document.getElementById('auto-next-toggle').click()"
+                                 ></div>
+                              <div
+                                 class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 pointer-events-none"
+                                 ></div>
+                           </div>
+                        </div>
                      </div>
                   </div>
-				  
                </div>
-
-				<!-- AGGIUNGI QUESTO NUOVO BLOCCO -->
-<div id="work-overlay" class="flex-col items-center justify-center w-full py-6">
-   <div class="text-center">
-      <i class="fa-solid fa-dumbbell text-primary text-4xl mb-3 animate-pulse"></i>
-      <span class="text-gray-400 text-sm uppercase tracking-widest block">Serie in corso</span>
-      <!-- ✨ AGGIUNGI TIMER ESERCIZIO -->
-      <span class="text-gray-400 text-sm  tracking-widest block">Iniziata da: <span id="exercise-timer">00:00</span></span>
-      <span class="text-xl font-bold mt-2 block">Dai il massimo! 💪</span>
-   </div>
-</div>
-				
+               <!-- AGGIUNGI QUESTO NUOVO BLOCCO -->
+               <div id="work-overlay" class="flex-col items-center justify-center w-full py-2">
+                  <div class="text-center" style="
+    width:100%;
+    padding: 15px 30px;
+    border-radius: 18px;
+    -webkit-box-shadow: 0px 0px 12px 6px #000000;
+    box-shadow: 0px 0px 12px 6px #090122;
+    background-color: #1f2937;
+">
+                     <i class="fa-solid fa-dumbbell text-primary text-4xl mb-3 animate-pulse"></i>
+                     <span class="text-gray-400 text-sm uppercase tracking-widest block">Serie in corso</span>
+                     <!-- ✨ AGGIUNGI TIMER ESERCIZIO -->
+                     <span class="text-gray-400 text-sm  tracking-widest block">Iniziata da: <span id="exercise-timer">00:00</span></span>
+                     <span id="motivational-text" class="text-xl font-bold mt-2 block">Dai il massimo! 💪</span>
+                     <div id="exercise-notes-container" class="mt-4 hidden">
+                        <button onclick="app.handlers.toggleNotes()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 mx-auto transition">
+                        <i class="fa-regular fa-note-sticky"></i>
+                        <span>Vedi Note</span>
+                        <i id="notes-chevron" class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="exercise-notes-content" class="hidden  bg-gray-800 rounded-lg p-4 text-left text-sm text-gray-300 max-w-md mx-auto">
+                           <!-- Note inserite qui dinamicamente -->
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </div>
             <!-- Controls Footer -->
-           <!-- Controls Footer -->
-<div class="fixed bottom-0 left-0 right-0 bg-gray-800 pb-safe z-40">
-   <!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
-<!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
-<div class="px-4 pt-2 pb-3">
-   <div class="flex items-center justify-between text-xs text-gray-400 mb-1">
-      <span id="footer-progress-text">Serie 1/12</span>
-      <span id="footer-time-remaining">~15 min rimanenti</span>
-   </div>
-   <div class="relative h-1.5 bg-gray-700 rounded-full overflow-visible">
-      <!-- Step Markers -->
-      <div id="progress-steps" class="absolute inset-0 flex items-center justify-between px-0">
-         <!-- Injected by JS -->
-      </div>
-      <!-- Fill Bar -->
-      <div id="footer-progress-fill" class="h-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-300 relative z-10" style="width: 8%"></div>
-   </div>
-</div>
-   
-   <div class="px-6 pb-6 rounded-t-3xl">
-      <button id="btn-main-action" onclick="app.handlers.completeSet()" class="w-full bg-primary hover:bg-primaryDark text-white font-bold text-xl py-4 rounded-xl shadow-lg transform transition active:scale-95 flex justify-center items-center gap-3">
-      <i class="fa-solid fa-check"></i> <span>Serie Completata</span>
-      </button>
-      <div class="flex justify-between mt-4 px-2">
-         <button onclick="app.handlers.skipExercise()" class="text-gray-400 text-sm hover:text-white">Salta Esercizio</button>
-         <button onclick="app.handlers.finishWorkoutEarly()" class="text-red-400 text-sm hover:text-red-300">Termina Workout</button>
-      </div>
-   </div>
-</div>
+            <!-- Controls Footer -->
+            <div class="fixed bottom-0 left-0 right-0 bg-gray-800 pb-safe z-40">
+               <!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
+               <!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
+               <div class="px-4 pt-2 pb-3">
+                  <div class="flex items-center justify-between text-xs text-gray-400 mb-1">
+                     <span id="footer-progress-text">Serie 1/12</span>
+                     <span id="footer-time-remaining">~15 min rimanenti</span>
+                  </div>
+                  <div class="relative h-1.5 bg-gray-700 rounded-full overflow-visible">
+                     <!-- Step Markers -->
+                     <div id="progress-steps" class="absolute inset-0 flex items-center justify-between px-0">
+                        <!-- Injected by JS -->
+                     </div>
+                     <!-- Fill Bar -->
+                     <div id="footer-progress-fill" class="h-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-300 relative z-10" style="width: 8%"></div>
+                  </div>
+               </div>
+               <div class="px-6 pb-6 rounded-t-3xl">
+                  <button id="btn-main-action" onclick="app.handlers.completeSet()" class="w-full bg-primary hover:bg-primaryDark text-white font-bold text-xl py-4 rounded-xl shadow-lg transform transition active:scale-95 flex justify-center items-center gap-3">
+                  <i class="fa-solid fa-check"></i> <span>Serie Completata</span>
+                  </button>
+                  <div class="flex justify-between mt-4 px-2">
+                     <button onclick="app.handlers.skipExercise()" class="text-gray-400 text-sm hover:text-white">Salta Esercizio</button>
+                     <button onclick="app.handlers.finishWorkoutEarly()" class="text-red-400 text-sm hover:text-red-300">Termina Workout</button>
+                  </div>
+               </div>
+            </div>
          </section>
          <!-- VIEW: STATISTICS -->
          <section id="view-stats" class="view-section p-4 space-y-6 pb-20">
@@ -436,26 +436,23 @@
                <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Allenamenti Mensili</h3>
                <canvas id="chart-consistency" height="200"></canvas>
             </div>
-			
-			<!-- Summary Card Calorie e Grasso -->
-<div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-5 text-white shadow-lg">
-   <h3 class="text-sm opacity-90 uppercase tracking-wider font-semibold mb-4">Totale Storico</h3>
-   <div class="grid grid-cols-2 gap-4">
-      <div>
-         <span id="total-calories" class="text-3xl font-bold block">0</span>
-         <span class="text-sm opacity-80">kcal Bruciate</span>
-      </div>
-      <div class="text-right">
-         <span id="total-fat-burned" class="text-3xl font-bold block">0</span>
-         <span class="text-sm opacity-80">g di Grasso</span>
-      </div>
-   </div>
-   <div class="mt-3 pt-3 border-t border-white/20 text-xs opacity-75">
-      💡 ~7.500 kcal = 1 kg di grasso corporeo
-   </div>
-</div>
-
-
+            <!-- Summary Card Calorie e Grasso -->
+            <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-5 text-white shadow-lg">
+               <h3 class="text-sm opacity-90 uppercase tracking-wider font-semibold mb-4">Totale Storico</h3>
+               <div class="grid grid-cols-2 gap-4">
+                  <div>
+                     <span id="total-calories" class="text-3xl font-bold block">0</span>
+                     <span class="text-sm opacity-80">kcal Bruciate</span>
+                  </div>
+                  <div class="text-right">
+                     <span id="total-fat-burned" class="text-3xl font-bold block">0</span>
+                     <span class="text-sm opacity-80">g di Grasso</span>
+                  </div>
+               </div>
+               <div class="mt-3 pt-3 border-t border-white/20 text-xs opacity-75">
+                  💡 ~7.500 kcal = 1 kg di grasso corporeo
+               </div>
+            </div>
             <!-- History Log -->
             <div>
                <h3 class="font-bold text-lg mb-3">Storico Allenamenti</h3>
@@ -467,11 +464,9 @@
          <!-- VIEW: SETTINGS -->
          <section id="view-settings" class="view-section p-4 space-y-6">
             <h2 class="text-2xl font-bold">Impostazioni</h2>
-			 
-			  <div class="text-center text-xs text-gray-400 mt-8" style="font-size: 14px; line-height: 20px;">
-             		<i class="fa-regular fa-envelope"></i> Per infomazioni o collaborazioni inviami una email a: <a href="mailto:devcode8493@gmail.com">devcode8493@gmail.com</a>
+            <div class="text-center text-xs text-gray-400 mt-8" style="font-size: 14px; line-height: 20px;">
+               <i class="fa-regular fa-envelope"></i> Per infomazioni o collaborazioni inviami una email a: <a href="mailto:devcode8493@gmail.com">devcode8493@gmail.com</a>
             </div>
-			 
             <div class="bg-darkBg bg-darkCard rounded-xl overflow-hidden shadow-sm">
                <div class="bg-darkBg bg-darkCard rounded-xl overflow-hidden shadow-sm">
                   <h3 class="font-bold p-4 border-b border-gray-100 border-gray-700">Dati Personali</h3>
@@ -533,14 +528,13 @@
                </div>
                <button onclick="app.handlers.resetAllData()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg text-sm font-semibold hover:bg-red-50">Cancellazione Totale</button>
             </div>
-           
          </section>
       </main>
       <!-- BOTTOM NAVIGATION -->
       <nav class="fixed bottom-0 left-0 right-0 bg-darkCard border-t border-gray-200 border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300">
          <button onclick="app.router.go('dashboard')" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
          <i class="fa-solid fa-house mb-1"></i>
-        <span class="text-[10px] font-medium">Home</span> 
+         <span class="text-[10px] font-medium">Home</span> 
          </button>
          <button onclick="app.router.go('stats')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
          <i class="fa-solid fa-chart-simple mb-1"></i>
@@ -570,21 +564,21 @@
                <div>
                   <label class="text-xs text-gray-500 ml-1">Pausa</label>
                   <select id="modal-ex-rest" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3">
-    <option value="30">30 secondi</option>
-    <option value="60">1 minuto</option>
-    <option value="90" selected>1:30 minuti</option>
-    <option value="120">2 minuti</option>
-    <option value="150">2:30 minuti</option>
-    <option value="180">3 minuti</option>
-    <option value="210">3:30 minuti</option>
-    <option value="240">4 minuti</option>
-    <option value="270">4:30 minuti</option>
-    <option value="300">5 minuti</option>
-    <option value="330">5:30 minuti</option>
-    <option value="360">6 minuti</option>
-    <option value="390">6:30 minuti</option>
-    <option value="420">7 minuti</option>
-</select>
+                     <option value="30">30 secondi</option>
+                     <option value="60">1 minuto</option>
+                     <option value="90" selected>1:30 minuti</option>
+                     <option value="120">2 minuti</option>
+                     <option value="150">2:30 minuti</option>
+                     <option value="180">3 minuti</option>
+                     <option value="210">3:30 minuti</option>
+                     <option value="240">4 minuti</option>
+                     <option value="270">4:30 minuti</option>
+                     <option value="300">5 minuti</option>
+                     <option value="330">5:30 minuti</option>
+                     <option value="360">6 minuti</option>
+                     <option value="390">6:30 minuti</option>
+                     <option value="420">7 minuti</option>
+                  </select>
                </div>
                <div>
                   <label class="text-xs text-gray-500 ml-1">Peso Iniziale</label>
@@ -595,33 +589,35 @@
                <input type="checkbox" id="modal-ex-double" class="accent-primary w-5 h-5">
                <label class="text-sm">Peso doppio (es. 2 manubri)<br/><small>(usato solo per statistiche per calcoli peso totale)</small></label>
             </div>
+            <div>
+               <label class="text-xs text-gray-500 ml-1 block mb-1">Note (opzionale)</label>
+               <textarea id="modal-ex-notes" rows="3" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3 border-none focus:ring-2 focus:ring-primary text-sm resize-none" placeholder="Es: ROM completo, pausa in basso..."></textarea>
+            </div>
             <div class="flex gap-3 mt-4 pt-2">
                <button onclick="document.getElementById('exercise-modal').classList.add('hidden')" class="flex-1 py-3 text-gray-500 font-semibold">Annulla</button>
                <button onclick="app.handlers.confirmAddExercise()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryDark shadow-lg">Aggiungi</button>
             </div>
          </div>
       </div>
-	  
-	  <!-- Modal Workout Preview -->
-<div id="workout-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-   <div class="bg-gray-800 rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden shadow-2xl animate-fade-in-up">
-      <div class="sticky top-0 bg-gray-900 px-6 py-4 border-b border-gray-700 flex justify-between items-center">
-         <h3 class="font-bold text-xl text-white">Panoramica Workout</h3>
-         <button onclick="document.getElementById('workout-preview-modal').classList.add('hidden')" class="text-gray-400 hover:text-white">
-            <i class="fa-solid fa-xmark text-2xl"></i>
-         </button>
+      <!-- Modal Workout Preview -->
+      <div id="workout-preview-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+         <div class="bg-gray-800 rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden shadow-2xl animate-fade-in-up" style="border: 3px solid #374151;">
+            <div class="sticky top-0 bg-gray-900 px-6 py-4 border-b border-gray-700 flex justify-between items-center">
+               <h3 class="font-bold text-xl text-white">Panoramica Workout</h3>
+               <button onclick="document.getElementById('workout-preview-modal').classList.add('hidden')" class="text-gray-400 hover:text-white">
+               <i class="fa-solid fa-xmark text-2xl"></i>
+               </button>
+            </div>
+            <div id="workout-preview-content" class="p-6 space-y-3 overflow-y-auto max-h-[calc(80vh-80px)] text-white">
+               <!-- Content injected by JS -->
+            </div>
+         </div>
       </div>
-      <div id="workout-preview-content" class="p-6 space-y-3 overflow-y-auto max-h-[calc(80vh-80px)] text-white">
-         <!-- Content injected by JS -->
-      </div>
-   </div>
-</div>
-	  
       <!-- AUDIO ELEMENTS -->
       <!-- <audio id="audio-beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio> -->
-	   <audio id="audio-beep" src="https://cdn.freesound.org/previews/22/22627_7037-lq.ogg" preload="auto"></audio>
+      <audio id="audio-beep" src="https://cdn.freesound.org/previews/22/22627_7037-lq.ogg" preload="auto"></audio>
       <audio id="audio-complete" src="https://cdn.freesound.org/previews/619/619839_7614679-lq.ogg" preload="auto"></audio>
-	  <audio id="audio-auto-next" src="https://cdn.freesound.org/previews/108/108897_7037-lq.ogg" preload="auto"></audio>
+      <audio id="audio-auto-next" src="https://cdn.freesound.org/previews/108/108897_7037-lq.ogg" preload="auto"></audio>
       <!-- LOGIC SCRIPT -->
       <script>
          /**
@@ -701,8 +697,23 @@
                  editingWorkout: null,
          editingExerciseIndex: null,
                  activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
-                 settings: { unit: 'kg', sound: true, vibrate: true, bodyWeight: null, height: null, age: null, gender: '', autoNext: false }
-             },
+                 settings: { unit: 'kg', sound: true, vibrate: true, bodyWeight: null, height: null, age: null, gender: '', autoNext: false },
+    
+    motivationalPhrases: [
+        'Spacca tutto! 💪',
+        'Fallo bene brother! 🔥',
+        'Non fare lo scoppiato! 💥',
+        'Secco mai 😤',
+        'Vai Uomooo! 💪',
+        'Non mollare! ✊',
+        'Beast mode! 🐻',
+        'Dai il tuo 💯%!',
+        'Focus totale 🎯',
+        'Non vedi l\'ora di andare a casa a mangiare la pasta e fagioli! 🍝',
+        'Saitama te fa na pippa! 👊'
+    ]
+},
+       
              
              init: async () => {
                  await app.db.connect();
@@ -723,105 +734,105 @@
          
          
          
-calculateCalories: (session) => {
-    const settings = app.state.settings;
-    
-    // 1. Recupero Dati Utente (con fallback robusti)
-    const weight = parseFloat(settings.bodyWeight) || 75; 
-    const height = parseFloat(settings.height) || 175;    
-    const age = parseFloat(settings.age) || 30;           
-    const gender = settings.gender || 'male';
-    const trainingLevel = settings.trainingLevel || 'intermediate';
-    
-    // 2. Calcolo Volume Totale (kg alzati)
-    let totalVolume = 0;
-    if (session.logs && session.logs.length > 0) {
-        session.logs.forEach(l => {
+         calculateCalories: (session) => {
+         const settings = app.state.settings;
+         
+         // 1. Recupero Dati Utente (con fallback robusti)
+         const weight = parseFloat(settings.bodyWeight) || 75; 
+         const height = parseFloat(settings.height) || 175;    
+         const age = parseFloat(settings.age) || 30;           
+         const gender = settings.gender || 'male';
+         const trainingLevel = settings.trainingLevel || 'intermediate';
+         
+         // 2. Calcolo Volume Totale (kg alzati)
+         let totalVolume = 0;
+         if (session.logs && session.logs.length > 0) {
+         session.logs.forEach(l => {
             const w = parseFloat(l.weight) || 0;
             const r = parseFloat(l.reps) || 0;
             const m = l.multiplier || 1;
             totalVolume += (w * r * m);
-        });
-    }
-    
-    // --- ALGORITMO CALORIE ---
-    
-    // A. BMR (Mifflin-St Jeor) - Mantenuto per contesto metabolico
-    let bmr = 0;
-    if (gender === 'male') {
-        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
-    } else {
-        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
-    }
-    
-    // B. Coefficiente Base per Lavoro Meccanico
-    // Circa 0.04-0.05 kcal per kg spostato
-    let caloriesPerKg = 0.045;
-    
-    // C. Aggiustamento per Metabolismo Individuale (basato su BMR)
-    // Chi ha BMR più alto tende a bruciare più calorie anche durante l'esercizio
-    const bmrFactor = bmr / 1600; // Normalizzato su BMR medio (~1600 kcal/day)
-    caloriesPerKg *= (0.85 + (bmrFactor * 0.15)); // Range: 0.85x - 1.15x circa
-    
-    // D. APPLICAZIONE LIVELLI (efficienza neuromuscolare)
-    switch (trainingLevel) {
-        case 'beginner':
+         });
+         }
+         
+         // --- ALGORITMO CALORIE ---
+         
+         // A. BMR (Mifflin-St Jeor) - Mantenuto per contesto metabolico
+         let bmr = 0;
+         if (gender === 'male') {
+         bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+         } else {
+         bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+         }
+         
+         // B. Coefficiente Base per Lavoro Meccanico
+         // Circa 0.04-0.05 kcal per kg spostato
+         let caloriesPerKg = 0.045;
+         
+         // C. Aggiustamento per Metabolismo Individuale (basato su BMR)
+         // Chi ha BMR più alto tende a bruciare più calorie anche durante l'esercizio
+         const bmrFactor = bmr / 1600; // Normalizzato su BMR medio (~1600 kcal/day)
+         caloriesPerKg *= (0.85 + (bmrFactor * 0.15)); // Range: 0.85x - 1.15x circa
+         
+         // D. APPLICAZIONE LIVELLI (efficienza neuromuscolare)
+         switch (trainingLevel) {
+         case 'beginner':
             // I principianti sono meno coordinati e bruciano circa il 15% in più
             caloriesPerKg *= 1.15; 
             break;
-        case 'intermediate':
+         case 'intermediate':
             // Valore standard di riferimento
             caloriesPerKg *= 1.00; 
             break;
-        case 'advanced':
+         case 'advanced':
             // Gli avanzati sono più efficienti
             caloriesPerKg *= 0.92; 
             break;
-        case 'elite':
+         case 'elite':
             // Massima efficienza biomeccanica
             caloriesPerKg *= 0.85; 
             break;
-        default:
+         default:
             caloriesPerKg *= 1.00;
-    }
-    
-    // E. Calcolo Finale
-    const totalCalories = totalVolume * caloriesPerKg;
-    
-    console.log(`📊 CALORIE REPORT:
-    • Level: ${trainingLevel}
-    • BMR: ${Math.round(bmr)} kcal/day
-    • Total Volume: ${totalVolume.toFixed(0)} kg
-    • Cal/kg Rate: ${caloriesPerKg.toFixed(4)}
-    👉 TOTAL: ${Math.round(totalCalories)} kcal`);
-    
-    return Math.round(totalCalories);
-},
+         }
+         
+         // E. Calcolo Finale
+         const totalCalories = totalVolume * caloriesPerKg;
+         
+         console.log(`📊 CALORIE REPORT:
+         • Level: ${trainingLevel}
+         • BMR: ${Math.round(bmr)} kcal/day
+         • Total Volume: ${totalVolume.toFixed(0)} kg
+         • Cal/kg Rate: ${caloriesPerKg.toFixed(4)}
+         👉 TOTAL: ${Math.round(totalCalories)} kcal`);
+         
+         return Math.round(totalCalories);
+         },
          
          
-router: {
-    go: (viewId) => {
-        // Hide bottom nav if active workout
-        document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'flex';
-        
-        // ✨ AGGIUNGI QUESTA RIGA - Nascondi header in workout attivo
-        document.querySelector('header').style.display = viewId === 'active' ? 'none' : 'grid';
-        
-        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-        document.getElementById(`view-${viewId}`).classList.add('active');
-        
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-primary'));
-        if(viewId !== 'editor' && viewId !== 'active') {
+         router: {
+         go: (viewId) => {
+         // Hide bottom nav if active workout
+         document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'flex';
+         
+         // ✨ AGGIUNGI QUESTA RIGA - Nascondi header in workout attivo
+         document.querySelector('header').style.display = viewId === 'active' ? 'none' : 'grid';
+         
+         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+         document.getElementById(`view-${viewId}`).classList.add('active');
+         
+         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-primary'));
+         if(viewId !== 'editor' && viewId !== 'active') {
             // Highlight nav
             const navIndices = {'dashboard': 0, 'stats': 1, 'settings': 2};
             document.querySelectorAll('.nav-btn')[navIndices[viewId]]?.classList.add('text-primary');
-        }
-
-        app.state.currentView = viewId;
-        if (viewId === 'dashboard') app.ui.renderDashboard();
-        if (viewId === 'stats') app.ui.renderStats();
-    }
-},
+         }
+         
+         app.state.currentView = viewId;
+         if (viewId === 'dashboard') app.ui.renderDashboard();
+         if (viewId === 'stats') app.ui.renderStats();
+         }
+         },
          
              ui: {
                  applyTheme: () => {
@@ -839,29 +850,29 @@ router: {
                          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                      });
                      
-let totalVol = 0;
-let totalCal = 0;
-thisMonthHistory.forEach(h => {
-    const vol = parseFloat(h.totalVolume);
-    if (!isNaN(vol)) totalVol += vol;
-    const cal = parseFloat(h.caloriesBurned);
-    if (!isNaN(cal)) totalCal += cal;
-});
-
-// Calcolo grammi di grasso: 1g grasso = 9 kcal, quindi 1kg = ~7500 kcal
-const fatBurnedGrams = Math.round((totalCal / 7500) * 1000);
-
-document.getElementById('monthly-workouts-count').innerText = thisMonthHistory.length;
-document.getElementById('monthly-volume').innerText = Math.round(totalVol).toLocaleString();
-document.getElementById('monthly-calories').innerText = Math.round(totalCal).toLocaleString();
-document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
+         let totalVol = 0;
+         let totalCal = 0;
+         thisMonthHistory.forEach(h => {
+         const vol = parseFloat(h.totalVolume);
+         if (!isNaN(vol)) totalVol += vol;
+         const cal = parseFloat(h.caloriesBurned);
+         if (!isNaN(cal)) totalCal += cal;
+         });
+         
+         // Calcolo grammi di grasso: 1g grasso = 9 kcal, quindi 1kg = ~7500 kcal
+         const fatBurnedGrams = Math.round((totalCal / 7500) * 1000);
+         
+         document.getElementById('monthly-workouts-count').innerText = thisMonthHistory.length;
+         document.getElementById('monthly-volume').innerText = Math.round(totalVol).toLocaleString();
+         document.getElementById('monthly-calories').innerText = Math.round(totalCal).toLocaleString();
+         document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
          
                      // Render Workouts
                      if (app.state.workouts.length === 0) {
                          list.innerHTML = `<div class="text-center p-8 bg-darkBg bg-darkCard rounded-xl shadow-sm">
                              <i class="fa-solid fa-person-running text-4xl text-gray-300 mb-3"></i>
                              <p class="text-gray-500">Nessun workout creato.<br>Inizia creandone uno!</p>
-							 <p onclick="app.router.go('settings')"><br/><br/><i class="fa-solid fa-triangle-exclamation"></i> Prima di iniziare, ricorda di configurare i tuoi parametri nella sezione <strong>Settaggi <i class="fa-solid fa-angle-right"></i></strong></p>
+         <p onclick="app.router.go('settings')"><br/><br/><i class="fa-solid fa-triangle-exclamation"></i> Prima di iniziare, ricorda di configurare i tuoi parametri nella sezione <strong>Settaggi <i class="fa-solid fa-angle-right"></i></strong></p>
                          </div>`;
                          return;
                      }
@@ -968,86 +979,99 @@ document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
                      const btn = document.getElementById('btn-main-action');
                      const restOverlay = document.getElementById('rest-overlay');
                      
-
-					 
-const workOverlay = document.getElementById('work-overlay'); // AGGIUNGI QUESTA RIGA
-
-if (session.status === 'rest') {
-    btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa</span>`;
-    btn.classList.replace('bg-primary', 'bg-gray-600');
-    btn.onclick = app.handlers.skipRest;
-    restOverlay.classList.remove('hidden');
-    restOverlay.classList.add('flex');
-    workOverlay.classList.add('hidden');        // AGGIUNGI
-    workOverlay.classList.remove('flex');       // AGGIUNGI
-} else {
-    btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
-    btn.classList.replace('bg-gray-600', 'bg-primary');
-    btn.onclick = app.handlers.completeSet;
-    restOverlay.classList.add('hidden');
-    restOverlay.classList.remove('flex');
-    workOverlay.classList.remove('hidden');     // AGGIUNGI
-    workOverlay.classList.add('flex');          // AGGIUNGI
-}
-					 
-					 // Update Footer Progress Bar (SINGOLO ESERCIZIO)
-// Update Footer Progress Bar (SINGOLO ESERCIZIO)
-const currentEx = session.workout.exercises[session.currentExIdx];
-const totalStepsInExercise = parseInt(currentEx.sets) * 2 - 1;
-let currentStep = session.currentSet * 2;
-if (session.status === 'rest') currentStep++;
-
-const progressPct = (currentStep / totalStepsInExercise) * 100;
-
-document.getElementById('footer-progress-fill').style.width = `${Math.min(progressPct, 100)}%`;
-
-// Render Step Markers
-const stepsContainer = document.getElementById('progress-steps');
-stepsContainer.innerHTML = '';
-for (let i = 0; i < parseInt(currentEx.sets); i++) {
-    const stepPosition = (i / (parseInt(currentEx.sets) - 1)) * 100;
-    const isPast = i < session.currentSet;
-    const isCurrent = i === session.currentSet;
-    
-    const marker = document.createElement('div');
-    marker.className = 'absolute transform -translate-x-1/2';
-    marker.style.left = `${stepPosition}%`;
-    marker.innerHTML = `
-        <div class="w-3 h-3 rounded-full border-2 ${
+         
+         
+         const workOverlay = document.getElementById('work-overlay'); // AGGIUNGI QUESTA RIGA
+         
+         if (session.status === 'rest') {
+         btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa</span>`;
+         btn.classList.replace('bg-primary', 'bg-gray-600');
+         btn.onclick = app.handlers.skipRest;
+         restOverlay.classList.remove('hidden');
+         restOverlay.classList.add('flex');
+         workOverlay.classList.add('hidden');        // AGGIUNGI
+         workOverlay.classList.remove('flex');       // AGGIUNGI
+         } else {
+         btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
+         btn.classList.replace('bg-gray-600', 'bg-primary');
+         btn.onclick = app.handlers.completeSet;
+         restOverlay.classList.add('hidden');
+         restOverlay.classList.remove('flex');
+         workOverlay.classList.remove('hidden');     // AGGIUNGI
+         workOverlay.classList.add('flex');          // AGGIUNGI
+         }
+         
+         // Update Footer Progress Bar (SINGOLO ESERCIZIO)
+         // Update Footer Progress Bar (SINGOLO ESERCIZIO)
+         const currentEx = session.workout.exercises[session.currentExIdx];
+         const totalStepsInExercise = parseInt(currentEx.sets) * 2 - 1;
+         let currentStep = session.currentSet * 2;
+         if (session.status === 'rest') currentStep++;
+         
+         const progressPct = (currentStep / totalStepsInExercise) * 100;
+         
+         document.getElementById('footer-progress-fill').style.width = `${Math.min(progressPct, 100)}%`;
+         
+         // Render Step Markers
+         const stepsContainer = document.getElementById('progress-steps');
+         stepsContainer.innerHTML = '';
+         for (let i = 0; i < parseInt(currentEx.sets); i++) {
+         const stepPosition = (i / (parseInt(currentEx.sets) - 1)) * 100;
+         const isPast = i < session.currentSet;
+         const isCurrent = i === session.currentSet;
+         
+         const marker = document.createElement('div');
+         marker.className = 'absolute transform -translate-x-1/2';
+         marker.style.left = `${stepPosition}%`;
+         marker.innerHTML = `
+         <div class="w-3 h-3 rounded-full border-2 ${
             isPast ? 'bg-primary border-primary' : 
             isCurrent && session.status === 'work' ? 'bg-darkBg border-primary animate-pulse' :
             isCurrent && session.status === 'rest' ? 'bg-purple-500 border-purple-500 animate-pulse' :
             'bg-gray-700 border-gray-600'
-        } shadow-lg"></div>
-    `;
-    stepsContainer.appendChild(marker);
-}
-
-// Testo dinamico
-let statusText = '';
-if (session.status === 'rest') {
-    statusText = `Pausa ${session.currentSet + 1}/${currentEx.sets}`;
-} else {
-    statusText = `Serie ${session.currentSet + 1}/${currentEx.sets}`;
-}
-document.getElementById('footer-progress-text').innerText = statusText;
-
-// Tempo rimanente per questo esercizio
-const remainingSetsEx = parseInt(currentEx.sets) - session.currentSet - 1;
-const restTime = parseInt(currentEx.rest);
-const estimatedSecondsEx = session.status === 'rest' 
-    ? (remainingSetsEx * restTime) 
-    : (remainingSetsEx * restTime + restTime);
-const estimatedMinutesEx = Math.ceil(estimatedSecondsEx / 60);
-
-if (estimatedMinutesEx > 0) {
-    document.getElementById('footer-time-remaining').innerText = `~${estimatedMinutesEx} min questo esercizio`;
-} else if (session.status === 'rest') {
-    document.getElementById('footer-time-remaining').innerText = 'Ultima pausa!';
-} else {
-    document.getElementById('footer-time-remaining').innerText = 'Ultima serie!';
-}
-                 },
+         } shadow-lg"></div>
+         `;
+         stepsContainer.appendChild(marker);
+         }
+         
+         // Testo dinamico
+         let statusText = '';
+         if (session.status === 'rest') {
+         statusText = `Pausa ${session.currentSet + 1}/${currentEx.sets}`;
+         } else {
+         statusText = `Serie ${session.currentSet + 1}/${currentEx.sets}`;
+         }
+         document.getElementById('footer-progress-text').innerText = statusText;
+         
+         // Tempo rimanente per questo esercizio
+         const remainingSetsEx = parseInt(currentEx.sets) - session.currentSet - 1;
+         const restTime = parseInt(currentEx.rest);
+         const estimatedSecondsEx = session.status === 'rest' 
+         ? (remainingSetsEx * restTime) 
+         : (remainingSetsEx * restTime + restTime);
+         const estimatedMinutesEx = Math.ceil(estimatedSecondsEx / 60);
+         
+         if (estimatedMinutesEx > 0) {
+         document.getElementById('footer-time-remaining').innerText = `~${estimatedMinutesEx} min questo esercizio`;
+         } else if (session.status === 'rest') {
+         document.getElementById('footer-time-remaining').innerText = 'Ultima pausa!';
+         } else {
+         document.getElementById('footer-time-remaining').innerText = 'Ultima serie!';
+         }
+		 
+		 
+    const notesContainer = document.getElementById('exercise-notes-container');
+    const notesContent = document.getElementById('exercise-notes-content');
+    
+    if (ex.notes && ex.notes.trim()) {
+        notesContainer.classList.remove('hidden');
+        notesContent.innerHTML = ex.notes.replace(/\n/g, '<br>');
+        notesContent.classList.add('hidden'); // Chiuso di default
+        document.getElementById('notes-chevron').classList.replace('fa-chevron-up', 'fa-chevron-down');
+    } else {
+        notesContainer.classList.add('hidden');
+    }
+},
                  
                  renderStats: () => {
                      // Logic to build Chart.js
@@ -1117,17 +1141,17 @@ if (estimatedMinutesEx > 0) {
          container.innerHTML = '<div class="bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm"><h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Calorie Bruciate (kcal)</h3><p class="text-gray-400 text-center py-8 text-sm">💡 Imposta peso corporeo nelle impostazioni per vedere le calorie</p></div>';
          }
          
-		 // Calcolo totali storici
-let totalHistoricalCal = 0;
-history.forEach(h => {
-    const cal = parseFloat(h.caloriesBurned);
-    if (!isNaN(cal)) totalHistoricalCal += cal;
-});
-const totalFatGrams = Math.round((totalHistoricalCal / 7500) * 1000);
-
-document.getElementById('total-calories').innerText = Math.round(totalHistoricalCal).toLocaleString();
-document.getElementById('total-fat-burned').innerText = totalFatGrams.toLocaleString();
-		 
+         // Calcolo totali storici
+         let totalHistoricalCal = 0;
+         history.forEach(h => {
+         const cal = parseFloat(h.caloriesBurned);
+         if (!isNaN(cal)) totalHistoricalCal += cal;
+         });
+         const totalFatGrams = Math.round((totalHistoricalCal / 7500) * 1000);
+         
+         document.getElementById('total-calories').innerText = Math.round(totalHistoricalCal).toLocaleString();
+         document.getElementById('total-fat-burned').innerText = totalFatGrams.toLocaleString();
+         
                      // List
                      const list = document.getElementById('history-list');
          list.innerHTML = history.slice().reverse().slice(0, 10).map(h => `
@@ -1181,6 +1205,7 @@ document.getElementById('total-fat-burned').innerText = totalFatGrams.toLocaleSt
          document.getElementById('modal-ex-rest').value = '90';
          document.getElementById('modal-ex-weight').value = '0';
          document.getElementById('modal-ex-double').checked = false;
+         document.getElementById('modal-ex-notes').value = '';
          
          // Cambia testo bottone
          document.querySelector('#exercise-modal button.bg-primary').innerText = "Aggiungi";
@@ -1201,6 +1226,7 @@ document.getElementById('total-fat-burned').innerText = totalFatGrams.toLocaleSt
          document.getElementById('modal-ex-rest').value = ex.rest;
          document.getElementById('modal-ex-weight').value = ex.lastWeight || 0;
          document.getElementById('modal-ex-double').checked = ex.isDouble || false;
+         document.getElementById('modal-ex-notes').value = ex.notes || '';
          
          // Cambia testo bottone per chiarezza
          document.querySelector('#exercise-modal button.bg-primary').innerText = "Salva Modifiche";
@@ -1219,7 +1245,8 @@ document.getElementById('total-fat-burned').innerText = totalFatGrams.toLocaleSt
          reps: document.getElementById('modal-ex-reps').value,
          rest: document.getElementById('modal-ex-rest').value,
          lastWeight: document.getElementById('modal-ex-weight').value,
-         isDouble: document.getElementById('modal-ex-double').checked
+         isDouble: document.getElementById('modal-ex-double').checked,
+         notes: document.getElementById('modal-ex-notes').value || ''
          };
          
          if (app.state.editingExerciseIndex !== null) {
@@ -1263,26 +1290,27 @@ document.getElementById('total-fat-burned').innerText = totalFatGrams.toLocaleSt
                  },
          
                  // Execution Handlers
-startWorkout: (id) => {
-    const w = app.state.workouts.find(w => w.id === id);
-    app.state.activeSession = {
-        workout: JSON.parse(JSON.stringify(w)), // Clone
-        currentExIdx: 0,
-        currentSet: 0,
-        status: 'work',
-        startTime: Date.now(),
-		exerciseStartTime: Date.now(), // ✨ AGGIUNGI QUESTO
-        logs: [] // Track actual reps/weight
-    };
-    app.router.go('active');
-    
-    // Delay per permettere il rendering prima di attivare animazioni
-    setTimeout(() => {
-        app.ui.updateActiveView();
-        app.handlers.startTotalTimer();
-		app.handlers.startExerciseTimer(); // ✨ AGGIUNGI QUESTO
-    }, 250);
-},
+         startWorkout: (id) => {
+         const w = app.state.workouts.find(w => w.id === id);
+         app.state.activeSession = {
+         workout: JSON.parse(JSON.stringify(w)), // Clone
+         currentExIdx: 0,
+         currentSet: 0,
+         status: 'work',
+         startTime: Date.now(),
+         exerciseStartTime: Date.now(), // ✨ AGGIUNGI QUESTO
+         logs: [] // Track actual reps/weight
+         };
+         app.router.go('active');
+         
+         // Delay per permettere il rendering prima di attivare animazioni
+         setTimeout(() => {
+         app.ui.updateActiveView();
+         app.handlers.startTotalTimer();
+         app.handlers.startExerciseTimer(); // ✨ AGGIUNGI QUESTO
+		 app.handlers.setRandomMotivation();
+         }, 250);
+         },
          
                  adjustWeight: (delta) => {
          const session = app.state.activeSession;
@@ -1337,41 +1365,43 @@ startWorkout: (id) => {
                              app.handlers.finishWorkout();
                          }
                      }
+					 
+					 app.handlers.setRandomMotivation();
                  },
          
-startRest: (seconds, isNextExercise = false) => {
-    const session = app.state.activeSession;
-    session.status = 'rest';
-    app.ui.updateActiveView();
-    
-    // ✨ CARICA STATO TOGGLE
-    const autoNextCheckbox = document.getElementById('auto-next-toggle');
-    if (autoNextCheckbox) {
-        autoNextCheckbox.checked = app.state.settings.autoNext || false;
-    }
-    
-    let timeLeft = parseInt(seconds);
-    const timerEl = document.getElementById('rest-timer-text');
-    const circle = document.getElementById('rest-timer-circle');
-    
-    const maxOffset = 452;
-    circle.style.strokeDasharray = maxOffset;
-    
-    app.restInterval = setInterval(() => {
-        timeLeft--;
-        const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-        const secs = (timeLeft % 60).toString().padStart(2, '0');
-        timerEl.innerText = `${mins}:${secs}`;
-        
-        const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
-        circle.style.strokeDashoffset = offset;
-
-        if (timeLeft <= 0) {
+         startRest: (seconds, isNextExercise = false) => {
+         const session = app.state.activeSession;
+         session.status = 'rest';
+         app.ui.updateActiveView();
+         
+         // ✨ CARICA STATO TOGGLE
+         const autoNextCheckbox = document.getElementById('auto-next-toggle');
+         if (autoNextCheckbox) {
+         autoNextCheckbox.checked = app.state.settings.autoNext || false;
+         }
+         
+         let timeLeft = parseInt(seconds);
+         const timerEl = document.getElementById('rest-timer-text');
+         const circle = document.getElementById('rest-timer-circle');
+         
+         const maxOffset = 452;
+         circle.style.strokeDasharray = maxOffset;
+         
+         app.restInterval = setInterval(() => {
+         timeLeft--;
+         const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+         const secs = (timeLeft % 60).toString().padStart(2, '0');
+         timerEl.innerText = `${mins}:${secs}`;
+         
+         const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
+         circle.style.strokeDashoffset = offset;
+         
+         if (timeLeft <= 0) {
             clearInterval(app.restInterval);
-			
-			const restText = document.getElementById('rest-timer-text');
-			restText.classList.add('rest-blink');
-
+         
+         const restText = document.getElementById('rest-timer-text');
+         restText.classList.add('rest-blink');
+         
             
             // ✨ LOGICA AUTO-NEXT
             const isAutoNext = document.getElementById('auto-next-toggle')?.checked || false;
@@ -1388,33 +1418,36 @@ startRest: (seconds, isNextExercise = false) => {
                 // Continua automaticamente dopo 1 secondo
                 setTimeout(() => {
                     app.handlers.skipRest(null, isNextExercise);
+					app.handlers.setRandomMotivation();
                 }, 1000);
             } else {
                 // Comportamento normale
                 app.handlers.notify();
             }
-        }
-    }, 1000);
-},
+         }
+         }, 1000);
+         },
          
-skipRest: (_, isNextExercise = false) => {
-    if (app.restInterval) clearInterval(app.restInterval);
-    const session = app.state.activeSession;
-    
-    const ex = session.workout.exercises[session.currentExIdx];
-    
-    if(session.currentSet < ex.sets - 1) {
-        session.currentSet++;
-    } else {
-        session.currentExIdx++;
-        session.currentSet = 0;
-        // ✨ RESETTA TIMER QUANDO CAMBI ESERCIZIO
-        app.handlers.startExerciseTimer();
-    }
-    
-    session.status = 'work';
-    app.ui.updateActiveView();
-},
+         skipRest: (_, isNextExercise = false) => {
+         if (app.restInterval) clearInterval(app.restInterval);
+         const session = app.state.activeSession;
+         
+         const ex = session.workout.exercises[session.currentExIdx];
+         
+         if(session.currentSet < ex.sets - 1) {
+         session.currentSet++;
+         } else {
+         session.currentExIdx++;
+         session.currentSet = 0;
+         // ✨ RESETTA TIMER QUANDO CAMBI ESERCIZIO
+         app.handlers.startExerciseTimer();
+		 app.handlers.setRandomMotivation();
+         }
+         
+         session.status = 'work';
+         app.ui.updateActiveView();
+		 app.handlers.setRandomMotivation();
+         },
          
                  skipExercise: () => {
                      const session = app.state.activeSession;
@@ -1439,7 +1472,7 @@ skipRest: (_, isNextExercise = false) => {
                      if(confirm("Vuoi uscire senza salvare?")) {
                          if (app.restInterval) clearInterval(app.restInterval);
                          if (app.totalTimerInt) clearInterval(app.totalTimerInt);
-						 if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
+         if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
                          app.router.go('dashboard');
                      }
                  },
@@ -1447,7 +1480,7 @@ skipRest: (_, isNextExercise = false) => {
                  finishWorkout: async () => {
                      if (app.restInterval) clearInterval(app.restInterval);
                      if (app.totalTimerInt) clearInterval(app.totalTimerInt);
-					  if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
+         if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
                      
                      document.getElementById('audio-complete').play().catch(e=>{});
                      if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
@@ -1498,32 +1531,32 @@ skipRest: (_, isNextExercise = false) => {
                          el.innerText = `${m}:${s}`;
                      }, 1000);
                  },
-				 
-				 startExerciseTimer: () => {
-    const session = app.state.activeSession;
-    if (!session) return;
-    
-    // Resetta il tempo di inizio esercizio
-    session.exerciseStartTime = Date.now();
-    
-    const el = document.getElementById('exercise-timer');
-    if (!el) return;
-    
-    // Pulisci eventuale timer precedente
-    if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
-    
-    app.exerciseTimerInt = setInterval(() => {
-        if (!app.state.activeSession || app.state.activeSession.status === 'rest') {
+         
+         startExerciseTimer: () => {
+         const session = app.state.activeSession;
+         if (!session) return;
+         
+         // Resetta il tempo di inizio esercizio
+         session.exerciseStartTime = Date.now();
+         
+         const el = document.getElementById('exercise-timer');
+         if (!el) return;
+         
+         // Pulisci eventuale timer precedente
+         if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
+         
+         app.exerciseTimerInt = setInterval(() => {
+         if (!app.state.activeSession || app.state.activeSession.status === 'rest') {
             // Non mostrare durante il riposo
             return;
-        }
-        
-        const diff = Math.floor((Date.now() - session.exerciseStartTime) / 1000);
-        const m = Math.floor(diff / 60).toString().padStart(2, '0');
-        const s = (diff % 60).toString().padStart(2, '0');
-        el.innerText = `${m}:${s}`;
-    }, 1000);
-},
+         }
+         
+         const diff = Math.floor((Date.now() - session.exerciseStartTime) / 1000);
+         const m = Math.floor(diff / 60).toString().padStart(2, '0');
+         const s = (diff % 60).toString().padStart(2, '0');
+         el.innerText = `${m}:${s}`;
+         }, 1000);
+         },
          
                  // Notifications & Sounds
                  requestNotificationPermission: () => {
@@ -1546,17 +1579,17 @@ skipRest: (_, isNextExercise = false) => {
                          new Notification("Riposo Terminato!", { body: "Inizia la prossima serie." });
                      }
                  },
-				 showWorkoutPreview: () => {
-    const session = app.state.activeSession;
-    if (!session) return;
-    
-    const content = document.getElementById('workout-preview-content');
-    content.innerHTML = session.workout.exercises.map((ex, idx) => {
-        const isCurrent = idx === session.currentExIdx;
-        const isPast = idx < session.currentExIdx;
-        
-        return `
-        <div class="bg-gray-${isCurrent ? '700 border-2 border-primary' : isPast ? '900' : '800'} p-4 rounded-xl ${isPast ? 'opacity-60' : ''}">
+         showWorkoutPreview: () => {
+         const session = app.state.activeSession;
+         if (!session) return;
+         
+         const content = document.getElementById('workout-preview-content');
+         content.innerHTML = session.workout.exercises.map((ex, idx) => {
+         const isCurrent = idx === session.currentExIdx;
+         const isPast = idx < session.currentExIdx;
+         
+         return `
+         <div class="bg-gray-${isCurrent ? '700 border-2 border-primary' : isPast ? '900' : '800'} p-4 rounded-xl ${isPast ? 'opacity-60' : ''}">
             <div class="flex items-start justify-between mb-2">
                 <div class="flex items-center gap-2">
                     ${isPast ? '<i class="fa-solid fa-check text-green-500"></i>' : isCurrent ? '<i class="fa-solid fa-arrow-right text-primary"></i>' : '<i class="fa-solid fa-circle text-gray-600 text-xs"></i>'}
@@ -1579,18 +1612,60 @@ skipRest: (_, isNextExercise = false) => {
                 </div>
             </div>
             ${isCurrent ? `<div class="mt-2 text-xs font-semibold">Serie ${session.currentSet + 1}/${ex.sets}</div>` : ''}
-        </div>
-        `;
-    }).join('');
-    
-    document.getElementById('workout-preview-modal').classList.remove('hidden');
-},
+         </div>
+         `;
+         }).join('');
+         
+         document.getElementById('workout-preview-modal').classList.remove('hidden');
+         },
                  
                  toggleSound: () => {
                      app.state.settings.sound = !app.state.settings.sound;
                      const icon = document.getElementById('sound-toggle').querySelector('i');
                      icon.className = app.state.settings.sound ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
                  },
+				 
+				 setRandomMotivation: () => {
+    const phrases = app.state.motivationalPhrases;
+    const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+    const el = document.getElementById('motivational-text');
+    if (el) {
+        el.innerText = randomPhrase;
+    }
+},
+
+
+toggleNotes: () => {
+    const content = document.getElementById('exercise-notes-content');
+    const chevron = document.getElementById('notes-chevron');
+    const scrollContainer = document.querySelector('#view-active > div.flex-1.overflow-y-auto');
+    
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        chevron.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        
+        // ✨ Scrolla in fondo dopo che il contenuto si è espanso
+        setTimeout(() => {
+            if (scrollContainer) {
+                scrollContainer.scrollTo({
+                    top: scrollContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100);
+    } else {
+        content.classList.add('hidden');
+        chevron.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        
+        // ✨ Torna in alto quando chiudi
+        if (scrollContainer) {
+            scrollContainer.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    }
+},
          
                  // Settings Handlers
                  resetAllData: async () => {
@@ -1601,14 +1676,14 @@ skipRest: (_, isNextExercise = false) => {
                      }
                  },
                  
-exportData: async () => {
-    const settingsArray = await app.db.getAll('settings'); // AGGIUNTO
-    const data = {
-        workouts: app.state.workouts,
-        history: app.state.history,
-        settings: settingsArray  // MODIFICATO (era: app.state.settings)
-    };
-    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+         exportData: async () => {
+         const settingsArray = await app.db.getAll('settings'); // AGGIUNTO
+         const data = {
+         workouts: app.state.workouts,
+         history: app.state.history,
+         settings: settingsArray  // MODIFICATO (era: app.state.settings)
+         };
+         const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
                      const url = URL.createObjectURL(blob);
                      const a = document.createElement('a');
                      a.href = url;
@@ -1617,11 +1692,11 @@ exportData: async () => {
                  },
          
                  importData: (input) => {
-    const file = input.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        try {
+         const file = input.files[0];
+         if(!file) return;
+         const reader = new FileReader();
+         reader.onload = async (e) => {
+         try {
             const data = JSON.parse(e.target.result);
             if(data.workouts) {
                 for (const w of data.workouts) await app.db.put('workouts', w);
@@ -1645,7 +1720,7 @@ exportData: async () => {
          };
          
          
-
+         
          
          // Personal Settings Listeners
          ['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender', 'setting-training-level'].forEach(id => {
@@ -1685,14 +1760,14 @@ exportData: async () => {
              app.db.put('settings', { key: key, value: el.value });
          });
          });
-		 
-		 document.addEventListener('change', (e) => {
-				if (e.target.id === 'auto-next-toggle') {
-					app.state.settings.autoNext = e.target.checked;
-					app.db.put('settings', { key: 'autoNext', value: e.target.checked });
-				}
-			});
-		 
+         
+         document.addEventListener('change', (e) => {
+         if (e.target.id === 'auto-next-toggle') {
+         app.state.settings.autoNext = e.target.checked;
+         app.db.put('settings', { key: 'autoNext', value: e.target.checked });
+         }
+         });
+         
          });
          
       </script>
