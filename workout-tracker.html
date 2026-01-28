@@ -1572,7 +1572,7 @@ renderBadges: () => {
             </div>
             <div class="flex-1 min-w-0">
                 <h4 class="font-bold text-lg ${unlocked ? 'text-white' : 'text-gray-500'} truncate">${def.name}</h4>
-                <p class="text-sm ${unlocked ? 'text-gray-300' : 'text-gray-600'} mt-1 line-clamp-2">${def.desc}</p>
+                <p class="text-sm ${unlocked ? 'text-gray-300' : 'opacity-50'} mt-1 line-clamp-3">${def.desc}</p>
                 ${unlocked && data.lastUnlocked ? `
                     <div class="flex items-center gap-1 mt-2 text-xs ">
                         <i class="fa-solid fa-calendar-check"></i>
