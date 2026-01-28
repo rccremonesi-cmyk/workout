@@ -356,10 +356,10 @@ if (currentMonthEl) {
 		 
 		 
 		 
-         <!-- VIEW: WORKOUT EDITOR -->
-         <section id="view-editor" class="view-section p-4 bg-darkBg bg-darkBg min-h-full absolute inset-0 z-30">
+         <!-- VIEW: WORKOUT EDITOR --> 
+         <section id="view-editor" class="view-section p-4 bg-darkBg bg-darkBg min-h-full inset-0 z-30 overflow-y-auto no-scrollbar fixed">
 		 <div class="internal-section">
-            <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center gap-3 mb-6 sticky top-0 bg-darkBg bg-darkBg pb-4">
    <!-- Back Button -->
    <button onclick="app.router.go('dashboard')" class="p-0 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-all active:scale-95">
       <i class="fa-solid fa-arrow-left text-xl"></i>
@@ -387,7 +387,7 @@ if (currentMonthEl) {
       </div>
    </div>
 			
-            <div id="editor-exercises-list" class="space-y-4 mb-20">
+            <div id="editor-exercises-list" class="space-y-4 mb-20" style="padding-bottom:100px;">
                <!-- Exercises injected here via SortableJS -->
             </div>
             <!-- Floating Action Button for Add Exercise -->
