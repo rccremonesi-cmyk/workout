@@ -415,21 +415,33 @@ if (currentMonthEl) {
                <i class="fa-solid fa-xmark text-2xl"></i>
                </button>
                <!-- Centro -->
-               <div class="flex-1 flex justify-center" onclick="app.handlers.showWorkoutPreview()">
-                  <div class="flex items-center gap-3">
-                     <i class="fa-solid fa-list-check text-xl text-gray-400"></i>
-                     <div class="text-left">
-                        <h3 id="active-workout-name" class="font-bold text-xs text-gray-300">
-                           A – Upper Push (Petto alto &amp; Spalle)
-                        </h3>
-                        <div class="flex items-center gap-2 text-xs">
-                           <span><i class="fa-regular fa-clock" style="font-size: 10px; color:#b9a9f6; margin-right:5px;"></i><span id="active-timer-total" class=" font-mono" style="color:#b9a9f6;"> 00:10</span>
-                           <span class="text-gray-500">•</span>
-                           <span id="active-exercise-count" class="text-gray-400">1/5 es.</span>
-                        </div>
-                     </div>
-                  </div>
-               </div>
+             <div
+  class="flex-1 flex justify-center min-w-0 px-3"
+  onclick="app.handlers.showWorkoutPreview()"
+>
+  <div class="flex items-center gap-3 min-w-0">
+    <i class="fa-solid fa-list-check text-xl text-gray-400 shrink-0"></i>
+
+    <div class="text-left min-w-0">
+      <h3
+        id="active-workout-name"
+        class="font-bold text-xs text-gray-300 truncate"
+      >
+        A – Upper Push (Petto alto &amp; Spalle)
+      </h3>
+
+      <div class="flex items-center gap-2 text-xs whitespace-nowrap truncate">
+        <span>
+          <i class="fa-regular fa-clock" style="font-size: 10px; color:#b9a9f6; margin-right:5px;"></i>
+          <span id="active-timer-total" class="font-mono" style="color:#b9a9f6;">00:10</span>
+        </span>
+        <span class="text-gray-500">•</span>
+        <span id="active-exercise-count" class="text-gray-400">1/5 es.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
                <!-- Destra -->
                <button onclick="app.handlers.toggleSound()" id="sound-toggle" class="text-gray-400">
                <i class="fa-solid fa-volume-high"></i>
