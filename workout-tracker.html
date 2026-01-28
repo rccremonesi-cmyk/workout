@@ -538,7 +538,7 @@ if (currentMonthEl) {
                      <div id="exercise-notes-container" class="mt-4 hidden">
                         <button onclick="app.handlers.toggleNotes()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 mx-auto transition">
                         <i class="fa-regular fa-note-sticky"></i>
-                        <span>Leggi Note</span>
+                        <span>Leggi<br/> Note</span>
                         <i id="notes-chevron" class="fa-solid fa-chevron-down text-xs"></i>
                         </button>
                         <div id="exercise-notes-content" class="hidden  bg-gray-800 rounded-lg p-4 text-left text-sm text-gray-300 max-w-md mx-auto">
@@ -546,11 +546,12 @@ if (currentMonthEl) {
                         </div>
                      </div>
                   </div>
+				  <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
                </div>
             </div>
             <!-- Controls Footer -->
             <!-- Controls Footer -->
-            <div class="fixed bottom-0 left-0 right-0 bg-gray-800 pb-safe z-40">
+            <div class="fixed bottom-0 left-0 right-0 bg-gray-800 pb-safe z-40" style="box-shadow: rgb(17, 24, 39) 0px 0px 50px 64px;">
                <!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
                <!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
                <div class="px-4 pt-2 pb-3">
@@ -2032,54 +2033,103 @@ adjustWeight: (delta) => {
   // app.handlers.startExerciseTimer(); // Resetta il timer quando cambi peso
 },
          
-                 completeSet: () => {
-                     const session = app.state.activeSession;
-                     const ex = session.workout.exercises[session.currentExIdx];
-                     
-                     // Log the set
-         const weight = parseFloat(ex.lastWeight);
-         // Extract first number from reps string (e.g., "8-10" -> 8, "10" -> 10)
-         const repsStr = String(ex.reps).split('-')[0].trim();
-         const reps = parseFloat(repsStr);
-         const multiplier = ex.isDouble ? 2 : 1;
-         
-         console.log('Completing set:', { exercise: ex.name, weight, reps, multiplier });
-         
-         session.logs.push({
-         exercise: ex.name,
-         weight: isNaN(weight) ? 0 : weight,
-         reps: isNaN(reps) ? 0 : reps,
-         multiplier: multiplier
-         });
-         
-                     // Persist new weight to main DB so next time it's updated
-                     // We do this by updating the base workout object
-                     const baseWorkout = app.state.workouts.find(w => w.id === session.workout.id);
-                     if(baseWorkout) {
-                         baseWorkout.exercises[session.currentExIdx].lastWeight = ex.lastWeight;
-                         app.db.put('workouts', baseWorkout);
-                     }
-         
-                     // Check if exercise finished
-                     if (session.currentSet < ex.sets - 1) {
-                         // Start Rest
-                         app.handlers.startExerciseTimer();
-    // Start Rest
-    app.handlers.startRest(ex.rest);
-                     } else {
-                         // Exercise Finished
-                         if (session.currentExIdx < session.workout.exercises.length - 1) {
-							  app.handlers.startExerciseTimer();
-                             // Move to next exercise (with rest)
-                             app.handlers.startRest(ex.rest, true);
-                         } else {
-                             // Workout Finished
-                             app.handlers.finishWorkout();
-                         }
-                     }
-					 
-					 app.handlers.setRandomMotivation();
-                 },
+skipRest: (_, isNextExercise = false) => {
+  if (app.restInterval) clearInterval(app.restInterval);
+  
+  // ✅ RIMUOVI LAMPEGGIO QUANDO SALTI IL RIPOSO
+  const restText = document.getElementById('rest-timer-text');
+  if (restText) restText.classList.remove('rest-blink');
+  
+  const session = app.state.activeSession;
+  
+  const ex = session.workout.exercises[session.currentExIdx];
+  
+  if(session.currentSet < ex.sets - 1) {
+    session.currentSet++;
+  } else {
+    session.currentExIdx++;
+    session.currentSet = 0;
+  }
+  
+  // ✨ SPOSTA QUI: Resetta il timer PRIMA di cambiare status
+  app.handlers.startExerciseTimer();
+  app.handlers.setRandomMotivation();
+  
+  session.status = 'work';
+  app.ui.updateActiveView();
+},
+
+skipExercise: () => {
+  // ✅ RIMUOVI LAMPEGGIO QUANDO SALTI L'ESERCIZIO
+  const restText = document.getElementById('rest-timer-text');
+  if (restText) restText.classList.remove('rest-blink');
+  
+  const session = app.state.activeSession;
+  if (session.currentExIdx < session.workout.exercises.length - 1) {
+    session.currentExIdx++;
+    session.currentSet = 0;
+    // ✨ AGGIUNGI QUI:
+    app.handlers.startExerciseTimer();
+    session.status = 'work';
+    if (app.restInterval) clearInterval(app.restInterval);
+    app.ui.updateActiveView();
+  } else {
+    app.handlers.finishWorkout();
+  }
+},
+
+completeSet: () => {
+    // ✅ RIMUOVI LAMPEGGIO QUANDO COMPLETI UNA SERIE
+    const restText = document.getElementById('rest-timer-text');
+    if (restText) restText.classList.remove('rest-blink');
+    
+    const session = app.state.activeSession;
+    const ex = session.workout.exercises[session.currentExIdx];
+    
+    // Log the set
+    const weight = parseFloat(ex.lastWeight);
+    // Extract first number from reps string (e.g., "8-10" -> 8, "10" -> 10)
+    const repsStr = String(ex.reps).split('-')[0].trim();
+    const reps = parseFloat(repsStr);
+    const multiplier = ex.isDouble ? 2 : 1;
+    
+    console.log('Completing set:', { exercise: ex.name, weight, reps, multiplier });
+    
+    session.logs.push({
+        exercise: ex.name,
+        weight: isNaN(weight) ? 0 : weight,
+        reps: isNaN(reps) ? 0 : reps,
+        multiplier: multiplier
+    });
+    
+    // Persist new weight to main DB so next time it's updated
+    // We do this by updating the base workout object
+    const baseWorkout = app.state.workouts.find(w => w.id === session.workout.id);
+    if(baseWorkout) {
+        baseWorkout.exercises[session.currentExIdx].lastWeight = ex.lastWeight;
+        app.db.put('workouts', baseWorkout);
+    }
+
+    // Check if exercise finished
+    if (session.currentSet < ex.sets - 1) {
+        // Start Rest
+        app.handlers.startExerciseTimer();
+        // Start Rest
+        app.handlers.startRest(ex.rest);
+    } else {
+        // Exercise Finished
+        if (session.currentExIdx < session.workout.exercises.length - 1) {
+            app.handlers.startExerciseTimer();
+            // Move to next exercise (with rest)
+            app.handlers.startRest(ex.rest, true);
+        } else {
+            // Workout Finished
+            app.handlers.finishWorkout();
+        }
+    }
+    
+    app.handlers.setRandomMotivation();
+},
          
          startRest: (seconds, isNextExercise = false) => {
          const session = app.state.activeSession;
@@ -2143,6 +2193,11 @@ adjustWeight: (delta) => {
 // CERCA QUESTA FUNZIONE (circa riga 1100)
 skipRest: (_, isNextExercise = false) => {
   if (app.restInterval) clearInterval(app.restInterval);
+  
+  // ✅ RIMUOVI LAMPEGGIO QUANDO SALTI IL RIPOSO
+  const restText = document.getElementById('rest-timer-text');
+  if (restText) restText.classList.remove('rest-blink');
+  
   const session = app.state.activeSession;
   
   const ex = session.workout.exercises[session.currentExIdx];
@@ -2164,6 +2219,10 @@ skipRest: (_, isNextExercise = false) => {
          
 // CERCA QUESTA FUNZIONE (circa riga 1150)
 skipExercise: () => {
+  // ✅ RIMUOVI LAMPEGGIO QUANDO SALTI L'ESERCIZIO
+  const restText = document.getElementById('rest-timer-text');
+  if (restText) restText.classList.remove('rest-blink');
+  
   const session = app.state.activeSession;
   if (session.currentExIdx < session.workout.exercises.length - 1) {
     session.currentExIdx++;
@@ -2176,8 +2235,7 @@ skipExercise: () => {
   } else {
     app.handlers.finishWorkout();
   }
-},
-         
+},         
                  finishWorkoutEarly: () => {
                      if(confirm("Terminare l'allenamento ora?")) {
                          app.handlers.finishWorkout();
