@@ -1315,7 +1315,7 @@ if (todayWorkouts.length > 0) {
                     return `
                         <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
                             <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
-                                <h4 class="font-bold text-lg">${w.name}</h4>
+                                <h4 class="font-bold text-md">${w.name}</h4>
                                 <p class="text-xs text-gray-500">${w.exercises.length} Esercizi</p>
                                 ${completedThisWeek ? `
                                     <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
@@ -1395,7 +1395,7 @@ if (todayWorkouts.length > 0) {
     el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
     el.innerHTML = `
         <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
-            <h4 class="font-bold text-lg">${w.name}</h4>
+            <h4 class="font-bold text-md">${w.name}</h4>
             <p class="text-xs text-gray-500">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
             ${completedThisWeek ? `
                 <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
