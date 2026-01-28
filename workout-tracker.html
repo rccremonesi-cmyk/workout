@@ -21,6 +21,10 @@
       <meta http-equiv="Expires" content="0">
       <style>	
 	  
+	  #view-settings .bg-darkCard .items-center{
+	  font-size:14px;
+	  }
+	  
 	  #view-settings input{
 	      border: 1px solid #5127f2;
 	  }
@@ -1540,19 +1544,33 @@ if (todayWorkouts.length > 0) {
         h.workoutId === w.id && new Date(h.date) >= weekStart
     );
     
-    const el = document.createElement('div');
-    el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
-    el.innerHTML = `
-        <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
-            <h4 class="font-bold text-md">${w.name}</h4>
-            <p class="text-xs text-gray-500">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
-            ${completedThisWeek ? `
-                <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
-                    <i class="fa-solid fa-check"></i>
-                    Lo hai completato ${new Date(completedThisWeek.date).toLocaleDateString('it-IT', {weekday: 'short', day: 'numeric', month: 'short'})}
-                </p>
-            ` : ''}
-        </div>
+const el = document.createElement('div');
+el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
+
+// Genera i giorni assegnati
+const dayLabels = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
+const preferredDaysHTML = (w.preferredDays && w.preferredDays.length > 0) ? `
+    <div class="flex items-center gap-1 mt-1">
+        <i class="fa-regular fa-calendar text-gray-500" style="font-size: 10px;"></i>
+        ${dayLabels.map((day, idx) => {
+            const isAssigned = w.preferredDays.includes(idx);
+            return `<span class="text-[9px] font-semibold px-1.5 py-0.5 rounded ${isAssigned ? 'bg-primary/20 text-white' : 'bg-gray-800 text-gray-600'}">${day}</span>`;
+        }).join('')}
+    </div>
+` : '';
+
+el.innerHTML = `
+    <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
+        <h4 class="font-bold text-md">${w.name}</h4>
+        <p class="text-xs text-gray-500">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
+        ${completedThisWeek ? `
+            <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
+                <i class="fa-solid fa-check"></i>
+                Lo hai completato ${new Date(completedThisWeek.date).toLocaleDateString('it-IT', {weekday: 'short', day: 'numeric', month: 'short'})}
+            </p>
+        ` : ''}
+        ${preferredDaysHTML}
+    </div>
                              <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
                                  <i class="fa-solid fa-play ml-1"></i>
                              </button>
