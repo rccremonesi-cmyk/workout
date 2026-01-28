@@ -21,6 +21,42 @@
       <meta http-equiv="Expires" content="0">
       <style>	  
 	  
+	  /* Nasconde il checkbox nativo */
+.editor-day-check {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Stato base */
+#editor-preferred-days label {
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+/* Hover */
+#editor-preferred-days label:hover {
+  transform: translateY(-1px);
+}
+
+/* Quando è selezionato */
+#editor-preferred-days label:has(.editor-day-check:checked) {
+  background-color: #6d5dfc; /* viola app */
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(109, 93, 252, 0.35);
+}
+
+/* Testo quando selezionato */
+#editor-preferred-days label:has(.editor-day-check:checked) span {
+  font-weight: 600;
+}
+
+/* Micro feedback click */
+#editor-preferred-days label:active {
+  transform: scale(0.96);
+}
+
+	  
 @keyframes fadeInOnly {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -380,7 +416,7 @@ if (currentMonthEl) {
 			
 			   <div class="mb-4 bg-gray-800 p-4 rounded-xl">
       <label class="text-sm font-semibold mb-3 block flex items-center gap-2">
-         🗓️ Giorni preferiti (opzionale)
+         <i class="fa-regular fa-calendar-check"></i> Giorni preferiti (opzionale)
       </label>
       <div id="editor-preferred-days" class="grid grid-cols-7 gap-2">
          <!-- Injected by JS -->
@@ -870,10 +906,22 @@ if (currentMonthEl) {
                <textarea id="modal-ex-notes" rows="3" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3 border-none focus:ring-2 focus:ring-primary text-sm resize-none" placeholder="Es: ROM completo, pausa in basso..."></textarea>
             </div>
 
-            <div class="flex gap-3 mt-4 pt-2">
-               <button onclick="document.getElementById('exercise-modal').classList.add('hidden')" class="flex-1 py-3 text-gray-500 font-semibold">Annulla</button>
-               <button onclick="app.handlers.confirmAddExercise()" class="flex-1 bg-primary text-white py-3 rounded-full font-bold hover:bg-primaryDark shadow-lg">Aggiungi</button>
-            </div>
+            <div class="flex w-full justify-between mt-4 pt-2">
+  <button
+    onclick="document.getElementById('exercise-modal').classList.add('hidden')"
+    class="bg-white text-black px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2"
+  >
+    Annulla
+  </button>
+
+  <button
+    onclick="app.handlers.confirmAddExercise()"
+    class="bg-primary text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2"
+  >
+    Aggiungi
+  </button>
+</div>
+
          </div>
       </div>
       <!-- Modal Workout Preview -->
@@ -1355,7 +1403,7 @@ if (todayWorkouts.length > 0) {
                 }).join('')}
             </div>
         </div>
-        <h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 flex items-center justify-center gap-2 text-center">📂 Tutti i tuoi Workout salvati</h3>
+       
     `;
 }
 		 
@@ -1442,7 +1490,7 @@ if (todayWorkouts.length > 0) {
     const selected = app.state.editingWorkout.preferredDays || [];
     
     container.innerHTML = days.map((day, idx) => `
-        <label class="flex flex-col items-center bg-gray-800 rounded-lg p-2 cursor-pointer hover:bg-gray-700 ${selected.includes(idx) ? 'ring-2 ring-primary' : ''}">
+        <label class="flex border border-gray-500/80 flex-col items-center  bg-gray-800 rounded-lg p-2 cursor-pointer hover:bg-gray-700 ${selected.includes(idx) ? 'ring-2 ' : ''}">
             <input type="checkbox" class="editor-day-check mb-1" value="${idx}" ${selected.includes(idx) ? 'checked' : ''}>
             <span class="text-xs">${day}</span>
         </label>
@@ -1551,7 +1599,7 @@ renderBadges: () => {
          const el = document.createElement('div');
          el.className = ' bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
          el.innerHTML = `
-<div class="flex items-center gap-3 flex-1 overflow-hidden">
+<div class="flex items-center gap-4 flex-1 overflow-hidden">
 <i class="fa-solid fa-grip-lines text-gray-400 cursor-move text-xl"></i>
 <div class="truncate">
 	<div class="font-bold truncate">${ex.name}</div>
@@ -1559,8 +1607,8 @@ renderBadges: () => {
 </div>
 </div>
 <div class="flex items-center gap-2">
-<button onclick="app.handlers.editExercise(${idx})" class="bg-primary/20 text-white hover:bg-primary hover:text-white px-4 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-95 flex items-center gap-2 border border-primary/30">
-	<i class="fa-solid fa-pen"></i>
+<button onclick="app.handlers.editExercise(${idx})" class="bg-primary/20 text-white hover:bg-primary hover:text-white px-3.5 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-95 flex items-center gap-2 border border-primary/30">
+	<i class="fa-solid fa-pencil"></i>
 	<span class="hidden sm:inline">Modifica</span>
 </button>
 <button onclick="app.handlers.removeExercise(${idx})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-95 flex items-center gap-2 border border-red-500/30">
