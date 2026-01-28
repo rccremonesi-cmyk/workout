@@ -11,10 +11,24 @@
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	  
+	  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
       <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
       <meta http-equiv="Pragma" content="no-cache">
       <meta http-equiv="Expires" content="0">
       <style>	  
+	  
+@keyframes fadeInOnly {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.internal-section {
+  animation: fadeInOnly 0.6s ease-in-out forwards;
+}
 	  
 @keyframes beastShake {
   0% {
@@ -68,7 +82,8 @@
          }
          /* ... (mantieni il tuo stile CSS esistente qui) ... */
          /* Assicurati solo di non aver cancellato i tuoi stili custom */
-         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+         body { font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto; }
          .hide-scrollbar::-webkit-scrollbar { display: none; }
          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
          .view-section { display: none !important; opacity: 0; transition: opacity 0.2s ease-in-out; }
@@ -152,6 +167,47 @@
          .workout-rest-bg::after {
          display: none;
          }
+		 
+		 /* Badge Animations */
+@keyframes badgeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes badgeGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(81, 39, 242, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(81, 39, 242, 0.6);
+  }
+}
+
+.badge-appear {
+  animation: badgeSlideIn 0.5s ease-out, badgeGlow 2s ease-in-out infinite;
+}
+
+.badge-icon-locked {
+  filter: grayscale(100%) opacity(0.3);
+}
+
+/* Stats Tabs */
+.stats-tab {
+   color: #9ca3af;
+}
+
+.stats-tab.active {
+   background: linear-gradient(135deg, #5127F2, #7c3aed);
+   color: white;
+   box-shadow: 0 4px 12px rgba(81, 39, 242, 0.3);
+}
+
       </style>
       <script>
          tailwind.config = {
@@ -172,7 +228,8 @@
    </head>
    <body class="bg-darkBg text-gray-100 h-screen flex flex-col overflow-hidden">
       <!-- HEADER -->
-      <header class="bg-darkCard shadow-sm z-20 px-4 py-3 grid grid-cols-3 items-center">
+      <header class="bg-darkCard shadow-sm z-20 px-4 py-3 grid grid-cols-3 items-center" style="-webkit-box-shadow: 0px 0px 22px 4px #111827;
+    box-shadow: 0px 0px 22px 4px #111827;">
          <!-- Sinistra (vuoto o future azioni) -->
          <div></div>
          <!-- Centro: LOGO -->
@@ -185,68 +242,159 @@
          </div>
       </header>
       <!-- MAIN CONTENT AREA -->
-      <main id="app-container" class="flex-1 overflow-y-auto overflow-x-hidden relative hide-scrollbar" style="padding-bottom: 8rem;">
+      <main id="app-container" class="flex-1 overflow-y-auto overflow-x-hidden relative hide-scrollbar" style="padding-bottom: 12rem;">
+	  
+	  
          <!-- VIEW: DASHBOARD (HOME) -->
-         <section id="view-dashboard" class="view-section active p-4 space-y-6">
+         <section id="view-dashboard" class="view-section active p-4 ">
+		  <button onclick="app.handlers.createNewWorkout()" id="add-workout-fab" 
+   class="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 
+   bg-primary text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2 z-50" style="-webkit-box-shadow: 0px 0px 22px 4px #111827;
+    box-shadow: 0px 0px 22px 4px #111827;">
+<i class="fa-solid fa-plus"></i> Crea Workout
+</button>
+		 <div class="internal-section">
+		 
+		 
+		 
+		 
+		 
+		 <div id="badge-notification" class="hidden" style="margin-bottom:15px;">
+      <!-- Badge injected here -->
+   </div>
+   
             <!-- Quick Stats Card -->
-            <!-- Quick Stats Card -->
-            <div class="bg-gradient-to-r from-primary to-primaryDark rounded-2xl p-5 text-white shadow-lg">
-               <h2 class="text-sm opacity-90 uppercase tracking-wider font-semibold">Questo Mese</h2>
-               <div class="grid grid-cols-2 gap-4 mt-3">
-                  <div>
-                     <span id="monthly-workouts-count" class="text-4xl font-bold">0</span>
-                     <span class="text-sm opacity-80 block">Allenamenti</span>
-                  </div>
-                  <div class="text-right">
-                     <span id="monthly-volume" class="text-xl font-bold">0</span>
-                     <span class="text-sm opacity-80 block">kg Sollevati</span>
-                  </div>
-                  <div>
-                     <span id="monthly-calories" class="text-4xl font-bold">0</span>
-                     <span class="text-sm opacity-80 block">kcal Bruciate</span>
-                  </div>
-                  <div class="text-right">
-                     <span id="monthly-fat-burned" class="text-xl font-bold">0</span>
-                     <span class="text-sm opacity-80 block">g Grasso</span>
-                  </div>
-               </div>
+<div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden" style="margin-top:0px;">
+   <!-- Decorative Background Elements -->
+   <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+   <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+   
+   <!-- Header -->
+   <div class="relative z-10 flex items-center justify-between mb-5">
+      <div>
+         <h2 class=" opacity-90 uppercase tracking-wider font-semibold flex items-center gap-2">
+            <i class="fa-solid fa-calendar-days"></i>
+            Questo Mese
+         </h2>
+         <p class="text-sm opacity-75 mt-1" id="current-month-name">Gennaio 2026</p>
+      </div>
+      <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
+         <i class="fa-solid fa-chart-line text-2xl"></i>
+      </div>
+   </div>
+   
+   <!-- Stats Grid -->
+   <div class="relative z-10 grid grid-cols-2 gap-4">
+      <!-- Allenamenti -->
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+         <div class="flex items-center gap-2 mb-2">
+            <div class="bg-white/20 rounded-lg p-2">
+               <i class="fa-solid fa-dumbbell text-lg"></i>
             </div>
+            <span class="opacity-80">Workout<br/>eseguiti</span>
+         </div>
+         <span id="monthly-workouts-count" class="text-3xl font-bold block">0</span>
+      </div>
+      
+      <!-- Volume -->
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+         <div class="flex items-center gap-2 mb-2">
+            <div class="bg-white/20 rounded-lg p-2">
+               <i class="fa-solid fa-weight-hanging text-lg"></i>
+            </div>
+            <span class="opacity-80">kg <br/>Sollevati</span>
+         </div>
+         <span id="monthly-volume" class="text-3xl font-bold block">0</span>
+      </div>
+      
+      <!-- Calorie -->
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+         <div class="flex items-center gap-2 mb-2">
+            <div class="bg-white/20 rounded-lg p-2">
+               <i class="fa-solid fa-fire text-lg"></i>
+            </div>
+            <span class="opacity-80">kcal <br/>Bruciate</span>
+         </div>
+         <span id="monthly-calories" class="text-3xl font-bold block">0</span>
+      </div>
+      
+      <!-- Grasso -->
+      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+         <div class="flex items-center gap-2 mb-2">
+            <div class="bg-white/20 rounded-lg p-2">
+               <i class="fa-solid fa-droplet text-lg"></i>
+            </div>
+            <span class="opacity-80">g <br/>Grasso</span>
+         </div>
+         <span id="monthly-fat-burned" class="text-3xl font-bold block">0</span>
+      </div>
+   </div>
+</div>
+
+<script>
+// Aggiungi questo codice nella funzione renderDashboard per aggiornare il nome del mese
+const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+const currentMonthEl = document.getElementById('current-month-name');
+if (currentMonthEl) {
+   const now = new Date();
+   currentMonthEl.innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+}
+</script>
             <!-- Workouts List -->
             <div>
                <div class="flex justify-between items-center mb-4">
-                  <h3 class="font-bold text-lg">I miei Workout</h3>
-                  <button onclick="app.handlers.createNewWorkout()" id="add-workout-fab" 
-                     class="fixed bottom-[calc(3rem+env(safe-area-inset-bottom))] right-4 
-                     bg-primary text-white p-4 rounded-full shadow-lg 
-                     hover:bg-primaryDark transition duration-300 
-                     z-50 text-xl w-14 h-14 flex items-center justify-center 
-                     transform active:scale-95">
-                  <i class="fa-solid fa-plus"></i>
-                  </button>
+                 
+                
                </div>
                <div id="workout-list" class="space-y-3">
                   <!-- Dynamic Workout Cards injected here -->
                   <div class="text-center text-gray-400 py-8">Caricamento...</div>
                </div>
             </div>
+			</div>
          </section>
+		 
+		 
+		 
          <!-- VIEW: WORKOUT EDITOR -->
          <section id="view-editor" class="view-section p-4 bg-darkBg bg-darkBg min-h-full absolute inset-0 z-30">
-            <div class="flex items-center gap-4 mb-6">
-               <button onclick="app.router.go('dashboard')" class="p-2 -ml-2 text-gray-500 hover:text-primary"><i class="fa-solid fa-arrow-left text-xl"></i></button>
-               <input type="text" id="editor-name" style="padding: 5px 35px 5px 10px;
-                  border: 1px solid #FFF;
-                  border-radius: 7px;
-                  -webkit-box-shadow: 0px 0px 10px 1px #5127F2;
-                  box-shadow: 0px 0px 10px 1px #5127F2;" class="flex-1  font-bold bg-transparent border-none focus:ring-0 placeholder-gray-400" placeholder="Nome Workout (es. Leg Day)">
-            </div>
+		 <div class="internal-section">
+            <div class="flex items-center gap-3 mb-6">
+   <!-- Back Button -->
+   <button onclick="app.router.go('dashboard')" class="p-3 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-all active:scale-95">
+      <i class="fa-solid fa-arrow-left text-xl"></i>
+   </button>
+   
+   <!-- Workout Name Input -->
+   <input type="text" id="editor-name" 
+      class="flex-1 font-bold bg-gray-800 border-2 border-primary/50 focus:border-primary rounded-xl px-4 py-3 placeholder-gray-500 focus:ring-0 focus:outline-none transition-all" 
+      placeholder="Nome Workout (es. Leg Day)">
+   
+   <!-- Delete Button (hidden by default) -->
+   <button onclick="app.handlers.deleteWorkout()" id="btn-delete-workout" 
+      class="hidden bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-3 rounded-xl font-semibold transition-all active:scale-95 border border-red-500/30 flex items-center gap-2">
+      <i class="fa-solid fa-trash"></i>
+      <span class="hidden sm:inline">Elimina</span>
+   </button>
+</div>
+			
+			   <div class="mb-4 bg-gray-800 p-4 rounded-xl">
+      <label class="text-sm font-semibold mb-3 block flex items-center gap-2">
+         🗓️ Giorni preferiti (opzionale)
+      </label>
+      <div id="editor-preferred-days" class="grid grid-cols-7 gap-2">
+         <!-- Injected by JS -->
+      </div>
+   </div>
+			
             <div id="editor-exercises-list" class="space-y-4 mb-20">
                <!-- Exercises injected here via SortableJS -->
             </div>
             <!-- Floating Action Button for Add Exercise -->
             <div class="fixed bottom-6 right-6 z-40">
-               <button onclick="app.handlers.addExerciseToEditor()" class="bg-primary hover:bg-primaryDark text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl transition transform hover:scale-105">
-               <i class="fa-solid fa-plus"></i>
+               <button onclick="app.handlers.addExerciseToEditor()" class="bg-primary text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2" style="-webkit-box-shadow: 0px 0px 22px 4px #111827;
+    box-shadow: 0px 0px 22px 4px #111827;">
+               <i class="fa-solid fa-plus"></i> Agg. esercizio
                </button>
             </div>
             <div class="fixed bottom-6 left-6 z-40">
@@ -254,14 +402,12 @@
                <i class="fa-solid fa-save"></i> Salva
                </button>
             </div>
-            <div class="fixed right-4 z-40" style="top: 69px;">
-               <button onclick="app.handlers.deleteWorkout()" id="btn-delete-workout" class="text-red-500 p-2 hidden">
-               <i class="fa-solid fa-trash"></i>
-               </button>
-            </div>
+           
+			</div>
          </section>
          <!-- VIEW: ACTIVE WORKOUT MODE -->
          <section id="view-active" class="view-section bg-gray-900 text-white h-screen absolute inset-0 z-50 flex flex-col overflow-hidden">
+		 <div class="internal-section">
             <!-- Active Header -->
             <div class="px-4 py-4 flex items-center border-b border-gray-700">
                <!-- Sinistra -->
@@ -304,7 +450,7 @@
                   </div>
                </div>
                <div class="h-1 bg-gray-800 w-full">
-                  <div id="active-progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+                  <div id="active-progress-bar" class="h-full bg-primary transition-all duration-300 relative" style="width: 0%"></div>
                </div>
             </div>
             <!-- Main Exercise Area -->
@@ -370,8 +516,8 @@
     width:100%;
     padding: 15px 30px;
     border-radius: 18px;
-    -webkit-box-shadow: 0px 0px 12px 6px #000000;
-    box-shadow: 0px 0px 12px 6px #090122;
+    -webkit-box-shadow: 0px 0px 12px 6px #0d1423;
+    box-shadow: 0px 0px 12px 6px #0d1423;
     background-color: #1f2937;
 ">
                      <i class="fa-solid fa-dumbbell text-primary text-4xl mb-3 animate-pulse"></i>
@@ -421,10 +567,47 @@
                   </div>
                </div>
             </div>
+			</div>
          </section>
          <!-- VIEW: STATISTICS -->
-         <section id="view-stats" class="view-section p-4 space-y-6 pb-20">
-            <h2 class="text-2xl font-bold">I tuoi Progressi</h2>
+         <section id="view-stats" class="view-section p-4  pb-20">
+           <div class="internal-section ">
+		   
+		   <!-- Tabs Navigation -->
+<div class="flex gap-2 mb-6 bg-darkCard rounded-xl p-1">
+   <button onclick="app.handlers.switchStatsTab('statistics')" 
+      class="stats-tab flex-1 px-4 py-3 rounded-lg font-semibold transition-all" 
+      data-tab="statistics">
+      <i class="fa-solid fa-chart-line mr-2"></i>
+      Statistiche
+   </button>
+   <button onclick="app.handlers.switchStatsTab('history')" 
+      class="stats-tab flex-1 px-4 py-3 rounded-lg font-semibold transition-all" 
+      data-tab="history">
+      <i class="fa-solid fa-clock-rotate-left mr-2"></i>
+      Storico
+   </button>
+</div>
+
+<!-- Tab Content: Statistics -->
+<div id="stats-tab-statistics" class="stats-tab-content space-y-6">
+   <!-- Summary Card Calorie e Grasso -->
+          
+<div class="bg-darkCard rounded-3xl p-6 shadow-sm ">
+   <div class="flex items-start gap-3 mb-3">
+      
+      <div class="flex-1">
+         <h3 class="font-bold  mb-1">Cancella le tue Statistiche</h3>
+         <p class="text-xs text-gray-400">
+            Elimina tutto lo storico dei tuoi allenamenti, traguardi e le statistiche. <strong>I workout salvati rimarranno intatti</strong>.
+         </p>
+        
+      </div>
+   </div>
+   <button onclick="app.handlers.resetStatistics()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg text-sm font-semibold hover:bg-red-500/10 transition">
+      <i class="fa-solid fa-chart-line-up-down"></i> Cancella Solo Statistiche
+   </button>
+</div>
             <!-- Charts Container -->
             <div class="bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm">
                <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Volume Settimanale (Kg)</h3>
@@ -438,40 +621,95 @@
                <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Allenamenti Mensili</h3>
                <canvas id="chart-consistency" height="200"></canvas>
             </div>
-            <!-- Summary Card Calorie e Grasso -->
-            <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-5 text-white shadow-lg">
+			
+			
+			
+</div>
+
+<!-- Tab Content: History -->
+<div id="stats-tab-history" class="stats-tab-content space-y-6 hidden">
+               <!-- History Log -->
+            <div>
+              
+			  <div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden mb-7">
+   <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+   <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
                <h3 class="text-sm opacity-90 uppercase tracking-wider font-semibold mb-4">Totale Storico</h3>
                <div class="grid grid-cols-2 gap-4">
                   <div>
                      <span id="total-calories" class="text-3xl font-bold block">0</span>
-                     <span class="text-sm opacity-80">kcal Bruciate</span>
+                     <span class="text-sm opacity-80"><i class="fa-solid fa-fire"></i> kcal Bruciate</span>
                   </div>
                   <div class="text-right">
                      <span id="total-fat-burned" class="text-3xl font-bold block">0</span>
-                     <span class="text-sm opacity-80">g di Grasso</span>
+                     <span class="text-sm opacity-80"><i class="fa-solid fa-weight-scale"></i> g di Grasso</span>
                   </div>
                </div>
                <div class="mt-3 pt-3 border-t border-white/20 text-xs opacity-75">
-                  💡 ~7.500 kcal = 1 kg di grasso corporeo
+                  ~7.500 kcal = 1 kg di grasso corporeo
                </div>
             </div>
-            <!-- History Log -->
-            <div>
-               <h3 class="font-bold text-lg mb-3">Storico Allenamenti</h3>
                <div id="history-list" class="space-y-3 text-sm">
                   <!-- Logs injected here -->
                </div>
             </div>
+</div>
+			
+			
+			
+			
+
+
+
+            
+
+			
+			
+			</div>
          </section>
+		 
+		 <!-- VIEW: BADGES -->
+<section id="view-badges" class="view-section p-4 space-y-6 pb-20">
+  <div class="internal-section">
+   
+   <div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden mb-7">
+   <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+   <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+      <div class="text-center">
+         <i class="fa-solid fa-medal text-5xl mb-3 opacity-90"></i>
+         <h3 class="text-lg font-bold">Sblocca i tuoi traguardi!</h3>
+         <p class="text-sm opacity-90 mt-2">
+            Completa allenamenti e raggiungi obiettivi per sbloccare badge esclusivi
+         </p>
+      </div>
+   </div>
+   
+   <div id="badges-list" class="space-y-4">
+      <!-- Injected by JS -->
+   </div>
+   </div>
+</section>
+		 
          <!-- VIEW: SETTINGS -->
-         <section id="view-settings" class="view-section p-4 space-y-6">
-            <h2 class="text-2xl font-bold">Impostazioni</h2>
-            <div class="text-center text-xs text-gray-400 mt-8" style="font-size: 14px; line-height: 20px;">
-               <i class="fa-regular fa-envelope"></i> Per infomazioni o collaborazioni inviami una email a: <a href="mailto:devcode8493@gmail.com">devcode8493@gmail.com</a>
-            </div>
+         <section id="view-settings" class="view-section p-4 ">
+		 <div class="internal-section space-y-6">
+            <div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark  mb-4 rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden">
+   <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+   <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+      <div class="text-center">
+         
+         <h3 class="text-lg font-bold"><i class="fa-solid fa-gear text-5xl mb-3 opacity-90"></i><br/> Impostazioni</h3>
+         <p class="text-sm opacity-90 mt-2">
+            <i class="fa-regular fa-envelope"></i> Per infomazioni o collaborazioni inviami una email a: <a href="mailto:devcode8493@gmail.com">devcode8493@gmail.com</a>
+         </p>
+      </div>
+   </div>
             <div class="bg-darkBg bg-darkCard rounded-xl overflow-hidden shadow-sm">
                <div class="bg-darkBg bg-darkCard rounded-xl overflow-hidden shadow-sm">
-                  <h3 class="font-bold p-4 border-b border-gray-100 border-gray-700">Dati Personali</h3>
+                  <h3 class="font-bold p-4 border-b border-gray-100 border-gray-700">Dati Personali
+				  <p style="margin:0px; font-weight:normal;"><small>Inserisci qui i tuoi dati per ottimizzare i calcoli e statistiche</small></p>
+				  </h3>
+				   
                   <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Peso corporeo (kg)</span>
                      <input type="number" id="setting-body-weight" step="0.1" class="bg-gray-100 bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="70">
@@ -503,7 +741,7 @@
                      </select>
                   </div>
                </div>
-               <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
+               <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center" style="display:none;">
                   <span>Unità di peso</span>
                   <select id="setting-unit" class="bg-gray-100 bg-gray-800 rounded px-2 py-1">
                      <option value="kg">KG</option>
@@ -520,55 +758,68 @@
                </div>
             </div>
             <div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm space-y-4">
-               <h3 class="font-bold">Dati</h3>
+               <h3 class="font-bold">Salva o importa dati personali </h3>
+			   <p style="margin:0px;"><small>Salva qui tutte le tue informazioni salvate nell'app</small></p>
                <div class="grid grid-cols-2 gap-4">
-                  <button onclick="app.handlers.exportData()" class="bg-blue-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-600">Esporta JSON</button>
-                  <label class="0 text-white py-2 rounded-lg text-sm font-semibold hover:bg-gray-600 text-center cursor-pointer">
+                  <button onclick="app.handlers.exportData()" class="bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-600">Esporta JSON</button>
+                  <label class="bg-gray-700 text-white py-2 rounded-lg text-sm font-semibold hover:bg-gray-600 text-center cursor-pointer">
                   Importa JSON
                   <input type="file" onchange="app.handlers.importData(this)" class="hidden" accept=".json">
                   </label>
                </div>
                <button onclick="app.handlers.resetAllData()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg text-sm font-semibold hover:bg-red-50">Cancellazione Totale</button>
             </div>
+			</div>
          </section>
       </main>
       <!-- BOTTOM NAVIGATION -->
-      <nav class="fixed bottom-0 left-0 right-0 bg-darkCard border-t border-gray-200 border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300">
-         <button onclick="app.router.go('dashboard')" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
-         <i class="fa-solid fa-house mb-1"></i>
-         <span class="text-[10px] font-medium">Home</span> 
-         </button>
-         <button onclick="app.router.go('stats')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
-         <i class="fa-solid fa-chart-simple mb-1"></i>
-         <span class="text-[10px] font-medium">Statistiche</span>
-         </button>
-         <button onclick="app.router.go('settings')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
-         <i class="fa-solid fa-gear mb-1"></i>
-         <span class="text-[10px] font-medium">Settaggi</span>
-         </button>
-      </nav>
+     <nav class="fixed bottom-0 left-0 right-0 bg-darkCard border-t border-gray-200 border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300" style="-webkit-box-shadow: 0px 0px 50px 64px #111827;
+    box-shadow: 0px 0px 50px 64px #111827;">
+   <button onclick="app.router.go('dashboard')" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
+   <i class="fa-solid fa-house mb-1"></i>
+   <span class="text-[10px] font-medium">Home</span> 
+   </button>
+   <button onclick="app.router.go('badges')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
+   <i class="fa-solid fa-trophy mb-1"></i>
+   <span class="text-[10px] font-medium">Traguardi</span>
+   </button>
+   <button onclick="app.router.go('stats')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
+   <i class="fa-solid fa-chart-simple mb-1"></i>
+   <span class="text-[10px] font-medium">Statistiche</span>
+   </button>
+   <button onclick="app.router.go('settings')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary transition">
+   <i class="fa-solid fa-gear mb-1"></i>
+   <span class="text-[10px] font-medium">Impostazioni</span>
+   </button>
+   
+
+</nav>
       <!-- Modal Template for Exercise Form -->
       <div id="exercise-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
          <div class="bg-darkBg bg-darkCard rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl animate-fade-in-up">
-            <h3 class="font-bold text-xl mb-2">Aggiungi Esercizio</h3>
+           <h3 class="font-bold text-xl mb-2" id="modal-title">Aggiungi Esercizio</h3>
             <input type="text" id="modal-ex-name" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3 border-none focus:ring-2 focus:ring-primary" placeholder="Nome (es. Panca Piana)">
             <div class="grid grid-cols-2 gap-4">
                <div>
                   <label class="text-xs text-gray-500 ml-1">Serie</label>
-                  <input type="number" id="modal-ex-sets" value="3" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3">
+                  <input type="number" id="modal-ex-sets" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3" placeholder="es. 4">
                </div>
                <div>
-                  <label class="text-xs text-gray-500 ml-1">Reps</label>
-                  <input type="text" id="modal-ex-reps" value="10" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3" placeholder="es. 8-10">
+                  <label class="text-xs text-gray-500 ml-1">Reps <i class="fa-regular fa-circle-question"></i></label>
+                  <input type="text" id="modal-ex-reps"  class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3" placeholder="es. 8-10">
+				  
                </div>
             </div>
+			<small style="line-height: 17px;
+    margin-top: 14px;
+    display: block;"><i class="fa-regular fa-circle-question"></i> Reps: puoi inserire anche una parola al posto di un numero, per esempio: maxreps</small>
             <div class="grid grid-cols-2 gap-4">
                <div>
                   <label class="text-xs text-gray-500 ml-1">Pausa</label>
                   <select id="modal-ex-rest" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3">
                      <option value="30">30 secondi</option>
-                     <option value="60">1 minuto</option>
-                     <option value="90" selected>1:30 minuti</option>
+                     <option value="60" selected>1 minuto</option>
+                     <option value="90" >1:30 minuti</option>
                      <option value="120">2 minuti</option>
                      <option value="150">2:30 minuti</option>
                      <option value="180">3 minuti</option>
@@ -583,21 +834,22 @@
                   </select>
                </div>
                <div>
-                  <label class="text-xs text-gray-500 ml-1">Peso Iniziale</label>
-                  <input type="number" id="modal-ex-weight" value="0" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3">
+                  <label class="text-xs text-gray-500 ml-1">Peso Iniziale (Kg)</label>
+                  <input type="number" id="modal-ex-weight" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3" placeholder="es. 15">
                </div>
             </div>
             <div class="flex items-center gap-2  bg-gray-800 p-3 rounded-lg">
                <input type="checkbox" id="modal-ex-double" class="accent-primary w-5 h-5">
-               <label class="text-sm">Peso doppio (es. 2 manubri)<br/><small>(usato solo per statistiche per calcoli peso totale)</small></label>
+               <label class="text-sm">Peso doppio (es. 2 manubri)<br/><small>(usato solo per statistiche per calcoli peso totale, il peso indicato verrà moltiplicato x2)</small></label>
             </div>
             <div>
                <label class="text-xs text-gray-500 ml-1 block mb-1">Note (opzionale)</label>
                <textarea id="modal-ex-notes" rows="3" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3 border-none focus:ring-2 focus:ring-primary text-sm resize-none" placeholder="Es: ROM completo, pausa in basso..."></textarea>
             </div>
+
             <div class="flex gap-3 mt-4 pt-2">
                <button onclick="document.getElementById('exercise-modal').classList.add('hidden')" class="flex-1 py-3 text-gray-500 font-semibold">Annulla</button>
-               <button onclick="app.handlers.confirmAddExercise()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryDark shadow-lg">Aggiungi</button>
+               <button onclick="app.handlers.confirmAddExercise()" class="flex-1 bg-primary text-white py-3 rounded-full font-bold hover:bg-primaryDark shadow-lg">Aggiungi</button>
             </div>
          </div>
       </div>
@@ -629,19 +881,20 @@
          class DB {
              constructor() {
                  this.dbName = 'FitTrackerDB';
-                 this.version = 1;
+                 this.version = 2;
                  this.db = null;
              }
          
              async connect() {
                  return new Promise((resolve, reject) => {
                      const request = indexedDB.open(this.dbName, this.version);
-                     request.onupgradeneeded = (e) => {
-                         const db = e.target.result;
-                         if (!db.objectStoreNames.contains('workouts')) db.createObjectStore('workouts', { keyPath: 'id' });
-                         if (!db.objectStoreNames.contains('history')) db.createObjectStore('history', { keyPath: 'id' });
-                         if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'key' });
-                     };
+request.onupgradeneeded = (e) => {
+    const db = e.target.result;
+    if (!db.objectStoreNames.contains('workouts')) db.createObjectStore('workouts', { keyPath: 'id' });
+    if (!db.objectStoreNames.contains('history')) db.createObjectStore('history', { keyPath: 'id' });
+    if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'key' });
+    if (!db.objectStoreNames.contains('badges')) db.createObjectStore('badges', { keyPath: 'id' });
+};
                      request.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
                      request.onerror = (e) => reject(e);
                  });
@@ -700,6 +953,53 @@
          editingExerciseIndex: null,
                  activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
                  settings: { unit: 'kg', sound: true, vibrate: true, bodyWeight: null, height: null, age: null, gender: '', autoNext: false },
+				 badges: {
+    strike4: { count: 0, lastUnlocked: null, seen: false },
+    kcal500: { count: 0, lastUnlocked: null, seen: false },
+    kcal7200: { count: 0, lastUnlocked: null, seen: false },
+    kg10000: { count: 0, lastUnlocked: null, seen: false },
+    month16: { count: 0, lastUnlocked: null, seen: false },
+    bench100: { count: 0, lastUnlocked: null, seen: false, oneTime: true }
+},
+badgeDefinitions: {
+    strike4: {
+        name: 'Strike 4 Allenamenti',
+        desc: 'Quattro allenamenti questa settimana, zero scuse. Costanza attivata 📅',
+        icon: 'https://rccremonesi-cmyk.github.io/workout/4x.png',
+        repeatable: true
+    },
+    kcal500: {
+        name: '500 kcal Workout',
+        desc: 'Allenamento incendiario: 500 kcal bruciate! 🔥',
+        icon: 'https://rccremonesi-cmyk.github.io/workout/500k.png',
+        repeatable: true
+    },
+    kcal7200: {
+        name: '7200 kcal Totali',
+        desc: 'Energia trasformata in risultati: 7200 kcal consumate, 1kg perso! 🧱',
+        icon: 'https://rccremonesi-cmyk.github.io/workout/7200k.png',
+        repeatable: true
+    },
+    kg10000: {
+        name: '10.000 kg Sollevati',
+        desc: 'Forza pura: 10 tonnellate di ghisa! 🦾',
+        icon: 'https://rccremonesi-cmyk.github.io/workout/10000kg.png',
+        repeatable: true
+    },
+    month16: {
+        name: '16 Allenamenti/Mese',
+        desc: 'Un mese, sedici allenamenti. sei in pieno flow! ⏳',
+        icon: 'https://rccremonesi-cmyk.github.io/workout/16x.png',
+        repeatable: true
+    },
+    bench100: {
+        name: 'Panca Piana 100kg',
+        desc: 'Ora sei un vero uomo! 💪',
+        icon: 'https://rccremonesi-cmyk.github.io/workout/100bench.png',
+        repeatable: false
+    }
+},
+pendingBadges: [],
     
     motivationalPhrases: [
         'Spacca tutto! 💪',
@@ -713,7 +1013,8 @@
         'Focus totale 🎯',
         'Non vedi l\'ora di andare a casa a mangiare la pasta e fagioli! 🍝',
         'Saitama te fa na pippa! 👊'
-    ]
+    ],
+	preferredDays: []
 },
        
              
@@ -725,14 +1026,24 @@
                  app.handlers.requestNotificationPermission();
              },
          
-             loadData: async () => {
-                 app.state.workouts = await app.db.getAll('workouts');
-                 app.state.history = await app.db.getAll('history');
-                 const savedSettings = await app.db.getAll('settings');
-                 if (savedSettings.length > 0) {
-                     savedSettings.forEach(s => app.state.settings[s.key] = s.value);
-                 }
-             },
+loadData: async () => {
+    app.state.workouts = await app.db.getAll('workouts');
+    app.state.history = await app.db.getAll('history');
+    const savedSettings = await app.db.getAll('settings');
+    if (savedSettings.length > 0) {
+        savedSettings.forEach(s => app.state.settings[s.key] = s.value);
+    }
+    
+    // Load badges
+    const savedBadges = await app.db.getAll('badges');
+    if (savedBadges.length > 0) {
+        savedBadges.forEach(b => {
+            if (app.state.badges[b.id]) {
+                app.state.badges[b.id] = b.data;
+            }
+        });
+    }
+},
          
          
          
@@ -810,31 +1121,122 @@
          
          return Math.round(totalCalories);
          },
+		 
+		 checkBadges: async (session) => {
+    const newBadges = [];
+    
+    // 1️⃣ Strike 4 workouts questa settimana
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const thisWeekWorkouts = app.state.history.filter(h => new Date(h.date) >= weekStart);
+    if (thisWeekWorkouts.length === 4 && !app.state.badges.strike4.seen) {
+        newBadges.push('strike4');
+        app.state.badges.strike4.count++;
+        app.state.badges.strike4.lastUnlocked = new Date().toISOString();
+        app.state.badges.strike4.seen = true;
+    }
+    
+    // 2️⃣ 500 kcal in un workout
+    const calories = session.caloriesBurned || 0;
+    if (calories >= 500) {
+        newBadges.push('kcal500');
+        app.state.badges.kcal500.count++;
+        app.state.badges.kcal500.lastUnlocked = new Date().toISOString();
+    }
+    
+    // 3️⃣ 7200 kcal totali (cumulativo)
+    const totalCal = app.state.history.reduce((acc, h) => acc + (parseFloat(h.caloriesBurned) || 0), 0);
+    const kcal7200Milestone = Math.floor(totalCal / 7200);
+    if (kcal7200Milestone > app.state.badges.kcal7200.count) {
+        newBadges.push('kcal7200');
+        app.state.badges.kcal7200.count = kcal7200Milestone;
+        app.state.badges.kcal7200.lastUnlocked = new Date().toISOString();
+    }
+    
+    // 4️⃣ 10.000 kg questa settimana
+    const thisWeekVolume = thisWeekWorkouts.reduce((acc, h) => acc + (parseFloat(h.totalVolume) || 0), 0);
+    if (thisWeekVolume >= 10000 && !app.state.badges.kg10000.seen) {
+        newBadges.push('kg10000');
+        app.state.badges.kg10000.count++;
+        app.state.badges.kg10000.lastUnlocked = new Date().toISOString();
+        app.state.badges.kg10000.seen = true;
+    }
+    
+    // 5️⃣ 16 allenamenti questo mese
+    const now = new Date();
+    const thisMonthWorkouts = app.state.history.filter(h => {
+        const d = new Date(h.date);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+    if (thisMonthWorkouts.length === 16 && !app.state.badges.month16.seen) {
+        newBadges.push('month16');
+        app.state.badges.month16.count++;
+        app.state.badges.month16.lastUnlocked = new Date().toISOString();
+        app.state.badges.month16.seen = true;
+    }
+    
+    // 6️⃣ Panca piana 100kg (one-time)
+    if (app.state.badges.bench100.count === 0) {
+        const hasBench = session.logs?.some(l => 
+            l.exercise.toLowerCase().includes('panca piana') && parseFloat(l.weight) >= 100
+        );
+        if (hasBench) {
+            newBadges.push('bench100');
+            app.state.badges.bench100.count = 1;
+            app.state.badges.bench100.lastUnlocked = new Date().toISOString();
+        }
+    }
+    
+    // Salva tutti i badge
+    for (const key in app.state.badges) {
+        await app.db.put('badges', { id: key, data: app.state.badges[key] });
+    }
+    
+    // Aggiungi ai pending
+    app.state.pendingBadges.push(...newBadges);
+},
+
+resetWeeklyBadges: async () => {
+    // Reset seen flags per badge settimanali
+    app.state.badges.strike4.seen = false;
+    app.state.badges.kg10000.seen = false;
+    await app.db.put('badges', { id: 'strike4', data: app.state.badges.strike4 });
+    await app.db.put('badges', { id: 'kg10000', data: app.state.badges.kg10000 });
+},
+
+resetMonthlyBadges: async () => {
+    app.state.badges.month16.seen = false;
+    await app.db.put('badges', { id: 'month16', data: app.state.badges.month16 });
+},
          
          
-         router: {
-         go: (viewId) => {
-         // Hide bottom nav if active workout
-         document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'flex';
          
-         // ✨ AGGIUNGI QUESTA RIGA - Nascondi header in workout attivo
-         document.querySelector('header').style.display = viewId === 'active' ? 'none' : 'grid';
-         
-         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-         document.getElementById(`view-${viewId}`).classList.add('active');
-         
-         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-primary'));
-         if(viewId !== 'editor' && viewId !== 'active') {
-            // Highlight nav
-            const navIndices = {'dashboard': 0, 'stats': 1, 'settings': 2};
-            document.querySelectorAll('.nav-btn')[navIndices[viewId]]?.classList.add('text-primary');
-         }
-         
-         app.state.currentView = viewId;
-         if (viewId === 'dashboard') app.ui.renderDashboard();
-         if (viewId === 'stats') app.ui.renderStats();
-         }
-         },
+router: {
+go: (viewId) => {
+// Hide bottom nav if active workout
+document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'flex';
+
+// ✨ AGGIUNGI QUESTA RIGA - Nascondi header in workout attivo
+document.querySelector('header').style.display = viewId === 'active' ? 'none' : 'grid';
+
+document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+document.getElementById(`view-${viewId}`).classList.add('active');
+
+document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-primary'));
+if(viewId !== 'editor' && viewId !== 'active') {
+   // Highlight nav
+   const navIndices = {'dashboard': 0, 'badges': 1, 'stats': 2, 'settings': 3};
+   document.querySelectorAll('.nav-btn')[navIndices[viewId]]?.classList.add('text-primary');
+}
+
+app.state.currentView = viewId;
+if (viewId === 'dashboard') app.ui.renderDashboard();
+if (viewId === 'badges') app.ui.renderBadges();
+if (viewId === 'stats') app.ui.renderStats();
+}
+},
          
              ui: {
                  applyTheme: () => {
@@ -844,6 +1246,10 @@
                  renderDashboard: () => {
                      const list = document.getElementById('workout-list');
                      list.innerHTML = '';
+					 
+					 if (app.state.pendingBadges.length > 0) {
+							app.ui.showBadgeNotification();
+						}
                      
                      // Monthly stats calculation
                      const now = new Date();
@@ -869,24 +1275,129 @@
          document.getElementById('monthly-calories').innerText = Math.round(totalCal).toLocaleString();
          document.getElementById('monthly-fat-burned').innerText = fatBurnedGrams;
          
+		 
+		 // Today's Recommended Workouts
+const today = new Date().getDay(); // 0=Dom, 1=Lun, etc.
+const todayWorkouts = app.state.workouts.filter(w => 
+    w.preferredDays && w.preferredDays.includes(today)
+);
+
+if (todayWorkouts.length > 0) {
+    const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+    const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+    const now = new Date();
+    const dateStr = `${dayNames[now.getDay()]} ${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+    
+    list.innerHTML += `
+        <div class="mb-10">
+            <h3 class=" p-3 rounded-xl shadow-sm font-bold text-lg mb-3   text-center">
+                
+				
+                📅 Workout scelti per oggi:<br/> <div style="font-size:15px; font-weight:400;">${dateStr}</div>
+            </h3>
+            <div class="space-y-3">
+                ${todayWorkouts.map(w => {
+                    // Check if completed this week
+                    const weekStart = new Date();
+                    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                    weekStart.setHours(0, 0, 0, 0);
+                    
+                    const completedThisWeek = app.state.history.find(h => 
+                        h.workoutId === w.id && new Date(h.date) >= weekStart
+                    );
+                    
+                    return `
+                        <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
+                            <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
+                                <h4 class="font-bold text-lg">${w.name}</h4>
+                                <p class="text-xs text-gray-500">${w.exercises.length} Esercizi</p>
+                                ${completedThisWeek ? `
+                                    <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
+                                        <i class="fa-solid fa-check"></i>
+                                        Lo hai completato ${new Date(completedThisWeek.date).toLocaleDateString('it-IT', {weekday: 'short', day: 'numeric', month: 'short'})}
+                                    </p>
+                                ` : ''}
+                            </div>
+                            <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
+                                <i class="fa-solid fa-play ml-1"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+        <h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 flex items-center justify-center gap-2 text-center">📂 Tutti i tuoi Workout salvati</h3>
+    `;
+}
+		 
                      // Render Workouts
                      if (app.state.workouts.length === 0) {
-                         list.innerHTML = `<div class="text-center p-8 bg-darkBg bg-darkCard rounded-xl shadow-sm">
-                             <i class="fa-solid fa-person-running text-4xl text-gray-300 mb-3"></i>
-                             <p class="text-gray-500">Nessun workout creato.<br>Inizia creandone uno!</p>
-         <p onclick="app.router.go('settings')"><br/><br/><i class="fa-solid fa-triangle-exclamation"></i> Prima di iniziare, ricorda di configurare i tuoi parametri nella sezione <strong>Settaggi <i class="fa-solid fa-angle-right"></i></strong></p>
-                         </div>`;
+                         list.innerHTML = `<div class="relative overflow-hidden bg-gradient-to-br from-darkCard to-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800">
+   <!-- Decorative elements -->
+   <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+   <div class="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl"></div>
+   
+   <div class="relative z-10 text-center space-y-4">
+      <!-- Icon -->
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-primary/20 rounded-full mb-2">
+         <i class="fa-solid fa-dumbbell text-4xl text-primary animate-pulse"></i>
+      </div>
+      
+      <!-- Title -->
+      <h3 class="text-xl font-bold text-white">Inizia il tuo percorso!</h3>
+      
+      <!-- Description -->
+      <p class="text-gray-400 max-w-sm mx-auto">
+         Non hai ancora creato nessun workout.<br/>
+         Crea il tuo primo allenamento e inizia a tracciare i tuoi progressi.
+      </p>
+      
+      <!-- Settings reminder -->
+      <div class="bg-primary/10 border border-primary/30 rounded-xl p-4 mt-6 cursor-pointer hover:bg-primary/20 transition-all" 
+           onclick="app.router.go('settings')">
+         <div class="flex items-start gap-3 text-left">
+            <div class="bg-primary/20 rounded-lg p-2 flex-shrink-0">
+               <i class="fa-solid fa-gear"></i>
+            </div>
+            <div class="flex-1">
+               <h4 class="font-semibold text-white text-sm mb-1 flex items-center gap-2">
+                  Prima di iniziare
+                  <i class="fa-solid fa-arrow-right text-xs"></i>
+               </h4>
+               <p class="text-sm text-gray-400">
+                  Configura peso, altezza ed età nelle <span class="text-primary font-semibold">Impostazioni</span> per monitorare calorie e progressi
+               </p>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>`;
                          return;
                      }
          
-                     app.state.workouts.forEach(w => {
-                         const el = document.createElement('div');
-                         el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
-                         el.innerHTML = `
-                             <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
-                                 <h4 class="font-bold text-lg">${w.name}</h4>
-                                 <p class="text-xs text-gray-500">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
-                             </div>
+                  app.state.workouts.forEach(w => {
+    // Check if completed this week
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const completedThisWeek = app.state.history.find(h => 
+        h.workoutId === w.id && new Date(h.date) >= weekStart
+    );
+    
+    const el = document.createElement('div');
+    el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
+    el.innerHTML = `
+        <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
+            <h4 class="font-bold text-lg">${w.name}</h4>
+            <p class="text-xs text-gray-500">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
+            ${completedThisWeek ? `
+                <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
+                    <i class="fa-solid fa-check"></i>
+                    Lo hai completato ${new Date(completedThisWeek.date).toLocaleDateString('it-IT', {weekday: 'short', day: 'numeric', month: 'short'})}
+                </p>
+            ` : ''}
+        </div>
                              <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
                                  <i class="fa-solid fa-play ml-1"></i>
                              </button>
@@ -894,6 +1405,113 @@
                          list.appendChild(el);
                      });
                  },
+				 
+	     renderEditorPreferredDays: () => {
+    const container = document.getElementById('editor-preferred-days');
+    const days = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+    const selected = app.state.editingWorkout.preferredDays || [];
+    
+    container.innerHTML = days.map((day, idx) => `
+        <label class="flex flex-col items-center bg-gray-800 rounded-lg p-2 cursor-pointer hover:bg-gray-700 ${selected.includes(idx) ? 'ring-2 ring-primary' : ''}">
+            <input type="checkbox" class="editor-day-check mb-1" value="${idx}" ${selected.includes(idx) ? 'checked' : ''}>
+            <span class="text-xs">${day}</span>
+        </label>
+    `).join('');
+    
+    // Event listeners
+    document.querySelectorAll('.editor-day-check').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const checked = Array.from(document.querySelectorAll('.editor-day-check:checked')).map(c => parseInt(c.value));
+            app.state.editingWorkout.preferredDays = checked;
+        });
+    });
+},
+
+showBadgeNotification: () => {
+    const container = document.getElementById('badge-notification');
+    if (!container || app.state.pendingBadges.length === 0) return;
+    
+    const badgeId = app.state.pendingBadges[0];
+    const badge = app.state.badgeDefinitions[badgeId];
+    
+    container.innerHTML = `
+        <div class="bg-gradient-to-r from-purple-600 to-primary rounded-2xl p-5 text-white shadow-2xl badge-appear relative">
+            <button onclick="app.handlers.dismissBadge()" class="absolute top-3 right-3 text-white/80 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="flex items-center gap-4">
+                <img src="${badge.icon}" alt="${badge.name}" class="w-20 h-20">
+                <div class="flex-1">
+                    <div class="text-sm opacity-90 uppercase tracking-wider font-semibold">🏆 Traguardo Sbloccato!</div>
+                    <h3 class="text-xl font-bold mt-1">${badge.name}</h3>
+                    <p class="text-sm opacity-90 mt-1">${badge.desc}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.classList.remove('hidden');
+    
+    // Sound & Vibrate
+    if (app.state.settings.sound) {
+        document.getElementById('audio-complete').play().catch(e => {});
+    }
+    if (app.state.settings.vibrate && navigator.vibrate) {
+        navigator.vibrate([200, 100, 200, 100, 200]);
+    }
+},
+
+renderBadges: () => {
+    const container = document.getElementById('badges-list');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    for (const [id, def] of Object.entries(app.state.badgeDefinitions)) {
+        const data = app.state.badges[id];
+        const unlocked = data.count > 0;
+        
+        const badgeEl = document.createElement('div');
+        badgeEl.className = `bg-darkCard rounded-2xl p-5 flex items-center gap-4 shadow-lg transition-all ${unlocked ? 'border-2 border-primary' : 'opacity-90'}`;
+        
+        badgeEl.innerHTML = `
+            <div class="relative flex-shrink-0">
+                <img src="${def.icon}" alt="${def.name}" class="w-20 h-20 rounded-xl ${unlocked ? 'shadow-lg' : 'badge-icon-locked'}">
+                ${data.count > 1 ? `
+                    <span class="absolute -top-2 -right-2 bg-gradient-to-br from-yellow-400 to-orange-500 text-white text-sm font-bold px-2.5 py-1 rounded-full shadow-lg border-2 border-white">
+                        ×${data.count}
+                    </span>
+                ` : ''}
+                ${unlocked ? `
+                    <div class="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1.5 border-2 border-darkCard">
+                        <i class="fa-solid fa-check text-white text-xs"></i>
+                    </div>
+                ` : `
+                    <div class="absolute -bottom-1 -right-1 bg-gray-700 rounded-full p-1.5 border-2 border-darkCard">
+                        <i class="fa-solid fa-lock text-gray-500 text-xs"></i>
+                    </div>
+                `}
+            </div>
+            <div class="flex-1 min-w-0">
+                <h4 class="font-bold text-lg ${unlocked ? 'text-white' : 'text-gray-500'} truncate">${def.name}</h4>
+                <p class="text-sm ${unlocked ? 'text-gray-300' : 'text-gray-600'} mt-1 line-clamp-2">${def.desc}</p>
+                ${unlocked && data.lastUnlocked ? `
+                    <div class="flex items-center gap-1 mt-2 text-xs ">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Ultimo: ${new Date(data.lastUnlocked).toLocaleDateString('it-IT', {day: 'numeric', month: 'short', year: 'numeric'})}</span>
+                    </div>
+                ` : `
+                    <div class="flex items-center gap-1 mt-2 text-xs text-gray-600">
+                        <i class="fa-solid fa-lock"></i>
+                        <span>Non ancora sbloccato</span>
+                    </div>
+                `}
+            </div>
+        `;
+        
+        container.appendChild(badgeEl);
+    }
+},
          
          renderEditorExercises: () => {
          const container = document.getElementById('editor-exercises-list');
@@ -903,22 +1521,24 @@
          const el = document.createElement('div');
          el.className = ' bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
          el.innerHTML = `
-         <div class="flex items-center gap-3 flex-1 overflow-hidden">
-         <i class="fa-solid fa-grip-lines text-gray-400 cursor-move"></i>
-         <div class="truncate">
-         	<div class="font-bold truncate">${ex.name}</div>
-         	<div class="text-xs text-gray-500 truncate">${ex.sets} x ${ex.reps} • ${ex.rest}s${ex.isDouble ? ' • 2x' : ''}</div>
-         </div>
-         </div>
-         <div class="flex items-center gap-1">
-         <button onclick="app.handlers.editExercise(${idx})" class="text-blue-500 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50 hover:bg-gray-700 transition">
-         	<i class="fa-solid fa-pencil"></i>
-         </button>
-         <button onclick="app.handlers.removeExercise(${idx})" class="text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 hover:bg-gray-700 transition">
-         	<i class="fa-solid fa-times"></i>
-         </button>
-         </div>
-         `;
+<div class="flex items-center gap-3 flex-1 overflow-hidden">
+<i class="fa-solid fa-grip-lines text-gray-400 cursor-move text-xl"></i>
+<div class="truncate">
+	<div class="font-bold truncate">${ex.name}</div>
+	<div class="text-xs text-gray-500 truncate">${ex.sets} x ${ex.reps} • ${ex.rest}s${ex.isDouble ? ' • 2x' : ''}</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button onclick="app.handlers.editExercise(${idx})" class="bg-primary/20 text-white hover:bg-primary hover:text-white px-4 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-95 flex items-center gap-2 border border-primary/30">
+	<i class="fa-solid fa-pen"></i>
+	<span class="hidden sm:inline">Modifica</span>
+</button>
+<button onclick="app.handlers.removeExercise(${idx})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-95 flex items-center gap-2 border border-red-500/30">
+	<i class="fa-solid fa-times"></i>
+	<span class="hidden sm:inline">Elimina</span>
+</button>
+</div>
+`;
          container.appendChild(el);
          });
          
@@ -1156,18 +1776,82 @@
          
                      // List
                      const list = document.getElementById('history-list');
-         list.innerHTML = history.slice().reverse().slice(0, 10).map(h => `
-         <div class="flex justify-between items-center border-b border-gray-100 border-gray-700 pb-2">
-         <div class="flex-1">
-             <div class="font-bold">${h.workoutName}</div>
-             <div class="text-xs text-gray-400">${new Date(h.date).toLocaleString()}</div>
+list.innerHTML = history.slice().reverse().slice(0, 10).map((h, index) => {
+   const date = new Date(h.date);
+   const isToday = date.toDateString() === new Date().toDateString();
+   const isYesterday = date.toDateString() === new Date(Date.now() - 86400000).toDateString();
+   
+   let dateLabel;
+   if (isToday) {
+      dateLabel = '🟢 Oggi';
+   } else if (isYesterday) {
+      dateLabel = 'Ieri';
+   } else {
+      dateLabel = date.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+   }
+   
+   const timeLabel = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+   
+   return `
+      <div class="bg-darkCard rounded-xl p-4  ${isToday ? 'border-green-500' : 'border-primary'} shadow-sm hover:shadow-md transition-all">
+         <!-- Header Row -->
+         <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+             
+               <div>
+                  <h4 class="font-bold text-white">${h.workoutName}</h4>
+                  <div class="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+                     <i class="fa-regular fa-calendar"></i>
+                     <span>${dateLabel}</span>
+                     <span class="text-gray-600">•</span>
+                     <i class="fa-regular fa-clock"></i>
+                     <span>${timeLabel}</span>
+                  </div>
+               </div>
+            </div>
+            ${index === 0 ? '<span class="text-xs bg-primary/50 text-white/70 px-2 py-1 rounded-full font-semibold">Recente</span>' : ''}
          </div>
-         <div class="text-right">
-             <div class="font-mono font-bold text-primary"><i class="fa-solid fa-dumbbell text-primary text-xs"></i> ${Math.round(h.totalVolume)}kg</div>
-             ${h.caloriesBurned ? `<div class="text-xs text-orange-500">🔥 ${h.caloriesBurned} kcal</div>` : ''}
+         
+         <!-- Stats Row -->
+         <div class="grid grid-cols-3 gap-3">
+            <div class="bg-gray-900/50 rounded-lg p-2 text-center">
+               <div class="text-xs text-gray-400 mb-1">Volume</div>
+               <div class="font-bold  flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-weight-hanging text-xs"></i>
+                  <span>${Math.round(h.totalVolume).toLocaleString()}</span>
+                  <span class="text-xs">kg</span>
+               </div>
+            </div>
+            
+            ${h.caloriesBurned ? `
+               <div class="bg-gray-900/50 rounded-lg p-2 text-center">
+                  <div class="text-xs text-gray-400 mb-1">Calorie</div>
+                  <div class="font-bold text-orange-500 flex items-center justify-center gap-1">
+                     <i class="fa-solid fa-fire text-xs"></i>
+                     <span>${Math.round(h.caloriesBurned).toLocaleString()}</span>
+                  </div>
+               </div>
+            ` : `
+               <div class="bg-gray-900/50 rounded-lg p-2 text-center opacity-50">
+                  <div class="text-xs text-gray-400 mb-1">Calorie</div>
+                  <div class="font-bold text-gray-600 text-xs">N/D</div>
+               </div>
+            `}
+            
+            <div class="bg-gray-900/50 rounded-lg p-2 text-center">
+               <div class="text-xs text-gray-400 mb-1">Durata</div>
+               <div class="font-bold text-blue-400 flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-stopwatch text-xs"></i>
+                  <span>${h.durationMinutes || 0}</span>
+                  <span class="text-xs">min</span>
+               </div>
+            </div>
          </div>
-         </div>
-         `).join('');
+      </div>
+   `;
+}).join('');
+
+ app.handlers.switchStatsTab('statistics');
                  }
              },
          
@@ -1177,24 +1861,26 @@
                      app.state.editingWorkout = {
                          id: 'w_' + Date.now(),
                          name: '',
-                         exercises: []
+                         exercises: [],
+						  preferredDays: []
                      };
                      document.getElementById('editor-name').value = '';
                      document.getElementById('btn-delete-workout').classList.add('hidden');
                      app.ui.renderEditorExercises();
+					 app.ui.renderEditorPreferredDays();
                      app.router.go('editor');
                  },
          
-                 openWorkoutEditor: (id) => {
-                     const w = app.state.workouts.find(w => w.id === id);
-                     // Clone to avoid ref issues
-                     app.state.editingWorkout = JSON.parse(JSON.stringify(w));
-                     document.getElementById('editor-name').value = w.name;
-                     document.getElementById('btn-delete-workout').classList.remove('hidden');
-                     app.ui.renderEditorExercises();
-                     app.router.go('editor');
-                 },
-         
+openWorkoutEditor: (id) => {
+    const w = app.state.workouts.find(w => w.id === id);
+    // Clone to avoid ref issues
+    app.state.editingWorkout = JSON.parse(JSON.stringify(w));
+    document.getElementById('editor-name').value = w.name;
+    document.getElementById('btn-delete-workout').classList.remove('hidden');
+    app.ui.renderEditorExercises();
+    app.ui.renderEditorPreferredDays(); // ✅ AGGIUNGI QUESTA RIGA
+    app.router.go('editor');
+},         
          
          // --- Sostituisci addExerciseToEditor ---
          addExerciseToEditor: () => {
@@ -1202,10 +1888,10 @@
          
          // Reset form
          document.getElementById('modal-ex-name').value = '';
-         document.getElementById('modal-ex-sets').value = '3';
-         document.getElementById('modal-ex-reps').value = '10';
-         document.getElementById('modal-ex-rest').value = '90';
-         document.getElementById('modal-ex-weight').value = '0';
+         document.getElementById('modal-ex-sets').value = '';
+         document.getElementById('modal-ex-reps').value = '';
+         document.getElementById('modal-ex-rest').value = '60';
+         document.getElementById('modal-ex-weight').value = '';
          document.getElementById('modal-ex-double').checked = false;
          document.getElementById('modal-ex-notes').value = '';
          
@@ -1525,6 +2211,8 @@ skipExercise: () => {
          };
          
                      await app.db.put('history', historyItem);
+					 // Check badges
+await app.checkBadges(historyItem);
                      await app.loadData(); // Reload history for dashboard
                      
                      const statsMsg = calories > 0 
@@ -1633,6 +2321,9 @@ startExerciseTimer: () => {
          </div>
          `;
          }).join('');
+		 
+		
+
          
          document.getElementById('workout-preview-modal').classList.remove('hidden');
          },
@@ -1684,6 +2375,29 @@ toggleNotes: () => {
         }
     }
 },
+
+dismissBadge: () => {
+    app.state.pendingBadges.shift();
+    document.getElementById('badge-notification').classList.add('hidden');
+    
+    // Show next badge if any
+    if (app.state.pendingBadges.length > 0) {
+        setTimeout(() => app.ui.showBadgeNotification(), 500);
+    }
+},
+switchStatsTab: (tabName) => {
+   // Update buttons
+   document.querySelectorAll('.stats-tab').forEach(btn => {
+      btn.classList.remove('active');
+   });
+   document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+   
+   // Update content
+   document.querySelectorAll('.stats-tab-content').forEach(content => {
+      content.classList.add('hidden');
+   });
+   document.getElementById(`stats-tab-${tabName}`).classList.remove('hidden');
+},
          
                  // Settings Handlers
                  resetAllData: async () => {
@@ -1693,13 +2407,41 @@ toggleNotes: () => {
                          location.reload();
                      }
                  },
+				 resetStatistics: async () => {
+    const confirmTxt = prompt("Scrivi 'RESET' per cancellare SOLO lo storico allenamenti. I workout non verranno eliminati.");
+    if (confirmTxt === 'RESET') {
+        // Cancella solo la tabella history
+        const tx = app.db.db.transaction('history', 'readwrite');
+        await tx.objectStore('history').clear();
+		
+		// Reset anche i badge
+        const txBadges = app.db.db.transaction('badges', 'readwrite');
+        await txBadges.objectStore('badges').clear();
+        
+        // Reset state
+        for (const key in app.state.badges) {
+            app.state.badges[key] = { count: 0, lastUnlocked: null, seen: false };
+            if (key === 'bench100') app.state.badges[key].oneTime = true;
+        }
+        
+        // Ricarica i dati
+        await app.loadData();
+        
+        // Aggiorna la vista
+        app.ui.renderStats();
+        
+        alert('✅ Statistiche cancellate! I tuoi workout sono al sicuro.');
+    }
+},
                  
          exportData: async () => {
          const settingsArray = await app.db.getAll('settings'); // AGGIUNTO
+		 const badgesArray = await app.db.getAll('badges');
          const data = {
          workouts: app.state.workouts,
          history: app.state.history,
-         settings: settingsArray  // MODIFICATO (era: app.state.settings)
+         settings: settingsArray,
+		 badges: badgesArray
          };
          const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
                      const url = URL.createObjectURL(blob);
@@ -1726,6 +2468,9 @@ toggleNotes: () => {
             if(data.settings) {
                 for (const s of data.settings) await app.db.put('settings', s);
             }
+			if(data.badges) {
+    for (const b of data.badges) await app.db.put('badges', b);
+}
             alert("Importazione completata!");
             location.reload();
                          } catch(err) {
@@ -1761,6 +2506,22 @@ toggleNotes: () => {
          // Init App
          window.addEventListener('DOMContentLoaded', async () => {
          await app.init();
+		 
+		 const lastResetWeek = localStorage.getItem('lastResetWeek');
+const lastResetMonth = localStorage.getItem('lastResetMonth');
+const now = new Date();
+const weekNum = Math.floor((now - new Date(now.getFullYear(), 0, 1)) / 604800000);
+const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+
+if (lastResetWeek !== String(weekNum)) {
+    app.resetWeeklyBadges();
+    localStorage.setItem('lastResetWeek', weekNum);
+}
+
+if (lastResetMonth !== monthKey) {
+    app.resetMonthlyBadges();
+    localStorage.setItem('lastResetMonth', monthKey);
+}
          
          // Personal Settings Listeners (after init so settings are loaded)
          ['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender'].forEach(id => {
