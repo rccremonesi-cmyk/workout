@@ -21,6 +21,65 @@
       <meta http-equiv="Expires" content="0">
       <style>	
 	  
+	  #view-settings input{
+	      border: 1px solid #5127f2;
+	  }
+
+      #view-settings select{
+	      border: 1px solid #5127f2;
+	  }	  
+	  
+	  #view-settings{
+	  /* Nascondi il checkbox originale */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+  width: 48px;
+  height: 24px;
+  background-color: #4b5563;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  outline: none;
+}
+
+/* Stile quando è checked */
+input[type="checkbox"]:checked {
+  background-color: #5127f2; /* o usa var(--primary) se hai una variabile CSS */
+}
+
+/* Il pallino del toggle */
+input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Movimento del pallino quando è checked */
+input[type="checkbox"]:checked::before {
+  transform: translateX(24px);
+}
+
+/* Effetto hover */
+input[type="checkbox"]:hover {
+  opacity: 0.9;
+}
+
+/* Focus per accessibilità */
+input[type="checkbox"]:focus {
+  box-shadow: 0 0 0 3px rgba(59, 131, 246, 0.781)
+}
+	  }
+	  
 	  .shadow-custom{
 	  -webkit-box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.10);
     box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.10);
