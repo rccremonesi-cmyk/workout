@@ -1215,10 +1215,16 @@ resetMonthlyBadges: async () => {
          
 router: {
 go: (viewId) => {
+// ✅ SCROLL TO TOP
+const appContainer = document.getElementById('app-container');
+if (appContainer) {
+   appContainer.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 // Hide bottom nav if active workout
 document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'flex';
 
-// ✨ AGGIUNGI QUESTA RIGA - Nascondi header in workout attivo
+// Nascondi header in workout attivo
 document.querySelector('header').style.display = viewId === 'active' ? 'none' : 'grid';
 
 document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
