@@ -19,7 +19,11 @@
       <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
       <meta http-equiv="Pragma" content="no-cache">
       <meta http-equiv="Expires" content="0">
-      <style>	  
+      <style>	 
+
+nav button.text-primary{
+color:#c084fc;
+}
 	  
 	  /* Nasconde il checkbox nativo */
 .editor-day-check {
@@ -834,7 +838,7 @@ if (currentMonthEl) {
       <!-- BOTTOM NAVIGATION -->
      <nav class="fixed bottom-0 left-0 right-0 bg-darkCard border-t border-gray-200 border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300" style="-webkit-box-shadow: 0px 0px 50px 64px #111827;
     box-shadow: 0px 0px 50px 64px #111827;">
-   <button onclick="app.router.go('dashboard')" class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-purple-400 transition">
+   <button onclick="app.router.go('dashboard')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-purple-400 transition">
    <i class="fa-solid fa-house mb-1"></i>
    <span class="text-[10px] font-medium">Home</span> 
    </button>
@@ -1301,11 +1305,20 @@ document.querySelector('header').style.display = viewId === 'active' ? 'none' : 
 document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
 document.getElementById(`view-${viewId}`).classList.add('active');
 
-document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-primary'));
+// ✅ RIMUOVI LA CLASSE ACTIVE DA TUTTI I BOTTONI
+document.querySelectorAll('.nav-btn').forEach(btn => {
+   btn.classList.remove('text-primary');
+   btn.classList.remove('active'); // AGGIUNGI QUESTA RIGA
+});
+
+// ✅ AGGIUNGI LA CLASSE SOLO SE NON SEI IN EDITOR O ACTIVE
 if(viewId !== 'editor' && viewId !== 'active') {
-   // Highlight nav
    const navIndices = {'dashboard': 0, 'badges': 1, 'stats': 2, 'settings': 3};
-   document.querySelectorAll('.nav-btn')[navIndices[viewId]]?.classList.add('text-primary');
+   const targetBtn = document.querySelectorAll('.nav-btn')[navIndices[viewId]];
+   if (targetBtn) {
+      targetBtn.classList.add('text-primary');
+      targetBtn.classList.add('active'); // AGGIUNGI QUESTA RIGA
+   }
 }
 
 app.state.currentView = viewId;
@@ -2642,6 +2655,7 @@ switchStatsTab: (tabName) => {
          // Init App
          window.addEventListener('DOMContentLoaded', async () => {
          await app.init();
+		 document.querySelectorAll('.nav-btn')[0]?.classList.add('text-primary');
 		 
 		 const lastResetWeek = localStorage.getItem('lastResetWeek');
 const lastResetMonth = localStorage.getItem('lastResetMonth');
