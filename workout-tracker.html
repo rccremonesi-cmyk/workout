@@ -1591,10 +1591,10 @@ el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-betw
 const dayLabels = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
 const preferredDaysHTML = (w.preferredDays && w.preferredDays.length > 0) ? `
     <div class="flex items-center gap-1 mt-1">
-        <i class="fa-regular fa-calendar text-gray-500" style="font-size: 10px;"></i>
+        <i class="fa-regular fa-calendar text-gray-500" style="font-size: 14px;"></i>
         ${dayLabels.map((day, idx) => {
             const isAssigned = w.preferredDays.includes(idx);
-            return `<span class="text-[9px] font-semibold px-1.5 py-0.5 rounded ${isAssigned ? 'bg-primary/20 text-white' : 'bg-gray-800 text-gray-600'}">${day}</span>`;
+            return `<span class="text-[12px] font-semibold px-1.5 py-0.5 rounded ${isAssigned ? 'bg-primary/20 text-white' : 'bg-gray-800 text-gray-600'}">${day}</span>`;
         }).join('')}
     </div>
 ` : '';
