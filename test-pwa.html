@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
    <head>
@@ -979,8 +978,18 @@ color:#c084fc;
                   <input type="checkbox" id="setting-vibrate" checked class="accent-primary w-5 h-5">
                </div>
             </div>
-            <div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm space-y-4">
-               <h3 class="font-bold">Salva o importa dati personali </h3>
+<div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm">
+   <h3 class="font-bold mb-2">📲 Installa come App</h3>
+   <p class="text-sm text-gray-400 mb-3">Usa WorkoutTracker a schermo intero come un'app nativa!</p>
+   <button onclick="document.getElementById('pwa-install-modal').classList.remove('hidden')" 
+      class="w-full bg-gradient-to-r from-primary to-purple-600 text-white py-3 rounded-lg text-sm font-semibold hover:from-primaryDark hover:to-purple-700 transition-all flex items-center justify-center gap-2">
+      <i class="fa-solid fa-download"></i>
+      Mostra Istruzioni Installazione
+   </button>
+</div>
+
+<div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm space-y-4">
+   <h3 class="font-bold">Salva o importa dati personali </h3>
 			   <p style="margin:0px;"><small>Salva qui tutte le tue informazioni salvate nell'app</small></p>
                <div class="grid grid-cols-2 gap-4">
                   <button onclick="app.handlers.exportData()" class="bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-600">Esporta JSON</button>
@@ -1016,6 +1025,109 @@ color:#c084fc;
    
 
 </nav>
+
+
+<!-- PWA Install Modal -->
+      <div id="pwa-install-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+         <div class="bg-darkCard rounded-2xl w-full max-w-md shadow-2xl animate-fade-in-up overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark p-6 text-white relative overflow-hidden">
+               <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+               <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+               <div class="relative z-10">
+                  <div class="flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mx-auto mb-3">
+                     <i class="fa-solid fa-download text-3xl"></i>
+                  </div>
+                  <h3 class="text-2xl font-bold text-center">Installa l'App</h3>
+                  <p class="text-center text-sm opacity-90 mt-2">Usa WorkoutTracker a schermo intero, senza barra del browser!</p>
+               </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+               <!-- Android Instructions -->
+               <div class="bg-gray-800 rounded-xl p-4 border-l-4 border-green-500">
+                  <div class="flex items-start gap-3">
+                     <div class="bg-green-500/20 rounded-lg p-2 flex-shrink-0">
+                        <i class="fa-brands fa-android text-2xl text-green-500"></i>
+                     </div>
+                     <div class="flex-1">
+                        <h4 class="font-bold text-white mb-2">📱 Android (Chrome/Edge)</h4>
+                        <ol class="text-sm text-gray-300 space-y-1">
+                           <li>1. Tocca i <strong>3 puntini</strong> in alto a destra</li>
+                           <li>2. Seleziona <strong>"Installa app"</strong></li>
+                           <li>3. Conferma l'installazione</li>
+                        </ol>
+                     </div>
+                  </div>
+               </div>
+               
+               <!-- iOS Instructions -->
+               <div class="bg-gray-800 rounded-xl p-4 border-l-4 border-blue-400">
+                  <div class="flex items-start gap-3">
+                     <div class="bg-blue-400/20 rounded-lg p-2 flex-shrink-0">
+                        <i class="fa-brands fa-apple text-2xl text-blue-400"></i>
+                     </div>
+                     <div class="flex-1">
+                        <h4 class="font-bold text-white mb-2">🍎 iPhone/iPad (Safari)</h4>
+                        <ol class="text-sm text-gray-300 space-y-1">
+                           <li>1. Tocca il pulsante <strong>Condividi</strong> <i class="fa-solid fa-share text-xs"></i></li>
+                           <li>2. Scorri e tocca <strong>"Aggiungi a Home"</strong></li>
+                           <li>3. Tocca <strong>"Aggiungi"</strong> in alto a destra</li>
+                        </ol>
+                     </div>
+                  </div>
+               </div>
+               
+               <!-- Desktop Instructions -->
+               <div class="bg-gray-800 rounded-xl p-4 border-l-4 border-purple-500">
+                  <div class="flex items-start gap-3">
+                     <div class="bg-purple-500/20 rounded-lg p-2 flex-shrink-0">
+                        <i class="fa-solid fa-desktop text-2xl text-purple-500"></i>
+                     </div>
+                     <div class="flex-1">
+                        <h4 class="font-bold text-white mb-2">💻 Desktop (Chrome/Edge)</h4>
+                        <ol class="text-sm text-gray-300 space-y-1">
+                           <li>1. Cerca l'icona <strong>"Installa"</strong> <i class="fa-solid fa-circle-plus text-xs"></i> nella barra degli indirizzi</li>
+                           <li>2. Clicca e conferma l'installazione</li>
+                           <li>3. L'app si aprirà in una finestra dedicata</li>
+                        </ol>
+                     </div>
+                  </div>
+               </div>
+               
+               <!-- Benefits -->
+               <div class="bg-primary/10 border border-primary/30 rounded-xl p-4">
+                  <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+                     <i class="fa-solid fa-star text-yellow-400"></i>
+                     Vantaggi
+                  </h4>
+                  <ul class="text-sm text-gray-300 space-y-1">
+                     <li>✨ <strong>Schermo intero</strong> - Più spazio per allenarti</li>
+                     <li>🚀 <strong>Caricamento veloce</strong> - Apri l'app in un tap</li>
+                     <li>📲 <strong>Icona nella home</strong> - Come un'app nativa</li>
+                  </ul>
+               </div>
+            </div>
+            
+            <!-- Footer Actions -->
+            <div class="p-6 pt-0 flex gap-3">
+               <button onclick="document.getElementById('pwa-install-modal').classList.add('hidden')" 
+                  class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-semibold transition-all active:scale-95">
+                  Chiudi
+               </button>
+               <button onclick="app.handlers.installPWA()" 
+                  class="flex-1 bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white py-3 rounded-xl font-semibold transition-all active:scale-95 flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-download"></i>
+                  Installa Ora
+               </button>
+            </div>
+         </div>
+      </div>
+
+      <!-- Modal Template for Exercise Form -->
+	  
+	  
       <!-- Modal Template for Exercise Form -->
       <div id="exercise-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
          <div class="bg-darkBg bg-darkCard rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl animate-fade-in-up">
@@ -2911,6 +3023,21 @@ dismissBadge: () => {
         setTimeout(() => app.ui.showBadgeNotification(), 500);
     }
 },
+installPWA: () => {
+    if (app.deferredPrompt) {
+        app.deferredPrompt.prompt();
+        app.deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('✅ App installata!');
+                document.getElementById('pwa-install-modal').classList.add('hidden');
+            }
+            app.deferredPrompt = null;
+        });
+    } else {
+        // Se non c'è il prompt nativo, mostra istruzioni manuali
+        alert('📲 Segui le istruzioni sopra per installare l\'app manualmente!');
+    }
+},
 toggleStatsPeriod: () => {
     app.state.statsPeriod = app.state.statsPeriod === 'week' ? 'month' : 'week';
     app.ui.renderDashboard();
@@ -3037,25 +3164,30 @@ switchStatsTab: (tabName) => {
          window.addEventListener('DOMContentLoaded', async () => {
          await app.init();
 		 
-		 // PWA Install Prompt
-   let deferredPrompt;
+// PWA Install Prompt
    window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
-      deferredPrompt = e;
+      app.deferredPrompt = e;
       
-      // Mostra banner personalizzato dopo 3 secondi
-      setTimeout(() => {
-         if (confirm('🚀 Vuoi installare WorkoutTracker come app sul tuo dispositivo?\n\nPotrai usarla a schermo intero senza barra del browser!')) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-               if (choiceResult.outcome === 'accepted') {
-                  console.log('✅ App installata!');
-               }
-               deferredPrompt = null;
-            });
-         }
-      }, 3000);
+      // Mostra modale dopo 3 secondi se non è già installata
+      const isInstalled = localStorage.getItem('pwa-installed');
+      if (!isInstalled && !window.matchMedia('(display-mode: standalone)').matches) {
+         setTimeout(() => {
+            document.getElementById('pwa-install-modal').classList.remove('hidden');
+         }, 3000);
+      }
    });
+   
+   // Rileva se l'app è stata installata
+   window.addEventListener('appinstalled', () => {
+      localStorage.setItem('pwa-installed', 'true');
+      console.log('✅ PWA installata con successo!');
+   });
+   
+   // Non mostrare la modale se l'app è già in modalità standalone
+   if (window.matchMedia('(display-mode: standalone)').matches) {
+      localStorage.setItem('pwa-installed', 'true');
+   }
 		 
 		 
 		 document.querySelectorAll('.nav-btn')[0]?.classList.add('text-primary');
