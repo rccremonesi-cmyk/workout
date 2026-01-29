@@ -20,7 +20,7 @@
       <meta http-equiv="Pragma" content="no-cache">
       <meta http-equiv="Expires" content="0">
       <style>	
-#add-workout-fab {
+#add-workout-fab, #add-btn, #badge-notification {
     animation: gentleBounce 1.8s ease-in-out infinite;
 }
 
@@ -540,7 +540,7 @@ if (currentMonthEl) {
             </div>
             <!-- Floating Action Button for Add Exercise -->
             <div class="fixed bottom-6 right-6 z-40">
-               <button onclick="app.handlers.addExerciseToEditor()" class="bg-primary text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2" style="-webkit-box-shadow: 0px 0px 22px 4px #111827;
+               <button onclick="app.handlers.addExerciseToEditor()" id="add-btn" class="bg-primary text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2" style="-webkit-box-shadow: 0px 0px 22px 4px #111827;
     box-shadow: 0px 0px 22px 4px #111827;">
                <i class="fa-solid fa-plus"></i> Agg. esercizio
                </button>
@@ -968,7 +968,7 @@ if (currentMonthEl) {
       <!-- Modal Template for Exercise Form -->
       <div id="exercise-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
          <div class="bg-darkBg bg-darkCard rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl animate-fade-in-up">
-           <h3 class="font-bold text-xl mb-2" id="modal-title">Aggiungi Esercizio</h3>
+           <h3 class="font-bold text-xl mb-2" id="modal-title"><i class="fa-solid fa-dumbbell mr-2"></i> Aggiungi Esercizio</h3>
             <input type="text" id="modal-ex-name" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3 border-none focus:ring-2 focus:ring-primary" placeholder="Nome (es. Panca Piana)">
             <div class="grid grid-cols-2 gap-4">
                <div>
