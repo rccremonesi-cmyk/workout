@@ -1876,6 +1876,8 @@ if (app.state.editingWorkout.exercises.length === 0) {
                      if(!session) return;
                      
                      const ex = session.workout.exercises[session.currentExIdx];
+					 
+					 
                      
                      // Texts
                      document.getElementById('active-workout-name').innerText = session.workout.name;
@@ -1883,6 +1885,29 @@ if (app.state.editingWorkout.exercises.length === 0) {
                      document.getElementById('active-set-display').innerText = `Serie ${session.currentSet + 1} / ${ex.sets}`;
                      document.getElementById('active-target-display').innerText = `${ex.reps} Reps`;
                      document.getElementById('active-weight-value').innerText = ex.lastWeight || 0;
+					 
+					     // ✅ MOSTRA IL DELTA SE ESISTE
+const kgLabel = document.querySelector('#active-weight-value + span');
+if (kgLabel) {
+    // Prima pulisci sempre
+    kgLabel.innerHTML = 'kg';
+    
+    // Poi aggiungi il delta solo se esiste e non è zero
+    if (session.weightDelta && Math.abs(session.weightDelta) > 0) {
+        let deltaText = '';
+        let deltaColor = '';
+
+        if (session.weightDelta > 0) {
+            deltaText = `+${session.weightDelta}`;
+            deltaColor = 'text-green-400';
+        } else {
+            deltaText = `${session.weightDelta}`;
+            deltaColor = 'text-orange-400';
+        }
+
+        kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaText}</span>`;
+    }
+}
                      
          // Progress Bar
          // Progress Bar
@@ -2324,26 +2349,25 @@ adjustWeight: (delta) => {
     const ex = session.workout.exercises[session.currentExIdx];
     let w = parseFloat(ex.lastWeight);
     if (isNaN(w)) w = 0;
-    const prevWeight = w; // peso prima della modifica
     w += delta;
     if (w < 0) w = 0;
     ex.lastWeight = w;
 
-    // ✅ ANIMAZIONE DELTA
+    // ✅ SALVA IL DELTA SULLA SESSIONE
+    if (!session.weightDelta) session.weightDelta = 0;
+    session.weightDelta += delta;
+
+    // ✅ MOSTRA IL DELTA
     const kgLabel = document.querySelector('#active-weight-value + span');
     if (kgLabel) {
-        // recupera delta accumulato
-        let currentDelta = parseFloat(kgLabel.getAttribute('data-delta') || 0);
-        currentDelta += delta;
-
         let deltaText = '';
         let deltaColor = '';
 
-        if (currentDelta > 0) {
-            deltaText = `+${currentDelta}`;
+        if (session.weightDelta > 0) {
+            deltaText = `+${session.weightDelta}`;
             deltaColor = 'text-green-400';
-        } else if (currentDelta < 0) {
-            deltaText = `${currentDelta}`;
+        } else if (session.weightDelta < 0) {
+            deltaText = `${session.weightDelta}`;
             deltaColor = 'text-orange-400';
         } else {
             deltaText = `=`;
@@ -2351,7 +2375,6 @@ adjustWeight: (delta) => {
         }
 
         kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaText}</span>`;
-        kgLabel.setAttribute('data-delta', currentDelta);
     }
 
     app.ui.updateActiveView();
@@ -2362,12 +2385,10 @@ adjustWeight: (delta) => {
 skipRest: (_, isNextExercise = false) => {
   if (app.restInterval) clearInterval(app.restInterval);
   
-  // ✅ RIMUOVI LAMPEGGIO QUANDO SALTI IL RIPOSO
   const restText = document.getElementById('rest-timer-text');
   if (restText) restText.classList.remove('rest-blink');
   
   const session = app.state.activeSession;
-  
   const ex = session.workout.exercises[session.currentExIdx];
   
   if(session.currentSet < ex.sets - 1) {
@@ -2375,9 +2396,15 @@ skipRest: (_, isNextExercise = false) => {
   } else {
     session.currentExIdx++;
     session.currentSet = 0;
+    
+    // ✅ RESET DELTA QUANDO CAMBI ESERCIZIO
+    session.weightDelta = 0;
+    const kgLabel = document.querySelector('#active-weight-value + span');
+    if (kgLabel) {
+        kgLabel.innerHTML = 'kg';
+    }
   }
   
-  // ✨ SPOSTA QUI: Resetta il timer PRIMA di cambiare status
   app.handlers.startExerciseTimer();
   app.handlers.setRandomMotivation();
   
@@ -2387,7 +2414,6 @@ skipRest: (_, isNextExercise = false) => {
 },
 
 skipExercise: () => {
-  // ✅ RIMUOVI LAMPEGGIO QUANDO SALTI L'ESERCIZIO
   const restText = document.getElementById('rest-timer-text');
   if (restText) restText.classList.remove('rest-blink');
   
@@ -2395,7 +2421,14 @@ skipExercise: () => {
   if (session.currentExIdx < session.workout.exercises.length - 1) {
     session.currentExIdx++;
     session.currentSet = 0;
-    // ✨ AGGIUNGI QUI:
+    
+    // ✅ RESET DELTA QUANDO CAMBI ESERCIZIO
+   session.weightDelta = 0;
+    const kgLabel = document.querySelector('#active-weight-value + span');
+    if (kgLabel) {
+        kgLabel.innerHTML = 'kg';
+    }
+    
     app.handlers.startExerciseTimer();
     session.status = 'work';
     if (app.restInterval) clearInterval(app.restInterval);
@@ -2439,18 +2472,16 @@ completeSet: () => {
 
     // Check if exercise finished
     if (session.currentSet < ex.sets - 1) {
-        // Start Rest
         app.handlers.startExerciseTimer();
-        // Start Rest
         app.handlers.startRest(ex.rest);
     } else {
-        // Exercise Finished
+        // ✅ ESERCIZIO FINITO - MA NON RESETTARE ANCORA IL DELTA
+        // Il reset avverrà in skipRest quando effettivamente si passa al prossimo
+        
         if (session.currentExIdx < session.workout.exercises.length - 1) {
             app.handlers.startExerciseTimer();
-            // Move to next exercise (with rest)
             app.handlers.startRest(ex.rest, true);
         } else {
-            // Workout Finished
             app.handlers.finishWorkout();
         }
     }
@@ -2534,6 +2565,7 @@ skipRest: (_, isNextExercise = false) => {
   } else {
     session.currentExIdx++;
     session.currentSet = 0;
+	session.weightDelta = 0;
   }
   
   // ✨ SPOSTA QUI: Resetta il timer PRIMA di cambiare status
@@ -2554,6 +2586,7 @@ skipExercise: () => {
   if (session.currentExIdx < session.workout.exercises.length - 1) {
     session.currentExIdx++;
     session.currentSet = 0;
+	session.weightDelta = 0;
     // ✨ AGGIUNGI QUI:
     app.handlers.startExerciseTimer();
     session.status = 'work';
