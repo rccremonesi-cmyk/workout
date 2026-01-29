@@ -972,11 +972,11 @@ if (currentMonthEl) {
             <input type="text" id="modal-ex-name" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3 border-none focus:ring-2 focus:ring-primary" placeholder="Nome (es. Panca Piana)">
             <div class="grid grid-cols-2 gap-4">
                <div>
-                  <label class="text-xs text-gray-500 ml-1">Serie</label>
+                  <label class="text-xs text-gray-400 ml-1">Serie</label>
                   <input type="number" id="modal-ex-sets" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3" placeholder="es. 4">
                </div>
                <div>
-                  <label class="text-xs text-gray-500 ml-1">Reps <i class="fa-regular fa-circle-question"></i></label>
+                  <label class="text-xs text-gray-400 ml-1">Reps <i class="fa-regular fa-circle-question"></i></label>
                   <input type="text" id="modal-ex-reps"  class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3" placeholder="es. 8-10">
 				  
                </div>
@@ -986,7 +986,7 @@ if (currentMonthEl) {
     display: block;"><i class="fa-regular fa-circle-question"></i> Reps: puoi inserire anche una parola al posto di un numero, per esempio: maxreps</small>
             <div class="grid grid-cols-2 gap-4">
                <div>
-                  <label class="text-xs text-gray-500 ml-1">Pausa</label>
+                  <label class="text-xs text-gray-400 ml-1">Pausa</label>
                   <select id="modal-ex-rest" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3">
                      <option value="30">30 secondi</option>
                      <option value="60" selected>1 minuto</option>
@@ -1005,7 +1005,7 @@ if (currentMonthEl) {
                   </select>
                </div>
                <div>
-                  <label class="text-xs text-gray-500 ml-1">Peso Iniziale (Kg)</label>
+                  <label class="text-xs text-gray-400 ml-1">Peso Iniziale (Kg)</label>
                   <input type="number" id="modal-ex-weight" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3" placeholder="es. 15">
                </div>
             </div>
@@ -1014,7 +1014,7 @@ if (currentMonthEl) {
                <label class="text-sm">Peso doppio (es. 2 manubri)<br/><small>(usato solo per statistiche per calcoli peso totale, il peso indicato verrà moltiplicato x2)</small></label>
             </div>
             <div>
-               <label class="text-xs text-gray-500 ml-1 block mb-1">Note (opzionale)</label>
+               <label class="text-xs text-gray-400 ml-1 block mb-1">Note (opzionale)</label>
                <textarea id="modal-ex-notes" rows="3" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3 border-none focus:ring-2 focus:ring-primary text-sm resize-none" placeholder="Es: ROM completo, pausa in basso..."></textarea>
             </div>
 
@@ -1508,7 +1508,7 @@ if (todayWorkouts.length > 0) {
                         <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
                             <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
                                 <h4 class="font-bold text-md">${w.name}</h4>
-                                <p class="text-xs text-gray-500">${w.exercises.length} Esercizi</p>
+                                <p class="text-xs text-gray-400">${w.exercises.length} Esercizi</p>
                                 ${completedThisWeek ? `
                                     <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
                                         <i class="fa-solid fa-check"></i>
@@ -1602,7 +1602,7 @@ const preferredDaysHTML = (w.preferredDays && w.preferredDays.length > 0) ? `
 el.innerHTML = `
     <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
         <h4 class="font-bold text-md">${w.name}</h4>
-        <p class="text-xs text-gray-500">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
+        <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
         ${completedThisWeek ? `
             <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
                 <i class="fa-solid fa-check"></i>
@@ -1764,7 +1764,7 @@ if (app.state.editingWorkout.exercises.length === 0) {
   <i class="fa-solid fa-grip-lines text-gray-400 cursor-move text-xl"></i>
   <div class="overflow-hidden">
     <div class="font-bold text-sm">${ex.name}</div>
-    <div class="text-xs text-gray-500">${ex.sets} x ${ex.reps} • ${ex.rest}s${ex.isDouble ? ' • 2x' : ''}</div>
+    <div class="text-xs text-gray-400">${ex.sets} x ${ex.reps} • ${ex.rest}s${ex.isDouble ? ' • 2x' : ''}</div>
   </div>
 </div>
 
