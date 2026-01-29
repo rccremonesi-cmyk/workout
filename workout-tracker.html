@@ -1730,6 +1730,32 @@ renderBadges: () => {
          const container = document.getElementById('editor-exercises-list');
          container.innerHTML = '';
          
+if (app.state.editingWorkout.exercises.length === 0) {
+  // Nessun esercizio
+  container.innerHTML = `
+    <div class="text-center py-8">
+      <i class="fa-solid fa-dumbbell text-gray-600 text-4xl mb-3"></i>
+      <p class="text-gray-400">Nessun esercizio aggiunto</p>
+      <p class="text-gray-500 text-sm mt-1">Aggiungi il primo esercizio per iniziare</p>
+    </div>
+  `;
+} else if (app.state.editingWorkout.exercises.length === 1) {
+  // Un solo esercizio - nessuna intestazione
+  container.innerHTML = `
+    <div class="mb-4 pb-3 border-b border-gray-700">
+      <h3 class="text-lg font-bold text-white">Esercizi</h3>
+    </div>
+  `;
+} else {
+  // 2 o più esercizi - mostra intestazione con drag
+  container.innerHTML = `
+    <div class="mb-4 pb-3 border-b border-gray-700">
+      <h3 class="text-lg font-bold text-white">Esercizi</h3>
+      <p class="text-sm text-gray-400"><i class="fa-solid fa-arrows-up-down"></i> L’ordine degli esercizi può essere modificato tramite trascinamento.</p>
+    </div>
+  `;
+}
+         
          app.state.editingWorkout.exercises.forEach((ex, idx) => {
          const el = document.createElement('div');
          el.className = ' bg-gray-800 p-3 rounded-lg flex justify-between items-center group touch-manipulation';
