@@ -20,6 +20,12 @@
       <meta http-equiv="Pragma" content="no-cache">
       <meta http-equiv="Expires" content="0">
       <style>	
+	  
+	  #weight-comparison{
+		max-width: 77px;
+		    display: inline-block;
+	  }
+	  
 #add-workout-fab, #add-btn, #badge-notification {
     animation: gentleBounce 1.8s ease-in-out infinite;
 }
@@ -650,7 +656,8 @@ if (currentMonthEl) {
                      <!-- Display Peso -->
                      <div class="text-center px-2">
                         <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
-                        <span class="text-sm text-gray-500 block uppercase">kg</span>
+                        <span class="text-l font-bold text-gray-500 block uppercase">kg</span>
+						<div id="weight-comparison" class="text-xs mt-2 font-semibold"></div>
                      </div>
                      <!-- Pulsanti +1 e +5 -->
                      <div class="flex flex-col gap-1">
@@ -700,7 +707,7 @@ if (currentMonthEl) {
                      <i class="fa-solid fa-dumbbell text-primary text-4xl mb-3 animate-pulse"></i>
                      <span class="text-gray-400 text-sm uppercase tracking-widest block">Serie in corso</span>
                      <!-- ✨ AGGIUNGI TIMER ESERCIZIO -->
-                     <span class="text-gray-400 text-sm  tracking-widest block">Iniziata da: <span id="exercise-timer" style="font-weight:bold;">00:00</span></span>
+                     <span class="text-gray-400 text-sm  tracking-widest block">Iniziata da: <span id="exercise-timer" style="font-weight:bold; color:#FFF;">00:00</span></span>
                      <span id="motivational-text" class="text-l font-bold mt-2 block">Dai il massimo! 💪</span>
                      <div id="exercise-notes-container" class="mt-4 hidden">
                         <button onclick="app.handlers.toggleNotes()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 mx-auto transition">
@@ -1311,6 +1318,54 @@ loadData: async () => {
          
          return Math.round(totalCalories);
          },
+		 
+		 getLastWorkoutWeight: (workoutId, exerciseName) => {
+    // Trova l'ultimo workout completato con questo ID
+    const lastWorkout = app.state.history
+        .filter(h => h.workoutId === workoutId)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    
+    if (!lastWorkout || !lastWorkout.logs) return null;
+    
+    // Trova i log di questo esercizio
+    const exerciseLogs = lastWorkout.logs.filter(l => l.exercise === exerciseName);
+    if (exerciseLogs.length === 0) return null;
+    
+    // Calcola peso medio
+    const avgWeight = exerciseLogs.reduce((acc, l) => acc + parseFloat(l.weight), 0) / exerciseLogs.length;
+    return avgWeight;
+},
+
+updateWeightComparison: () => {
+    const session = app.state.activeSession;
+    if (!session) return;
+    
+    const ex = session.workout.exercises[session.currentExIdx];
+    const currentWeight = parseFloat(ex.lastWeight) || 0;
+    const lastWeight = app.getLastWorkoutWeight(session.workout.id, ex.name);
+    
+    const comparisonEl = document.getElementById('weight-comparison');
+    if (!comparisonEl) return;
+    
+    if (lastWeight === null) {
+        // Prima volta - nascondi
+        comparisonEl.innerHTML = '';
+        return;
+    }
+    
+    const diff = currentWeight - lastWeight;
+    
+    if (diff > 0) {
+        // Peso aumentato
+        comparisonEl.innerHTML = `<span class="text-green-400"><i class="fa-solid fa-arrow-up"></i> +${diff.toFixed(1)} kg vs ultima volta</span>`;
+    } else if (diff < 0) {
+        // Peso diminuito
+        comparisonEl.innerHTML = `<span class="text-orange-400"><i class="fa-solid fa-arrow-down"></i> ${diff.toFixed(1)} kg vs ultima volta</span>`;
+    } else {
+        // Stesso peso
+        comparisonEl.innerHTML = `<span class="text-gray-400"><i class="fa-solid fa-equals"></i> Stesso peso</span>`;
+    }
+},
 		 
 		 checkBadges: async (session) => {
     const newBadges = [];
@@ -1955,6 +2010,8 @@ if (app.state.editingWorkout.exercises.length === 0) {
     } else {
         notesContainer.classList.add('hidden');
     }
+	
+	app.updateWeightComparison();
 },
                  
                  renderStats: () => {
@@ -2265,17 +2322,15 @@ openWorkoutEditor: (id) => {
          
 // CERCA QUESTA FUNZIONE (circa riga 1040)
 adjustWeight: (delta) => {
-  const session = app.state.activeSession;
-  const ex = session.workout.exercises[session.currentExIdx];
-  let w = parseFloat(ex.lastWeight);
-  if (isNaN(w)) w = 0;
-  w += delta;
-  if(w < 0) w = 0;
-  ex.lastWeight = w;
-  app.ui.updateActiveView();
-  
-  // ✨ AGGIUNGI QUI SE VUOI: (opzionale)
-  // app.handlers.startExerciseTimer(); // Resetta il timer quando cambi peso
+    const session = app.state.activeSession;
+    const ex = session.workout.exercises[session.currentExIdx];
+    let w = parseFloat(ex.lastWeight);
+    if (isNaN(w)) w = 0;
+    w += delta;
+    if(w < 0) w = 0;
+    ex.lastWeight = w;
+    app.ui.updateActiveView();
+    app.updateWeightComparison(); // ✅ AGGIUNGI QUESTA RIGA
 },
          
 skipRest: (_, isNextExercise = false) => {
@@ -2302,6 +2357,7 @@ skipRest: (_, isNextExercise = false) => {
   
   session.status = 'work';
   app.ui.updateActiveView();
+  app.updateWeightComparison();
 },
 
 skipExercise: () => {
