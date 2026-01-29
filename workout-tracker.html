@@ -23,7 +23,9 @@
 #add-workout-fab, #add-btn, #badge-notification {
     animation: gentleBounce 1.8s ease-in-out infinite;
 }
-
+.workout-started main#app-container {
+    margin-top: 0px !important;
+}
 @keyframes gentleBounce {
     0%, 100% {
         transform: translateY(0);
@@ -56,8 +58,13 @@ header.header-hidden {
     top: -100px;
 }
 
-main#app-container {
-    margin-top: 52px;
+#view-active.active ~ #app-container,
+body:has(#view-active.active) main#app-container {
+    margin-top: 0 !important;
+}
+
+main#app-container.no-margin {
+    margin-top: 0;
 }
 
 	  
@@ -1397,43 +1404,58 @@ resetMonthlyBadges: async () => {
          
          
 router: {
-go: (viewId) => {
-// ✅ SCROLL TO TOP
-const appContainer = document.getElementById('app-container');
-if (appContainer) {
-   appContainer.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// Hide bottom nav if active workout
-document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'flex';
-
-// Nascondi header in workout attivo
-document.querySelector('header').style.display = viewId === 'active' ? 'none' : 'grid';
-
-document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-document.getElementById(`view-${viewId}`).classList.add('active');
-
-// ✅ RIMUOVI LA CLASSE ACTIVE DA TUTTI I BOTTONI
-document.querySelectorAll('.nav-btn').forEach(btn => {
-   btn.classList.remove('text-primary');
-   btn.classList.remove('active'); // AGGIUNGI QUESTA RIGA
-});
-
-// ✅ AGGIUNGI LA CLASSE SOLO SE NON SEI IN EDITOR O ACTIVE
-if(viewId !== 'editor' && viewId !== 'active') {
-   const navIndices = {'dashboard': 0, 'badges': 1, 'stats': 2, 'settings': 3};
-   const targetBtn = document.querySelectorAll('.nav-btn')[navIndices[viewId]];
-   if (targetBtn) {
-      targetBtn.classList.add('text-primary');
-      targetBtn.classList.add('active'); // AGGIUNGI QUESTA RIGA
-   }
-}
-
-app.state.currentView = viewId;
-if (viewId === 'dashboard') app.ui.renderDashboard();
-if (viewId === 'badges') app.ui.renderBadges();
-if (viewId === 'stats') app.ui.renderStats();
-}
+    go: (viewId) => {
+        // ✅ SCROLL TO TOP
+        const appContainer = document.getElementById('app-container');
+        if (appContainer) {
+            appContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // ✅ GESTIONE HEADER E MARGINE
+        const header = document.querySelector('header');
+        const nav = document.querySelector('nav');
+        
+        if (viewId === 'active') {
+            // Nascondi header e nav, rimuovi margine
+            header.style.display = 'none';
+            nav.style.display = 'none';
+            if (appContainer) {
+                appContainer.style.setProperty('margin-top', '0', 'important');
+            }
+        } else {
+            // Mostra header e nav, ripristina margine
+            header.style.display = 'grid';
+            nav.style.display = 'flex';
+            if (appContainer) {
+                appContainer.style.setProperty('margin-top', '52px', 'important');
+            }
+        }
+        
+        // Cambia view attiva
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(`view-${viewId}`).classList.add('active');
+        
+        // ✅ RIMUOVI LA CLASSE ACTIVE DA TUTTI I BOTTONI
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('text-primary');
+            btn.classList.remove('active');
+        });
+        
+        // ✅ AGGIUNGI LA CLASSE SOLO SE NON SEI IN EDITOR O ACTIVE
+        if(viewId !== 'editor' && viewId !== 'active') {
+            const navIndices = {'dashboard': 0, 'badges': 1, 'stats': 2, 'settings': 3};
+            const targetBtn = document.querySelectorAll('.nav-btn')[navIndices[viewId]];
+            if (targetBtn) {
+                targetBtn.classList.add('text-primary');
+                targetBtn.classList.add('active');
+            }
+        }
+        
+        app.state.currentView = viewId;
+        if (viewId === 'dashboard') app.ui.renderDashboard();
+        if (viewId === 'badges') app.ui.renderBadges();
+        if (viewId === 'stats') app.ui.renderStats();
+    }
 },
          
              ui: {
@@ -2219,6 +2241,7 @@ openWorkoutEditor: (id) => {
          
                  // Execution Handlers
          startWorkout: (id) => {
+		 document.body.classList.add('workout-started');
          const w = app.state.workouts.find(w => w.id === id);
          app.state.activeSession = {
          workout: JSON.parse(JSON.stringify(w)), // Clone
@@ -2469,6 +2492,7 @@ skipExercise: () => {
                          if (app.restInterval) clearInterval(app.restInterval);
                          if (app.totalTimerInt) clearInterval(app.totalTimerInt);
          if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
+		  document.body.classList.remove('workout-started');
                          app.router.go('dashboard');
                      }
                  },
@@ -2516,6 +2540,7 @@ await app.checkBadges(historyItem);
          ? `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n• Calorie: ~${calories} kcal`
          : `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n\n💡 Imposta peso corporeo nelle impostazioni per vedere le calorie bruciate!`;
          alert(statsMsg);
+		 document.body.classList.remove('workout-started');
                      app.router.go('dashboard');
                  },
          
