@@ -737,9 +737,9 @@ color:#c084fc;
 ">
                      <i class="fa-solid fa-dumbbell text-primary text-4xl mb-3 animate-pulse"></i>
                      <span class="text-gray-400 text-sm uppercase tracking-widest block">Serie in corso</span>
-                     <!-- ? AGGIUNGI TIMER ESERCIZIO -->
+                     <!-- ✨ AGGIUNGI TIMER ESERCIZIO -->
                      <span class="text-gray-400 text-sm  tracking-widest block">Iniziata da: <span id="exercise-timer" style="font-weight:bold; color:#FFF;">00:00</span></span>
-                     <span id="motivational-text" class="text-l font-bold mt-2 block">Dai il massimo! ??</span>
+                     <span id="motivational-text" class="text-l font-bold mt-2 block">Dai il massimo! 💪</span>
                      <div id="exercise-notes-container" class="mt-4 hidden">
                         <button onclick="app.handlers.toggleNotes()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 mx-auto transition">
                         <i class="fa-regular fa-note-sticky"></i>
@@ -1193,37 +1193,37 @@ request.onupgradeneeded = (e) => {
 badgeDefinitions: {
     strike4: {
         name: 'Strike 4 Allenamenti',
-        desc: 'Quattro allenamenti questa settimana, zero scuse. Costanza attivata ??',
+        desc: 'Quattro allenamenti questa settimana, zero scuse. Costanza attivata 📅',
         icon: 'https://rccremonesi-cmyk.github.io/workout/4x.png',
         repeatable: true
     },
     kcal500: {
         name: '500 kcal Workout',
-        desc: 'Allenamento incendiario: 500 kcal bruciate! ??',
+        desc: 'Allenamento incendiario: 500 kcal bruciate! 🔥',
         icon: 'https://rccremonesi-cmyk.github.io/workout/500k.png',
         repeatable: true
     },
     kcal7200: {
         name: '7200 kcal Totali',
-        desc: 'Energia trasformata in risultati: 7200 kcal consumate, 1kg perso! ??',
+        desc: 'Energia trasformata in risultati: 7200 kcal consumate, 1kg perso! 🧱',
         icon: 'https://rccremonesi-cmyk.github.io/workout/7200k.png',
         repeatable: true
     },
     kg10000: {
         name: '10.000 kg Sollevati',
-        desc: 'Forza pura: 10 tonnellate di ghisa! ??',
+        desc: 'Forza pura: 10 tonnellate di ghisa! 🦾',
         icon: 'https://rccremonesi-cmyk.github.io/workout/10000kg.png',
         repeatable: true
     },
     month16: {
         name: '16 Allenamenti/Mese',
-        desc: 'Un mese, sedici allenamenti. sei in pieno flow! ?',
+        desc: 'Un mese, sedici allenamenti. sei in pieno flow! ⏳',
         icon: 'https://rccremonesi-cmyk.github.io/workout/16x.png',
         repeatable: true
     },
     bench100: {
         name: 'Panca Piana 100kg',
-        desc: 'Ora sei un vero uomo! ??',
+        desc: 'Ora sei un vero uomo! 💪',
         icon: 'https://rccremonesi-cmyk.github.io/workout/100bench.png',
         repeatable: false
     }
@@ -1231,17 +1231,17 @@ badgeDefinitions: {
 pendingBadges: [],
     
     motivationalPhrases: [
-        'Spacca tutto! ??',
-        'Fallo bene brother! ??',
-        'Non fare lo scoppiato! ??',
-        'Secco mai ??',
-        'Vai Uomooo! ??',
-        'Non mollare! ?',
-        'Beast mode! ??',
-        'Dai il tuo ??%!',
-        'Focus totale ??',
-        'Non vedi l\'ora di andare a casa a mangiare la pasta e fagioli! ??',
-        'Saitama te fa na pippa! ??'
+        'Spacca tutto! 💪',
+        'Fallo bene brother! 🔥',
+        'Non fare lo scoppiato! 💥',
+        'Secco mai 😤',
+        'Vai Uomooo! 💪',
+        'Non mollare! ✊',
+        'Beast mode! 🐻',
+        'Dai il tuo 💯%!',
+        'Focus totale 🎯',
+        'Non vedi l\'ora di andare a casa a mangiare la pasta e fagioli! 🍝',
+        'Saitama te fa na pippa! 👊'
     ],
 	preferredDays: []
 },
@@ -1341,12 +1341,12 @@ loadData: async () => {
          // E. Calcolo Finale
          const totalCalories = totalVolume * caloriesPerKg;
          
-         console.log(`?? CALORIE REPORT:
+         console.log(`📊 CALORIE REPORT:
          • Level: ${trainingLevel}
          • BMR: ${Math.round(bmr)} kcal/day
          • Total Volume: ${totalVolume.toFixed(0)} kg
          • Cal/kg Rate: ${caloriesPerKg.toFixed(4)}
-         ?? TOTAL: ${Math.round(totalCalories)} kcal`);
+         👉 TOTAL: ${Math.round(totalCalories)} kcal`);
          
          return Math.round(totalCalories);
          },
@@ -1399,7 +1399,7 @@ updateWeightComparison: () => {
 		 checkBadges: async (session) => {
     const newBadges = [];
     
-    // 1?? Strike 4 workouts questa settimana
+    // 1️⃣ Strike 4 workouts questa settimana
     const weekStart = new Date();
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
     weekStart.setHours(0, 0, 0, 0);
@@ -1412,7 +1412,7 @@ updateWeightComparison: () => {
         app.state.badges.strike4.seen = true;
     }
     
-    // 2?? 500 kcal in un workout
+    // 2️⃣ 500 kcal in un workout
     const calories = session.caloriesBurned || 0;
     if (calories >= 500) {
         newBadges.push('kcal500');
@@ -1420,7 +1420,7 @@ updateWeightComparison: () => {
         app.state.badges.kcal500.lastUnlocked = new Date().toISOString();
     }
     
-    // 3?? 7200 kcal totali (cumulativo)
+    // 3️⃣ 7200 kcal totali (cumulativo)
     const totalCal = app.state.history.reduce((acc, h) => acc + (parseFloat(h.caloriesBurned) || 0), 0);
     const kcal7200Milestone = Math.floor(totalCal / 7200);
     if (kcal7200Milestone > app.state.badges.kcal7200.count) {
@@ -1429,7 +1429,7 @@ updateWeightComparison: () => {
         app.state.badges.kcal7200.lastUnlocked = new Date().toISOString();
     }
     
-    // 4?? 10.000 kg questa settimana
+    // 4️⃣ 10.000 kg questa settimana
     const thisWeekVolume = thisWeekWorkouts.reduce((acc, h) => acc + (parseFloat(h.totalVolume) || 0), 0);
     if (thisWeekVolume >= 10000 && !app.state.badges.kg10000.seen) {
         newBadges.push('kg10000');
@@ -1438,7 +1438,7 @@ updateWeightComparison: () => {
         app.state.badges.kg10000.seen = true;
     }
     
-    // 5?? 16 allenamenti questo mese
+    // 5️⃣ 16 allenamenti questo mese
     const now = new Date();
     const thisMonthWorkouts = app.state.history.filter(h => {
         const d = new Date(h.date);
@@ -1451,7 +1451,7 @@ updateWeightComparison: () => {
         app.state.badges.month16.seen = true;
     }
     
-    // 6?? Panca piana 100kg (one-time)
+    // 6️⃣ Panca piana 100kg (one-time)
     if (app.state.badges.bench100.count === 0) {
         const hasBench = session.logs?.some(l => 
             l.exercise.toLowerCase().includes('panca piana') && parseFloat(l.weight) >= 100
@@ -1489,13 +1489,13 @@ resetMonthlyBadges: async () => {
          
 router: {
     go: (viewId) => {
-        // ? SCROLL TO TOP
+        // ✅ SCROLL TO TOP
         const appContainer = document.getElementById('app-container');
         if (appContainer) {
             appContainer.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
-        // ? GESTIONE HEADER E MARGINE
+        // ✅ GESTIONE HEADER E MARGINE
         const header = document.querySelector('header');
         const nav = document.querySelector('nav');
         
@@ -1519,13 +1519,13 @@ router: {
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById(`view-${viewId}`).classList.add('active');
         
-        // ? RIMUOVI LA CLASSE ACTIVE DA TUTTI I BOTTONI
+        // ✅ RIMUOVI LA CLASSE ACTIVE DA TUTTI I BOTTONI
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.classList.remove('text-primary');
             btn.classList.remove('active');
         });
         
-        // ? AGGIUNGI LA CLASSE SOLO SE NON SEI IN EDITOR O ACTIVE
+        // ✅ AGGIUNGI LA CLASSE SOLO SE NON SEI IN EDITOR O ACTIVE
         if(viewId !== 'editor' && viewId !== 'active') {
             const navIndices = {'dashboard': 0, 'badges': 1, 'stats': 2, 'settings': 3};
             const targetBtn = document.querySelectorAll('.nav-btn')[navIndices[viewId]];
@@ -1650,7 +1650,7 @@ if (todayWorkouts.length > 0) {
             <h3 class=" p-3 rounded-xl shadow-sm font-bold text-lg mb-3   text-center">
                 
 				
-                ?? Workout scelti per oggi:<br/> <div style="font-size:15px; font-weight:400;">${dateStr}</div>
+                📅 Workout scelti per oggi:<br/> <div style="font-size:15px; font-weight:400;">${dateStr}</div>
             </h3>
             <div class="space-y-3">
                 ${todayWorkouts.map(w => {
@@ -1688,7 +1688,7 @@ if (todayWorkouts.length > 0) {
 }
 		 
                      // Render Workouts
-					 list.innerHTML += `<h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 flex items-center justify-center gap-2 text-center">?? Tutti i tuoi Workout salvati</h3>`;
+					 list.innerHTML += `<h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 flex items-center justify-center gap-2 text-center">📂 Tutti i tuoi Workout salvati</h3>`;
                      if (app.state.workouts.length === 0) {
                          list.innerHTML = `<div class="relative overflow-hidden bg-gradient-to-br from-darkCard to-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800">
    <!-- Decorative elements -->
@@ -1969,7 +1969,7 @@ if (app.state.editingWorkout.exercises.length === 0) {
                      document.getElementById('active-target-display').innerText = `${ex.reps} Reps`;
                      document.getElementById('active-weight-value').innerText = ex.lastWeight || 0;
 					 
-					     // ? MOSTRA IL DELTA SE ESISTE
+					     // ✅ MOSTRA IL DELTA SE ESISTE
 const kgLabel = document.querySelector('#active-weight-value + span');
 if (kgLabel) {
     // Prima pulisci sempre
@@ -2186,7 +2186,7 @@ if (kgLabel) {
          } else {
          // Show message if no calorie data
          const container = ctxCal.parentElement;
-         container.innerHTML = '<div class="bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm"><h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Calorie Bruciate (kcal)</h3><p class="text-gray-400 text-center py-8 text-sm">?? Imposta peso corporeo nelle impostazioni per vedere le calorie</p></div>';
+         container.innerHTML = '<div class="bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm"><h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Calorie Bruciate (kcal)</h3><p class="text-gray-400 text-center py-8 text-sm">💡 Imposta peso corporeo nelle impostazioni per vedere le calorie</p></div>';
          }
          
          // Calcolo totali storici
@@ -2209,7 +2209,7 @@ list.innerHTML = history.slice().reverse().slice(0, 10).map((h, index) => {
    
    let dateLabel;
    if (isToday) {
-      dateLabel = '?? Oggi';
+      dateLabel = '🟢 Oggi';
    } else if (isYesterday) {
       dateLabel = 'Ieri';
    } else {
@@ -2304,7 +2304,7 @@ openWorkoutEditor: (id) => {
     document.getElementById('editor-name').value = w.name;
     document.getElementById('btn-delete-workout').classList.remove('hidden');
     app.ui.renderEditorExercises();
-    app.ui.renderEditorPreferredDays(); // ? AGGIUNGI QUESTA RIGA
+    app.ui.renderEditorPreferredDays(); // ✅ AGGIUNGI QUESTA RIGA
     app.router.go('editor');
 },         
          
@@ -2413,7 +2413,7 @@ openWorkoutEditor: (id) => {
          currentSet: 0,
          status: 'work',
          startTime: Date.now(),
-         exerciseStartTime: Date.now(), // ? AGGIUNGI QUESTO
+         exerciseStartTime: Date.now(), // ✨ AGGIUNGI QUESTO
          logs: [] // Track actual reps/weight
          };
          app.router.go('active');
@@ -2422,7 +2422,7 @@ openWorkoutEditor: (id) => {
          setTimeout(() => {
          app.ui.updateActiveView();
          app.handlers.startTotalTimer();
-         app.handlers.startExerciseTimer(); // ? AGGIUNGI QUESTO
+         app.handlers.startExerciseTimer(); // ✨ AGGIUNGI QUESTO
 		 app.handlers.setRandomMotivation();
          }, 250);
          },
@@ -2436,11 +2436,11 @@ adjustWeight: (delta) => {
     if (w < 0) w = 0;
     ex.lastWeight = w;
 
-    // ? SALVA IL DELTA SULLA SESSIONE
+    // ✅ SALVA IL DELTA SULLA SESSIONE
     if (!session.weightDelta) session.weightDelta = 0;
     session.weightDelta += delta;
 
-    // ? MOSTRA IL DELTA
+    // ✅ MOSTRA IL DELTA
     const kgLabel = document.querySelector('#active-weight-value + span');
     if (kgLabel) {
         let deltaText = '';
@@ -2480,7 +2480,7 @@ skipRest: (_, isNextExercise = false) => {
     session.currentExIdx++;
     session.currentSet = 0;
     
-    // ? RESET DELTA QUANDO CAMBI ESERCIZIO
+    // ✅ RESET DELTA QUANDO CAMBI ESERCIZIO
     session.weightDelta = 0;
     const kgLabel = document.querySelector('#active-weight-value + span');
     if (kgLabel) {
@@ -2505,7 +2505,7 @@ skipExercise: () => {
     session.currentExIdx++;
     session.currentSet = 0;
     
-    // ? RESET DELTA QUANDO CAMBI ESERCIZIO
+    // ✅ RESET DELTA QUANDO CAMBI ESERCIZIO
    session.weightDelta = 0;
     const kgLabel = document.querySelector('#active-weight-value + span');
     if (kgLabel) {
@@ -2522,7 +2522,7 @@ skipExercise: () => {
 },
 
 completeSet: () => {
-    // ? RIMUOVI LAMPEGGIO QUANDO COMPLETI UNA SERIE
+    // ✅ RIMUOVI LAMPEGGIO QUANDO COMPLETI UNA SERIE
     const restText = document.getElementById('rest-timer-text');
     if (restText) restText.classList.remove('rest-blink');
     
@@ -2558,7 +2558,7 @@ completeSet: () => {
         app.handlers.startExerciseTimer();
         app.handlers.startRest(ex.rest);
     } else {
-        // ? ESERCIZIO FINITO - MA NON RESETTARE ANCORA IL DELTA
+        // ✅ ESERCIZIO FINITO - MA NON RESETTARE ANCORA IL DELTA
         // Il reset avverrà in skipRest quando effettivamente si passa al prossimo
         
         if (session.currentExIdx < session.workout.exercises.length - 1) {
@@ -2577,7 +2577,7 @@ completeSet: () => {
          session.status = 'rest';
          app.ui.updateActiveView();
          
-         // ? CARICA STATO TOGGLE
+         // ✨ CARICA STATO TOGGLE
          const autoNextCheckbox = document.getElementById('auto-next-toggle');
          if (autoNextCheckbox) {
          autoNextCheckbox.checked = app.state.settings.autoNext || false;
@@ -2606,7 +2606,7 @@ completeSet: () => {
          restText.classList.add('rest-blink');
          
             
-            // ? LOGICA AUTO-NEXT
+            // ✨ LOGICA AUTO-NEXT
             const isAutoNext = document.getElementById('auto-next-toggle')?.checked || false;
             
             if (isAutoNext) {
@@ -2635,7 +2635,7 @@ completeSet: () => {
 skipRest: (_, isNextExercise = false) => {
   if (app.restInterval) clearInterval(app.restInterval);
   
-  // ? RIMUOVI LAMPEGGIO QUANDO SALTI IL RIPOSO
+  // ✅ RIMUOVI LAMPEGGIO QUANDO SALTI IL RIPOSO
   const restText = document.getElementById('rest-timer-text');
   if (restText) restText.classList.remove('rest-blink');
   
@@ -2651,7 +2651,7 @@ skipRest: (_, isNextExercise = false) => {
 	session.weightDelta = 0;
   }
   
-  // ? SPOSTA QUI: Resetta il timer PRIMA di cambiare status
+  // ✨ SPOSTA QUI: Resetta il timer PRIMA di cambiare status
   app.handlers.startExerciseTimer();
   app.handlers.setRandomMotivation();
   
@@ -2661,7 +2661,7 @@ skipRest: (_, isNextExercise = false) => {
          
 // CERCA QUESTA FUNZIONE (circa riga 1150)
 skipExercise: () => {
-  // ? RIMUOVI LAMPEGGIO QUANDO SALTI L'ESERCIZIO
+  // ✅ RIMUOVI LAMPEGGIO QUANDO SALTI L'ESERCIZIO
   const restText = document.getElementById('rest-timer-text');
   if (restText) restText.classList.remove('rest-blink');
   
@@ -2670,7 +2670,7 @@ skipExercise: () => {
     session.currentExIdx++;
     session.currentSet = 0;
 	session.weightDelta = 0;
-    // ? AGGIUNGI QUI:
+    // ✨ AGGIUNGI QUI:
     app.handlers.startExerciseTimer();
     session.status = 'work';
     if (app.restInterval) clearInterval(app.restInterval);
@@ -2735,8 +2735,8 @@ await app.checkBadges(historyItem);
                      await app.loadData(); // Reload history for dashboard
                      
                      const statsMsg = calories > 0 
-         ? `Ottimo lavoro! Allenamento completato.\n\n?? Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n• Calorie: ~${calories} kcal`
-         : `Ottimo lavoro! Allenamento completato.\n\n?? Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n\n?? Imposta peso corporeo nelle impostazioni per vedere le calorie bruciate!`;
+         ? `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n• Calorie: ~${calories} kcal`
+         : `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n\n💡 Imposta peso corporeo nelle impostazioni per vedere le calorie bruciate!`;
          alert(statsMsg);
 		 document.body.classList.remove('workout-started');
                      app.router.go('dashboard');
@@ -2758,13 +2758,13 @@ startExerciseTimer: () => {
   const session = app.state.activeSession;
   if (!session) return;
 
-  // ? MODIFICA: Resetta SEMPRE il tempo di inizio esercizio
+  // ✨ MODIFICA: Resetta SEMPRE il tempo di inizio esercizio
   session.exerciseStartTime = Date.now();
 
   const el = document.getElementById('exercise-timer');
   if (!el) return;
 
-  // ? AGGIUNGI: Reset immediato del display
+  // ✨ AGGIUNGI: Reset immediato del display
   el.innerText = '00:00';
 
   // Pulisci eventuale timer precedente
@@ -2772,7 +2772,7 @@ startExerciseTimer: () => {
 
   app.exerciseTimerInt = setInterval(() => {
     if (!app.state.activeSession || app.state.activeSession.status === 'rest') {
-      // ? MODIFICA: Durante il riposo, NON nascondere, ma mostra "00:00"
+      // ✨ MODIFICA: Durante il riposo, NON nascondere, ma mostra "00:00"
       el.innerText = '00:00';
       return;
     }
@@ -2873,7 +2873,7 @@ toggleNotes: () => {
         content.classList.remove('hidden');
         chevron.classList.replace('fa-chevron-down', 'fa-chevron-up');
         
-        // ? Scrolla in fondo dopo che il contenuto si è espanso
+        // ✨ Scrolla in fondo dopo che il contenuto si è espanso
         setTimeout(() => {
             if (scrollContainer) {
                 scrollContainer.scrollTo({
@@ -2886,7 +2886,7 @@ toggleNotes: () => {
         content.classList.add('hidden');
         chevron.classList.replace('fa-chevron-up', 'fa-chevron-down');
         
-        // ? Torna in alto quando chiudi
+        // ✨ Torna in alto quando chiudi
         if (scrollContainer) {
             scrollContainer.scrollTo({
                 top: 0,
@@ -2954,7 +2954,7 @@ switchStatsTab: (tabName) => {
         // Aggiorna la vista
         app.ui.renderStats();
         
-        alert('? Statistiche cancellate! I tuoi workout sono al sicuro.');
+        alert('✅ Statistiche cancellate! I tuoi workout sono al sicuro.');
     }
 },
                  
@@ -2988,7 +2988,7 @@ switchStatsTab: (tabName) => {
             if(data.history) {
                 for (const h of data.history) await app.db.put('history', h);
             }
-            // ? AGGIUNGI QUESTE 3 RIGHE
+            // ✅ AGGIUNGI QUESTE 3 RIGHE
             if(data.settings) {
                 for (const s of data.settings) await app.db.put('settings', s);
             }
@@ -3063,16 +3063,16 @@ appContainer.addEventListener('scroll', () => {
         if (currentScroll > lastScrollTop) {
             // Scrolling DOWN - Nascondi header
             header.classList.add('header-hidden');
-            appContainer.style.marginTop = '0'; // ? AGGIUNGI QUESTA RIGA
+            appContainer.style.marginTop = '0'; // ← AGGIUNGI QUESTA RIGA
         } else {
             // Scrolling UP - Mostra header
             header.classList.remove('header-hidden');
-            appContainer.style.marginTop = '60px'; // ? AGGIUNGI QUESTA RIGA
+            appContainer.style.marginTop = '60px'; // ← AGGIUNGI QUESTA RIGA
         }
     } else {
         // Vicino al top - Mostra sempre
         header.classList.remove('header-hidden');
-        appContainer.style.marginTop = '60px'; // ? AGGIUNGI QUESTA RIGA
+        appContainer.style.marginTop = '60px'; // ← AGGIUNGI QUESTA RIGA
     }
     
     lastScrollTop = currentScroll;
