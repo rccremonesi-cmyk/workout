@@ -22,7 +22,8 @@
       <style>	
 	  
 	  #weight-comparison{
-		max-width: 85px;
+		white-space:nowrap;
+		color:#c084fc;
 		    display: inline-block;
 	  }
 	  
@@ -657,7 +658,8 @@ if (currentMonthEl) {
                      <div class="text-center px-2">
                         <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
                         <span class="text-l font-bold text-gray-500 block uppercase">kg</span>
-						<div id="weight-comparison" class="text-xs mt-2 font-semibold"></div>
+						
+						<div id="weight-comparison" class="text-xs mt-2 text-gray-400"></div>
                      </div>
                      <!-- Pulsanti +1 e +5 -->
                      <div class="flex flex-col gap-1">
@@ -1319,7 +1321,9 @@ loadData: async () => {
          return Math.round(totalCalories);
          },
 		 
-		 getLastWorkoutWeight: (workoutId, exerciseName) => {
+
+
+getLastWorkoutWeight: (workoutId, exerciseName) => {
     // Trova l'ultimo workout completato con questo ID
     const lastWorkout = app.state.history
         .filter(h => h.workoutId === workoutId)
@@ -1333,7 +1337,11 @@ loadData: async () => {
     
     // Calcola peso medio
     const avgWeight = exerciseLogs.reduce((acc, l) => acc + parseFloat(l.weight), 0) / exerciseLogs.length;
-    return avgWeight;
+    
+    return {
+        weight: avgWeight,
+        date: new Date(lastWorkout.date)
+    };
 },
 
 updateWeightComparison: () => {
@@ -1341,30 +1349,21 @@ updateWeightComparison: () => {
     if (!session) return;
     
     const ex = session.workout.exercises[session.currentExIdx];
-    const currentWeight = parseFloat(ex.lastWeight) || 0;
-    const lastWeight = app.getLastWorkoutWeight(session.workout.id, ex.name);
+    const lastData = app.getLastWorkoutWeight(session.workout.id, ex.name);
     
     const comparisonEl = document.getElementById('weight-comparison');
     if (!comparisonEl) return;
     
-    if (lastWeight === null) {
+    if (lastData === null) {
         // Prima volta - nascondi
         comparisonEl.innerHTML = '';
         return;
     }
     
-    const diff = currentWeight - lastWeight;
+    const dateStr = lastData.date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+    const weightStr = lastData.weight.toFixed(1);
     
-    if (diff > 0) {
-        // Peso aumentato
-        comparisonEl.innerHTML = `<span class="text-green-400"><i class="fa-solid fa-arrow-up"></i> +${diff.toFixed(1)} kg vs ultima volta</span>`;
-    } else if (diff < 0) {
-        // Peso diminuito
-        comparisonEl.innerHTML = `<span class="text-orange-400"><i class="fa-solid fa-arrow-down"></i> ${diff.toFixed(1)} kg vs ultima volta</span>`;
-    } else {
-        // Stesso peso
-        comparisonEl.innerHTML = `<span class="text-gray-400"></span>`;
-    }
+    comparisonEl.innerHTML = `<i class="fa-regular fa-calendar font-bold mr-1" style="font-size: 11px;"></i> ${dateStr} - ${weightStr}kg`;
 },
 		 
 		 checkBadges: async (session) => {
@@ -2320,18 +2319,45 @@ openWorkoutEditor: (id) => {
          }, 250);
          },
          
-// CERCA QUESTA FUNZIONE (circa riga 1040)
 adjustWeight: (delta) => {
     const session = app.state.activeSession;
     const ex = session.workout.exercises[session.currentExIdx];
     let w = parseFloat(ex.lastWeight);
     if (isNaN(w)) w = 0;
+    const prevWeight = w; // peso prima della modifica
     w += delta;
-    if(w < 0) w = 0;
+    if (w < 0) w = 0;
     ex.lastWeight = w;
+
+    // ✅ ANIMAZIONE DELTA
+    const kgLabel = document.querySelector('#active-weight-value + span');
+    if (kgLabel) {
+        // recupera delta accumulato
+        let currentDelta = parseFloat(kgLabel.getAttribute('data-delta') || 0);
+        currentDelta += delta;
+
+        let deltaText = '';
+        let deltaColor = '';
+
+        if (currentDelta > 0) {
+            deltaText = `+${currentDelta}`;
+            deltaColor = 'text-green-400';
+        } else if (currentDelta < 0) {
+            deltaText = `${currentDelta}`;
+            deltaColor = 'text-orange-400';
+        } else {
+            deltaText = `=`;
+            deltaColor = 'text-gray-400';
+        }
+
+        kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaText}</span>`;
+        kgLabel.setAttribute('data-delta', currentDelta);
+    }
+
     app.ui.updateActiveView();
-    app.updateWeightComparison(); // ✅ AGGIUNGI QUESTA RIGA
+    app.updateWeightComparison();
 },
+
          
 skipRest: (_, isNextExercise = false) => {
   if (app.restInterval) clearInterval(app.restInterval);
