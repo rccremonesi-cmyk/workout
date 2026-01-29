@@ -20,7 +20,28 @@
       <meta http-equiv="Pragma" content="no-cache">
       <meta http-equiv="Expires" content="0">
       <style>	
-	  
+#add-workout-fab {
+    animation: gentleBounce 1.8s ease-in-out infinite;
+}
+
+@keyframes gentleBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Variante alternativa più delicata con scale */
+@keyframes gentleBounceScale {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-6px) scale(1.05);
+    }
+}	  
 
 header {
     position: fixed;
@@ -39,11 +60,6 @@ main#app-container {
     margin-top: 52px;
 }
 
-/* Quando siamo in workout attivo, rimuovi il margine top */
-#view-active.active ~ main#app-container,
-body:has(#view-active.active) main#app-container {
-    margin-top: 0 !important;
-}
 	  
 	  #view-settings .bg-darkCard .items-center{
 	  font-size:14px;
@@ -1393,12 +1409,6 @@ document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'fl
 
 // Nascondi header in workout attivo
 document.querySelector('header').style.display = viewId === 'active' ? 'none' : 'grid';
-
- if (viewId === 'active') {
-            appContainer.style.marginTop = '0';
-        } else {
-            appContainer.style.marginTop = '60px';
-        }
 
 document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
 document.getElementById(`view-${viewId}`).classList.add('active');
@@ -2792,7 +2802,6 @@ if (lastResetMonth !== monthKey) {
     const scrollThreshold = 20; // Pixel minimi di scroll prima di nascondere
     
 appContainer.addEventListener('scroll', () => {
-    // Nascondi header solo se NON siamo in workout attivo
     if (app.state.currentView === 'active') return;
     
     const currentScroll = appContainer.scrollTop;
@@ -2801,16 +2810,16 @@ appContainer.addEventListener('scroll', () => {
         if (currentScroll > lastScrollTop) {
             // Scrolling DOWN - Nascondi header
             header.classList.add('header-hidden');
-            appContainer.style.marginTop = '0';
+            appContainer.style.marginTop = '0'; // ← AGGIUNGI QUESTA RIGA
         } else {
             // Scrolling UP - Mostra header
             header.classList.remove('header-hidden');
-            appContainer.style.marginTop = '60px';
+            appContainer.style.marginTop = '60px'; // ← AGGIUNGI QUESTA RIGA
         }
     } else {
         // Vicino al top - Mostra sempre
         header.classList.remove('header-hidden');
-        appContainer.style.marginTop = '60px';
+        appContainer.style.marginTop = '60px'; // ← AGGIUNGI QUESTA RIGA
     }
     
     lastScrollTop = currentScroll;
