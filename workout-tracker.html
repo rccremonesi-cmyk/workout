@@ -21,6 +21,30 @@
       <meta http-equiv="Expires" content="0">
       <style>	
 	  
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    transition: top 0.3s ease-in-out;
+    z-index: 30;
+}
+
+header.header-hidden {
+    top: -100px;
+}
+
+main#app-container {
+    margin-top: 52px;
+}
+
+/* Quando siamo in workout attivo, rimuovi il margine top */
+#view-active.active ~ main#app-container,
+body:has(#view-active.active) main#app-container {
+    margin-top: 0 !important;
+}
+	  
 	  #view-settings .bg-darkCard .items-center{
 	  font-size:14px;
 	  }
@@ -467,7 +491,7 @@ if (currentMonthEl) {
          <!-- VIEW: WORKOUT EDITOR --> 
          <section id="view-editor" class="view-section p-4 bg-darkBg bg-darkBg min-h-full inset-0 z-30 overflow-y-auto no-scrollbar fixed">
 		 <div class="internal-section">
-            <div class="flex items-center gap-3 mb-4 sticky -top-4 bg-darkBg bg-darkBg pt-4 pb-4">
+            <div class="flex items-center gap-3 mb-4 sticky bg-darkBg bg-darkBg pt-4 pb-4" style="top: -17px;">
    <!-- Back Button -->
    <button onclick="app.router.go('dashboard')" class="p-0 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-all active:scale-95">
       <i class="fa-solid fa-arrow-left text-xl"></i>
@@ -1369,6 +1393,12 @@ document.querySelector('nav').style.display = viewId === 'active' ? 'none' : 'fl
 
 // Nascondi header in workout attivo
 document.querySelector('header').style.display = viewId === 'active' ? 'none' : 'grid';
+
+ if (viewId === 'active') {
+            appContainer.style.marginTop = '0';
+        } else {
+            appContainer.style.marginTop = '60px';
+        }
 
 document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
 document.getElementById(`view-${viewId}`).classList.add('active');
@@ -2754,6 +2784,37 @@ if (lastResetMonth !== monthKey) {
     app.resetMonthlyBadges();
     localStorage.setItem('lastResetMonth', monthKey);
 }
+
+// ========== SCROLL HEADER ANIMATION ==========
+    let lastScrollTop = 0;
+    const header = document.querySelector('header');
+    const appContainer = document.getElementById('app-container');
+    const scrollThreshold = 20; // Pixel minimi di scroll prima di nascondere
+    
+appContainer.addEventListener('scroll', () => {
+    // Nascondi header solo se NON siamo in workout attivo
+    if (app.state.currentView === 'active') return;
+    
+    const currentScroll = appContainer.scrollTop;
+    
+    if (currentScroll > scrollThreshold) {
+        if (currentScroll > lastScrollTop) {
+            // Scrolling DOWN - Nascondi header
+            header.classList.add('header-hidden');
+            appContainer.style.marginTop = '0';
+        } else {
+            // Scrolling UP - Mostra header
+            header.classList.remove('header-hidden');
+            appContainer.style.marginTop = '60px';
+        }
+    } else {
+        // Vicino al top - Mostra sempre
+        header.classList.remove('header-hidden');
+        appContainer.style.marginTop = '60px';
+    }
+    
+    lastScrollTop = currentScroll;
+});
          
          // Personal Settings Listeners (after init so settings are loaded)
          ['setting-body-weight', 'setting-height', 'setting-age', 'setting-gender'].forEach(id => {
