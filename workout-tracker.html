@@ -434,7 +434,7 @@ color:#c084fc;
          </div>
       </header>
       <!-- MAIN CONTENT AREA -->
-      <main id="app-container" class="flex-1 overflow-y-auto overflow-x-hidden relative hide-scrollbar" style="padding-bottom: 12rem;">
+      <main id="app-container" class="flex-1 overflow-y-auto overflow-x-hidden relative hide-scrollbar" style="padding-bottom: 8.5rem;">
 	  
 	  
          <!-- VIEW: DASHBOARD (HOME) -->
@@ -786,7 +786,7 @@ color:#c084fc;
 			</div>
          </section>
          <!-- VIEW: STATISTICS -->
-         <section id="view-stats" class="view-section p-4  pb-20">
+         <section id="view-stats" class="view-section p-4 ">
            <div class="internal-section ">
 		   
 		   <!-- Tabs Navigation -->
@@ -892,7 +892,7 @@ color:#c084fc;
    <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
    <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
       <div class="text-center">
-         <i class="fa-solid fa-medal text-5xl mb-3 opacity-90"></i>
+         <i class="fa-solid fa-trophy text-5xl mb-3 opacity-90"></i>
          <h3 class="text-lg font-bold">Sblocca i tuoi traguardi!</h3>
          <p class="text-sm opacity-90 mt-2">
             Completa allenamenti e raggiungi obiettivi per sbloccare badge esclusivi
@@ -974,7 +974,7 @@ color:#c084fc;
                </div>
             </div>
             <div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm space-y-4">
-               <h3 class="font-bold">Salva o importa dati personali </h3>
+               <h3 class="font-bold"><i class="fa-regular fa-floppy-disk mr-2"></i> Salva o importa dati personali </h3>
 			   <p style="margin:0px;"><small>Salva qui tutte le tue informazioni salvate nell'app</small></p>
                <div class="grid grid-cols-2 gap-4">
                   <button onclick="app.handlers.exportData()" class="bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-600">Esporta JSON</button>
@@ -1232,16 +1232,16 @@ pendingBadges: [],
     
     motivationalPhrases: [
         'Spacca tutto! 💪',
-        'Fallo bene brother! 🔥',
+        'Hai preso il tuo preworkout? 🥤',
         'Non fare lo scoppiato! 💥',
         'Secco mai 😤',
         'Vai Uomooo! 💪',
         'Non mollare! ✊',
         'Beast mode! 🐻',
-        'Dai il tuo 💯%!',
         'Focus totale 🎯',
-        'Non vedi l\'ora di andare a casa a mangiare la pasta e fagioli! 🍝',
-        'Saitama te fa na pippa! 👊'
+		'Ricordati di rimanere idratato! 💧'
+       // 'Non vedi l\'ora di andare a casa a mangiare la pasta e fagioli! 🍝',
+       // 'Saitama te fa na pippa! 👊'
     ],
 	preferredDays: []
 },
@@ -1489,6 +1489,16 @@ resetMonthlyBadges: async () => {
          
 router: {
     go: (viewId) => {
+	
+	        // ✅ CONTROLLO SALVATAGGIO EDITOR
+        if (app.state.currentView === 'editor' && viewId === 'dashboard') {
+            const confirmed = confirm('⚠️ Stai uscendo dall\'editor. Hai salvato le modifiche?');
+            if (!confirmed) {
+                return; // Blocca la navigazione
+            }
+        }
+		
+		
         // ✅ SCROLL TO TOP
         const appContainer = document.getElementById('app-container');
         if (appContainer) {
@@ -1510,6 +1520,7 @@ router: {
             // Mostra header e nav, ripristina margine
             header.style.display = 'grid';
             nav.style.display = 'flex';
+			header.classList.remove('header-hidden');
             if (appContainer) {
                 appContainer.style.setProperty('margin-top', '52px', 'important');
             }
