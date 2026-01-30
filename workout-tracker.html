@@ -467,7 +467,7 @@ color:#c084fc;
       <div>
          <h2 class="opacity-90 uppercase tracking-wider font-semibold flex items-center gap-2">
             <i id="stats-period-icon" class="fa-solid fa-calendar-week"></i>
-            <span id="stats-period-title">Questa Settimana</span>
+            <span id="stats-period-title">Questa<br/>Settimana</span>
          </h2>
          <p class="text-sm opacity-75 mt-1" id="current-period-name">1-5 Gen 2026</p>
       </div>
@@ -1608,7 +1608,7 @@ renderDashboard: () => {
     }
     
     // Update UI texts
-    document.getElementById('stats-period-title').innerText = app.state.statsPeriod === 'week' ? 'Questa Settimana' : 'Questo Mese';
+    document.getElementById('stats-period-title').innerText = app.state.statsPeriod === 'week' ? 'Questa\nSettimana' : 'Questo\nMese';
     document.getElementById('current-period-name').innerText = periodName;
     document.getElementById('stats-period-icon').className = `fa-solid ${iconClass}`;
     
