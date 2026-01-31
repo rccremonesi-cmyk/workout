@@ -1836,7 +1836,7 @@ showBadgeNotification: () => {
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
             <div class="flex items-center gap-4">
-                <img src="${badge.icon}" alt="${badge.name}" class="w-20 h-20">
+                <img src="${badge.icon}" alt="${badge.name}" style="max-width: 90px;">
                 <div class="flex-1">
                     <div class="text-xs opacity-90 uppercase tracking-wider font-semibold">Traguardo Sbloccato!</div>
                     <h3 class="text-xl font-bold mt-1">${badge.name}</h3>
@@ -2163,6 +2163,8 @@ if (kgLabel) {
                              labels: lastLogs.map(l => new Date(l.date).toLocaleDateString(undefined, {weekday:'short'})),
                              datasets: [{ label: 'Volume (kg)', data: lastLogs.map(l => l.totalVolume), backgroundColor: '#5127f2', borderRadius: 4 }]
                          },
+						 			 
+						 
                          options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
                      });
          
@@ -2346,7 +2348,6 @@ const renderWorkoutCard = (h, index, isFirstInGroup = false) => {
 // Raggruppa i dati
 const grouped = groupByPeriod(history.slice().reverse());
 let html = '';
-
 // Questa settimana
 if (grouped.thisWeek.length > 0) {
     html += `
@@ -2361,7 +2362,6 @@ if (grouped.thisWeek.length > 0) {
         </div>
     `;
 }
-
 // Settimana scorsa
 if (grouped.lastWeek.length > 0) {
     html += `
@@ -2376,7 +2376,6 @@ if (grouped.lastWeek.length > 0) {
         </div>
     `;
 }
-
 // Mesi precedenti
 const monthKeys = Object.keys(grouped.months).sort((a, b) => {
     const [yearA, monthA] = a.split('-').map(Number);
@@ -2384,7 +2383,6 @@ const monthKeys = Object.keys(grouped.months).sort((a, b) => {
     if (yearA !== yearB) return yearB - yearA;
     return monthB - monthA;
 });
-
 monthKeys.forEach(key => {
     const monthData = grouped.months[key];
     const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
@@ -2403,7 +2401,6 @@ monthKeys.forEach(key => {
         </div>
     `;
 });
-
 // Se non c'è storico
 if (html === '') {
     html = `
@@ -2414,12 +2411,121 @@ if (html === '') {
         </div>
     `;
 }
-
 list.innerHTML = html;
-
  app.handlers.switchStatsTab('history');
-                 }
-             },
+                 },
+				 
+				 // ✨✨✨ AGGIUNGI QUESTA FUNZIONE QUI ✨✨✨
+showWorkoutSummaryModal: (stats) => {
+    const modal = document.createElement('div');
+    modal.id = 'workout-summary-modal';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 backdrop-blur-sm';
+    modal.style.animation = 'fadeInOnly 0.3s ease-in-out';
+    
+    modal.innerHTML = `
+        <div class="bg-gradient-to-br from-darkCard to-gray-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border-2 border-primary/30" style="animation: beastShake 0.5s ease-out">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary to-purple-600 p-6 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+                <div class="relative z-10">
+                    
+                    <h2 class="text-2xl font-bold text-white">Ottimo Lavoro!</h2>
+                    <p class="text-white/90 mt-2">Allenamento Completato</p>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="p-6 space-y-4">
+                <h3 class="text-center text-gray-400 text-sm uppercase tracking-wider mb-4">Ecco il tuo riepilogo:</h3>
+                
+                <!-- Volume -->
+                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-primary/20 rounded-xl p-3">
+                                <i class="fa-solid fa-weight-hanging text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-400 uppercase">Volume Totale</div>
+                                <div class="text-2xl font-bold text-white">${stats.volume.toLocaleString()}<span class="text-sm text-gray-400 ml-1">kg</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Durata Totale -->
+                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-blue-500/20 rounded-xl p-3">
+                                <i class="fa-solid fa-clock text-blue-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-400 uppercase">Durata Totale</div>
+                                <div class="text-2xl font-bold text-white">${stats.totalDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
+                                <div class="text-xs text-gray-500 mt-0.5">Esercizi + Pause</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Durata Effettiva -->
+                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-green-500/20 rounded-xl p-3">
+                                <i class="fa-solid fa-stopwatch text-green-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-400 uppercase">Durata Effettiva</div>
+                                <div class="text-2xl font-bold text-white">${stats.effectiveDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
+                                <div class="text-xs text-gray-500 mt-0.5">Solo Esercizi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calorie -->
+                ${stats.calories > 0 ? `
+                    <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-orange-500/20 rounded-xl p-3">
+                                    <i class="fa-solid fa-fire text-orange-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-400 uppercase">Calorie Bruciate</div>
+                                    <div class="text-2xl font-bold text-white">${stats.calories}<span class="text-sm text-gray-400 ml-1">kcal</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="bg-gray-800/50 rounded-2xl p-3 border border-gray-700/50 opacity-60">
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <i class="fa-solid fa-info-circle"></i>
+                            <span>Imposta peso corporeo nelle impostazioni per vedere le calorie</span>
+                        </div>
+                    </div>
+                `}
+            </div>
+            
+            <!-- Footer Button -->
+            <div class="p-6 pt-0">
+                <button onclick="app.handlers.closeWorkoutSummary()" class="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold text-lg py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i>
+                    Torna alla Home
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+				 
+             },  // ← QUESTA è LA CHIUSURA DI app.ui
+			 
          
              handlers: {
                  // Editor Handlers
@@ -2548,16 +2654,17 @@ openWorkoutEditor: (id) => {
          
                  // Execution Handlers
          startWorkout: (id) => {
-		 document.body.classList.add('workout-started');
-         const w = app.state.workouts.find(w => w.id === id);
-         app.state.activeSession = {
-         workout: JSON.parse(JSON.stringify(w)), // Clone
-         currentExIdx: 0,
-         currentSet: 0,
-         status: 'work',
-         startTime: Date.now(),
-         exerciseStartTime: Date.now(), // ✨ AGGIUNGI QUESTO
-         logs: [] // Track actual reps/weight
+		     document.body.classList.add('workout-started');
+    const w = app.state.workouts.find(w => w.id === id);
+    app.state.activeSession = {
+        workout: JSON.parse(JSON.stringify(w)),
+        currentExIdx: 0,
+        currentSet: 0,
+        status: 'work',
+        startTime: Date.now(),
+        exerciseStartTime: Date.now(),
+        exerciseDurations: [], // ✨ AGGIUNGI QUESTA RIGA
+        logs: []
          };
          app.router.go('active');
          
@@ -2838,52 +2945,60 @@ skipExercise: () => {
                      }
                  },
          
-                 finishWorkout: async () => {
-                     if (app.restInterval) clearInterval(app.restInterval);
-                     if (app.totalTimerInt) clearInterval(app.totalTimerInt);
-         if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
-                     
-                     document.getElementById('audio-complete').play().catch(e=>{});
-                     if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-         
-                     const session = app.state.activeSession;
-                     
-                     // Calc Stats
-         const volume = session.logs.reduce((acc, l) => {
-         const weight = parseFloat(l.weight);
-         const reps = parseFloat(l.reps);
-         const multiplier = l.multiplier || 1;
-         if (!isNaN(weight) && !isNaN(reps)) {
-         return acc + (weight * reps * multiplier);
-         }
-         return acc;
-         }, 0);
-         const duration = Math.round((Date.now() - session.startTime) / 1000 / 60);
-         const calories = app.calculateCalories(session);
-         
-         const historyItem = {
-         id: 'h_' + Date.now(),
-         workoutId: session.workout.id,
-         workoutName: session.workout.name,
-         date: new Date().toISOString(),
-         totalVolume: volume,
-         durationMinutes: duration,
-         caloriesBurned: calories,
-         logs: session.logs
-         };
-         
-                     await app.db.put('history', historyItem);
-					 // Check badges
-await app.checkBadges(historyItem);
-                     await app.loadData(); // Reload history for dashboard
-                     
-                     const statsMsg = calories > 0 
-         ? `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n• Calorie: ~${calories} kcal`
-         : `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n\n💡 Imposta peso corporeo nelle impostazioni per vedere le calorie bruciate!`;
-         alert(statsMsg);
-		 document.body.classList.remove('workout-started');
-                     app.router.go('dashboard');
-                 },
+ finishWorkout: async () => {
+    if (app.restInterval) clearInterval(app.restInterval);
+    if (app.totalTimerInt) clearInterval(app.totalTimerInt);
+    if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
+    
+    document.getElementById('audio-complete').play().catch(e=>{});
+    if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+    const session = app.state.activeSession;
+    
+    // Calc Stats
+    const volume = session.logs.reduce((acc, l) => {
+        const weight = parseFloat(l.weight);
+        const reps = parseFloat(l.reps);
+        const multiplier = l.multiplier || 1;
+        if (!isNaN(weight) && !isNaN(reps)) {
+            return acc + (weight * reps * multiplier);
+        }
+        return acc;
+    }, 0);
+    
+    const totalDuration = Math.round((Date.now() - session.startTime) / 1000 / 60);
+    
+    // ✨ CALCOLA DURATA EFFETTIVA
+    const effectiveDuration = session.exerciseDurations 
+        ? Math.round(session.exerciseDurations.reduce((a, b) => a + b, 0) / 60) 
+        : 0;
+    
+    const calories = app.calculateCalories(session);
+    
+    const historyItem = {
+        id: 'h_' + Date.now(),
+        workoutId: session.workout.id,
+        workoutName: session.workout.name,
+        date: new Date().toISOString(),
+        totalVolume: volume,
+        durationMinutes: totalDuration,
+        effectiveDurationMinutes: effectiveDuration,
+        caloriesBurned: calories,
+        logs: session.logs
+    };
+    
+    await app.db.put('history', historyItem);
+    await app.checkBadges(historyItem);
+    await app.loadData();
+    
+    // ✨ MOSTRA MODALE
+    app.ui.showWorkoutSummaryModal({
+        volume: Math.round(volume),
+        totalDuration: totalDuration,
+        effectiveDuration: effectiveDuration,
+        calories: calories
+    });
+},
          
                  startTotalTimer: () => {
                      const start = Date.now();
@@ -2901,7 +3016,13 @@ startExerciseTimer: () => {
   const session = app.state.activeSession;
   if (!session) return;
 
-  // ✨ MODIFICA: Resetta SEMPRE il tempo di inizio esercizio
+  // ✨ SALVA DURATA PRECEDENTE
+  if (session.exerciseStartTime && session.status === 'work') {
+    const duration = (Date.now() - session.exerciseStartTime) / 1000;
+    if (!session.exerciseDurations) session.exerciseDurations = [];
+    session.exerciseDurations.push(duration);
+  }
+
   session.exerciseStartTime = Date.now();
 
   const el = document.getElementById('exercise-timer');
@@ -3048,6 +3169,20 @@ dismissBadge: () => {
         setTimeout(() => app.ui.showBadgeNotification(), 500);
     }
 },
+
+closeWorkoutSummary: () => {
+    const modal = document.getElementById('workout-summary-modal');
+    if (modal) {
+        modal.style.animation = 'fadeInOnly 0.2s ease-in-out reverse';
+        setTimeout(() => {
+            modal.remove();
+            document.body.classList.remove('workout-started');
+            app.router.go('dashboard');
+        }, 200);
+    }
+},
+
+
 toggleStatsPeriod: () => {
     app.state.statsPeriod = app.state.statsPeriod === 'week' ? 'month' : 'week';
     app.ui.renderDashboard();
