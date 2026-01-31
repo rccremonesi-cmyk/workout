@@ -19,14 +19,14 @@ const manifestData = {
     "background_color": "#111827",
     "theme_color": "#5127F2",
     "orientation": "portrait",
-    "icons": [
-        {
-            "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%235127F2' width='512' height='512' rx='115'/%3E%3Cpath fill='white' d='M454 179h-50c-7 0-13 6-13 13v112c0 7 6 13 13 13h50c7 0 13-6 13-13V192c0-7-6-13-13-13zm-336 0H68c-7 0-13 6-13 13v112c0 7 6 13 13 13h50c7 0 13-6 13-13V192c0-7-6-13-13-13zM184 248h144c7 0 13-6 13-13s-6-13-13-13H184c-7 0-13 6-13 13s6 13 13 13z'/%3E%3C/svg%3E",
-            "sizes": "512x512",
-            "type": "image/svg+xml",
-            "purpose": "any maskable"
-        }
-    ]
+"icons": [
+    {
+        "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%235127F2;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237c3aed;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23grad)' width='512' height='512' rx='115'/%3E%3Cpath fill='white' d='M640 96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H384V96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H192V96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H32c-17.7 0-32 14.3-32 32v32c0 17.7 14.3 32 32 32H128V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336H320V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336H576V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336h96c17.7 0 32-14.3 32-32V272c0-17.7-14.3-32-32-32H640V96z' transform='translate(-100 0) scale(0.85)'/%3E%3C/svg%3E",
+        "sizes": "512x512",
+        "type": "image/svg+xml",
+        "purpose": "any maskable"
+    }
+]
 };
 
 const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
@@ -38,8 +38,7 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="WorkoutTracker">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%235127F2' width='512' height='512' rx='115'/%3E%3Cpath fill='white' d='M454 179h-50c-7 0-13 6-13 13v112c0 7 6 13 13 13h50c7 0 13-6 13-13V192c0-7-6-13-13-13zm-336 0H68c-7 0-13 6-13 13v112c0 7 6 13 13 13h50c7 0 13-6 13-13V192c0-7-6-13-13-13zM184 248h144c7 0 13-6 13-13s-6-13-13-13H184c-7 0-13 6-13 13s6 13 13 13z'/%3E%3C/svg%3E">
-      <meta name="theme-color" content="#5127F2">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%235127F2;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237c3aed;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23grad)' width='512' height='512' rx='115'/%3E%3Cpath fill='white' d='M640 96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H384V96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H192V96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H32c-17.7 0-32 14.3-32 32v32c0 17.7 14.3 32 32 32H128V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336H320V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336H576V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336h96c17.7 0 32-14.3 32-32V272c0-17.7-14.3-32-32-32H640V96z' transform='translate(-100 0) scale(0.85)'/%3E%3C/svg%3E">      <meta name="theme-color" content="#5127F2">
       <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3C!-- Icona dumbbell di Font Awesome (simil-v6) --%3E%3Cpath fill='%235127F2' d='M88.75 35.5h-9.87c-1.39 0-2.5 1.12-2.5 2.5v22c0 1.38 1.11 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zm-66.25 0h-9.87c-1.38 0-2.5 1.12-2.5 2.5v22c0 1.38 1.12 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zM36.1 48h27.8c1.38 0 2.5-1.12 2.5-2.5s-1.12-2.5-2.5-2.5h-27.8c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5z' /%3E%3C/svg%3E">
       <script src="https://cdn.tailwindcss.com"></script>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -740,7 +739,7 @@ color:#c084fc;
                         <button onclick="app.handlers.adjustWeight(-1)" style="width: 5.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-1 kg</button>
                      </div>
                      <!-- Display Peso -->
-                     <div class="text-center px-2">
+                     <div class="text-center px-2" style="min-width: 125px;">
                         <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
                         <span class="text-l font-bold text-gray-500 block uppercase">kg</span>
 						
