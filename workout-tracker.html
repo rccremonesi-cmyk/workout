@@ -1677,10 +1677,9 @@ if (todayWorkouts.length > 0) {
                     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
                     weekStart.setHours(0, 0, 0, 0);
                     
-                    const completedThisWeek = app.state.history
+const completedThisWeek = app.state.history
         .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
         .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-                    );
                     
                     return `
                         <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
@@ -1758,10 +1757,9 @@ if (todayWorkouts.length > 0) {
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
     weekStart.setHours(0, 0, 0, 0);
     
-    const completedThisWeek = app.state.history
+const completedThisWeek = app.state.history
         .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
         .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-    );
     
 const el = document.createElement('div');
 el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
