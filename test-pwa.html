@@ -21,17 +21,9 @@
       <meta http-equiv="Expires" content="0">
 
 	   <script data-goatcounter="https://redmood.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-	   
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="WorkoutTracker">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%235127F2'/%3E%3Cpath fill='%23FFF' d='M88.75 35.5h-9.87c-1.39 0-2.5 1.12-2.5 2.5v22c0 1.38 1.11 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zm-66.25 0h-9.87c-1.38 0-2.5 1.12-2.5 2.5v22c0 1.38 1.12 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zM36.1 48h27.8c1.38 0 2.5-1.12 2.5-2.5s-1.12-2.5-2.5-2.5h-27.8c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5z' /%3E%3C/svg%3E">      <style>	
+      <style>	
 	  
-	  #exercise-notes-content{
-	  margin-top: 12px;
-    background-color: #111827;
-    border: 1px solid #38404f;
-	}
+
 	  
 	  #footer-progress-text{
 	  margin-top: -30px;
@@ -65,6 +57,22 @@
 
 #btn-main-action {
     animation: gentleBounce2 1.8s ease-in-out infinite;
+}
+
+/* Rating Stars Touch Feedback */
+.star-rating-btn {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.star-rating-btn:active i {
+    transform: scale(1.2);
+    filter: brightness(1.5);
+}
+
+/* Hover progressivo sulle stelle */
+.star-rating-btn:hover ~ .star-rating-btn i {
+    color: rgb(55, 65, 81); /* gray-700 più scuro */
 }
 
 @keyframes gentleBounce2 {
@@ -270,7 +278,14 @@ color:#c084fc;
          }
          /* Layout mobile-first responsive */
          @media (min-width: 768px) {
-         nav, main {
+			 .fixed.bottom-0.left-0.right-0.bg-gray-800.pb-safe.z-40{
+				     max-width: 480px;
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 auto !important;
+			 }
+         nav, main, header, section.view-section {
+			 width:100%;
          max-width: 480px;
          margin: 0 auto;
          box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
@@ -471,7 +486,7 @@ color:#c084fc;
       <div>
          <h2 class="opacity-90 uppercase tracking-wider font-semibold flex items-center gap-2">
             <i id="stats-period-icon" class="fa-solid fa-calendar-week"></i>
-            <span id="stats-period-title">Questa Settimana</span>
+            <span id="stats-period-title">Questa<br/>Settimana</span>
          </h2>
          <p class="text-sm opacity-75 mt-1" id="current-period-name">1-5 Gen 2026</p>
       </div>
@@ -733,30 +748,47 @@ color:#c084fc;
                   </div>
                </div>
                <!-- AGGIUNGI QUESTO NUOVO BLOCCO -->
-               <div id="work-overlay" class="flex-col items-center justify-center w-full py-2">
-                  <div class="text-center" style="
-    width:100%;
-    padding: 15px 30px;
-   
-">
-                     <i class="fa-solid fa-dumbbell text-primary text-4xl mb-3 animate-pulse"></i>
-                     <span class="text-gray-400 text-sm uppercase tracking-widest block">Serie in corso</span>
-                     <!-- ✨ AGGIUNGI TIMER ESERCIZIO -->
-                     <span class="text-gray-400 text-sm  tracking-widest block">Iniziata da: <span id="exercise-timer" style="font-weight:bold; color:#FFF;">00:00</span></span>
-                     <span id="motivational-text" class="text-l font-bold mt-2 block">Dai il massimo! 💪</span>
-                     <div id="exercise-notes-container" class="mt-4 hidden">
-                        <button onclick="app.handlers.toggleNotes()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 mx-auto transition">
-                        <i class="fa-regular fa-note-sticky"></i>
-                        <span>Leggi Note</span>
-                        <i id="notes-chevron" class="fa-solid fa-chevron-down text-xs"></i>
-                        </button>
-                        <div id="exercise-notes-content" class="hidden  bg-gray-800 rounded-lg p-4 text-left text-sm text-gray-300 max-w-md mx-auto">
-                           <!-- Note inserite qui dinamicamente -->
-                        </div>
-                     </div>
-                  </div>
-				  
-               </div>
+              <div id="work-overlay" class="flex-col items-center justify-center w-full ">
+   <div class="w-full px-6 ">
+      <!-- Icon & Status -->
+      <div class="text-center mb-4">
+         
+         
+		 <!-- Motivational Text -->
+    <div class="frasi-motivazionali w-full text-center mb-4">
+   <span id="motivational-text" class="w-full font-bold text-white inline-block px-4 py-2 bg-gray-800/50 rounded-xl border border-gray-700/50">
+      Dai il massimo! 💪
+   </span>
+</div>
+      </div>
+      
+      <!-- Timer Card -->
+      <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700/50 mb-4">
+         <div class="flex items-center justify-center gap-2">
+            <i class="fa-regular fa-clock text-purple-400"></i>
+            <span class="text-sm text-gray-400">Serie iniziata da:</span>
+            <span id="exercise-timer" class="text-xl font-bold font-mono text-purple-300">00:00</span>
+         </div>
+      </div>
+      
+     
+      
+      <!-- Notes Section -->
+      <div id="exercise-notes-container" class="hidden">
+         <button onclick="app.handlers.toggleNotes()" 
+            class="w-full bg-gray-800/50 rounded-2xl p-2 border text-gray-400 border-gray-700/50 mb-4" style="font-size:14px;">
+            <i class="fa-regular fa-note-sticky text-purple-400 mr-2"></i>
+            <span>Note salvate</span>
+            <i id="notes-chevron" class="fa-solid fa-chevron-down text-xs ml-auto"></i>
+         </button>
+         <div id="exercise-notes-content" class="hidden bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-left text-sm text-gray-300">
+            <!-- Note inserite qui dinamicamente -->
+         </div>
+      </div>
+	  
+	   
+   </div>
+</div>
             </div>
             <!-- Controls Footer -->
             <!-- Controls Footer -->
@@ -794,18 +826,19 @@ color:#c084fc;
            <div class="internal-section ">
 		   
 		   <!-- Tabs Navigation -->
+<!-- Tabs Navigation -->
 <div class="flex gap-2 mb-6 bg-darkCard rounded-xl p-1">
-   <button onclick="app.handlers.switchStatsTab('statistics')" 
-      class="stats-tab flex-1 px-4 py-3 rounded-lg font-semibold transition-all" 
-      data-tab="statistics">
-      <i class="fa-solid fa-chart-line mr-2"></i>
-      Statistiche
-   </button>
    <button onclick="app.handlers.switchStatsTab('history')" 
       class="stats-tab flex-1 px-4 py-3 rounded-lg font-semibold transition-all" 
       data-tab="history">
       <i class="fa-solid fa-clock-rotate-left mr-2"></i>
       Storico
+   </button>
+   <button onclick="app.handlers.switchStatsTab('statistics')" 
+      class="stats-tab flex-1 px-4 py-3 rounded-lg font-semibold transition-all" 
+      data-tab="statistics">
+      <i class="fa-solid fa-chart-line mr-2"></i>
+      Statistiche
    </button>
 </div>
 
@@ -817,7 +850,7 @@ color:#c084fc;
    <div class="flex items-start gap-3 mb-3">
       
       <div class="flex-1">
-         <h3 class="font-bold  mb-1">Cancella le tue Statistiche</h3>
+         <h3 class="font-bold  mb-1"><i class="fa-solid fa-ban mr-2"></i> Cancella le tue Statistiche</h3>
          <p class="text-xs text-gray-400">
             Elimina tutto lo storico dei tuoi allenamenti, traguardi e le statistiche. <strong>I workout salvati rimarranno intatti</strong>.
          </p>
@@ -825,7 +858,7 @@ color:#c084fc;
       </div>
    </div>
    <button onclick="app.handlers.resetStatistics()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg text-sm font-semibold hover:bg-red-500/10 transition">
-      <i class="fa-solid fa-chart-line-up-down"></i> Cancella Solo Statistiche
+      <i class="fa-solid fa-chart-line-up-down"></i> Cancella solo statistiche
    </button>
 </div>
             <!-- Charts Container -->
@@ -976,22 +1009,11 @@ color:#c084fc;
                   <span>Vibrazione</span>
                   <input type="checkbox" id="setting-vibrate" checked class="accent-primary w-5 h-5">
                </div>
-            </div>
-			
-			<!-- PWA Installation -->
-<div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm">
-   <h3 class="font-bold mb-2 flex items-center gap-2">
-      <i class="fa-solid fa-mobile-screen-button text-primary"></i>
-      Installa come App
-   </h3>
-   <p class="text-sm text-gray-400 mb-3">Usa WorkoutTracker a schermo intero come un'app nativa!</p>
-   
-   <button onclick="app.handlers.showPWAInstructions()" class="w-full bg-gradient-to-r from-primary to-purple-600 text-white py-3 rounded-lg text-sm font-semibold hover:from-primaryDark hover:to-purple-700 transition-all flex items-center justify-center gap-2">
-      <i class="fa-solid fa-circle-info"></i>
-      Mostra Istruzioni Installazione
-   </button>
+			   <div class="p-4 border-t border-gray-100 border-gray-700 flex justify-between items-center">
+   <span>Frasi Motivazionali</span>
+   <input type="checkbox" id="setting-motivational" checked class="accent-primary w-5 h-5">
 </div>
-			
+            </div>
             <div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm space-y-4">
                <h3 class="font-bold"><i class="fa-regular fa-floppy-disk mr-2"></i> Salva o importa dati personali </h3>
 			   <p style="margin:0px;"><small>Salva qui tutte le tue informazioni salvate nell'app</small></p>
@@ -1006,73 +1028,6 @@ color:#c084fc;
             </div>
 			</div>
          </section>
-		 
-<!-- PWA Install Instructions Modal -->
-<div id="pwa-install-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-   <div class="bg-darkCard rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden shadow-2xl">
-      <div class="sticky top-0 bg-gray-900 px-6 py-4 border-b border-gray-700 flex justify-between items-center">
-         <h3 class="font-bold text-xl text-white flex items-center gap-2">
-            <i class="fa-solid fa-mobile-screen-button text-primary"></i>
-            Installa l'App
-         </h3>
-         <button onclick="document.getElementById('pwa-install-modal').classList.add('hidden')" class="text-gray-400 hover:text-white">
-            <i class="fa-solid fa-xmark text-2xl"></i>
-         </button>
-      </div>
-      
-      <div class="p-6 space-y-4 overflow-y-auto max-h-[calc(80vh-80px)] text-white">
-         <!-- iPhone/Safari -->
-         <div class="bg-gray-800 rounded-xl p-4">
-            <h4 class="font-bold mb-3 flex items-center gap-2">
-               <i class="fa-brands fa-safari text-blue-400"></i>
-               iPhone / iPad (Safari)
-            </h4>
-            <ol class="text-sm space-y-2 list-decimal list-inside text-gray-300">
-               <li>Apri questa pagina in <strong>Safari</strong></li>
-               <li>Tocca il pulsante <strong>Condividi</strong> <i class="fa-solid fa-arrow-up-from-bracket"></i> in basso</li>
-               <li>Scorri e seleziona <strong>"Aggiungi a Home"</strong></li>
-               <li>Conferma toccando <strong>"Aggiungi"</strong></li>
-            </ol>
-         </div>
-         
-         <!-- Android/Chrome -->
-         <div class="bg-gray-800 rounded-xl p-4">
-            <h4 class="font-bold mb-3 flex items-center gap-2">
-               <i class="fa-brands fa-chrome text-yellow-400"></i>
-               Android (Chrome)
-            </h4>
-            <ol class="text-sm space-y-2 list-decimal list-inside text-gray-300">
-               <li>Apri questa pagina in <strong>Chrome</strong></li>
-               <li>Tocca il menu <i class="fa-solid fa-ellipsis-vertical"></i> in alto a destra</li>
-               <li>Seleziona <strong>"Aggiungi a schermata Home"</strong> o <strong>"Installa app"</strong></li>
-               <li>Conferma toccando <strong>"Aggiungi"</strong></li>
-            </ol>
-         </div>
-         
-         <!-- Desktop -->
-         <div class="bg-gray-800 rounded-xl p-4">
-            <h4 class="font-bold mb-3 flex items-center gap-2">
-               <i class="fa-solid fa-desktop text-purple-400"></i>
-               Desktop (Chrome/Edge)
-            </h4>
-            <ol class="text-sm space-y-2 list-decimal list-inside text-gray-300">
-               <li>Cerca l'icona <strong>"Installa"</strong> <i class="fa-solid fa-download"></i> nella barra degli indirizzi</li>
-               <li>Oppure apri il menu <i class="fa-solid fa-ellipsis-vertical"></i> e seleziona <strong>"Installa WorkoutTracker..."</strong></li>
-               <li>Conferma l'installazione</li>
-            </ol>
-         </div>
-         
-         <div class="bg-primary/10 border border-primary/30 rounded-xl p-4 text-sm">
-            <p class="text-gray-300">
-               <i class="fa-solid fa-lightbulb text-yellow-400 mr-2"></i>
-               <strong>Vantaggi:</strong> Accesso rapido dalla home, modalità a schermo intero, esperienza app nativa
-            </p>
-         </div>
-      </div>
-   </div>
-</div>
-
-
       </main>
       <!-- BOTTOM NAVIGATION -->
      <nav class="fixed bottom-0 left-0 right-0 bg-darkCard border-t border-gray-200 border-gray-800 flex justify-around items-center h-16 pb-safe z-20 transition-colors duration-300" style="-webkit-box-shadow: 0px 0px 50px 64px #111827;
@@ -1260,76 +1215,87 @@ request.onupgradeneeded = (e) => {
          const app = {
              db: new DB(),
              state: {
-                 currentView: 'dashboard',
-				 statsPeriod: 'week',
-                 workouts: [],
-                 history: [],
-                 editingWorkout: null,
-         editingExerciseIndex: null,
-                 activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
-                 settings: { unit: 'kg', sound: true, vibrate: true, bodyWeight: null, height: null, age: null, gender: '', autoNext: false },
-				 badges: {
-    strike4: { count: 0, lastUnlocked: null, seen: false },
-    kcal500: { count: 0, lastUnlocked: null, seen: false },
-    kcal7200: { count: 0, lastUnlocked: null, seen: false },
-    kg10000: { count: 0, lastUnlocked: null, seen: false },
-    month16: { count: 0, lastUnlocked: null, seen: false },
-    bench100: { count: 0, lastUnlocked: null, seen: false, oneTime: true }
-},
-badgeDefinitions: {
-    strike4: {
-        name: 'Strike 4 Allenamenti',
-        desc: 'Quattro allenamenti questa settimana, zero scuse. Costanza attivata 📅',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/4x.png',
-        repeatable: true
-    },
-    kcal500: {
-        name: '500 kcal Workout',
-        desc: 'Allenamento incendiario: 500 kcal bruciate! 🔥',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/500k.png',
-        repeatable: true
-    },
-    kcal7200: {
-        name: '7200 kcal Totali',
-        desc: 'Energia trasformata in risultati: 7200 kcal consumate, 1kg perso! 🧱',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/7200k.png',
-        repeatable: true
-    },
-    kg10000: {
-        name: '10.000 kg Sollevati',
-        desc: 'Forza pura: 10 tonnellate di ghisa! 🦾',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/10000kg.png',
-        repeatable: true
-    },
-    month16: {
-        name: '16 Allenamenti/Mese',
-        desc: 'Un mese, sedici allenamenti. sei in pieno flow! ⏳',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/16x.png',
-        repeatable: true
-    },
-    bench100: {
-        name: 'Panca Piana 100kg',
-        desc: 'Ora sei un vero uomo! 💪',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/100bench.png',
-        repeatable: false
-    }
-},
-pendingBadges: [],
+    currentView: 'dashboard',
+    statsPeriod: 'week',
+    workouts: [],
+    history: [],
+    editingWorkout: null,
+    editingExerciseIndex: null,
+    activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
     
+    settings: { 
+        unit: 'kg', 
+        sound: true, 
+        vibrate: true, 
+        motivational: true, 
+        bodyWeight: null, 
+        height: null, 
+        age: null, 
+        gender: '', 
+        autoNext: false 
+    },
+    
+    badges: {
+        strike4: { count: 0, lastUnlocked: null, seen: false },
+        kcal500: { count: 0, lastUnlocked: null, seen: false },
+        kcal7200: { count: 0, lastUnlocked: null, seen: false },
+        kg10000: { count: 0, lastUnlocked: null, seen: false },
+        month16: { count: 0, lastUnlocked: null, seen: false },
+        bench100: { count: 0, lastUnlocked: null, seen: false, oneTime: true }
+    },
+    
+    badgeDefinitions: {
+        strike4: {
+            name: 'Strike 4 Allenamenti',
+            desc: 'Quattro allenamenti questa settimana, zero scuse. Costanza attivata 📅',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/4x.png',
+            repeatable: true
+        },
+        kcal500: {
+            name: '500 kcal Workout',
+            desc: 'Allenamento incendiario: 500 kcal bruciate! 🔥',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/500k.png',
+            repeatable: true
+        },
+        kcal7200: {
+            name: '7200 kcal Totali',
+            desc: 'Energia trasformata in risultati: 7200 kcal consumate, 1kg perso! 🧱',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/7200k.png',
+            repeatable: true
+        },
+        kg10000: {
+            name: '10.000 kg Sollevati',
+            desc: 'Forza pura: 10 tonnellate di ghisa! 🦾',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/10000kg.png',
+            repeatable: true
+        },
+        month16: {
+            name: '16 Allenamenti/Mese',
+            desc: 'Un mese, sedici allenamenti. sei in pieno flow! ⏳',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/16x.png',
+            repeatable: true
+        },
+        bench100: {
+            name: 'Panca Piana 100kg',
+            desc: 'Ora sei un vero uomo! 💪',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/100bench.png',
+            repeatable: false
+        }
+    },
+    
+    pendingBadges: [],
     motivationalPhrases: [
         'Spacca tutto! 💪',
-        'Hai preso il tuo preworkout? 🥤',
-        'Non fare lo scoppiato! 💥',
+        'Hai preso il \ntuo preworkout? 🥤',
+        'Non fare lo \nscoppiato! 💥',
         'Secco mai 😤',
         'Vai Uomooo! 💪',
         'Non mollare! ✊',
         'Beast mode! 🐻',
         'Focus totale 🎯',
-		'Ricordati di rimanere idratato! 💧'
-       // 'Non vedi l\'ora di andare a casa a mangiare la pasta e fagioli! 🍝',
-       // 'Saitama te fa na pippa! 👊'
+        'Ricordati di \nrimanere idratato! 💧'
     ],
-	preferredDays: []
+    preferredDays: []
 },
        
              
@@ -1577,12 +1543,17 @@ router: {
     go: (viewId) => {
 	
 	        // ✅ CONTROLLO SALVATAGGIO EDITOR
-        if (app.state.currentView === 'editor' && viewId === 'dashboard') {
-            const confirmed = confirm('⚠️ Stai uscendo dall\'editor. Hai salvato le modifiche?');
-            if (!confirmed) {
-                return; // Blocca la navigazione
-            }
+if (app.state.currentView === 'editor' && viewId === 'dashboard') {
+    // Se stiamo salvando, non mostrare il popup
+    if (!app.state.isSaving) {
+        const confirmed = confirm('⚠️ Stai uscendo dall\'editor. Hai salvato le modifiche?');
+        if (!confirmed) {
+            return; // Blocca la navigazione
         }
+    }
+    // Reset del flag
+    app.state.isSaving = false;
+}
 		
 		
         // ✅ SCROLL TO TOP
@@ -1694,7 +1665,7 @@ renderDashboard: () => {
     }
     
     // Update UI texts
-    document.getElementById('stats-period-title').innerText = app.state.statsPeriod === 'week' ? 'Questa Settimana' : 'Questo Mese';
+    document.getElementById('stats-period-title').innerText = app.state.statsPeriod === 'week' ? 'Questa\nSettimana' : 'Questo\nMese';
     document.getElementById('current-period-name').innerText = periodName;
     document.getElementById('stats-period-icon').className = `fa-solid ${iconClass}`;
     
@@ -1756,9 +1727,9 @@ if (todayWorkouts.length > 0) {
                     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
                     weekStart.setHours(0, 0, 0, 0);
                     
-                    const completedThisWeek = app.state.history.find(h => 
-                        h.workoutId === w.id && new Date(h.date) >= weekStart
-                    );
+const completedThisWeek = app.state.history
+        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
                     
                     return `
                         <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
@@ -1836,9 +1807,9 @@ if (todayWorkouts.length > 0) {
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
     weekStart.setHours(0, 0, 0, 0);
     
-    const completedThisWeek = app.state.history.find(h => 
-        h.workoutId === w.id && new Date(h.date) >= weekStart
-    );
+const completedThisWeek = app.state.history
+        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
     
 const el = document.createElement('div');
 el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
@@ -1909,7 +1880,7 @@ showBadgeNotification: () => {
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
             <div class="flex items-center gap-4">
-                <img src="${badge.icon}" alt="${badge.name}" class="w-20 h-20">
+                <img src="${badge.icon}" alt="${badge.name}" style="max-width: 90px;">
                 <div class="flex-1">
                     <div class="text-xs opacity-90 uppercase tracking-wider font-semibold">Traguardo Sbloccato!</div>
                     <h3 class="text-xl font-bold mt-1">${badge.name}</h3>
@@ -1947,7 +1918,7 @@ renderBadges: () => {
             <div class="relative flex-shrink-0">
                 <img src="${def.icon}" alt="${def.name}" class="w-20 rounded-xl ${unlocked ? 'shadow-lg' : 'badge-icon-locked'}">
                 ${data.count > 1 ? `
-                    <span class="absolute -top-2 -right-2 bg-gradient-to-br from-yellow-400 to-orange-500 text-white text-sm font-bold px-2.5 py-1 rounded-full shadow-lg border-2 border-white">
+                    <span class="absolute -top-2 -right-2 bg-gradient-to-br from-purple-400 to-white-500 text-white text-sm font-bold px-2.5 py-1 rounded-full shadow-lg border-2 border-white">
                         ×${data.count}
                     </span>
                 ` : ''}
@@ -2069,23 +2040,22 @@ if (app.state.editingWorkout.exercises.length === 0) {
 					     // ✅ MOSTRA IL DELTA SE ESISTE
 const kgLabel = document.querySelector('#active-weight-value + span');
 if (kgLabel) {
-    // Prima pulisci sempre
     kgLabel.innerHTML = 'kg';
     
-    // Poi aggiungi il delta solo se esiste e non è zero
     if (session.weightDelta && Math.abs(session.weightDelta) > 0) {
-        let deltaText = '';
-        let deltaColor = '';
-
-        if (session.weightDelta > 0) {
-            deltaText = `+${session.weightDelta}`;
-            deltaColor = 'text-green-400';
-        } else {
-            deltaText = `${session.weightDelta}`;
-            deltaColor = 'text-orange-400';
-        }
-
-        kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaText}</span>`;
+        const deltaColor = session.weightDelta > 0 ? 'text-green-400' : 'text-orange-400';
+        const deltaSign = session.weightDelta > 0 ? '+' : '';
+        
+        // Calcola percentuale
+		const percentChange = session.lastSavedWeight > 0 
+            ? ((session.weightDelta / session.lastSavedWeight) * 100).toFixed(0)
+            : 0;
+        
+        const percentText = Math.abs(percentChange) > 0 
+            ? ` <span class="text-xs opacity-75">(${percentChange > 0 ? '+' : ''}${percentChange}%)</span>` 
+            : '';
+        
+        kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaSign}${session.weightDelta}${percentText}</span>`;
     }
 }
                      
@@ -2216,6 +2186,12 @@ if (kgLabel) {
     }
 	
 	app.updateWeightComparison();
+	
+	// Applica visibilità frasi motivazionali
+    const motivationalDiv = document.querySelector('.frasi-motivazionali');
+    if (motivationalDiv) {
+        motivationalDiv.style.display = app.state.settings.motivational !== false ? 'block' : 'none';
+    }
 },
                  
                  renderStats: () => {
@@ -2236,6 +2212,8 @@ if (kgLabel) {
                              labels: lastLogs.map(l => new Date(l.date).toLocaleDateString(undefined, {weekday:'short'})),
                              datasets: [{ label: 'Volume (kg)', data: lastLogs.map(l => l.totalVolume), backgroundColor: '#5127f2', borderRadius: 4 }]
                          },
+						 			 
+						 
                          options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
                      });
          
@@ -2298,85 +2276,305 @@ if (kgLabel) {
          document.getElementById('total-fat-burned').innerText = totalFatGrams.toLocaleString();
          
                      // List
-                     const list = document.getElementById('history-list');
-list.innerHTML = history.slice().reverse().slice(0, 10).map((h, index) => {
-   const date = new Date(h.date);
-   const isToday = date.toDateString() === new Date().toDateString();
-   const isYesterday = date.toDateString() === new Date(Date.now() - 86400000).toDateString();
-   
-   let dateLabel;
-   if (isToday) {
-      dateLabel = '🟢 Oggi';
-   } else if (isYesterday) {
-      dateLabel = 'Ieri';
-   } else {
-      dateLabel = date.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
-   }
-   
-   const timeLabel = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-   
-   return `
-      <div class="bg-darkCard rounded-xl p-4  ${isToday ? 'border-green-500' : 'border-primary'} shadow-sm hover:shadow-md transition-all">
-         <!-- Header Row -->
-         <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-             
-               <div>
-                  <h4 class="font-bold text-white">${h.workoutName}</h4>
-                  <div class="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
-                     <i class="fa-regular fa-calendar"></i>
-                     <span>${dateLabel}</span>
-                     <span class="text-gray-600">•</span>
-                     <i class="fa-regular fa-clock"></i>
-                     <span>${timeLabel}</span>
-                  </div>
-               </div>
-            </div>
-            ${index === 0 ? '<span class="text-xs bg-primary/50 text-white/70 px-2 py-1 rounded-full font-semibold">Recente</span>' : ''}
-         </div>
-         
-         <!-- Stats Row -->
-         <div class="grid grid-cols-3 gap-3">
-            <div class="bg-gray-900/50 rounded-lg p-2 text-center">
-               <div class="text-xs text-gray-400 mb-1">Volume</div>
-               <div class="font-bold  flex items-center justify-center gap-1">
-                  <i class="fa-solid fa-weight-hanging text-xs"></i>
-                  <span>${Math.round(h.totalVolume).toLocaleString()}</span>
-                  <span class="text-xs">kg</span>
-               </div>
-            </div>
-            
-            ${h.caloriesBurned ? `
-               <div class="bg-gray-900/50 rounded-lg p-2 text-center">
-                  <div class="text-xs text-gray-400 mb-1">Calorie</div>
-                  <div class="font-bold text-orange-500 flex items-center justify-center gap-1">
-                     <i class="fa-solid fa-fire text-xs"></i>
-                     <span>${Math.round(h.caloriesBurned).toLocaleString()}</span>
-                  </div>
-               </div>
-            ` : `
-               <div class="bg-gray-900/50 rounded-lg p-2 text-center opacity-50">
-                  <div class="text-xs text-gray-400 mb-1">Calorie</div>
-                  <div class="font-bold text-gray-600 text-xs">N/D</div>
-               </div>
-            `}
-            
-            <div class="bg-gray-900/50 rounded-lg p-2 text-center">
-               <div class="text-xs text-gray-400 mb-1">Durata</div>
-               <div class="font-bold text-blue-400 flex items-center justify-center gap-1">
-                  <i class="fa-solid fa-stopwatch text-xs"></i>
-                  <span>${h.durationMinutes || 0}</span>
-                  <span class="text-xs">min</span>
-               </div>
-            </div>
-         </div>
-      </div>
-   `;
-}).join('');
+// List with period grouping
+const list = document.getElementById('history-list');
 
- app.handlers.switchStatsTab('statistics');
-                 }
-             },
+// Funzione helper per raggruppare per periodi
+const groupByPeriod = (historyArray) => {
+    const now = new Date();
+    const groups = {
+        thisWeek: [],
+        lastWeek: [],
+        months: {}
+    };
+    
+    // Calcola inizio settimana corrente (lunedì)
+    const thisWeekStart = new Date(now);
+    const dayOfWeek = now.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    thisWeekStart.setDate(now.getDate() + diff);
+    thisWeekStart.setHours(0, 0, 0, 0);
+    
+    // Calcola inizio settimana scorsa
+    const lastWeekStart = new Date(thisWeekStart);
+    lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+    
+    historyArray.forEach(h => {
+        const date = new Date(h.date);
+        
+        if (date >= thisWeekStart) {
+            groups.thisWeek.push(h);
+        } else if (date >= lastWeekStart) {
+            groups.lastWeek.push(h);
+        } else {
+            const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+            if (!groups.months[monthKey]) {
+                groups.months[monthKey] = {
+                    date: date,
+                    workouts: []
+                };
+            }
+            groups.months[monthKey].workouts.push(h);
+        }
+    });
+    
+    return groups;
+};
+
+// Funzione per renderizzare un singolo workout
+const renderWorkoutCard = (h, index, isFirstInGroup = false) => {
+    const date = new Date(h.date);
+    const isToday = date.toDateString() === new Date().toDateString();
+    const isYesterday = date.toDateString() === new Date(Date.now() - 86400000).toDateString();
+    
+    let dateLabel;
+    if (isToday) {
+        dateLabel = '🟢 Oggi';
+    } else if (isYesterday) {
+        dateLabel = 'Ieri';
+    } else {
+        dateLabel = date.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+    }
+    
+    const timeLabel = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    
+    return `
+        <div class="bg-darkCard rounded-xl p-4 ${isToday ? 'border-green-500' : 'border-primary'} shadow-sm hover:shadow-md transition-all">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <div>
+                        <h4 class="font-bold text-white">${h.workoutName}</h4>
+                        <div class="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+                            <i class="fa-regular fa-calendar"></i>
+                            <span>${dateLabel}</span>
+                            <span class="text-gray-600">•</span>
+                            <i class="fa-regular fa-clock"></i>
+                            <span>${timeLabel}</span>
+                        </div>
+                    </div>
+                </div>
+                ${index === 0 && isFirstInGroup ? '<span class="text-xs bg-primary/50 text-white/70 px-2 py-1 rounded-full font-semibold">Recente</span>' : ''}
+            </div>
+            
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-gray-900/50 rounded-lg p-2 text-center">
+                    <div class="text-xs text-gray-400 mb-1">Volume</div>
+                    <div class="font-bold flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-weight-hanging text-xs"></i>
+                        <span>${Math.round(h.totalVolume).toLocaleString()}</span>
+                        <span class="text-xs">kg</span>
+                    </div>
+                </div>
+                
+                ${h.caloriesBurned ? `
+                    <div class="bg-gray-900/50 rounded-lg p-2 text-center">
+                        <div class="text-xs text-gray-400 mb-1">Calorie</div>
+                        <div class="font-bold text-orange-500 flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-fire text-xs"></i>
+                            <span>${Math.round(h.caloriesBurned).toLocaleString()}</span>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="bg-gray-900/50 rounded-lg p-2 text-center opacity-50">
+                        <div class="text-xs text-gray-400 mb-1">Calorie</div>
+                        <div class="font-bold text-gray-600 text-xs">N/D</div>
+                    </div>
+                `}
+                
+                <div class="bg-gray-900/50 rounded-lg p-2 text-center">
+                    <div class="text-xs text-gray-400 mb-1">Durata</div>
+                    <div class="font-bold text-blue-400 flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-stopwatch text-xs"></i>
+                        <span>${h.durationMinutes || 0}</span>
+                        <span class="text-xs">min</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+// Raggruppa i dati
+const grouped = groupByPeriod(history.slice().reverse());
+let html = '';
+// Questa settimana
+if (grouped.thisWeek.length > 0) {
+    html += `
+        <div class="mb-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-purple-300 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-calendar-week"></i>
+                Questa Settimana
+            </h3>
+            <div class="space-y-3">
+                ${grouped.thisWeek.map((h, i) => renderWorkoutCard(h, i, i === 0)).join('')}
+            </div>
+        </div>
+    `;
+}
+// Settimana scorsa
+if (grouped.lastWeek.length > 0) {
+    html += `
+        <div class="mb-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-calendar-week"></i>
+                Settimana Scorsa
+            </h3>
+            <div class="space-y-3">
+                ${grouped.lastWeek.map((h, i) => renderWorkoutCard(h, i)).join('')}
+            </div>
+        </div>
+    `;
+}
+// Mesi precedenti
+const monthKeys = Object.keys(grouped.months).sort((a, b) => {
+    const [yearA, monthA] = a.split('-').map(Number);
+    const [yearB, monthB] = b.split('-').map(Number);
+    if (yearA !== yearB) return yearB - yearA;
+    return monthB - monthA;
+});
+monthKeys.forEach(key => {
+    const monthData = grouped.months[key];
+    const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+    const monthLabel = `${monthNames[monthData.date.getMonth()]} ${monthData.date.getFullYear()}`;
+    
+    html += `
+        <div class="mb-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider mt-10 text-gray-500 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-calendar"></i>
+                ${monthLabel}
+            </h3>
+            <div class="space-y-3">
+                ${monthData.workouts.map((h, i) => renderWorkoutCard(h, i)).join('')}
+            </div>
+        </div>
+    `;
+});
+// Se non c'è storico
+if (html === '') {
+    html = `
+        <div class="text-center py-12 text-gray-400">
+            <i class="fa-solid fa-clock-rotate-left text-5xl mb-4 opacity-50"></i>
+            <p class="text-lg font-semibold">Nessun allenamento completato</p>
+            <p class="text-sm mt-2">Inizia un workout per vedere lo storico!</p>
+        </div>
+    `;
+}
+list.innerHTML = html;
+ app.handlers.switchStatsTab('history');
+                 },
+				 
+				 // ✨✨✨ AGGIUNGI QUESTA FUNZIONE QUI ✨✨✨
+showWorkoutSummaryModal: (stats) => {
+    const modal = document.createElement('div');
+    modal.id = 'workout-summary-modal';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 backdrop-blur-sm';
+    modal.style.animation = 'fadeInOnly 0.3s ease-in-out';
+    
+    modal.innerHTML = `
+        <div class="bg-gradient-to-br from-darkCard to-gray-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border-2 border-primary/30" style="animation: beastShake 0.5s ease-out">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary to-purple-600 p-6 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+                <div class="relative z-10">
+                    
+                    <h2 class="text-2xl font-bold text-white">Ottimo Lavoro!</h2>
+                    <p class="text-white/90 mt-2">Allenamento Completato</p>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="p-6 space-y-4">
+                <h3 class="text-center text-gray-400 text-sm uppercase tracking-wider mb-4">Ecco il tuo riepilogo:</h3>
+                
+                <!-- Volume -->
+                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-primary/20 rounded-xl p-3">
+                                <i class="fa-solid fa-weight-hanging text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-400 uppercase">Volume Totale</div>
+                                <div class="text-2xl font-bold text-white">${stats.volume.toLocaleString()}<span class="text-sm text-gray-400 ml-1">kg</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Durata Totale -->
+                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-blue-500/20 rounded-xl p-3">
+                                <i class="fa-solid fa-clock text-blue-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-400 uppercase">Durata Totale</div>
+                                <div class="text-2xl font-bold text-white">${stats.totalDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
+                                <div class="text-xs text-gray-500 mt-0.5">Esercizi + Pause</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Durata Effettiva -->
+                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-green-500/20 rounded-xl p-3">
+                                <i class="fa-solid fa-stopwatch text-green-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-400 uppercase">Durata Effettiva</div>
+                                <div class="text-2xl font-bold text-white">${stats.effectiveDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
+                                <div class="text-xs text-gray-500 mt-0.5">Solo Esercizi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calorie -->
+                ${stats.calories > 0 ? `
+                    <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-orange-500/20 rounded-xl p-3">
+                                    <i class="fa-solid fa-fire text-orange-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-400 uppercase">Calorie Bruciate</div>
+                                    <div class="text-2xl font-bold text-white">${stats.calories}<span class="text-sm text-gray-400 ml-1">kcal</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="bg-gray-800/50 rounded-2xl p-3 border border-gray-700/50 opacity-60">
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <i class="fa-solid fa-info-circle"></i>
+                            <span>Imposta peso corporeo nelle impostazioni per vedere le calorie</span>
+                        </div>
+                    </div>
+                `}
+            </div>
+            
+            <!-- Footer Button -->
+            <div class="p-6 pt-0">
+                <button onclick="app.handlers.closeWorkoutSummary()" class="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold  py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-house"></i>
+                    Torna alla Home
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+				 
+             },  // ← QUESTA è LA CHIUSURA DI app.ui
+			 
          
              handlers: {
                  // Editor Handlers
@@ -2489,6 +2687,9 @@ openWorkoutEditor: (id) => {
                      
                      // Update Local State
                      await app.loadData();
+					 
+					 app.state.isSaving = true;
+					 
                      app.router.go('dashboard');
                  },
          
@@ -2502,16 +2703,19 @@ openWorkoutEditor: (id) => {
          
                  // Execution Handlers
          startWorkout: (id) => {
-		 document.body.classList.add('workout-started');
-         const w = app.state.workouts.find(w => w.id === id);
-         app.state.activeSession = {
-         workout: JSON.parse(JSON.stringify(w)), // Clone
-         currentExIdx: 0,
-         currentSet: 0,
-         status: 'work',
-         startTime: Date.now(),
-         exerciseStartTime: Date.now(), // ✨ AGGIUNGI QUESTO
-         logs: [] // Track actual reps/weight
+		     document.body.classList.add('workout-started');
+    const w = app.state.workouts.find(w => w.id === id);
+    app.state.activeSession = {
+        workout: JSON.parse(JSON.stringify(w)),
+        currentExIdx: 0,
+        currentSet: 0,
+        status: 'work',
+        startTime: Date.now(),
+        exerciseStartTime: Date.now(),
+        exerciseDurations: [], // ✨ AGGIUNGI QUESTA RIGA
+        logs: [],
+        weightDelta: 0,           // ← AGGIUNGI
+        initialWeight: null 
          };
          app.router.go('active');
          
@@ -2527,34 +2731,42 @@ openWorkoutEditor: (id) => {
 adjustWeight: (delta) => {
     const session = app.state.activeSession;
     const ex = session.workout.exercises[session.currentExIdx];
+    
+    // Salva il peso dell'ultimo workout (solo la prima volta)
+    if (!session.lastSavedWeight) {
+        const lastData = app.getLastWorkoutWeight(session.workout.id, ex.name);
+        session.lastSavedWeight = lastData ? lastData.weight : parseFloat(ex.lastWeight) || 0;
+    }
+    
     let w = parseFloat(ex.lastWeight);
     if (isNaN(w)) w = 0;
     w += delta;
     if (w < 0) w = 0;
     ex.lastWeight = w;
 
-    // ✅ SALVA IL DELTA SULLA SESSIONE
-    if (!session.weightDelta) session.weightDelta = 0;
     session.weightDelta += delta;
 
-    // ✅ MOSTRA IL DELTA
+    // Calcola percentuale RISPETTO AL PESO SALVATO
+    const currentWeight = session.lastSavedWeight + session.weightDelta;
+    const percentChange = session.lastSavedWeight > 0 
+        ? ((session.weightDelta / session.lastSavedWeight) * 100).toFixed(0)
+        : 0;
+
+
+    // Mostra delta + percentuale
     const kgLabel = document.querySelector('#active-weight-value + span');
     if (kgLabel) {
-        let deltaText = '';
-        let deltaColor = '';
-
-        if (session.weightDelta > 0) {
-            deltaText = `+${session.weightDelta}`;
-            deltaColor = 'text-green-400';
-        } else if (session.weightDelta < 0) {
-            deltaText = `${session.weightDelta}`;
-            deltaColor = 'text-orange-400';
+        if (Math.abs(session.weightDelta) > 0) {
+            const deltaColor = session.weightDelta > 0 ? 'text-green-400' : 'text-orange-400';
+            const deltaSign = session.weightDelta > 0 ? '+' : '';
+            const percentText = Math.abs(percentChange) > 0 
+                ? ` <span class="text-xs opacity-75">(${percentChange > 0 ? '+' : ''}${percentChange}%)</span>` 
+                : '';
+            
+            kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaSign}${session.weightDelta}${percentText}</span>`;
         } else {
-            deltaText = `=`;
-            deltaColor = 'text-gray-400';
+            kgLabel.innerHTML = 'kg';
         }
-
-        kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaText}</span>`;
     }
 
     app.ui.updateActiveView();
@@ -2579,6 +2791,7 @@ skipRest: (_, isNextExercise = false) => {
     
     // ✅ RESET DELTA QUANDO CAMBI ESERCIZIO
     session.weightDelta = 0;
+	session.lastSavedWeight = null;
     const kgLabel = document.querySelector('#active-weight-value + span');
     if (kgLabel) {
         kgLabel.innerHTML = 'kg';
@@ -2604,6 +2817,7 @@ skipExercise: () => {
     
     // ✅ RESET DELTA QUANDO CAMBI ESERCIZIO
    session.weightDelta = 0;
+   session.lastSavedWeight = null;
     const kgLabel = document.querySelector('#active-weight-value + span');
     if (kgLabel) {
         kgLabel.innerHTML = 'kg';
@@ -2727,10 +2941,6 @@ completeSet: () => {
          }
          }, 1000);
          },
-		 
-		 showPWAInstructions: () => {
-    document.getElementById('pwa-install-modal').classList.remove('hidden');
-},
          
 // CERCA QUESTA FUNZIONE (circa riga 1100)
 skipRest: (_, isNextExercise = false) => {
@@ -2750,6 +2960,7 @@ skipRest: (_, isNextExercise = false) => {
     session.currentExIdx++;
     session.currentSet = 0;
 	session.weightDelta = 0;
+	session.lastSavedWeight = null;
   }
   
   // ✨ SPOSTA QUI: Resetta il timer PRIMA di cambiare status
@@ -2771,6 +2982,7 @@ skipExercise: () => {
     session.currentExIdx++;
     session.currentSet = 0;
 	session.weightDelta = 0;
+	session.lastSavedWeight = null;
     // ✨ AGGIUNGI QUI:
     app.handlers.startExerciseTimer();
     session.status = 'work';
@@ -2796,52 +3008,66 @@ skipExercise: () => {
                      }
                  },
          
-                 finishWorkout: async () => {
-                     if (app.restInterval) clearInterval(app.restInterval);
-                     if (app.totalTimerInt) clearInterval(app.totalTimerInt);
-         if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
-                     
-                     document.getElementById('audio-complete').play().catch(e=>{});
-                     if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-         
-                     const session = app.state.activeSession;
-                     
-                     // Calc Stats
-         const volume = session.logs.reduce((acc, l) => {
-         const weight = parseFloat(l.weight);
-         const reps = parseFloat(l.reps);
-         const multiplier = l.multiplier || 1;
-         if (!isNaN(weight) && !isNaN(reps)) {
-         return acc + (weight * reps * multiplier);
-         }
-         return acc;
-         }, 0);
-         const duration = Math.round((Date.now() - session.startTime) / 1000 / 60);
-         const calories = app.calculateCalories(session);
-         
-         const historyItem = {
-         id: 'h_' + Date.now(),
-         workoutId: session.workout.id,
-         workoutName: session.workout.name,
-         date: new Date().toISOString(),
-         totalVolume: volume,
-         durationMinutes: duration,
-         caloriesBurned: calories,
-         logs: session.logs
-         };
-         
-                     await app.db.put('history', historyItem);
-					 // Check badges
-await app.checkBadges(historyItem);
-                     await app.loadData(); // Reload history for dashboard
-                     
-                     const statsMsg = calories > 0 
-         ? `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n• Calorie: ~${calories} kcal`
-         : `Ottimo lavoro! Allenamento completato.\n\n📊 Stats:\n• Volume: ${Math.round(volume)}kg\n• Durata: ${duration} min\n\n💡 Imposta peso corporeo nelle impostazioni per vedere le calorie bruciate!`;
-         alert(statsMsg);
-		 document.body.classList.remove('workout-started');
-                     app.router.go('dashboard');
-                 },
+ finishWorkout: async () => {
+    if (app.restInterval) clearInterval(app.restInterval);
+    if (app.totalTimerInt) clearInterval(app.totalTimerInt);
+    if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
+    
+    document.getElementById('audio-complete').play().catch(e=>{});
+    if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+    const session = app.state.activeSession;
+    
+    // Calc Stats
+    const volume = session.logs.reduce((acc, l) => {
+        const weight = parseFloat(l.weight);
+        const reps = parseFloat(l.reps);
+        const multiplier = l.multiplier || 1;
+        if (!isNaN(weight) && !isNaN(reps)) {
+            return acc + (weight * reps * multiplier);
+        }
+        return acc;
+    }, 0);
+    
+    const totalDuration = Math.round((Date.now() - session.startTime) / 1000 / 60);
+    
+    // ✨ CALCOLA DURATA EFFETTIVA
+    const effectiveDuration = session.exerciseDurations 
+        ? Math.round(session.exerciseDurations.reduce((a, b) => a + b, 0) / 60) 
+        : 0;
+    
+    const calories = app.calculateCalories(session);
+    
+    const historyItem = {
+        id: 'h_' + Date.now(),
+        workoutId: session.workout.id,
+        workoutName: session.workout.name,
+        date: new Date().toISOString(),
+        totalVolume: volume,
+        durationMinutes: totalDuration,
+        effectiveDurationMinutes: effectiveDuration,
+        caloriesBurned: calories,
+        logs: session.logs
+    };
+    
+    await app.db.put('history', historyItem);
+    await app.checkBadges(historyItem);
+    await app.loadData();
+    
+    // ✨ MOSTRA MODALE
+    app.ui.showWorkoutSummaryModal({
+        volume: Math.round(volume),
+        totalDuration: totalDuration,
+        effectiveDuration: effectiveDuration,
+        calories: calories
+    });
+	
+	
+// Mostra rating dopo 3 allenamenti
+setTimeout(() => {
+   app.handlers.showRatingModal();
+}, 2000);
+},
          
                  startTotalTimer: () => {
                      const start = Date.now();
@@ -2859,7 +3085,13 @@ startExerciseTimer: () => {
   const session = app.state.activeSession;
   if (!session) return;
 
-  // ✨ MODIFICA: Resetta SEMPRE il tempo di inizio esercizio
+  // ✨ SALVA DURATA PRECEDENTE
+  if (session.exerciseStartTime && session.status === 'work') {
+    const duration = (Date.now() - session.exerciseStartTime) / 1000;
+    if (!session.exerciseDurations) session.exerciseDurations = [];
+    session.exerciseDurations.push(duration);
+  }
+
   session.exerciseStartTime = Date.now();
 
   const el = document.getElementById('exercise-timer');
@@ -3006,6 +3238,171 @@ dismissBadge: () => {
         setTimeout(() => app.ui.showBadgeNotification(), 500);
     }
 },
+
+closeWorkoutSummary: () => {
+    const modal = document.getElementById('workout-summary-modal');
+    if (modal) {
+        modal.style.animation = 'fadeInOnly 0.2s ease-in-out reverse';
+        setTimeout(() => {
+            modal.remove();
+            document.body.classList.remove('workout-started');
+            app.router.go('dashboard');
+        }, 200);
+    }
+},
+
+// Rating handlers
+showRatingModal: () => {
+   const hasRated = localStorage.getItem('hasRated');
+   const workoutsCount = app.state.history.length;
+   
+   // Mostra dopo 3 allenamenti completati
+   if (!hasRated && workoutsCount >= 3) {
+      document.getElementById('rating-modal').classList.remove('hidden');
+   }
+},
+
+// Preview sistema stelle
+updateStarsPreview: (rating) => {
+   const preview = document.getElementById('rating-preview');
+   const stars = document.querySelectorAll('.star-rating-btn i');
+   
+   // Reset tutte le stelle
+   stars.forEach((star, idx) => {
+      if (idx < rating) {
+         star.classList.remove('text-gray-700');
+         star.classList.add('text-yellow-400');
+         star.style.filter = 'drop-shadow(0 0 10px rgba(250, 204, 21, 0.8))';
+      } else {
+         star.classList.add('text-gray-700');
+         star.classList.remove('text-yellow-400');
+         star.style.filter = 'none';
+      }
+   });
+   
+   // Messaggi dinamici
+   const messages = {
+      1: { text: '1 Stella - Inutile', color: 'text-red-400', emoji: '😞' },
+      2: { text: '2 Stelle - Scarsa', color: 'text-orange-400', emoji: '😕' },
+      3: { text: '3 Stelle - Sufficiente', color: 'text-yellow-400', emoji: '😐' },
+      4: { text: '4 Stelle - Ottima', color: 'text-green-400', emoji: '😊' },
+      5: { text: '5 Stelle - Perfetta!', color: 'text-green-500', emoji: '🤩' }
+   };
+   
+   const msg = messages[rating];
+   preview.innerHTML = `
+      <div class="space-y-2" style="animation: beastShake 0.3s ease-out">
+         <p class="text-2xl">${msg.emoji}</p>
+         <p class="${msg.color} font-bold text-lg">${msg.text}</p>
+         <button onclick="app.handlers.confirmRating(${rating})" 
+            class="mt-4 bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg transform transition active:scale-95">
+            <i class="fa-solid fa-check mr-2"></i>
+            Conferma Voto
+         </button>
+      </div>
+   `;
+},
+
+confirmRating: async (stars) => {
+   // Questa sarà la vecchia submitRating rinominata
+   app.handlers.submitRating(stars);
+},
+
+submitRating: async (stars) => {
+   const modal = document.getElementById('rating-modal');
+   const modalContent = modal.querySelector('.bg-gradient-to-br');
+   
+   // Animazione di caricamento
+   const starsContainer = modal.querySelector('.flex.flex-wrap.justify-center');
+   starsContainer.innerHTML = `
+      <div class="flex flex-col items-center gap-4 py-8">
+         <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+         <p class="text-gray-400 text-sm">Invio in corso...</p>
+      </div>
+   `;
+   
+   const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfdeaHOwYZrf4okZdD2DNjBhIfNlYO3zkMK91OXkvZCqG7SMw/formResponse';
+   const entryId = 'entry.1932136918';
+   
+   try {
+      await fetch(formUrl, {
+         method: 'POST',
+         mode: 'no-cors',
+         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+         body: `${entryId}=${stars}`
+      });
+      
+      localStorage.setItem('hasRated', 'true');
+      
+      // Messaggio di successo
+      const successMessage = stars >= 4 
+         ? 'Grazie mille! Il tuo supporto ci motiva! 💪' 
+         : 'Grazie per il feedback! Lavoreremo per migliorare!';
+      
+      // Cambia contenuto modale
+      modalContent.innerHTML = `
+         <div class="bg-gradient-to-r from-green-600 to-green-500 p-8 text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+            <div class="relative z-10">
+               <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4" style="animation: beastShake 0.5s ease-out">
+                  <i class="fa-solid fa-check text-5xl text-white"></i>
+               </div>
+               <h2 class="text-2xl font-extrabold text-white">Grazie!</h2>
+               <p class="text-white/90 mt-2 text-sm font-medium">Il tuo feedback è stato inviato</p>
+            </div>
+         </div>
+         
+         <div class="p-8 text-center">
+            <p class="text-gray-300 mb-6 text-lg">${successMessage}</p>
+            
+            <div class="space-y-3">
+               <button onclick="app.handlers.closeRatingModal()" 
+                  class="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-house"></i>
+                  Torna alla Home
+               </button>
+            </div>
+         </div>
+      `;
+      
+   } catch (error) {
+      console.error('Rating error:', error);
+      localStorage.setItem('hasRated', 'true');
+      
+      // Anche in caso di errore mostra grazie (dato che usiamo no-cors)
+      modalContent.innerHTML = `
+         <div class="bg-gradient-to-r from-primary to-purple-600 p-8 text-center relative overflow-hidden">
+            <div class="relative z-10">
+               <i class="fa-solid fa-heart text-5xl text-white mb-4"></i>
+               <h2 class="text-2xl font-extrabold text-white">Grazie!</h2>
+            </div>
+         </div>
+         
+         <div class="p-8 text-center">
+            <p class="text-gray-300 mb-6">Il tuo parere è importante per noi! 💪</p>
+            <button onclick="app.handlers.closeRatingModal()" 
+               class="w-full bg-gradient-to-r from-primary to-purple-600 text-white font-bold py-4 rounded-2xl">
+               Chiudi
+            </button>
+         </div>
+      `;
+   }
+},
+
+closeRatingModal: () => {
+   const modal = document.getElementById('rating-modal');
+   modal.style.animation = 'fadeInOnly 0.3s ease-in-out reverse';
+   setTimeout(() => {
+      modal.classList.add('hidden');
+      modal.style.animation = '';
+   }, 300);
+},
+
+skipRating: () => {
+   localStorage.setItem('hasRated', 'true');
+   document.getElementById('rating-modal').classList.add('hidden');
+},
+
 toggleStatsPeriod: () => {
     app.state.statsPeriod = app.state.statsPeriod === 'week' ? 'month' : 'week';
     app.ui.renderDashboard();
@@ -3077,33 +3474,76 @@ switchStatsTab: (tabName) => {
                  },
          
                  importData: (input) => {
-         const file = input.files[0];
-         if(!file) return;
-         const reader = new FileReader();
-         reader.onload = async (e) => {
-         try {
-            const data = JSON.parse(e.target.result);
-            if(data.workouts) {
-                for (const w of data.workouts) await app.db.put('workouts', w);
-            }
-            if(data.history) {
-                for (const h of data.history) await app.db.put('history', h);
-            }
-            // ✅ AGGIUNGI QUESTE 3 RIGHE
-            if(data.settings) {
-                for (const s of data.settings) await app.db.put('settings', s);
-            }
-			if(data.badges) {
-    for (const b of data.badges) await app.db.put('badges', b);
+    const file = input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+    try {
+       const data = JSON.parse(e.target.result);
+       
+       // ✅ MIGRAZIONE AUTOMATICA - WORKOUTS
+       if(data.workouts) {
+           for (const w of data.workouts) {
+               // Aggiungi preferredDays se mancante
+               if (!w.preferredDays) w.preferredDays = [];
+               
+               // Normalizza esercizi
+               if (w.exercises) {
+                   w.exercises.forEach(ex => {
+                       if (!ex.notes) ex.notes = '';
+                       if (ex.isDouble === undefined) ex.isDouble = false;
+                       if (!ex.lastWeight) ex.lastWeight = 0;
+                   });
+               }
+               
+               await app.db.put('workouts', w);
+           }
+       }
+       
+       // ✅ MIGRAZIONE AUTOMATICA - HISTORY
+       if(data.history) {
+           for (const h of data.history) {
+               // Aggiungi campi mancanti con valori di default
+               if (!h.caloriesBurned) h.caloriesBurned = 0;
+               if (!h.durationMinutes) h.durationMinutes = 0;
+               if (!h.effectiveDurationMinutes) h.effectiveDurationMinutes = 0;
+               if (!h.totalVolume) h.totalVolume = 0;
+               
+               await app.db.put('history', h);
+           }
+       }
+       
+       // ✅ SETTINGS - Gestisce sia vecchio che nuovo formato
+       if(data.settings) {
+           // Controlla se settings è un oggetto o un array
+           if (Array.isArray(data.settings)) {
+               // Nuovo formato (array)
+               for (const s of data.settings) {
+                   await app.db.put('settings', s);
+               }
+           } else {
+               // Vecchio formato (oggetto) - converti in array
+               for (const [key, value] of Object.entries(data.settings)) {
+                   await app.db.put('settings', { key, value });
+               }
+           }
+       }
+       
+       // ✅ BADGES - Importa solo se esistono
+       if(data.badges) {
+           for (const b of data.badges) await app.db.put('badges', b);
+       }
+       
+       alert("✅ Importazione completata con successo!");
+       location.reload();
+       
+    } catch(err) {
+        console.error('Import error:', err);
+        alert("❌ Errore: il file selezionato non è un backup valido di WorkoutTracker.");
+    }
+    };
+    reader.readAsText(file);
 }
-            alert("Importazione completata!");
-            location.reload();
-                         } catch(err) {
-                             alert("Errore nel file JSON.");
-                         }
-                     };
-                     reader.readAsText(file);
-                 }
              }
          };
          
@@ -3195,6 +3635,31 @@ appContainer.addEventListener('scroll', () => {
              app.db.put('settings', { key: key, value: el.value });
          });
          });
+		 
+		 // Toggle Motivational Phrases
+const motivationalToggle = document.getElementById('setting-motivational');
+if (motivationalToggle) {
+   // Carica stato salvato
+   motivationalToggle.checked = app.state.settings.motivational !== false;
+   
+   // Applica lo stato iniziale
+   const motivationalDiv = document.querySelector('.frasi-motivazionali');
+   if (motivationalDiv) {
+      motivationalDiv.style.display = motivationalToggle.checked ? 'block' : 'none';
+   }
+   
+   // Salva quando cambia
+   motivationalToggle.addEventListener('change', () => {
+      app.state.settings.motivational = motivationalToggle.checked;
+      app.db.put('settings', { key: 'motivational', value: motivationalToggle.checked });
+      
+      // Mostra/nascondi il div
+      const motivationalDiv = document.querySelector('.frasi-motivazionali');
+      if (motivationalDiv) {
+         motivationalDiv.style.display = motivationalToggle.checked ? 'block' : 'none';
+      }
+   });
+}
          
          document.addEventListener('change', (e) => {
          if (e.target.id === 'auto-next-toggle') {
@@ -3205,57 +3670,66 @@ appContainer.addEventListener('scroll', () => {
          
          });
          
-		 
-		 
-		 
-		 // ========== PWA INSTALLATION ==========
-let deferredPrompt;
-const installButton = document.getElementById('pwa-install-button');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Previeni il prompt automatico
-    e.preventDefault();
-    deferredPrompt = e;
-    
-    // Mostra il pulsante di installazione
-    if (installButton) {
-        installButton.classList.remove('hidden');
-        installButton.classList.add('flex');
-    }
-});
-
-if (installButton) {
-    installButton.addEventListener('click', async () => {
-        if (!deferredPrompt) {
-            // Se non c'è il prompt, mostra le istruzioni
-            document.getElementById('pwa-install-modal').classList.remove('hidden');
-            return;
-        }
-        
-        // Mostra il prompt di installazione
-        deferredPrompt.prompt();
-        
-        const { outcome } = await deferredPrompt.userChoice;
-        
-        if (outcome === 'accepted') {
-            console.log('✅ PWA installata!');
-        }
-        
-        // Reset del prompt
-        deferredPrompt = null;
-        installButton.classList.add('hidden');
-        installButton.classList.remove('flex');
-    });
-}
-
-// Registra Service Worker
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('✅ Service Worker registrato'))
-            .catch(err => console.log('❌ Service Worker errore:', err));
-    });
-}
       </script>
+	  
+	  
+	  <!-- Rating Modal -->
+<div id="rating-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md">
+   <div class="bg-gradient-to-br from-gray-800 to-black rounded-3xl w-full max-w-md overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10" style="animation: beastShake 0.5s ease-out">
+      
+      <div class="bg-gradient-to-r from-primary to-purple-600 p-8 text-center relative overflow-hidden">
+         <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+         <div class="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/20 rounded-full -ml-12 -mb-12 blur-xl"></div>
+         
+         <div class="relative z-10">
+            
+            <h2 class="text-2xl font-extrabold text-white tracking-tight">Ti piace WorkoutTracker?</h2>
+            <p class="text-white/80 mt-2 text-sm font-medium">Un tuo parere per noi è importante!<br/>Grazie mille per il tuo tempo.</p>
+         </div>
+      </div>
+      
+      <div class="p-3 py-6">
+	     <!-- Preview Rating Selected -->
+   <div id="rating-preview" class="text-center mb-4 min-h-[60px] flex flex-col items-center justify-center">
+      <p class="text-gray-400 text-sm">Seleziona il numero di stelle</p>
+   </div>
+   
+<div class="flex flex-wrap justify-center gap-1 mb-8">
+    <button onclick="app.handlers.updateStarsPreview(1)" class="star-rating-btn group relative p-1 transition-all active:scale-90" data-rating="1">
+        <i class="fa-solid fa-star text-4xl text-gray-700 transition-all duration-200"></i>
+        
+    </button>
+
+    <button onclick="app.handlers.updateStarsPreview(2)" class="star-rating-btn group relative p-1 transition-all active:scale-90" data-rating="2">
+        <i class="fa-solid fa-star text-4xl text-gray-700 transition-all duration-200"></i>
+    </button>
+
+    <button onclick="app.handlers.updateStarsPreview(3)" class="star-rating-btn group relative p-1 transition-all active:scale-90" data-rating="3">
+        <i class="fa-solid fa-star text-4xl text-gray-700 transition-all duration-200"></i>
+    </button>
+
+    <button onclick="app.handlers.updateStarsPreview(4)" class="star-rating-btn group relative p-1 transition-all active:scale-90" data-rating="4">
+        <i class="fa-solid fa-star text-4xl text-gray-700 transition-all duration-200"></i>
+    </button>
+
+    <button onclick="app.handlers.updateStarsPreview(5)" class="star-rating-btn group relative p-1 transition-all active:scale-90" data-rating="5">
+    <i class="fa-solid fa-star text-4xl text-gray-700 transition-all duration-200"></i>
+</button>
+</div>
+         
+         <div class="flex flex-col items-center gap-4 mb-3">
+             <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-gray-400 uppercase tracking-widest">
+                <i class="fa-solid fa-shield-halved mr-2 text-primary"></i>
+                La valutazione è anonima
+             </div>
+             
+             <!-- <button onclick="app.handlers.skipRating()" class="text-gray-500 hover:text-white text-sm font-medium transition-colors duration-200 border-b border-transparent hover:border-white/20 pb-1">
+                Forse più tardi
+             </button> -->
+         </div>
+      </div>
+   </div>
+</div>
+	  
    </body>
 </html>
