@@ -797,18 +797,19 @@ color:#c084fc;
            <div class="internal-section ">
 		   
 		   <!-- Tabs Navigation -->
+<!-- Tabs Navigation -->
 <div class="flex gap-2 mb-6 bg-darkCard rounded-xl p-1">
-   <button onclick="app.handlers.switchStatsTab('statistics')" 
-      class="stats-tab flex-1 px-4 py-3 rounded-lg font-semibold transition-all" 
-      data-tab="statistics">
-      <i class="fa-solid fa-chart-line mr-2"></i>
-      Statistiche
-   </button>
    <button onclick="app.handlers.switchStatsTab('history')" 
       class="stats-tab flex-1 px-4 py-3 rounded-lg font-semibold transition-all" 
       data-tab="history">
       <i class="fa-solid fa-clock-rotate-left mr-2"></i>
       Storico
+   </button>
+   <button onclick="app.handlers.switchStatsTab('statistics')" 
+      class="stats-tab flex-1 px-4 py-3 rounded-lg font-semibold transition-all" 
+      data-tab="statistics">
+      <i class="fa-solid fa-chart-line mr-2"></i>
+      Statistiche
    </button>
 </div>
 
@@ -2224,83 +2225,199 @@ if (kgLabel) {
          document.getElementById('total-fat-burned').innerText = totalFatGrams.toLocaleString();
          
                      // List
-                     const list = document.getElementById('history-list');
-list.innerHTML = history.slice().reverse().slice(0, 10).map((h, index) => {
-   const date = new Date(h.date);
-   const isToday = date.toDateString() === new Date().toDateString();
-   const isYesterday = date.toDateString() === new Date(Date.now() - 86400000).toDateString();
-   
-   let dateLabel;
-   if (isToday) {
-      dateLabel = '🟢 Oggi';
-   } else if (isYesterday) {
-      dateLabel = 'Ieri';
-   } else {
-      dateLabel = date.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
-   }
-   
-   const timeLabel = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-   
-   return `
-      <div class="bg-darkCard rounded-xl p-4  ${isToday ? 'border-green-500' : 'border-primary'} shadow-sm hover:shadow-md transition-all">
-         <!-- Header Row -->
-         <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-             
-               <div>
-                  <h4 class="font-bold text-white">${h.workoutName}</h4>
-                  <div class="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
-                     <i class="fa-regular fa-calendar"></i>
-                     <span>${dateLabel}</span>
-                     <span class="text-gray-600">•</span>
-                     <i class="fa-regular fa-clock"></i>
-                     <span>${timeLabel}</span>
-                  </div>
-               </div>
-            </div>
-            ${index === 0 ? '<span class="text-xs bg-primary/50 text-white/70 px-2 py-1 rounded-full font-semibold">Recente</span>' : ''}
-         </div>
-         
-         <!-- Stats Row -->
-         <div class="grid grid-cols-3 gap-3">
-            <div class="bg-gray-900/50 rounded-lg p-2 text-center">
-               <div class="text-xs text-gray-400 mb-1">Volume</div>
-               <div class="font-bold  flex items-center justify-center gap-1">
-                  <i class="fa-solid fa-weight-hanging text-xs"></i>
-                  <span>${Math.round(h.totalVolume).toLocaleString()}</span>
-                  <span class="text-xs">kg</span>
-               </div>
-            </div>
-            
-            ${h.caloriesBurned ? `
-               <div class="bg-gray-900/50 rounded-lg p-2 text-center">
-                  <div class="text-xs text-gray-400 mb-1">Calorie</div>
-                  <div class="font-bold text-orange-500 flex items-center justify-center gap-1">
-                     <i class="fa-solid fa-fire text-xs"></i>
-                     <span>${Math.round(h.caloriesBurned).toLocaleString()}</span>
-                  </div>
-               </div>
-            ` : `
-               <div class="bg-gray-900/50 rounded-lg p-2 text-center opacity-50">
-                  <div class="text-xs text-gray-400 mb-1">Calorie</div>
-                  <div class="font-bold text-gray-600 text-xs">N/D</div>
-               </div>
-            `}
-            
-            <div class="bg-gray-900/50 rounded-lg p-2 text-center">
-               <div class="text-xs text-gray-400 mb-1">Durata</div>
-               <div class="font-bold text-blue-400 flex items-center justify-center gap-1">
-                  <i class="fa-solid fa-stopwatch text-xs"></i>
-                  <span>${h.durationMinutes || 0}</span>
-                  <span class="text-xs">min</span>
-               </div>
-            </div>
-         </div>
-      </div>
-   `;
-}).join('');
+// List with period grouping
+const list = document.getElementById('history-list');
 
- app.handlers.switchStatsTab('statistics');
+// Funzione helper per raggruppare per periodi
+const groupByPeriod = (historyArray) => {
+    const now = new Date();
+    const groups = {
+        thisWeek: [],
+        lastWeek: [],
+        months: {}
+    };
+    
+    // Calcola inizio settimana corrente (lunedì)
+    const thisWeekStart = new Date(now);
+    const dayOfWeek = now.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    thisWeekStart.setDate(now.getDate() + diff);
+    thisWeekStart.setHours(0, 0, 0, 0);
+    
+    // Calcola inizio settimana scorsa
+    const lastWeekStart = new Date(thisWeekStart);
+    lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+    
+    historyArray.forEach(h => {
+        const date = new Date(h.date);
+        
+        if (date >= thisWeekStart) {
+            groups.thisWeek.push(h);
+        } else if (date >= lastWeekStart) {
+            groups.lastWeek.push(h);
+        } else {
+            const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+            if (!groups.months[monthKey]) {
+                groups.months[monthKey] = {
+                    date: date,
+                    workouts: []
+                };
+            }
+            groups.months[monthKey].workouts.push(h);
+        }
+    });
+    
+    return groups;
+};
+
+// Funzione per renderizzare un singolo workout
+const renderWorkoutCard = (h, index, isFirstInGroup = false) => {
+    const date = new Date(h.date);
+    const isToday = date.toDateString() === new Date().toDateString();
+    const isYesterday = date.toDateString() === new Date(Date.now() - 86400000).toDateString();
+    
+    let dateLabel;
+    if (isToday) {
+        dateLabel = '🟢 Oggi';
+    } else if (isYesterday) {
+        dateLabel = 'Ieri';
+    } else {
+        dateLabel = date.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+    }
+    
+    const timeLabel = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    
+    return `
+        <div class="bg-darkCard rounded-xl p-4 ${isToday ? 'border-green-500' : 'border-primary'} shadow-sm hover:shadow-md transition-all">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <div>
+                        <h4 class="font-bold text-white">${h.workoutName}</h4>
+                        <div class="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+                            <i class="fa-regular fa-calendar"></i>
+                            <span>${dateLabel}</span>
+                            <span class="text-gray-600">•</span>
+                            <i class="fa-regular fa-clock"></i>
+                            <span>${timeLabel}</span>
+                        </div>
+                    </div>
+                </div>
+                ${index === 0 && isFirstInGroup ? '<span class="text-xs bg-primary/50 text-white/70 px-2 py-1 rounded-full font-semibold">Recente</span>' : ''}
+            </div>
+            
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-gray-900/50 rounded-lg p-2 text-center">
+                    <div class="text-xs text-gray-400 mb-1">Volume</div>
+                    <div class="font-bold flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-weight-hanging text-xs"></i>
+                        <span>${Math.round(h.totalVolume).toLocaleString()}</span>
+                        <span class="text-xs">kg</span>
+                    </div>
+                </div>
+                
+                ${h.caloriesBurned ? `
+                    <div class="bg-gray-900/50 rounded-lg p-2 text-center">
+                        <div class="text-xs text-gray-400 mb-1">Calorie</div>
+                        <div class="font-bold text-orange-500 flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-fire text-xs"></i>
+                            <span>${Math.round(h.caloriesBurned).toLocaleString()}</span>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="bg-gray-900/50 rounded-lg p-2 text-center opacity-50">
+                        <div class="text-xs text-gray-400 mb-1">Calorie</div>
+                        <div class="font-bold text-gray-600 text-xs">N/D</div>
+                    </div>
+                `}
+                
+                <div class="bg-gray-900/50 rounded-lg p-2 text-center">
+                    <div class="text-xs text-gray-400 mb-1">Durata</div>
+                    <div class="font-bold text-blue-400 flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-stopwatch text-xs"></i>
+                        <span>${h.durationMinutes || 0}</span>
+                        <span class="text-xs">min</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+// Raggruppa i dati
+const grouped = groupByPeriod(history.slice().reverse());
+let html = '';
+
+// Questa settimana
+if (grouped.thisWeek.length > 0) {
+    html += `
+        <div class="mb-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-purple-300 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-calendar-week"></i>
+                Questa Settimana
+            </h3>
+            <div class="space-y-3">
+                ${grouped.thisWeek.map((h, i) => renderWorkoutCard(h, i, i === 0)).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// Settimana scorsa
+if (grouped.lastWeek.length > 0) {
+    html += `
+        <div class="mb-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-calendar-week"></i>
+                Settimana Scorsa
+            </h3>
+            <div class="space-y-3">
+                ${grouped.lastWeek.map((h, i) => renderWorkoutCard(h, i)).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// Mesi precedenti
+const monthKeys = Object.keys(grouped.months).sort((a, b) => {
+    const [yearA, monthA] = a.split('-').map(Number);
+    const [yearB, monthB] = b.split('-').map(Number);
+    if (yearA !== yearB) return yearB - yearA;
+    return monthB - monthA;
+});
+
+monthKeys.forEach(key => {
+    const monthData = grouped.months[key];
+    const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+    const monthLabel = `${monthNames[monthData.date.getMonth()]} ${monthData.date.getFullYear()}`;
+    
+    html += `
+        <div class="mb-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider mt-10 text-gray-500 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-calendar"></i>
+                ${monthLabel}
+            </h3>
+            <div class="space-y-3">
+                ${monthData.workouts.map((h, i) => renderWorkoutCard(h, i)).join('')}
+            </div>
+        </div>
+    `;
+});
+
+// Se non c'è storico
+if (html === '') {
+    html = `
+        <div class="text-center py-12 text-gray-400">
+            <i class="fa-solid fa-clock-rotate-left text-5xl mb-4 opacity-50"></i>
+            <p class="text-lg font-semibold">Nessun allenamento completato</p>
+            <p class="text-sm mt-2">Inizia un workout per vedere lo storico!</p>
+        </div>
+    `;
+}
+
+list.innerHTML = html;
+
+ app.handlers.switchStatsTab('history');
                  }
              },
          
