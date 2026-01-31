@@ -1677,9 +1677,9 @@ if (todayWorkouts.length > 0) {
                     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
                     weekStart.setHours(0, 0, 0, 0);
                     
-                    const completedThisWeek = app.state.history.find(h => 
-                        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
-						.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                    const completedThisWeek = app.state.history
+        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
                     );
                     
                     return `
@@ -1758,8 +1758,9 @@ if (todayWorkouts.length > 0) {
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
     weekStart.setHours(0, 0, 0, 0);
     
-    const completedThisWeek = app.state.history.find(h => 
-        h.workoutId === w.id && new Date(h.date) >= weekStart
+    const completedThisWeek = app.state.history
+        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
     );
     
 const el = document.createElement('div');
