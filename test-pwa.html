@@ -4,7 +4,41 @@
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <title>WorkoutTracker Web</title>
-      <meta name="description" content="Il tuo tracker di allenamento locale.">
+<title>WorkoutTracker Web</title>
+<meta name="description" content="Il tuo tracker di allenamento locale.">
+
+<!-- ✅ PWA Manifest inline -->
+<link rel="manifest" id="pwa-manifest">
+<script>
+const manifestData = {
+    "name": "WorkoutTracker",
+    "short_name": "Workout",
+    "description": "Il tuo tracker di allenamento locale",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#111827",
+    "theme_color": "#5127F2",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%235127F2' width='512' height='512' rx='115'/%3E%3Cpath fill='white' d='M454 179h-50c-7 0-13 6-13 13v112c0 7 6 13 13 13h50c7 0 13-6 13-13V192c0-7-6-13-13-13zm-336 0H68c-7 0-13 6-13 13v112c0 7 6 13 13 13h50c7 0 13-6 13-13V192c0-7-6-13-13-13zM184 248h144c7 0 13-6 13-13s-6-13-13-13H184c-7 0-13 6-13 13s6 13 13 13z'/%3E%3C/svg%3E",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+};
+
+const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+const manifestURL = URL.createObjectURL(manifestBlob);
+document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
+</script>
+
+<!-- ✅ Apple PWA Meta Tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WorkoutTracker">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%235127F2' width='512' height='512' rx='115'/%3E%3Cpath fill='white' d='M454 179h-50c-7 0-13 6-13 13v112c0 7 6 13 13 13h50c7 0 13-6 13-13V192c0-7-6-13-13-13zm-336 0H68c-7 0-13 6-13 13v112c0 7 6 13 13 13h50c7 0 13-6 13-13V192c0-7-6-13-13-13zM184 248h144c7 0 13-6 13-13s-6-13-13-13H184c-7 0-13 6-13 13s6 13 13 13z'/%3E%3C/svg%3E">
       <meta name="theme-color" content="#5127F2">
       <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3C!-- Icona dumbbell di Font Awesome (simil-v6) --%3E%3Cpath fill='%235127F2' d='M88.75 35.5h-9.87c-1.39 0-2.5 1.12-2.5 2.5v22c0 1.38 1.11 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zm-66.25 0h-9.87c-1.38 0-2.5 1.12-2.5 2.5v22c0 1.38 1.12 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zM36.1 48h27.8c1.38 0 2.5-1.12 2.5-2.5s-1.12-2.5-2.5-2.5h-27.8c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5z' /%3E%3C/svg%3E">
       <script src="https://cdn.tailwindcss.com"></script>
@@ -1005,10 +1039,20 @@ color:#c084fc;
                   <span>Suoni Timer</span>
                   <input type="checkbox" id="setting-sound" checked class="accent-primary w-5 h-5">
                </div>
-               <div class="p-4 flex justify-between items-center">
-                  <span>Vibrazione</span>
-                  <input type="checkbox" id="setting-vibrate" checked class="accent-primary w-5 h-5">
-               </div>
+              <div class="p-4 flex justify-between items-center">
+    <span>Vibrazione</span>
+    <input type="checkbox" id="setting-vibrate" checked class="accent-primary w-5 h-5">
+</div>
+
+<!-- ✅ PULSANTE INSTALLA PWA -->
+<div id="pwa-install-section" class="p-4 border-t border-gray-700 hidden">
+    <button onclick="app.handlers.installPWA()" class="w-full bg-gradient-to-r from-primary to-purple-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:from-primaryDark hover:to-purple-700 transition-all active:scale-95">
+        <i class="fa-solid fa-download"></i>
+        Installa App sul Dispositivo
+    </button>
+    <p class="text-xs text-gray-400 mt-2 text-center">Usa WorkoutTracker come app nativa</p>
+</div>
+
 			   <div class="p-4 border-t border-gray-100 border-gray-700 flex justify-between items-center">
    <span>Frasi Motivazionali</span>
    <input type="checkbox" id="setting-motivational" checked class="accent-primary w-5 h-5">
@@ -1223,7 +1267,8 @@ request.onupgradeneeded = (e) => {
     editingExerciseIndex: null,
     activeSession: null, 
 	isSaving: false,        
-    isDeleting: false,      
+    isDeleting: false,
+deferredPrompt: null,	
     
     settings: { 
         unit: 'kg', 
@@ -3438,6 +3483,25 @@ switchStatsTab: (tabName) => {
    });
    document.getElementById(`stats-tab-${tabName}`).classList.remove('hidden');
 },
+
+installPWA: () => {
+    if (!app.state.deferredPrompt) {
+        alert('📱 L\'app è già installata o il browser non supporta l\'installazione.');
+        return;
+    }
+    
+    app.state.deferredPrompt.prompt();
+    
+    app.state.deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+            console.log('✅ PWA installata');
+            document.getElementById('pwa-install-section').classList.add('hidden');
+        } else {
+            console.log('❌ Installazione rifiutata');
+        }
+        app.state.deferredPrompt = null;
+    });
+},
          
                  // Settings Handlers
                  resetAllData: async () => {
@@ -3611,6 +3675,26 @@ switchStatsTab: (tabName) => {
          await app.init();
 		 document.querySelectorAll('.nav-btn')[0]?.classList.add('text-primary');
 		 
+		 window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        app.state.deferredPrompt = e;
+        
+        // Mostra il pulsante di installazione
+        const installSection = document.getElementById('pwa-install-section');
+        if (installSection) {
+            installSection.classList.remove('hidden');
+        }
+        
+        console.log('📱 Prompt installazione disponibile');
+    });
+    
+    // Controlla se già installata
+    window.addEventListener('appinstalled', () => {
+        console.log('✅ PWA installata con successo');
+        app.state.deferredPrompt = null;
+        document.getElementById('pwa-install-section')?.classList.add('hidden');
+    });
+		 
 		 const lastResetWeek = localStorage.getItem('lastResetWeek');
 const lastResetMonth = localStorage.getItem('lastResetMonth');
 const now = new Date();
@@ -3768,6 +3852,36 @@ if (motivationalToggle) {
       </div>
    </div>
 </div>
-	  
+	  <!-- ✅ Service Worker inline per PWA -->
+<script>
+if ('serviceWorker' in navigator) {
+    const swCode = `
+        const CACHE_NAME = 'workout-tracker-v1';
+        const urlsToCache = ['/'];
+        
+        self.addEventListener('install', event => {
+            event.waitUntil(
+                caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+            );
+        });
+        
+        self.addEventListener('fetch', event => {
+            event.respondWith(
+                caches.match(event.request).then(response => response || fetch(event.request))
+            );
+        });
+    `;
+    
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+    
+    navigator.serviceWorker.register(swUrl).then(() => {
+        console.log('✅ Service Worker registrato');
+    }).catch(err => {
+        console.warn('⚠️ Service Worker non registrato:', err);
+    });
+}
+</script>
+</body>
    </body>
 </html>
