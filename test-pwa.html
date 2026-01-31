@@ -457,7 +457,7 @@ color:#c084fc;
 	  
 	  
          <!-- VIEW: DASHBOARD (HOME) -->
-         <section id="view-dashboard" class="view-section active p-4 " style="padding-bottom:50px;">
+         <section id="view-dashboard" class="view-section active p-4 " style="padding-bottom:100px;">
 		  <button onclick="app.handlers.createNewWorkout()" id="add-workout-fab" 
    class="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 
    bg-primary text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2 z-50" style="-webkit-box-shadow: 0px 0px 22px 4px #111827;
@@ -3268,8 +3268,8 @@ showRatingModal: () => {
    const hasRated = localStorage.getItem('hasRated');
    const workoutsCount = app.state.history.length;
    
-   // Mostra dopo 3 allenamenti completati
-   if (!hasRated && workoutsCount >= 3) {
+   // Mostra dopo 2 allenamenti completati
+   if (!hasRated && workoutsCount >= 2) {
       document.getElementById('rating-modal').classList.remove('hidden');
    }
 },
