@@ -1221,7 +1221,9 @@ request.onupgradeneeded = (e) => {
     history: [],
     editingWorkout: null,
     editingExerciseIndex: null,
-    activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
+    activeSession: null, 
+	isSaving: false,        
+    isDeleting: false,      
     
     settings: { 
         unit: 'kg', 
@@ -1544,15 +1546,16 @@ router: {
 	
 	        // ✅ CONTROLLO SALVATAGGIO EDITOR
 if (app.state.currentView === 'editor' && viewId === 'dashboard') {
-    // Se stiamo salvando, non mostrare il popup
-    if (!app.state.isSaving) {
+    // ✅ AGGIUNGI: Se stiamo eliminando, bypassa il controllo
+    if (!app.state.isSaving && !app.state.isDeleting) {
         const confirmed = confirm('⚠️ Stai uscendo dall\'editor. Hai salvato le modifiche?');
         if (!confirmed) {
             return; // Blocca la navigazione
         }
     }
-    // Reset del flag
+    // Reset dei flag
     app.state.isSaving = false;
+    app.state.isDeleting = false; // ✅ AGGIUNGI
 }
 		
 		
@@ -2705,13 +2708,16 @@ openWorkoutEditor: (id) => {
                      app.router.go('dashboard');
                  },
          
-                 deleteWorkout: async () => {
-                     if(confirm('Sei sicuro di voler cancellare questo workout?')) {
-                         await app.db.delete('workouts', app.state.editingWorkout.id);
-                         await app.loadData();
-                         app.router.go('dashboard');
-                     }
-                 },
+				deleteWorkout: async () => {
+					if(confirm('Sei sicuro di voler cancellare questo workout?')) {
+						// ✅ AGGIUNGI: Imposta flag per bypassare il controllo di salvataggio
+						app.state.isDeleting = true;
+						
+						await app.db.delete('workouts', app.state.editingWorkout.id);
+						await app.loadData();
+						app.router.go('dashboard');
+					}
+				},
          
                  // Execution Handlers
          startWorkout: (id) => {
