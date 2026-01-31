@@ -1498,12 +1498,17 @@ router: {
     go: (viewId) => {
 	
 	        // ✅ CONTROLLO SALVATAGGIO EDITOR
-        if (app.state.currentView === 'editor' && viewId === 'dashboard') {
-            const confirmed = confirm('⚠️ Stai uscendo dall\'editor. Hai salvato le modifiche?');
-            if (!confirmed) {
-                return; // Blocca la navigazione
-            }
+if (app.state.currentView === 'editor' && viewId === 'dashboard') {
+    // Se stiamo salvando, non mostrare il popup
+    if (!app.state.isSaving) {
+        const confirmed = confirm('⚠️ Stai uscendo dall\'editor. Hai salvato le modifiche?');
+        if (!confirmed) {
+            return; // Blocca la navigazione
         }
+    }
+    // Reset del flag
+    app.state.isSaving = false;
+}
 		
 		
         // ✅ SCROLL TO TOP
@@ -2410,6 +2415,9 @@ openWorkoutEditor: (id) => {
                      
                      // Update Local State
                      await app.loadData();
+					 
+					 app.state.isSaving = true;
+					 
                      app.router.go('dashboard');
                  },
          
