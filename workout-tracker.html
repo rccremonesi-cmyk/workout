@@ -1678,7 +1678,8 @@ if (todayWorkouts.length > 0) {
                     weekStart.setHours(0, 0, 0, 0);
                     
                     const completedThisWeek = app.state.history.find(h => 
-                        h.workoutId === w.id && new Date(h.date) >= weekStart
+                        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
+						.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
                     );
                     
                     return `
