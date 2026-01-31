@@ -2534,6 +2534,23 @@ showWorkoutSummaryModal: (stats) => {
                         </div>
                     </div>
                 </div>
+
+
+   <!-- Durata Effettiva -->
+                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-green-500/20 rounded-xl p-3">
+                                <i class="fa-solid fa-stopwatch text-green-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-400 uppercase">PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/>PROVA<br/></div>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 				
 				   <!-- Durata Effettiva -->
                 <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
@@ -2551,53 +2568,9 @@ showWorkoutSummaryModal: (stats) => {
                     </div>
                 </div>
 				
-				   <!-- Durata Effettiva -->
-                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-green-500/20 rounded-xl p-3">
-                                <i class="fa-solid fa-stopwatch text-green-400 text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-400 uppercase">Durata Effettiva</div>
-                                <div class="text-2xl font-bold text-white">${stats.effectiveDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
-                                <div class="text-xs text-gray-500 mt-0.5">Solo Esercizi</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+				   
 				
-				   <!-- Durata Effettiva -->
-                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-green-500/20 rounded-xl p-3">
-                                <i class="fa-solid fa-stopwatch text-green-400 text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-400 uppercase">Durata Effettiva</div>
-                                <div class="text-2xl font-bold text-white">${stats.effectiveDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
-                                <div class="text-xs text-gray-500 mt-0.5">Solo Esercizi</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 				
-				   <!-- Durata Effettiva -->
-                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-green-500/20 rounded-xl p-3">
-                                <i class="fa-solid fa-stopwatch text-green-400 text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-400 uppercase">Durata Effettiva</div>
-                                <div class="text-2xl font-bold text-white">${stats.effectiveDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
-                                <div class="text-xs text-gray-500 mt-0.5">Solo Esercizi</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 
                 <!-- Calorie -->
                 ${stats.calories > 0 ? `
