@@ -23,11 +23,7 @@
 	   <script data-goatcounter="https://redmood.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
       <style>	
 	  
-	  #exercise-notes-content{
-	  margin-top: 12px;
-    background-color: #111827;
-    border: 1px solid #38404f;
-	}
+
 	  
 	  #footer-progress-text{
 	  margin-top: -30px;
@@ -736,30 +732,47 @@ color:#c084fc;
                   </div>
                </div>
                <!-- AGGIUNGI QUESTO NUOVO BLOCCO -->
-               <div id="work-overlay" class="flex-col items-center justify-center w-full py-2">
-                  <div class="text-center" style="
-    width:100%;
-    padding: 15px 30px;
-   
-">
-                     <i class="fa-solid fa-dumbbell text-primary text-4xl mb-3 animate-pulse"></i>
-                     <span class="text-gray-400 text-sm uppercase tracking-widest block">Serie in corso</span>
-                     <!-- ✨ AGGIUNGI TIMER ESERCIZIO -->
-                     <span class="text-gray-400 text-sm  tracking-widest block">Iniziata da: <span id="exercise-timer" style="font-weight:bold; color:#FFF;">00:00</span></span>
-                     <span id="motivational-text" class="text-l font-bold mt-2 block">Dai il massimo! 💪</span>
-                     <div id="exercise-notes-container" class="mt-4 hidden">
-                        <button onclick="app.handlers.toggleNotes()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 mx-auto transition">
-                        <i class="fa-regular fa-note-sticky"></i>
-                        <span>Leggi Note</span>
-                        <i id="notes-chevron" class="fa-solid fa-chevron-down text-xs"></i>
-                        </button>
-                        <div id="exercise-notes-content" class="hidden  bg-gray-800 rounded-lg p-4 text-left text-sm text-gray-300 max-w-md mx-auto">
-                           <!-- Note inserite qui dinamicamente -->
-                        </div>
-                     </div>
-                  </div>
-				  
-               </div>
+              <div id="work-overlay" class="flex-col items-center justify-center w-full ">
+   <div class="w-full px-6 ">
+      <!-- Icon & Status -->
+      <div class="text-center mb-4">
+         
+         
+		 <!-- Motivational Text -->
+    <div class="frasi-motivazionali w-full text-center mb-4">
+   <span id="motivational-text" class="w-full font-bold text-white inline-block px-4 py-2 bg-gray-800/50 rounded-xl border border-gray-700/50">
+      Dai il massimo! 💪
+   </span>
+</div>
+      </div>
+      
+      <!-- Timer Card -->
+      <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700/50 mb-4">
+         <div class="flex items-center justify-center gap-2">
+            <i class="fa-regular fa-clock text-purple-400"></i>
+            <span class="text-sm text-gray-400">Serie iniziata da:</span>
+            <span id="exercise-timer" class="text-xl font-bold font-mono text-purple-300">00:00</span>
+         </div>
+      </div>
+      
+     
+      
+      <!-- Notes Section -->
+      <div id="exercise-notes-container" class="hidden">
+         <button onclick="app.handlers.toggleNotes()" 
+            class="w-full bg-gray-800/50 rounded-2xl p-2 border text-gray-400 border-gray-700/50 mb-4" style="font-size:14px;">
+            <i class="fa-regular fa-note-sticky text-purple-400 mr-2"></i>
+            <span>Note salvate</span>
+            <i id="notes-chevron" class="fa-solid fa-chevron-down text-xs ml-auto"></i>
+         </button>
+         <div id="exercise-notes-content" class="hidden bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-left text-sm text-gray-300">
+            <!-- Note inserite qui dinamicamente -->
+         </div>
+      </div>
+	  
+	   
+   </div>
+</div>
             </div>
             <!-- Controls Footer -->
             <!-- Controls Footer -->
@@ -821,7 +834,7 @@ color:#c084fc;
    <div class="flex items-start gap-3 mb-3">
       
       <div class="flex-1">
-         <h3 class="font-bold  mb-1">Cancella le tue Statistiche</h3>
+         <h3 class="font-bold  mb-1"><i class="fa-solid fa-ban mr-2"></i> Cancella le tue Statistiche</h3>
          <p class="text-xs text-gray-400">
             Elimina tutto lo storico dei tuoi allenamenti, traguardi e le statistiche. <strong>I workout salvati rimarranno intatti</strong>.
          </p>
@@ -829,7 +842,7 @@ color:#c084fc;
       </div>
    </div>
    <button onclick="app.handlers.resetStatistics()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg text-sm font-semibold hover:bg-red-500/10 transition">
-      <i class="fa-solid fa-chart-line-up-down"></i> Cancella Solo Statistiche
+      <i class="fa-solid fa-chart-line-up-down"></i> Cancella solo statistiche
    </button>
 </div>
             <!-- Charts Container -->
@@ -980,6 +993,10 @@ color:#c084fc;
                   <span>Vibrazione</span>
                   <input type="checkbox" id="setting-vibrate" checked class="accent-primary w-5 h-5">
                </div>
+			   <div class="p-4 border-t border-gray-100 border-gray-700 flex justify-between items-center">
+   <span>Frasi Motivazionali</span>
+   <input type="checkbox" id="setting-motivational" checked class="accent-primary w-5 h-5">
+</div>
             </div>
             <div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm space-y-4">
                <h3 class="font-bold"><i class="fa-regular fa-floppy-disk mr-2"></i> Salva o importa dati personali </h3>
@@ -1189,8 +1206,7 @@ request.onupgradeneeded = (e) => {
                  editingWorkout: null,
          editingExerciseIndex: null,
                  activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
-                 settings: { unit: 'kg', sound: true, vibrate: true, bodyWeight: null, height: null, age: null, gender: '', autoNext: false },
-				 badges: {
+settings: { unit: 'kg', sound: true, vibrate: true, motivational: true, bodyWeight: null, height: null, age: null, gender: '', autoNext: false },				 badges: {
     strike4: { count: 0, lastUnlocked: null, seen: false },
     kcal500: { count: 0, lastUnlocked: null, seen: false },
     kcal7200: { count: 0, lastUnlocked: null, seen: false },
@@ -1240,14 +1256,14 @@ pendingBadges: [],
     
     motivationalPhrases: [
         'Spacca tutto! 💪',
-        'Hai preso il tuo preworkout? 🥤',
-        'Non fare lo scoppiato! 💥',
+        'Hai preso il \ntuo preworkout? 🥤',
+        'Non fare lo \nscoppiato! 💥',
         'Secco mai 😤',
         'Vai Uomooo! 💪',
         'Non mollare! ✊',
         'Beast mode! 🐻',
         'Focus totale 🎯',
-		'Ricordati di rimanere idratato! 💧'
+		'Ricordati di \nrimanere idratato! 💧'
        // 'Non vedi l\'ora di andare a casa a mangiare la pasta e fagioli! 🍝',
        // 'Saitama te fa na pippa! 👊'
     ],
@@ -1996,23 +2012,22 @@ if (app.state.editingWorkout.exercises.length === 0) {
 					     // ✅ MOSTRA IL DELTA SE ESISTE
 const kgLabel = document.querySelector('#active-weight-value + span');
 if (kgLabel) {
-    // Prima pulisci sempre
     kgLabel.innerHTML = 'kg';
     
-    // Poi aggiungi il delta solo se esiste e non è zero
     if (session.weightDelta && Math.abs(session.weightDelta) > 0) {
-        let deltaText = '';
-        let deltaColor = '';
-
-        if (session.weightDelta > 0) {
-            deltaText = `+${session.weightDelta}`;
-            deltaColor = 'text-green-400';
-        } else {
-            deltaText = `${session.weightDelta}`;
-            deltaColor = 'text-orange-400';
-        }
-
-        kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaText}</span>`;
+        const deltaColor = session.weightDelta > 0 ? 'text-green-400' : 'text-orange-400';
+        const deltaSign = session.weightDelta > 0 ? '+' : '';
+        
+        // Calcola percentuale
+		const percentChange = session.lastSavedWeight > 0 
+            ? ((session.weightDelta / session.lastSavedWeight) * 100).toFixed(0)
+            : 0;
+        
+        const percentText = Math.abs(percentChange) > 0 
+            ? ` <span class="text-xs opacity-75">(${percentChange > 0 ? '+' : ''}${percentChange}%)</span>` 
+            : '';
+        
+        kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaSign}${session.weightDelta}${percentText}</span>`;
     }
 }
                      
@@ -2143,6 +2158,12 @@ if (kgLabel) {
     }
 	
 	app.updateWeightComparison();
+	
+	// Applica visibilità frasi motivazionali
+    const motivationalDiv = document.querySelector('.frasi-motivazionali');
+    if (motivationalDiv) {
+        motivationalDiv.style.display = app.state.settings.motivational !== false ? 'block' : 'none';
+    }
 },
                  
                  renderStats: () => {
@@ -2513,8 +2534,8 @@ showWorkoutSummaryModal: (stats) => {
             
             <!-- Footer Button -->
             <div class="p-6 pt-0">
-                <button onclick="app.handlers.closeWorkoutSummary()" class="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold text-lg py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-check"></i>
+                <button onclick="app.handlers.closeWorkoutSummary()" class="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold  py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-house"></i>
                     Torna alla Home
                 </button>
             </div>
@@ -2664,7 +2685,9 @@ openWorkoutEditor: (id) => {
         startTime: Date.now(),
         exerciseStartTime: Date.now(),
         exerciseDurations: [], // ✨ AGGIUNGI QUESTA RIGA
-        logs: []
+        logs: [],
+        weightDelta: 0,           // ← AGGIUNGI
+        initialWeight: null 
          };
          app.router.go('active');
          
@@ -2680,34 +2703,42 @@ openWorkoutEditor: (id) => {
 adjustWeight: (delta) => {
     const session = app.state.activeSession;
     const ex = session.workout.exercises[session.currentExIdx];
+    
+    // Salva il peso dell'ultimo workout (solo la prima volta)
+    if (!session.lastSavedWeight) {
+        const lastData = app.getLastWorkoutWeight(session.workout.id, ex.name);
+        session.lastSavedWeight = lastData ? lastData.weight : parseFloat(ex.lastWeight) || 0;
+    }
+    
     let w = parseFloat(ex.lastWeight);
     if (isNaN(w)) w = 0;
     w += delta;
     if (w < 0) w = 0;
     ex.lastWeight = w;
 
-    // ✅ SALVA IL DELTA SULLA SESSIONE
-    if (!session.weightDelta) session.weightDelta = 0;
     session.weightDelta += delta;
 
-    // ✅ MOSTRA IL DELTA
+    // Calcola percentuale RISPETTO AL PESO SALVATO
+    const currentWeight = session.lastSavedWeight + session.weightDelta;
+    const percentChange = session.lastSavedWeight > 0 
+        ? ((session.weightDelta / session.lastSavedWeight) * 100).toFixed(0)
+        : 0;
+
+
+    // Mostra delta + percentuale
     const kgLabel = document.querySelector('#active-weight-value + span');
     if (kgLabel) {
-        let deltaText = '';
-        let deltaColor = '';
-
-        if (session.weightDelta > 0) {
-            deltaText = `+${session.weightDelta}`;
-            deltaColor = 'text-green-400';
-        } else if (session.weightDelta < 0) {
-            deltaText = `${session.weightDelta}`;
-            deltaColor = 'text-orange-400';
+        if (Math.abs(session.weightDelta) > 0) {
+            const deltaColor = session.weightDelta > 0 ? 'text-green-400' : 'text-orange-400';
+            const deltaSign = session.weightDelta > 0 ? '+' : '';
+            const percentText = Math.abs(percentChange) > 0 
+                ? ` <span class="text-xs opacity-75">(${percentChange > 0 ? '+' : ''}${percentChange}%)</span>` 
+                : '';
+            
+            kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaSign}${session.weightDelta}${percentText}</span>`;
         } else {
-            deltaText = `=`;
-            deltaColor = 'text-gray-400';
+            kgLabel.innerHTML = 'kg';
         }
-
-        kgLabel.innerHTML = `kg <span class="${deltaColor} animate-pulse">${deltaText}</span>`;
     }
 
     app.ui.updateActiveView();
@@ -2732,6 +2763,7 @@ skipRest: (_, isNextExercise = false) => {
     
     // ✅ RESET DELTA QUANDO CAMBI ESERCIZIO
     session.weightDelta = 0;
+	session.lastSavedWeight = null;
     const kgLabel = document.querySelector('#active-weight-value + span');
     if (kgLabel) {
         kgLabel.innerHTML = 'kg';
@@ -2757,6 +2789,7 @@ skipExercise: () => {
     
     // ✅ RESET DELTA QUANDO CAMBI ESERCIZIO
    session.weightDelta = 0;
+   session.lastSavedWeight = null;
     const kgLabel = document.querySelector('#active-weight-value + span');
     if (kgLabel) {
         kgLabel.innerHTML = 'kg';
@@ -2899,6 +2932,7 @@ skipRest: (_, isNextExercise = false) => {
     session.currentExIdx++;
     session.currentSet = 0;
 	session.weightDelta = 0;
+	session.lastSavedWeight = null;
   }
   
   // ✨ SPOSTA QUI: Resetta il timer PRIMA di cambiare status
@@ -2920,6 +2954,7 @@ skipExercise: () => {
     session.currentExIdx++;
     session.currentSet = 0;
 	session.weightDelta = 0;
+	session.lastSavedWeight = null;
     // ✨ AGGIUNGI QUI:
     app.handlers.startExerciseTimer();
     session.status = 'work';
@@ -3372,6 +3407,31 @@ appContainer.addEventListener('scroll', () => {
              app.db.put('settings', { key: key, value: el.value });
          });
          });
+		 
+		 // Toggle Motivational Phrases
+const motivationalToggle = document.getElementById('setting-motivational');
+if (motivationalToggle) {
+   // Carica stato salvato
+   motivationalToggle.checked = app.state.settings.motivational !== false;
+   
+   // Applica lo stato iniziale
+   const motivationalDiv = document.querySelector('.frasi-motivazionali');
+   if (motivationalDiv) {
+      motivationalDiv.style.display = motivationalToggle.checked ? 'block' : 'none';
+   }
+   
+   // Salva quando cambia
+   motivationalToggle.addEventListener('change', () => {
+      app.state.settings.motivational = motivationalToggle.checked;
+      app.db.put('settings', { key: 'motivational', value: motivationalToggle.checked });
+      
+      // Mostra/nascondi il div
+      const motivationalDiv = document.querySelector('.frasi-motivazionali');
+      if (motivationalDiv) {
+         motivationalDiv.style.display = motivationalToggle.checked ? 'block' : 'none';
+      }
+   });
+}
          
          document.addEventListener('change', (e) => {
          if (e.target.id === 'auto-next-toggle') {
