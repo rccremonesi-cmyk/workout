@@ -20,7 +20,7 @@ const manifestData = {
     "display": "standalone",
     "display_override": ["standalone", "minimal-ui"],
     "background_color": "#111827",
-    "theme_color": "#5127F2",
+    "theme_color": "#111827",
     "orientation": "portrait-primary",
     "categories": ["health", "fitness", "lifestyle"],
     "icons": [
@@ -71,6 +71,8 @@ const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'applicati
 const manifestURL = URL.createObjectURL(manifestBlob);
 document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 </script>
+
+<meta name="theme-color" content="#111827">
 
 <!-- ✅ Apple PWA Meta Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
