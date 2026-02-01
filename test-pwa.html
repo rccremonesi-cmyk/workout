@@ -14,19 +14,57 @@ const manifestData = {
     "name": "WorkoutTracker",
     "short_name": "Workout",
     "description": "Il tuo tracker di allenamento locale",
-    "start_url": "./",
+    "start_url": "/",
+    "scope": "/",
+    "id": "/",
     "display": "standalone",
+    "display_override": ["standalone", "minimal-ui"],
     "background_color": "#111827",
     "theme_color": "#5127F2",
-    "orientation": "portrait",
-"icons": [
-    {
-        "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%235127F2;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237c3aed;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23grad)' width='512' height='512' rx='115'/%3E%3Cpath fill='white' d='M640 96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H384V96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H192V96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H32c-17.7 0-32 14.3-32 32v32c0 17.7 14.3 32 32 32H128V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336H320V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336H576V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336h96c17.7 0 32-14.3 32-32V272c0-17.7-14.3-32-32-32H640V96z' transform='translate(-100 0) scale(0.85)'/%3E%3C/svg%3E",
-        "sizes": "512x512",
-        "type": "image/svg+xml",
-        "purpose": "any maskable"
-    }
-]
+    "orientation": "portrait-primary",
+    "categories": ["health", "fitness", "lifestyle"],
+    "icons": [
+        {
+            "src": "https://rccremonesi-cmyk.github.io/workout/barbell-ico.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "https://rccremonesi-cmyk.github.io/workout/barbell-ico.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "https://rccremonesi-cmyk.github.io/workout/barbell-ico.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "https://rccremonesi-cmyk.github.io/workout/barbell-ico.png",
+            "sizes": "540x720",
+            "type": "image/png",
+            "form_factor": "narrow"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Inizia Allenamento",
+            "short_name": "Workout",
+            "description": "Inizia subito un workout",
+            "url": "/",
+            "icons": [
+                {
+                    "src": "https://rccremonesi-cmyk.github.io/workout/barbell-ico.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ]
 };
 
 const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
@@ -38,8 +76,18 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="WorkoutTracker">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%235127F2;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237c3aed;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23grad)' width='512' height='512' rx='115'/%3E%3Cpath fill='white' d='M640 96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H384V96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H192V96c0-17.7-14.3-32-32-32s-32 14.3-32 32V240H32c-17.7 0-32 14.3-32 32v32c0 17.7 14.3 32 32 32H128V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336H320V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336H576V416c0 17.7 14.3 32 32 32s32-14.3 32-32V336h96c17.7 0 32-14.3 32-32V272c0-17.7-14.3-32-32-32H640V96z' transform='translate(-100 0) scale(0.85)'/%3E%3C/svg%3E">      <meta name="theme-color" content="#5127F2">
-      <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3C!-- Icona dumbbell di Font Awesome (simil-v6) --%3E%3Cpath fill='%235127F2' d='M88.75 35.5h-9.87c-1.39 0-2.5 1.12-2.5 2.5v22c0 1.38 1.11 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zm-66.25 0h-9.87c-1.38 0-2.5 1.12-2.5 2.5v22c0 1.38 1.12 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zM36.1 48h27.8c1.38 0 2.5-1.12 2.5-2.5s-1.12-2.5-2.5-2.5h-27.8c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5z' /%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="https://rccremonesi-cmyk.github.io/workout/barbell-ico.png">      
+<!-- ✅ Meta tag Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="WorkoutTracker">
+
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3C!-- Icona dumbbell di Font Awesome (simil-v6) --%3E%3Cpath fill='%235127F2' d='M88.75 35.5h-9.87c-1.39 0-2.5 1.12-2.5 2.5v22c0 1.38 1.11 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zm-66.25 0h-9.87c-1.38 0-2.5 1.12-2.5 2.5v22c0 1.38 1.12 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zM36.1 48h27.8c1.38 0 2.5-1.12 2.5-2.5s-1.12-2.5-2.5-2.5h-27.8c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5z' /%3E%3C/svg%3E">
+
+<meta name="apple-mobile-web-app-title" content="WorkoutTracker">
+<link rel="apple-touch-icon" href="https://rccremonesi-cmyk.github.io/workout/barbell-ico.png">
+
+
       <script src="https://cdn.tailwindcss.com"></script>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -3855,8 +3903,11 @@ if (motivationalToggle) {
 <script>
 if ('serviceWorker' in navigator) {
     const swCode = `
-        const CACHE_NAME = 'workout-tracker-v1';
-        const urlsToCache = ['/'];
+    const CACHE_NAME = 'workout-tracker-v2';
+    const urlsToCache = [
+        '/',
+        'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png'
+    ];
         
         self.addEventListener('install', event => {
             event.waitUntil(
