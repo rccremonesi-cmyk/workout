@@ -59,6 +59,22 @@
     animation: gentleBounce2 1.8s ease-in-out infinite;
 }
 
+/* Rating Stars Touch Feedback */
+.star-rating-btn {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.star-rating-btn:active i {
+    transform: scale(1.2);
+    filter: brightness(1.5);
+}
+
+/* Hover progressivo sulle stelle */
+.star-rating-btn:hover ~ .star-rating-btn i {
+    color: rgb(55, 65, 81); /* gray-700 più scuro */
+}
+
 @keyframes gentleBounce2 {
     0%, 100% {
         transform: translateY(0);
@@ -441,7 +457,7 @@ color:#c084fc;
 	  
 	  
          <!-- VIEW: DASHBOARD (HOME) -->
-         <section id="view-dashboard" class="view-section active p-4 ">
+         <section id="view-dashboard" class="view-section active p-4 " style="padding-bottom:100px;">
 		  <button onclick="app.handlers.createNewWorkout()" id="add-workout-fab" 
    class="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 
    bg-primary text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2 z-50" style="-webkit-box-shadow: 0px 0px 22px 4px #111827;
@@ -690,7 +706,7 @@ color:#c084fc;
                         <button onclick="app.handlers.adjustWeight(-1)" style="width: 5.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-1 kg</button>
                      </div>
                      <!-- Display Peso -->
-                     <div class="text-center px-2">
+                    <div class="text-center px-2" style="min-width: 125px;">
                         <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
                         <span class="text-l font-bold text-gray-500 block uppercase">kg</span>
 						
@@ -1199,61 +1215,77 @@ request.onupgradeneeded = (e) => {
          const app = {
              db: new DB(),
              state: {
-                 currentView: 'dashboard',
-				 statsPeriod: 'week',
-                 workouts: [],
-                 history: [],
-                 editingWorkout: null,
-         editingExerciseIndex: null,
-                 activeSession: null, // { workout, currentExIdx, currentSet, timer, status: 'work'|'rest' }
-settings: { unit: 'kg', sound: true, vibrate: true, motivational: true, bodyWeight: null, height: null, age: null, gender: '', autoNext: false },				 badges: {
-    strike4: { count: 0, lastUnlocked: null, seen: false },
-    kcal500: { count: 0, lastUnlocked: null, seen: false },
-    kcal7200: { count: 0, lastUnlocked: null, seen: false },
-    kg10000: { count: 0, lastUnlocked: null, seen: false },
-    month16: { count: 0, lastUnlocked: null, seen: false },
-    bench100: { count: 0, lastUnlocked: null, seen: false, oneTime: true }
-},
-badgeDefinitions: {
-    strike4: {
-        name: 'Strike 4 Allenamenti',
-        desc: 'Quattro allenamenti questa settimana, zero scuse. Costanza attivata 📅',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/4x.png',
-        repeatable: true
-    },
-    kcal500: {
-        name: '500 kcal Workout',
-        desc: 'Allenamento incendiario: 500 kcal bruciate! 🔥',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/500k.png',
-        repeatable: true
-    },
-    kcal7200: {
-        name: '7200 kcal Totali',
-        desc: 'Energia trasformata in risultati: 7200 kcal consumate, 1kg perso! 🧱',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/7200k.png',
-        repeatable: true
-    },
-    kg10000: {
-        name: '10.000 kg Sollevati',
-        desc: 'Forza pura: 10 tonnellate di ghisa! 🦾',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/10000kg.png',
-        repeatable: true
-    },
-    month16: {
-        name: '16 Allenamenti/Mese',
-        desc: 'Un mese, sedici allenamenti. sei in pieno flow! ⏳',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/16x.png',
-        repeatable: true
-    },
-    bench100: {
-        name: 'Panca Piana 100kg',
-        desc: 'Ora sei un vero uomo! 💪',
-        icon: 'https://rccremonesi-cmyk.github.io/workout/100bench.png',
-        repeatable: false
-    }
-},
-pendingBadges: [],
+    currentView: 'dashboard',
+    statsPeriod: 'week',
+    workouts: [],
+    history: [],
+    editingWorkout: null,
+    editingExerciseIndex: null,
+    activeSession: null, 
+	isSaving: false,        
+    isDeleting: false,      
     
+    settings: { 
+        unit: 'kg', 
+        sound: true, 
+        vibrate: true, 
+        motivational: true, 
+        bodyWeight: null, 
+        height: null, 
+        age: null, 
+        gender: '', 
+        autoNext: false 
+    },
+    
+    badges: {
+        strike4: { count: 0, lastUnlocked: null, seen: false },
+        kcal500: { count: 0, lastUnlocked: null, seen: false },
+        kcal7200: { count: 0, lastUnlocked: null, seen: false },
+        kg10000: { count: 0, lastUnlocked: null, seen: false },
+        month16: { count: 0, lastUnlocked: null, seen: false },
+        bench100: { count: 0, lastUnlocked: null, seen: false, oneTime: true }
+    },
+    
+    badgeDefinitions: {
+        strike4: {
+            name: 'Strike 4 Allenamenti',
+            desc: 'Quattro allenamenti questa settimana, zero scuse. Costanza attivata 📅',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/4x.png',
+            repeatable: true
+        },
+        kcal500: {
+            name: '500 kcal Workout',
+            desc: 'Allenamento incendiario: 500 kcal bruciate! 🔥',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/500k.png',
+            repeatable: true
+        },
+        kcal7200: {
+            name: '7200 kcal Totali',
+            desc: 'Energia trasformata in risultati: 7200 kcal consumate, 1kg perso! 🧱',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/7200k.png',
+            repeatable: true
+        },
+        kg10000: {
+            name: '10.000 kg Sollevati',
+            desc: 'Forza pura: 10 tonnellate di ghisa! 🦾',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/10000kg.png',
+            repeatable: true
+        },
+        month16: {
+            name: '16 Allenamenti/Mese',
+            desc: 'Un mese, sedici allenamenti. sei in pieno flow! ⏳',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/16x.png',
+            repeatable: true
+        },
+        bench100: {
+            name: 'Panca Piana 100kg',
+            desc: 'Ora sei un vero uomo! 💪',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/100bench.png',
+            repeatable: false
+        }
+    },
+    
+    pendingBadges: [],
     motivationalPhrases: [
         'Spacca tutto! 💪',
         'Hai preso il \ntuo preworkout? 🥤',
@@ -1263,11 +1295,9 @@ pendingBadges: [],
         'Non mollare! ✊',
         'Beast mode! 🐻',
         'Focus totale 🎯',
-		'Ricordati di \nrimanere idratato! 💧'
-       // 'Non vedi l\'ora di andare a casa a mangiare la pasta e fagioli! 🍝',
-       // 'Saitama te fa na pippa! 👊'
+        'Ricordati di \nrimanere idratato! 💧'
     ],
-	preferredDays: []
+    preferredDays: []
 },
        
              
@@ -1516,15 +1546,16 @@ router: {
 	
 	        // ✅ CONTROLLO SALVATAGGIO EDITOR
 if (app.state.currentView === 'editor' && viewId === 'dashboard') {
-    // Se stiamo salvando, non mostrare il popup
-    if (!app.state.isSaving) {
+    // ✅ AGGIUNGI: Se stiamo eliminando, bypassa il controllo
+    if (!app.state.isSaving && !app.state.isDeleting) {
         const confirmed = confirm('⚠️ Stai uscendo dall\'editor. Hai salvato le modifiche?');
         if (!confirmed) {
             return; // Blocca la navigazione
         }
     }
-    // Reset del flag
+    // Reset dei flag
     app.state.isSaving = false;
+    app.state.isDeleting = false; // ✅ AGGIUNGI
 }
 		
 		
@@ -2167,7 +2198,17 @@ if (kgLabel) {
 },
                  
                  renderStats: () => {
-                     // Logic to build Chart.js
+
+// ✅ FORZA RELOAD DEI DATI (sicurezza)
+    if (app.state.history.length === 0) {
+        console.warn('⚠️ History vuota - tento reload');
+        setTimeout(() => {
+            app.loadData().then(() => app.ui.renderStats());
+        }, 100);
+        return;
+    }
+
+				 // Logic to build Chart.js
                      const history = app.state.history;
                      const ctxVol = document.getElementById('chart-volume').getContext('2d');
                      const ctxCon = document.getElementById('chart-consistency').getContext('2d');
@@ -2444,103 +2485,105 @@ showWorkoutSummaryModal: (stats) => {
     modal.style.animation = 'fadeInOnly 0.3s ease-in-out';
     
     modal.innerHTML = `
-        <div class="bg-gradient-to-br from-darkCard to-gray-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border-2 border-primary/30" style="animation: beastShake 0.5s ease-out">
-            <!-- Header -->
-            <div class="bg-gradient-to-r from-primary to-purple-600 p-6 text-center relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
-                <div class="relative z-10">
-                    
-                    <h2 class="text-2xl font-bold text-white">Ottimo Lavoro!</h2>
-                    <p class="text-white/90 mt-2">Allenamento Completato</p>
-                </div>
-            </div>
-            
-            <!-- Stats Grid -->
-            <div class="p-6 space-y-4">
-                <h3 class="text-center text-gray-400 text-sm uppercase tracking-wider mb-4">Ecco il tuo riepilogo:</h3>
-                
-                <!-- Volume -->
-                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-primary/20 rounded-xl p-3">
-                                <i class="fa-solid fa-weight-hanging text-primary text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-400 uppercase">Volume Totale</div>
-                                <div class="text-2xl font-bold text-white">${stats.volume.toLocaleString()}<span class="text-sm text-gray-400 ml-1">kg</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Durata Totale -->
-                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-blue-500/20 rounded-xl p-3">
-                                <i class="fa-solid fa-clock text-blue-400 text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-400 uppercase">Durata Totale</div>
-                                <div class="text-2xl font-bold text-white">${stats.totalDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
-                                <div class="text-xs text-gray-500 mt-0.5">Esercizi + Pause</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Durata Effettiva -->
-                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-green-500/20 rounded-xl p-3">
-                                <i class="fa-solid fa-stopwatch text-green-400 text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-400 uppercase">Durata Effettiva</div>
-                                <div class="text-2xl font-bold text-white">${stats.effectiveDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
-                                <div class="text-xs text-gray-500 mt-0.5">Solo Esercizi</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Calorie -->
-                ${stats.calories > 0 ? `
-                    <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-orange-500/20 rounded-xl p-3">
-                                    <i class="fa-solid fa-fire text-orange-400 text-xl"></i>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-gray-400 uppercase">Calorie Bruciate</div>
-                                    <div class="text-2xl font-bold text-white">${stats.calories}<span class="text-sm text-gray-400 ml-1">kcal</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ` : `
-                    <div class="bg-gray-800/50 rounded-2xl p-3 border border-gray-700/50 opacity-60">
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <i class="fa-solid fa-info-circle"></i>
-                            <span>Imposta peso corporeo nelle impostazioni per vedere le calorie</span>
-                        </div>
-                    </div>
-                `}
-            </div>
-            
-            <!-- Footer Button -->
-            <div class="p-6 pt-0">
-                <button onclick="app.handlers.closeWorkoutSummary()" class="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold  py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-house"></i>
-                    Torna alla Home
-                </button>
+    <div class="bg-gradient-to-br from-darkCard to-gray-900 rounded-3xl w-full max-w-md shadow-2xl border-2 border-primary/30 flex flex-col max-h-[90vh]" style="animation: beastShake 0.5s ease-out">
+        
+        <!-- ✅ HEADER FISSO -->
+        <div class="bg-gradient-to-r from-primary to-purple-600 p-6 text-center relative overflow-hidden flex-shrink-0">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+            <div class="relative z-10">
+                <h2 class="text-2xl font-bold text-white">Ottimo Lavoro!</h2>
+                <p class="text-white/90 mt-2">Allenamento Completato</p>
             </div>
         </div>
-    `;
+        
+        <!-- ✅ CONTENUTO SCROLLABILE -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-4 hide-scrollbar">
+            <h3 class="text-center text-gray-400 text-sm uppercase tracking-wider mb-4">Ecco il tuo riepilogo:</h3>
+            
+            <!-- Volume -->
+            <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-primary/20 rounded-xl p-3">
+                            <i class="fa-solid fa-weight-hanging text-primary text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-400 uppercase">Volume Totale</div>
+                            <div class="text-2xl font-bold text-white">${stats.volume.toLocaleString()}<span class="text-sm text-gray-400 ml-1">kg</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Durata Totale -->
+            <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-blue-500/20 rounded-xl p-3">
+                            <i class="fa-solid fa-clock text-blue-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-400 uppercase">Durata Totale</div>
+                            <div class="text-2xl font-bold text-white">${stats.totalDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
+                            <div class="text-xs text-gray-500 mt-0.5">Esercizi + Pause</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+			
+			
+            
+            <!-- Durata Effettiva -->
+            <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-green-500/20 rounded-xl p-3">
+                            <i class="fa-solid fa-stopwatch text-green-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-400 uppercase">Durata Effettiva</div>
+                            <div class="text-2xl font-bold text-white">${stats.effectiveDuration}<span class="text-sm text-gray-400 ml-1">min</span></div>
+                            <div class="text-xs text-gray-500 mt-0.5">Solo Esercizi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calorie -->
+            ${stats.calories > 0 ? `
+                <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-orange-500/20 rounded-xl p-3">
+                                <i class="fa-solid fa-fire text-orange-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-400 uppercase">Calorie Bruciate</div>
+                                <div class="text-2xl font-bold text-white">${stats.calories}<span class="text-sm text-gray-400 ml-1">kcal</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ` : `
+                <div class="bg-gray-800/50 rounded-2xl p-3 border border-gray-700/50 opacity-60">
+                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                        <i class="fa-solid fa-info-circle"></i>
+                        <span>Imposta peso corporeo nelle impostazioni per vedere le calorie</span>
+                    </div>
+                </div>
+            `}
+        </div>
+        
+        <!-- ✅ FOOTER FISSO -->
+        <div class="p-6 pt-4 border-t border-gray-700/50 flex-shrink-0">
+            <button onclick="app.handlers.closeWorkoutSummary()" class="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-house"></i>
+                Torna alla Home
+            </button>
+        </div>
+    </div>
+`;
     
     document.body.appendChild(modal);
 }
@@ -2665,13 +2708,16 @@ openWorkoutEditor: (id) => {
                      app.router.go('dashboard');
                  },
          
-                 deleteWorkout: async () => {
-                     if(confirm('Sei sicuro di voler cancellare questo workout?')) {
-                         await app.db.delete('workouts', app.state.editingWorkout.id);
-                         await app.loadData();
-                         app.router.go('dashboard');
-                     }
-                 },
+				deleteWorkout: async () => {
+					if(confirm('Sei sicuro di voler cancellare questo workout?')) {
+						// ✅ AGGIUNGI: Imposta flag per bypassare il controllo di salvataggio
+						app.state.isDeleting = true;
+						
+						await app.db.delete('workouts', app.state.editingWorkout.id);
+						await app.loadData();
+						app.router.go('dashboard');
+					}
+				},
          
                  // Execution Handlers
          startWorkout: (id) => {
@@ -3033,6 +3079,12 @@ skipExercise: () => {
         effectiveDuration: effectiveDuration,
         calories: calories
     });
+	
+	
+// Mostra rating dopo 3 allenamenti
+setTimeout(() => {
+   app.handlers.showRatingModal();
+}, 2000);
 },
          
                  startTotalTimer: () => {
@@ -3217,6 +3269,157 @@ closeWorkoutSummary: () => {
     }
 },
 
+// Rating handlers
+showRatingModal: () => {
+   const hasRated = localStorage.getItem('hasRated');
+   const workoutsCount = app.state.history.length;
+   
+   // Mostra dopo 2 allenamenti completati
+   if (!hasRated && workoutsCount >= 1) {
+      document.getElementById('rating-modal').classList.remove('hidden');
+   }
+},
+
+// Preview sistema stelle
+updateStarsPreview: (rating) => {
+   const preview = document.getElementById('rating-preview');
+   const stars = document.querySelectorAll('.star-rating-btn i');
+   
+   // Reset tutte le stelle
+   stars.forEach((star, idx) => {
+      if (idx < rating) {
+         star.classList.remove('text-gray-700');
+         star.classList.add('text-yellow-400');
+         star.style.filter = 'drop-shadow(0 0 10px rgba(250, 204, 21, 0.8))';
+      } else {
+         star.classList.add('text-gray-700');
+         star.classList.remove('text-yellow-400');
+         star.style.filter = 'none';
+      }
+   });
+   
+   // Messaggi dinamici
+   const messages = {
+      1: { text: '1 Stella - Inutile', color: 'text-red-400', emoji: '😞' },
+      2: { text: '2 Stelle - Scarsa', color: 'text-orange-400', emoji: '😕' },
+      3: { text: '3 Stelle - Sufficiente', color: 'text-yellow-400', emoji: '😐' },
+      4: { text: '4 Stelle - Ottima', color: 'text-green-400', emoji: '😊' },
+      5: { text: '5 Stelle - Perfetta!', color: 'text-green-500', emoji: '🤩' }
+   };
+   
+   const msg = messages[rating];
+   preview.innerHTML = `
+      <div class="space-y-2" style="animation: beastShake 0.3s ease-out">
+         <p class="text-2xl">${msg.emoji}</p>
+         <p class="${msg.color} font-bold text-lg">${msg.text}</p>
+         <button onclick="app.handlers.confirmRating(${rating})" 
+            class="mt-4 bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg transform transition active:scale-95">
+            <i class="fa-solid fa-check mr-2"></i>
+            Conferma Voto
+         </button>
+      </div>
+   `;
+},
+
+confirmRating: async (stars) => {
+   // Questa sarà la vecchia submitRating rinominata
+   app.handlers.submitRating(stars);
+},
+
+submitRating: async (stars) => {
+   const modal = document.getElementById('rating-modal');
+   const modalContent = modal.querySelector('.bg-gradient-to-br');
+   
+   // Animazione di caricamento
+   const starsContainer = modal.querySelector('.flex.flex-wrap.justify-center');
+   starsContainer.innerHTML = `
+      <div class="flex flex-col items-center gap-4 py-8">
+         <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+         <p class="text-gray-400 text-sm">Invio in corso...</p>
+      </div>
+   `;
+   
+   const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfdeaHOwYZrf4okZdD2DNjBhIfNlYO3zkMK91OXkvZCqG7SMw/formResponse';
+   const entryId = 'entry.1932136918';
+   
+   try {
+      await fetch(formUrl, {
+         method: 'POST',
+         mode: 'no-cors',
+         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+         body: `${entryId}=${stars}`
+      });
+      
+      localStorage.setItem('hasRated', 'true');
+      
+      // Messaggio di successo
+      const successMessage = stars >= 4 
+         ? 'Grazie mille! Il tuo supporto ci motiva! 💪' 
+         : 'Grazie per il feedback! Lavoreremo per migliorare!';
+      
+      // Cambia contenuto modale
+      modalContent.innerHTML = `
+         <div class="bg-gradient-to-r from-green-600 to-green-500 p-8 text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+            <div class="relative z-10">
+               <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4" style="animation: beastShake 0.5s ease-out">
+                  <i class="fa-solid fa-check text-5xl text-white"></i>
+               </div>
+               <h2 class="text-2xl font-extrabold text-white">Grazie!</h2>
+               <p class="text-white/90 mt-2 text-sm font-medium">Il tuo feedback è stato inviato</p>
+            </div>
+         </div>
+         
+         <div class="p-8 text-center">
+            <p class="text-gray-300 mb-6 text-lg">${successMessage}</p>
+            
+            <div class="space-y-3">
+               <button onclick="app.handlers.closeRatingModal()" 
+                  class="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-house"></i>
+                  Torna alla Home
+               </button>
+            </div>
+         </div>
+      `;
+      
+   } catch (error) {
+      console.error('Rating error:', error);
+      localStorage.setItem('hasRated', 'true');
+      
+      // Anche in caso di errore mostra grazie (dato che usiamo no-cors)
+      modalContent.innerHTML = `
+         <div class="bg-gradient-to-r from-primary to-purple-600 p-8 text-center relative overflow-hidden">
+            <div class="relative z-10">
+               <i class="fa-solid fa-heart text-5xl text-white mb-4"></i>
+               <h2 class="text-2xl font-extrabold text-white">Grazie!</h2>
+            </div>
+         </div>
+         
+         <div class="p-8 text-center">
+            <p class="text-gray-300 mb-6">Il tuo parere è importante per noi! 💪</p>
+            <button onclick="app.handlers.closeRatingModal()" 
+               class="w-full bg-gradient-to-r from-primary to-purple-600 text-white font-bold py-4 rounded-2xl">
+               Chiudi
+            </button>
+         </div>
+      `;
+   }
+},
+
+closeRatingModal: () => {
+   const modal = document.getElementById('rating-modal');
+   modal.style.animation = 'fadeInOnly 0.3s ease-in-out reverse';
+   setTimeout(() => {
+      modal.classList.add('hidden');
+      modal.style.animation = '';
+   }, 300);
+},
+
+skipRating: () => {
+   localStorage.setItem('hasRated', 'true');
+   document.getElementById('rating-modal').classList.add('hidden');
+},
 
 toggleStatsPeriod: () => {
     app.state.statsPeriod = app.state.statsPeriod === 'week' ? 'month' : 'week';
@@ -3238,12 +3441,21 @@ switchStatsTab: (tabName) => {
          
                  // Settings Handlers
                  resetAllData: async () => {
-                     const confirmTxt = prompt("Scrivi 'DELETE' per cancellare tutti i dati permanentemente.");
-                     if (confirmTxt === 'DELETE') {
-                         await app.db.clearAll();
-                         location.reload();
-                     }
-                 },
+    const confirmTxt = prompt("Scrivi 'DELETE' per cancellare tutti i dati permanentemente.");
+    if (confirmTxt === 'DELETE') {
+        // Cancella tutti gli store
+        await app.db.clearAll();
+        
+        // ✅ AGGIUNGI: Cancella anche i badge
+        const txBadges = app.db.db.transaction('badges', 'readwrite');
+        await txBadges.objectStore('badges').clear();
+        
+        // ✅ AGGIUNGI: Reset anche localStorage (per flag rating, reset settimana/mese)
+        localStorage.clear();
+        
+        location.reload();
+    }
+},
 				 resetStatistics: async () => {
     const confirmTxt = prompt("Scrivi 'RESET' per cancellare SOLO lo storico allenamenti. I workout non verranno eliminati.");
     if (confirmTxt === 'RESET') {
@@ -3289,33 +3501,87 @@ switchStatsTab: (tabName) => {
                  },
          
                  importData: (input) => {
-         const file = input.files[0];
-         if(!file) return;
-         const reader = new FileReader();
-         reader.onload = async (e) => {
-         try {
-            const data = JSON.parse(e.target.result);
-            if(data.workouts) {
-                for (const w of data.workouts) await app.db.put('workouts', w);
-            }
-            if(data.history) {
-                for (const h of data.history) await app.db.put('history', h);
-            }
-            // ✅ AGGIUNGI QUESTE 3 RIGHE
-            if(data.settings) {
-                for (const s of data.settings) await app.db.put('settings', s);
-            }
-			if(data.badges) {
-    for (const b of data.badges) await app.db.put('badges', b);
+    const file = input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+    try {
+       const data = JSON.parse(e.target.result);
+       
+       // ✅ MIGRAZIONE AUTOMATICA - WORKOUTS
+       if(data.workouts) {
+           for (const w of data.workouts) {
+               // Aggiungi preferredDays se mancante
+               if (!w.preferredDays) w.preferredDays = [];
+               
+               // Normalizza esercizi
+               if (w.exercises) {
+                   w.exercises.forEach(ex => {
+                       if (!ex.notes) ex.notes = '';
+                       if (ex.isDouble === undefined) ex.isDouble = false;
+                       if (!ex.lastWeight) ex.lastWeight = 0;
+                   });
+               }
+               
+               await app.db.put('workouts', w);
+           }
+       }
+       
+       // ✅ MIGRAZIONE AUTOMATICA - HISTORY
+       if(data.history) {
+           for (const h of data.history) {
+               // Aggiungi campi mancanti con valori di default
+               if (!h.caloriesBurned) h.caloriesBurned = 0;
+               if (!h.durationMinutes) h.durationMinutes = 0;
+               if (!h.effectiveDurationMinutes) h.effectiveDurationMinutes = 0;
+               if (!h.totalVolume) h.totalVolume = 0;
+               
+               await app.db.put('history', h);
+           }
+       }
+       
+       // ✅ SETTINGS - Gestisce sia vecchio che nuovo formato
+       if(data.settings) {
+           // Controlla se settings è un oggetto o un array
+           if (Array.isArray(data.settings)) {
+               // Nuovo formato (array)
+               for (const s of data.settings) {
+                   await app.db.put('settings', s);
+               }
+           } else {
+               // Vecchio formato (oggetto) - converti in array
+               for (const [key, value] of Object.entries(data.settings)) {
+                   await app.db.put('settings', { key, value });
+               }
+           }
+       }
+       
+       // ✅ BADGES - Importa solo se esistono
+       if(data.badges) {
+           for (const b of data.badges) await app.db.put('badges', b);
+       }
+	   
+	   // ✅ RICARICA DATI NELLO STATE
+		await app.loadData();
+
+		// ✅ FORZA RENDER DELLE VISTE
+		if (app.state.currentView === 'stats') {
+			app.ui.renderStats();
+		}
+		if (app.state.currentView === 'dashboard') {
+			app.ui.renderDashboard();
+		}
+       
+       alert("✅ Importazione completata con successo!");
+       location.reload();
+       
+    } catch(err) {
+        console.error('Import error:', err);
+        alert("❌ Errore: il file selezionato non è un backup valido di WorkoutTracker.");
+    }
+    };
+    reader.readAsText(file);
 }
-            alert("Importazione completata!");
-            location.reload();
-                         } catch(err) {
-                             alert("Errore nel file JSON.");
-                         }
-                     };
-                     reader.readAsText(file);
-                 }
              }
          };
          
@@ -3443,5 +3709,66 @@ if (motivationalToggle) {
          });
          
       </script>
+	  
+	  
+	  <!-- Rating Modal -->
+<div id="rating-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md">
+   <div class="bg-gradient-to-br from-gray-800 to-black rounded-3xl w-full max-w-md overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10" style="animation: beastShake 0.5s ease-out">
+      
+      <div class="bg-gradient-to-r from-primary to-purple-600 p-8 text-center relative overflow-hidden">
+         <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+         <div class="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/20 rounded-full -ml-12 -mb-12 blur-xl"></div>
+         
+         <div class="relative z-10">
+            
+            <h2 class="text-2xl font-extrabold text-white tracking-tight">Ti piace WorkoutTracker?</h2>
+            <p class="text-white/80 mt-2 text-sm font-medium">Un tuo parere per noi è importante!<br/>Grazie mille per il tuo tempo.</p>
+         </div>
+      </div>
+      
+      <div class="p-3 py-6">
+	     <!-- Preview Rating Selected -->
+   <div id="rating-preview" class="text-center mb-4 min-h-[60px] flex flex-col items-center justify-center">
+      <p class="text-gray-400 text-sm">Seleziona il numero di stelle</p>
+   </div>
+   
+<div class="flex flex-wrap justify-center gap-1 mb-8">
+    <button onclick="app.handlers.updateStarsPreview(1)" class="star-rating-btn group relative p-1 transition-all active:scale-90" data-rating="1">
+        <i class="fa-solid fa-star text-4xl text-gray-700 transition-all duration-200"></i>
+        
+    </button>
+
+    <button onclick="app.handlers.updateStarsPreview(2)" class="star-rating-btn group relative p-1 transition-all active:scale-90" data-rating="2">
+        <i class="fa-solid fa-star text-4xl text-gray-700 transition-all duration-200"></i>
+    </button>
+
+    <button onclick="app.handlers.updateStarsPreview(3)" class="star-rating-btn group relative p-1 transition-all active:scale-90" data-rating="3">
+        <i class="fa-solid fa-star text-4xl text-gray-700 transition-all duration-200"></i>
+    </button>
+
+    <button onclick="app.handlers.updateStarsPreview(4)" class="star-rating-btn group relative p-1 transition-all active:scale-90" data-rating="4">
+        <i class="fa-solid fa-star text-4xl text-gray-700 transition-all duration-200"></i>
+    </button>
+
+    <button onclick="app.handlers.updateStarsPreview(5)" class="star-rating-btn group relative p-1 transition-all active:scale-90" data-rating="5">
+    <i class="fa-solid fa-star text-4xl text-gray-700 transition-all duration-200"></i>
+</button>
+</div>
+         
+         <div class="flex flex-col items-center gap-4 mb-3">
+             <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-gray-400 uppercase tracking-widest">
+                <i class="fa-solid fa-shield-halved mr-2 text-primary"></i>
+                La tua valutazione è anonima
+             </div>
+             
+             <!-- <button onclick="app.handlers.skipRating()" class="text-gray-500 hover:text-white text-sm font-medium transition-colors duration-200 border-b border-transparent hover:border-white/20 pb-1">
+                Forse più tardi
+             </button> -->
+         </div>
+      </div>
+   </div>
+</div>
+	  
    </body>
 </html>
+
