@@ -3275,7 +3275,7 @@ showRatingModal: () => {
    const workoutsCount = app.state.history.length;
    
    // Mostra dopo 2 allenamenti completati
-   if (!hasRated && workoutsCount >= 2) {
+   if (!hasRated && workoutsCount >= 1) {
       document.getElementById('rating-modal').classList.remove('hidden');
    }
 },
