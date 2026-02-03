@@ -106,15 +106,14 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 	   <script data-goatcounter="https://redmood.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
       <style>	
 	  
-
+/* Progress Accordion Animation */
+[id^="progress-content-"] {
+    animation: fadeInOnly 0.3s ease-in-out;
+}
 	  
 	  #footer-progress-text{
-	  margin-top: -30px;
-    background-color: #5127f2;
-    padding: 6px 16px;
-    border-radius: 15px;
-    font-weight: 500;
-    color: #FFF;
+	 
+    color: #c084fc;
 	  }
 	  
 	  #weight-comparison{
@@ -784,22 +783,35 @@ color:#c084fc;
                   <!-- Weight Control -->
                   <div class="flex items-center justify-center gap-3 my-4">
                      <!-- Pulsanti -5 e -1 -->
-                     <div class="flex flex-col gap-1">
-                        <button onclick="app.handlers.adjustWeight(-0.5)" style="width: 5.5rem; margin-bottom:7px;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-0.5 kg</button>
-                        <button onclick="app.handlers.adjustWeight(-1)" style="width: 5.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-1 kg</button>
-                     </div>
+                   <div class="flex flex-col gap-1">
+					  <button onclick="app.handlers.adjustWeight(-0.5)" style="width: 5.5rem; margin-bottom:7px;" class="h-8 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-0.5 kg</button>
+					  <button onclick="app.handlers.adjustWeight(-1)" style="width: 5.5rem; margin-bottom:7px;" class="h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-1 kg</button>
+					  <button onclick="app.handlers.adjustWeight(-5)" style="width: 5.5rem;" class="h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">-5 kg</button>
+				   </div>
                      <!-- Display Peso -->
-                     <div class="text-center px-2" style="min-width: 125px;">
-                        <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
-                        <span class="text-l font-bold text-gray-500 block uppercase">kg</span>
-						
-						<div id="weight-comparison" class="text-xs mt-2 text-gray-400"></div>
-                     </div>
+                    <!-- Display Peso -->
+<div class="text-center px-2" style="min-width: 125px;">
+   <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
+   <span class="text-l font-bold text-gray-500 block uppercase">kg</span>
+   
+   <div id="weight-comparison" class="text-xs mt-2 text-gray-400"></div>
+   
+   <!-- Reset Weight Button -->
+   <button 
+      onclick="app.handlers.resetWeight()" 
+      id="btn-reset-weight"
+      class="hidden  mt-3 bg-purple-500/20 text-white-400 hover:bg-purple-800 hover:text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 border border-purple-500/30 flex items-center gap-1 mx-auto"
+   >
+      <i class="fa-solid fa-rotate-left"></i>
+      Reset
+   </button>
+</div>
                      <!-- Pulsanti +1 e +5 -->
-                     <div class="flex flex-col gap-1">
-                        <button onclick="app.handlers.adjustWeight(0.5)" style="width: 5.5rem; margin-bottom:7px;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+0.5 kg</button>
-                        <button onclick="app.handlers.adjustWeight(1)" style="width: 5.5rem;" class=" h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+1 kg</button>
-                     </div>
+                        <div class="flex flex-col gap-1">
+      <button onclick="app.handlers.adjustWeight(0.5)" style="width: 5.5rem; margin-bottom:7px;" class="h-8 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+0.5 kg</button>
+      <button onclick="app.handlers.adjustWeight(1)" style="width: 5.5rem; margin-bottom:7px;" class="h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+1 kg</button>
+      <button onclick="app.handlers.adjustWeight(5)" style="width: 5.5rem;" class="h-10 rounded-lg bg-gray-800 border border-gray-600 text-sm font-bold active:scale-95">+5 kg</button>
+   </div>
                   </div>
                </div>
                <!-- Timer / Rest Overlay -->
@@ -912,38 +924,72 @@ color:#c084fc;
 <!-- Tabs Navigation -->
 <div class="flex gap-2 mb-6 bg-darkCard rounded-xl p-1">
    <button onclick="app.handlers.switchStatsTab('history')" 
-      class="stats-tab flex-1 px-4 py-3 rounded-lg font-semibold transition-all" 
+      class="stats-tab flex-1 px-3 py-3 rounded-lg font-semibold transition-all text-sm" 
       data-tab="history">
-      <i class="fa-solid fa-clock-rotate-left mr-2"></i>
+      <i class="fa-solid fa-clock-rotate-left mr-1"></i>
       Storico
    </button>
+   <button onclick="app.handlers.switchStatsTab('progress')" 
+      class="stats-tab flex-1 px-3 py-3 rounded-lg font-semibold transition-all text-sm" 
+      data-tab="progress">
+      <i class="fa-solid fa-chart-line mr-1"></i>
+      Carichi
+   </button>
    <button onclick="app.handlers.switchStatsTab('statistics')" 
-      class="stats-tab flex-1 px-4 py-3 rounded-lg font-semibold transition-all" 
+      class="stats-tab flex-1 px-3 py-3 rounded-lg font-semibold transition-all text-sm" 
       data-tab="statistics">
-      <i class="fa-solid fa-chart-line mr-2"></i>
-      Statistiche
+      <i class="fa-solid fa-chart-simple mr-1"></i>
+      Stats
    </button>
 </div>
 
+
+
+<!-- Tab Content: Progress -->
+<div id="stats-tab-progress" class="stats-tab-content space-y-6 hidden">
+<div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark mb-4 rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden">
+   <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+   <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+
+   <div class="text-center">
+      <h3 class="text-lg font-bold">
+         <i class="fa-solid fa-chart-line text-5xl mb-3 opacity-90"></i><br>
+         Carichi
+      </h3>
+
+      <p class="text-sm opacity-90 mt-2">
+         In questa sezione puoi visualizzare i tuoi progressi per ogni esercizio,
+         in base alle variazioni di peso registrate nel tempo.
+      </p>
+   </div>
+</div>
+
+
+   <div id="progress-workouts-container">
+      <!-- Injected by JS -->
+   </div>
+</div>
 <!-- Tab Content: Statistics -->
 <div id="stats-tab-statistics" class="stats-tab-content space-y-6">
    <!-- Summary Card Calorie e Grasso -->
-          
-<div class="bg-darkCard rounded-3xl p-6 shadow-sm ">
-   <div class="flex items-start gap-3 mb-3">
-      
-      <div class="flex-1">
-         <h3 class="font-bold  mb-1"><i class="fa-solid fa-ban mr-2"></i> Cancella le tue Statistiche</h3>
-         <p class="text-xs text-gray-400">
-            Elimina tutto lo storico dei tuoi allenamenti, traguardi e le statistiche. <strong>I workout salvati rimarranno intatti</strong>.
-         </p>
-        
-      </div>
+          <div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark mb-4 rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden">
+   <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+   <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+
+   <div class="text-center">
+      <h3 class="text-lg font-bold">
+         <i class="fa-solid fa-chart-simple text-5xl mb-3 opacity-90"></i><br>
+         Statistiche
+      </h3>
+
+      <p class="text-sm opacity-90 mt-2">
+         Analizza i tuoi dati tramite grafici dettagliati: volume settimanale,
+         calorie bruciate e numero di allenamenti nel tempo.
+      </p>
    </div>
-   <button onclick="app.handlers.resetStatistics()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg text-sm font-semibold hover:bg-red-500/10 transition">
-      <i class="fa-solid fa-chart-line-up-down"></i> Cancella solo statistiche
-   </button>
 </div>
+
+
             <!-- Charts Container -->
             <div class="bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm">
                <h3 class="font-semibold mb-4 text-sm text-gray-500 uppercase">Volume Settimanale (Kg)</h3>
@@ -958,7 +1004,21 @@ color:#c084fc;
                <canvas id="chart-consistency" height="200"></canvas>
             </div>
 			
-			
+			<div class="bg-darkCard rounded-3xl p-6 shadow-sm ">
+   <div class="flex items-start gap-3 mb-3">
+      
+      <div class="flex-1">
+         <h3 class="font-bold  mb-1"><i class="fa-solid fa-ban mr-2"></i> Cancella le tue Statistiche</h3>
+         <p class="text-sm text-gray-400">
+            Elimina tutto lo storico dei tuoi allenamenti, traguardi e le statistiche. <strong>I workout salvati rimarranno intatti</strong>.
+         </p>
+        
+      </div>
+   </div>
+   <button onclick="app.handlers.resetStatistics()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg text-sm font-semibold hover:bg-red-500/10 transition">
+      <i class="fa-solid fa-chart-line-up-down"></i> Cancella solo statistiche
+   </button>
+</div>
 			
 </div>
 
@@ -970,7 +1030,7 @@ color:#c084fc;
 			  <div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden mb-7">
    <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
    <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
-               <h3 class="text-sm opacity-90 uppercase tracking-wider font-semibold mb-4">Totale Storico</h3>
+               <h3 class="text-sm opacity-90 uppercase tracking-wider font-semibold mb-4"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Totale Storico</h3>
                <div class="grid grid-cols-2 gap-4">
                   <div>
                      <span id="total-calories" class="text-3xl font-bold block">0</span>
@@ -2571,6 +2631,252 @@ list.innerHTML = html;
  app.handlers.switchStatsTab('history');
                  },
 				 
+				 renderProgress: () => {
+    const container = document.getElementById('progress-workouts-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (app.state.workouts.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-12 text-gray-400">
+                <i class="fa-solid fa-dumbbell text-5xl mb-4 opacity-50"></i>
+                <p class="text-lg font-semibold">Nessun workout salvato</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Per ogni workout attivo
+    app.state.workouts.forEach(workout => {
+        // Trova tutti gli allenamenti completati per questo workout
+        const workoutHistory = app.state.history
+            .filter(h => h.workoutId === workout.id)
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        if (workoutHistory.length === 0) {
+            return; // Skip workout mai fatto
+        }
+        
+        // Calcola statistiche temporali
+        const firstDate = new Date(workoutHistory[0].date);
+        const lastDate = new Date(workoutHistory[workoutHistory.length - 1].date);
+        const daysPassed = Math.floor((Date.now() - firstDate) / (1000 * 60 * 60 * 24));
+        const totalSessions = workoutHistory.length;
+        
+        // Raggruppa dati per esercizio
+        const exerciseData = {};
+        
+        workoutHistory.forEach(session => {
+            if (!session.logs) return;
+            
+            session.logs.forEach(log => {
+                if (!exerciseData[log.exercise]) {
+                    exerciseData[log.exercise] = {
+                        weights: [],
+                        dates: [],
+                        sets: [],
+                        reps: []
+                    };
+                }
+                
+                exerciseData[log.exercise].weights.push({
+                    date: new Date(session.date),
+                    weight: parseFloat(log.weight) * (log.multiplier || 1)
+                });
+                
+                if (log.sets) exerciseData[log.exercise].sets.push(log.sets);
+                if (log.targetReps) exerciseData[log.exercise].reps.push(log.targetReps);
+            });
+        });
+        
+        // Genera HTML per questo workout
+        const workoutCard = document.createElement('div');
+        workoutCard.className = 'bg-darkCard rounded-2xl p-5 shadow-lg mb-6';
+        
+workoutCard.innerHTML = `
+    <div class="cursor-pointer" onclick="app.handlers.toggleProgressAccordion('${workout.id}')">
+        <h3 class="text-l font-bold text-white flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              
+                ${workout.name}
+            </div>
+            <i class="fa-solid fa-chevron-down text-gray-400 ml-4 transition-transform duration-300" id="chevron-${workout.id}"></i>
+        </h3>
+		 <div id="progress-content-${workout.id}" class="hidden">
+		 
+                <div class="grid grid-cols-2 gap-3 mt-3 text-sm bg-gray-900/50 rounded-xl mb-4 p-4 border border-gray-700/50">
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="text-gray-400 text-xs mb-1">Prima volta del tuo workout</div>
+                        <div class="font-bold text-white">
+                            ${firstDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="text-gray-400 text-xs mb-1">Giorni passati dal primo workout</div>
+                        <div class="font-bold text-purple-300">${daysPassed} giorni</div>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="text-gray-400 text-xs mb-1">Sessioni totali del tuo workout</div>
+                        <div class="font-bold text-green-400">${totalSessions}x</div>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-3">
+                        <div class="text-gray-400 text-xs mb-1">Ultima volta del tuo workout</div>
+                        <div class="font-bold text-white">
+                            ${lastDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
+                        </div>
+                    </div>
+                </div>
+           
+            
+            <div class="space-y-4">
+                ${Object.entries(exerciseData).map(([exerciseName, data]) => {
+                    // Calcola progressi
+                    const avgWeights = [];
+                    const dates = [];
+                    
+                    // Raggruppa per data (media dei pesi)
+                    const weightsByDate = {};
+                    data.weights.forEach(w => {
+                        const dateKey = w.date.toLocaleDateString('it-IT');
+                        if (!weightsByDate[dateKey]) {
+                            weightsByDate[dateKey] = [];
+                        }
+                        weightsByDate[dateKey].push(w.weight);
+                    });
+                    
+                    Object.entries(weightsByDate).forEach(([date, weights]) => {
+                        dates.push(date);
+                        avgWeights.push((weights.reduce((a, b) => a + b, 0) / weights.length).toFixed(1));
+                    });
+                    
+                    const firstWeight = parseFloat(avgWeights[0]);
+                    const lastWeight = parseFloat(avgWeights[avgWeights.length - 1]);
+                    const improvement = lastWeight - firstWeight;
+                    const improvementPct = firstWeight > 0 ? ((improvement / firstWeight) * 100).toFixed(1) : 0;
+                    
+                    // Variazioni sets/reps
+                    const uniqueSets = [...new Set(data.sets)];
+                    const uniqueReps = [...new Set(data.reps)];
+                    const setsChanged = uniqueSets.length > 1;
+                    const repsChanged = uniqueReps.length > 1;
+                    
+                    return `
+                        <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/50">
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-white text-sm">${exerciseName}</h4>
+                                    <div class="flex items-center gap-2 mt-1 text-xs">
+                                        ${setsChanged ? '<span class="bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">Serie variate</span>' : ''}
+                                        ${repsChanged ? '<span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Reps variate</span>' : ''}
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xs text-gray-400">Progresso</div>
+                                    <div class="font-bold ${improvement > 0 ? 'text-green-400' : improvement < 0 ? 'text-red-400' : 'text-gray-400'}">
+                                        ${improvement > 0 ? '+' : ''}${improvement.toFixed(1)}kg
+                                        ${improvementPct != 0 ? `<span class="text-xs opacity-75">(${improvementPct > 0 ? '+' : ''}${improvementPct}%)</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-900/50 rounded-lg p-3">
+                                <canvas id="chart-progress-${workout.id}-${exerciseName.replace(/\s+/g, '-')}" height="80"></canvas>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
+                                <div class="bg-gray-900/30 rounded p-2 text-center">
+                                    <div class="text-gray-500">Primo</div>
+                                    <div class="font-bold text-white">${firstWeight}kg</div>
+                                </div>
+                                <div class="bg-gray-900/30 rounded p-2 text-center">
+                                    <div class="text-gray-500">Ultimo</div>
+                                    <div class="font-bold text-purple-300">${lastWeight}kg</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+             </div>
+        </div>
+        `;
+        
+        container.appendChild(workoutCard);
+        
+        // Crea i grafici
+        Object.entries(exerciseData).forEach(([exerciseName, data]) => {
+            const canvasId = `chart-progress-${workout.id}-${exerciseName.replace(/\s+/g, '-')}`;
+            const canvas = document.getElementById(canvasId);
+            
+            if (!canvas) return;
+            
+            const avgWeights = [];
+            const dates = [];
+            
+            const weightsByDate = {};
+            data.weights.forEach(w => {
+                const dateKey = w.date.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+                if (!weightsByDate[dateKey]) {
+                    weightsByDate[dateKey] = [];
+                }
+                weightsByDate[dateKey].push(w.weight);
+            });
+            
+            Object.entries(weightsByDate).forEach(([date, weights]) => {
+                dates.push(date);
+                avgWeights.push((weights.reduce((a, b) => a + b, 0) / weights.length).toFixed(1));
+            });
+            
+            new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Peso (kg)',
+                        data: avgWeights,
+                        borderColor: '#5127f2',
+                        backgroundColor: 'rgba(81, 39, 242, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#5127f2',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.parsed.y} kg`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { 
+                                color: '#9ca3af',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    });
+
+},
+				 
 				 // ✨✨✨ AGGIUNGI QUESTA FUNZIONE QUI ✨✨✨
 showWorkoutSummaryModal: (stats) => {
     const modal = document.createElement('div');
@@ -2880,11 +3186,67 @@ adjustWeight: (delta) => {
             kgLabel.innerHTML = 'kg';
         }
     }
+	
+	const resetBtn = document.getElementById('btn-reset-weight');
+    if (resetBtn) {
+        if (Math.abs(session.weightDelta) > 0) {
+            resetBtn.classList.remove('hidden');
+        } else {
+            resetBtn.classList.add('hidden');
+        }
+    }
 
     app.ui.updateActiveView();
     app.updateWeightComparison();
 },
 
+resetWeight: () => {
+    const session = app.state.activeSession;
+    if (!session) return;
+    
+    const ex = session.workout.exercises[session.currentExIdx];
+    
+    // Recupera peso salvato dall'ultimo workout
+    const lastData = app.getLastWorkoutWeight(session.workout.id, ex.name);
+    const savedWeight = lastData ? lastData.weight : 0;
+    
+    // Reset al peso salvato
+    ex.lastWeight = savedWeight;
+    session.weightDelta = 0;
+    session.lastSavedWeight = savedWeight;
+    
+    // Update UI
+    document.getElementById('active-weight-value').innerText = savedWeight;
+    
+    const kgLabel = document.querySelector('#active-weight-value + span');
+    if (kgLabel) {
+        kgLabel.innerHTML = 'kg';
+    }
+    
+    app.updateWeightComparison();
+    
+    // Feedback visivo + suono
+    if (app.state.settings.vibrate && navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+    
+    const btn = document.getElementById('btn-reset-weight');
+    if (btn) {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Ripristinato';
+        btn.classList.replace('bg-orange-500/20', 'bg-green-500/20');
+        btn.classList.replace('text-orange-400', 'text-green-400');
+        btn.classList.replace('border-orange-500/30', 'border-green-500/30');
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Reset';
+            btn.classList.replace('bg-green-500/20', 'bg-orange-500/20');
+            btn.classList.replace('text-green-400', 'text-orange-400');
+            btn.classList.replace('border-green-500/30', 'border-orange-500/30');
+			btn.classList.add('hidden');
+        }, 1500);
+    }
+	
+},
          
 skipRest: (_, isNextExercise = false) => {
   if (app.restInterval) clearInterval(app.restInterval);
@@ -2908,6 +3270,10 @@ skipRest: (_, isNextExercise = false) => {
     if (kgLabel) {
         kgLabel.innerHTML = 'kg';
     }
+	
+	// ✨ NASCONDI PULSANTE RESET
+  const resetBtn = document.getElementById('btn-reset-weight');
+  if (resetBtn) resetBtn.classList.add('hidden');
   }
   
   app.handlers.startExerciseTimer();
@@ -2934,6 +3300,10 @@ skipExercise: () => {
     if (kgLabel) {
         kgLabel.innerHTML = 'kg';
     }
+	
+	// ✨ NASCONDI PULSANTE RESET
+  const resetBtn = document.getElementById('btn-reset-weight');
+  if (resetBtn) resetBtn.classList.add('hidden');
     
     app.handlers.startExerciseTimer();
     session.status = 'work';
@@ -2965,7 +3335,9 @@ completeSet: () => {
         exercise: ex.name,
         weight: isNaN(weight) ? 0 : weight,
         reps: isNaN(reps) ? 0 : reps,
-        multiplier: multiplier
+		multiplier: multiplier,
+        sets: ex.sets, // ✨ AGGIUNGI
+        targetReps: ex.reps // ✨ AGGIUNGI
     });
     
     // Persist new weight to main DB so next time it's updated
@@ -2999,6 +3371,17 @@ completeSet: () => {
          const session = app.state.activeSession;
          session.status = 'rest';
          app.ui.updateActiveView();
+		 
+		 // ✨ PIANIFICA NOTIFICA BACKGROUND
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        setTimeout(() => {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'SHOW_NOTIFICATION',
+                title: '⏰ Riposo Terminato!',
+                body: 'Inizia la prossima serie 💪'
+            });
+        }, seconds * 1000);
+    }
          
          // ✨ CARICA STATO TOGGLE
          const autoNextCheckbox = document.getElementById('auto-next-toggle');
@@ -3229,12 +3612,24 @@ startExerciseTimer: () => {
   }, 1000);
 },
          
-                 // Notifications & Sounds
-                 requestNotificationPermission: () => {
-                     if ("Notification" in window && Notification.permission !== "granted") {
-                         Notification.requestPermission();
-                     }
-                 },
+requestNotificationPermission: async () => {
+    if (!("Notification" in window)) {
+        console.warn('Browser non supporta notifiche');
+        return;
+    }
+    
+    if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        
+        if (permission === 'granted') {
+            // Test notifica
+            new Notification('✅ Notifiche Attivate', {
+                body: 'Riceverai avvisi quando il timer finisce',
+                icon: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png'
+            });
+        }
+    }
+},
          
                  notify: () => {
                      // Sound
@@ -3531,8 +3926,52 @@ switchStatsTab: (tabName) => {
       content.classList.add('hidden');
    });
    document.getElementById(`stats-tab-${tabName}`).classList.remove('hidden');
+   
+   // ✨ Render progress se necessario
+   if (tabName === 'progress') {
+      app.ui.renderProgress();
+   }
 },
+toggleProgressAccordion: (workoutId) => {
+    const content = document.getElementById(`progress-content-${workoutId}`);
+    const chevron = document.getElementById(`chevron-${workoutId}`);
 
+    if (!content || !chevron) return;
+
+    const isOpen = !content.classList.contains('hidden');
+
+    if (isOpen) {
+        // Chiudi questo accordion
+        content.classList.add('hidden');
+        chevron.style.transform = 'rotate(0deg)';
+        return;
+    }
+
+    // Chiudi tutti gli altri accordion
+    document.querySelectorAll('[id^="progress-content-"]').forEach(el => {
+        el.classList.add('hidden');
+    });
+    document.querySelectorAll('[id^="chevron-"]').forEach(el => {
+        el.style.transform = 'rotate(0deg)';
+    });
+
+    // Apri questo accordion
+    content.classList.remove('hidden');
+    chevron.style.transform = 'rotate(180deg)';
+
+    // 🔥 Scroll DOPO che il layout è stabile
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            const card = content.closest('.bg-darkCard');
+            if (card) {
+                card.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+},
 installPWA: () => {
     if (!app.state.deferredPrompt) {
         alert('📱 L\'app è già installata o il browser non supporta l\'installazione.');
@@ -3640,18 +4079,26 @@ installPWA: () => {
            }
        }
        
-       // ✅ MIGRAZIONE AUTOMATICA - HISTORY
-       if(data.history) {
-           for (const h of data.history) {
-               // Aggiungi campi mancanti con valori di default
-               if (!h.caloriesBurned) h.caloriesBurned = 0;
-               if (!h.durationMinutes) h.durationMinutes = 0;
-               if (!h.effectiveDurationMinutes) h.effectiveDurationMinutes = 0;
-               if (!h.totalVolume) h.totalVolume = 0;
-               
-               await app.db.put('history', h);
-           }
-       }
+		// ✅ MIGRAZIONE AUTOMATICA - HISTORY
+		if(data.history) {
+			for (const h of data.history) {
+				// Aggiungi campi mancanti con valori di default
+				if (!h.caloriesBurned) h.caloriesBurned = 0;
+				if (!h.durationMinutes) h.durationMinutes = 0;
+				if (!h.effectiveDurationMinutes) h.effectiveDurationMinutes = 0;
+				if (!h.totalVolume) h.totalVolume = 0;
+				
+				// ✨ MIGRAZIONE LOGS PER PROGRESSI
+				if (h.logs && Array.isArray(h.logs)) {
+					h.logs.forEach(log => {
+						if (!log.sets) log.sets = null;
+						if (!log.targetReps) log.targetReps = null;
+					});
+				}
+				
+				await app.db.put('history', h);
+			}
+		}
        
        // ✅ SETTINGS - Gestisce sia vecchio che nuovo formato
        if(data.settings) {
@@ -3905,34 +4352,49 @@ if (motivationalToggle) {
 <script>
 if ('serviceWorker' in navigator) {
     const swCode = `
-    const CACHE_NAME = 'workout-tracker-v2';
+    const CACHE_NAME = 'workout-tracker-v3';
     const urlsToCache = [
         '/',
         'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png'
     ];
         
-        self.addEventListener('install', event => {
-            event.waitUntil(
-                caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-            );
-        });
-        
-        self.addEventListener('fetch', event => {
-            event.respondWith(
-                caches.match(event.request).then(response => response || fetch(event.request))
-            );
-        });
-    `;
-    
-    const blob = new Blob([swCode], { type: 'application/javascript' });
-    const swUrl = URL.createObjectURL(blob);
-    
-    navigator.serviceWorker.register(swUrl).then(() => {
-        console.log('✅ Service Worker registrato');
-    }).catch(err => {
-        console.warn('⚠️ Service Worker non registrato:', err);
+    self.addEventListener('install', event => {
+        event.waitUntil(
+            caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+        );
     });
-}
+    
+    self.addEventListener('fetch', event => {
+        event.respondWith(
+            caches.match(event.request).then(response => response || fetch(event.request))
+        );
+    });
+    
+    // ✨ NUOVO: Gestione notifiche in background
+    self.addEventListener('notificationclick', event => {
+        event.notification.close();
+        event.waitUntil(
+            clients.openWindow('/')
+        );
+    });
+    
+    // ✨ NUOVO: Ricevi messaggi dal client
+    self.addEventListener('message', event => {
+        if (event.data.type === 'SHOW_NOTIFICATION') {
+            self.registration.showNotification(event.data.title, {
+                body: event.data.body,
+                icon: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
+                badge: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
+                vibrate: [200, 100, 200],
+                tag: 'workout-timer',
+                requireInteraction: true,
+                actions: [
+                    { action: 'start', title: '▶️ Inizia Serie' }
+                ]
+            });
+        }
+    });
+    `;
 </script>
 </body>
    </body>
