@@ -2093,7 +2093,7 @@ const todayWorkouts = app.state.workouts.filter(w =>
                         </div>
                         <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
                             <h4 class="font-bold text-md">${w.name}</h4>
-                            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)), 0)/60 + (w.exercises.length * 2) | 0} min stimati</p>
+                            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0))} min stimati</p>
                                 ${completedThisWeek ? `
                                     <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
                                         <i class="fa-solid fa-check"></i>
@@ -2222,7 +2222,7 @@ activeWorkouts.forEach(w => {
         </div>
         <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
             <h4 class="font-bold text-md">${w.name}</h4>
-            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)), 0)/60 + (w.exercises.length * 2) | 0} min stimati</p>
+            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0))} min stimati</p>
             ${completedThisWeek ? `
                 <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
                     <i class="fa-solid fa-check"></i>
@@ -2259,7 +2259,7 @@ el.innerHTML = `
                 
                 <h4 class="font-bold text-md">${w.name}</h4>
             </div>
-                <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)), 0)/60 + (w.exercises.length * 2) | 0} min stimati</p>
+                <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0))} min stimati</p>
             </div>
         `;
         list.appendChild(el);
