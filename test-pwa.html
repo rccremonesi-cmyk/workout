@@ -93,7 +93,8 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
       <script src="https://cdn.tailwindcss.com"></script>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
 	  
 	  <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -104,7 +105,65 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
       <meta http-equiv="Expires" content="0">
 
 	   <script data-goatcounter="https://redmood.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-      <style>	
+      <style>
+
+	 
+
+
+
+
+	 
+input#editor-archived {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 48px;
+  height: 24px;
+  background-color: #4b5563;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  outline: none;
+  flex-shrink: 0;
+  position:relative;
+}
+
+/* Stile quando è checked */
+input#editor-archived:checked {
+  background-color: #5127f2; 
+}
+
+/* Il pallino del toggle */
+input#editor-archived::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Movimento del pallino quando è checked */
+input#editor-archived:checked::before {
+  transform: translateX(24px);
+}
+
+/* Effetto hover */
+input#editor-archived:hover {
+  opacity: 0.9;
+}
+
+/* Focus per accessibilità */
+input#editor-archived:focus {
+  box-shadow: 0 0 0 3px rgba(59, 131, 246, 0.781)
+}
+	  
+	  
+	  
 	  /* Coriandoli Animation */
 /* Coriandoli Animation */
 @keyframes confetti-fall {
@@ -291,10 +350,19 @@ input[type="checkbox"]:focus {
 }
 	  }
 	  
-	  .shadow-custom{
+.shadow-custom{
 	  -webkit-box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.10);
     box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.10);
-	  }
+}
+
+/* Workout Color Selection */
+.workout-color-btn.selected {
+   border-color: white !important;
+   box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+   transform: scale(1.1);
+}
+	  
+	  
 
 nav button.text-primary{
 color:#c084fc;
@@ -683,23 +751,81 @@ color:#c084fc;
          <!-- VIEW: WORKOUT EDITOR --> 
          <section id="view-editor" class="view-section p-4 bg-darkBg bg-darkBg min-h-full inset-0 z-30 overflow-y-auto no-scrollbar fixed">
 		 <div class="internal-section">
-            <div class="flex items-center gap-3 mb-4 sticky bg-darkBg bg-darkBg pt-4 pb-4" style="top: -17px;">
-   <!-- Back Button -->
-   <button onclick="app.router.go('dashboard')" class="p-0 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-all active:scale-95">
-      <i class="fa-solid fa-arrow-left text-xl"></i>
-   </button>
+<div class="sticky bg-darkBg pt-4 pb-4 space-y-3 z-40" style="top: -17px;">
+   <!-- Prima riga: Back + Name + Delete -->
+   <div class="flex items-center gap-3">
+      <!-- Back Button -->
+      <button onclick="app.router.go('dashboard')" class="p-0 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-all active:scale-95">
+         <i class="fa-solid fa-arrow-left text-xl"></i>
+      </button>
+      
+      <!-- Workout Name Input -->
+      <input type="text" id="editor-name" 
+         class="flex-1 font-bold bg-gray-800 border-2 border-primary/50 focus:border-primary rounded-xl px-4 py-3 placeholder-gray-500 focus:ring-0 focus:outline-none transition-all" 
+         placeholder="Nome Workout (es. Leg Day)">
+      
+      <!-- Delete Button (hidden by default) -->
+      <button onclick="app.handlers.deleteWorkout()" id="btn-delete-workout" 
+         class="hidden bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-3 rounded-xl font-semibold transition-all active:scale-95 border border-red-500/30 flex items-center gap-2">
+         <i class="fa-solid fa-trash"></i>
+         <span class="hidden sm:inline">Elimina</span>
+      </button>
+   </div>
    
-   <!-- Workout Name Input -->
-   <input type="text" id="editor-name" 
-      class="flex-1 font-bold bg-gray-800 border-2 border-primary/50 focus:border-primary rounded-xl px-4 py-3 placeholder-gray-500 focus:ring-0 focus:outline-none transition-all" 
-      placeholder="Nome Workout (es. Leg Day)">
+   <!-- Seconda riga: Icona + Colore -->
+   <div class="flex items-center gap-2">
+     
+	  
+<button onclick="app.handlers.openIconPicker()" 
+   class="bg-gray-800 border-2 border-gray-700 hover:border-primary rounded-xl p-2 transition-all active:scale-95 flex items-center gap-2 group">
+   <i id="editor-icon-preview" class="hgi hgi-stroke hgi-dumbbell-01 text-2xl text-white"></i>
+   <i class="hgi hgi-stroke hgi-arrow-down-01 text-sm text-gray-500 group-hover:text-primary"></i>
+</button>
+      
+      <!-- Colore Selezionato -->
+<div class="flex gap-1 flex-1 overflow-x-auto hide-scrollbar">
+    <button onclick="app.handlers.selectColor('#5127f2')" data-color="#5127f2" 
+        class="workout-color-btn w-10 h-10 rounded-lg border-2 m-1 border-transparent transition-all active:scale-95" 
+        style="background: #5127f2;">
+    </button>
+    
+    <button onclick="app.handlers.selectColor('#a855f7')" data-color="#a855f7" 
+        class="workout-color-btn w-10 h-10 rounded-lg border-2 m-1 border-transparent transition-all active:scale-95" 
+        style="background: #a855f7;">
+    </button>
+    
+    <button onclick="app.handlers.selectColor('#db2777')" data-color="#db2777" 
+        class="workout-color-btn w-10 h-10 rounded-lg border-2 m-1 border-transparent transition-all active:scale-95" 
+        style="background: #db2777;">
+    </button>
+    
+    <button onclick="app.handlers.selectColor('#ea580c')" data-color="#ea580c" 
+        class="workout-color-btn w-10 h-10 rounded-lg border-2 m-1 border-transparent transition-all active:scale-95" 
+        style="background: #ea580c;">
+    </button>
+    
+    <button onclick="app.handlers.selectColor('#ca8a04')" data-color="#ca8a04" 
+        class="workout-color-btn w-10 h-10 rounded-lg border-2 m-1 border-transparent transition-all active:scale-95" 
+        style="background: #ca8a04;">
+    </button>
+    
+    <button onclick="app.handlers.selectColor('#16a34a')" data-color="#16a34a" 
+        class="workout-color-btn w-10 h-10 rounded-lg border-2 m-1 border-transparent transition-all active:scale-95" 
+        style="background: #16a34a;">
+    </button>
+    
+    <button onclick="app.handlers.selectColor('#0891b2')" data-color="#0891b2" 
+        class="workout-color-btn w-10 h-10 rounded-lg border-2 m-1 border-transparent transition-all active:scale-95" 
+        style="background: #0891b2;">
+    </button>
+    
+
+</div>
+
+
+   </div>
    
-   <!-- Delete Button (hidden by default) -->
-   <button onclick="app.handlers.deleteWorkout()" id="btn-delete-workout" 
-      class="hidden bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-3 rounded-xl font-semibold transition-all active:scale-95 border border-red-500/30 flex items-center gap-2">
-      <i class="fa-solid fa-trash"></i>
-      <span class="hidden sm:inline">Elimina</span>
-   </button>
+   
 </div>
 			
 			   <div class="mb-4 bg-gray-800 p-4 rounded-xl">
@@ -710,11 +836,29 @@ color:#c084fc;
          <!-- Injected by JS -->
       </div>
    </div>
+   
+<!-- Toggle Archiviazione -->
+<div class="mb-4 bg-gray-800 p-4 rounded-xl toggle-class">
+   <div class="flex items-center justify-between gap-4">
+      <div class="flex-1">
+         <label class="text-sm font-semibold flex items-center gap-2 mb-2">
+            <i class="fa-solid fa-box-archive"></i> Archivia Workout
+         </label>
+         <p class="text-xs text-gray-400 leading-relaxed">
+            I workout archiviati rimangono salvati ma vengono nascosti dalla lista principale. 
+            Le statistiche e lo storico restano intatti.
+         </p>
+      </div>
+      <input type="checkbox" id="editor-archived" class="editor-toggle-switch">
+   </div>
+</div>
 			
             <div id="editor-exercises-list" class="space-y-4 mb-20" style="padding-bottom:100px;">
                <!-- Exercises injected here via SortableJS -->
             </div>
             <!-- Floating Action Button for Add Exercise -->
+			<div class="fixed bottom-0 w-full h-[20px] right-0 z-10" style="box-shadow: rgb(17, 24, 39) 0px 0px 50px 64px; background-color: #111827;">&nbsp;</div>
+			
             <div class="fixed bottom-6 right-6 z-40">
                <button onclick="app.handlers.addExerciseToEditor()" id="add-btn" class="bg-primary text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2" style="-webkit-box-shadow: 0px 0px 22px 4px #111827;
     box-shadow: 0px 0px 22px 4px #111827;">
@@ -1125,7 +1269,7 @@ color:#c084fc;
          
          <h3 class="text-lg font-bold"><i class="fa-solid fa-gear text-5xl mb-3 opacity-90"></i><br/> Impostazioni</h3>
          <p class="text-sm opacity-90 mt-2">
-            <i class="fa-regular fa-envelope"></i> Per infomazioni o collaborazioni inviami una email a: <a href="mailto:devcode8493@gmail.com">devcode8493@gmail.com</a>
+            <i class="fa-regular fa-envelope"></i>Inserisci i tuoi dati e preferenze per visualizzare statistiche accurate. </a>
          </p>
       </div>
    </div>
@@ -1137,19 +1281,19 @@ color:#c084fc;
 				   
                   <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Peso corporeo (kg)</span>
-                     <input type="number" id="setting-body-weight" step="0.1" class="bg-gray-100 bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="70">
+                     <input type="number" id="setting-body-weight" step="0.1" class="bg-gray-100 bg-gray-800 rounded-lg px-3 py-1 w-20 text-right" placeholder="70">
                   </div>
                   <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Altezza (cm)</span>
-                     <input type="number" id="setting-height" class="bg-gray-100 bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="175">
+                     <input type="number" id="setting-height" class="bg-gray-100 bg-gray-800 rounded-lg px-3 py-1 w-20 text-right" placeholder="175">
                   </div>
                   <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Età (anni)</span>
-                     <input type="number" id="setting-age" class="bg-gray-100 bg-gray-800 rounded px-3 py-1 w-20 text-right" placeholder="30">
+                     <input type="number" id="setting-age" class="bg-gray-100 bg-gray-800 rounded-lg px-3 py-1 w-20 text-right" placeholder="30">
                   </div>
                   <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Sesso</span>
-                     <select id="setting-gender" class="bg-gray-100 bg-gray-800 rounded px-3 py-1">
+                     <select id="setting-gender" class="bg-gray-100 bg-gray-800 rounded-lg px-3 py-1">
                         <option value="">Non specificato</option>
                         <option value="male">Maschio</option>
                         <option value="female">Femmina</option>
@@ -1158,7 +1302,7 @@ color:#c084fc;
                   <!-- Aggiungi dopo il campo sesso nelle impostazioni -->
                   <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center">
                      <span>Livello di Allenamento</span>
-                     <select id="setting-training-level" class="bg-gray-100 bg-gray-800 rounded px-3 py-1">
+                     <select id="setting-training-level" class="bg-gray-100 bg-gray-800 rounded-lg px-3 py-1">
                         <option value="beginner">Principiante</option>
                         <option value="intermediate" selected>Intermedio</option>
                         <option value="advanced">Avanzato</option>
@@ -1168,7 +1312,7 @@ color:#c084fc;
                </div>
                <div class="p-4 border-b border-gray-100 border-gray-700 flex justify-between items-center" style="display:none;">
                   <span>Unità di peso</span>
-                  <select id="setting-unit" class="bg-gray-100 bg-gray-800 rounded px-2 py-1">
+                  <select id="setting-unit" class="bg-gray-100 bg-gray-800 rounded-lg px-2 py-1">
                      <option value="kg">KG</option>
                      <option value="lb">LB</option>
                   </select>
@@ -1316,9 +1460,26 @@ color:#c084fc;
             <div id="workout-preview-content" class="p-6 space-y-3 overflow-y-auto max-h-[calc(80vh-80px)] text-white">
                <!-- Content injected by JS -->
             </div>
+</div>
+      </div>
+      
+      <!-- Modal Icon Picker -->
+      <div id="icon-picker-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+         <div class="bg-darkCard rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden shadow-2xl">
+            <div class="sticky top-0 bg-gray-900 px-6 py-4 border-b border-gray-700 flex justify-between items-center">
+               <h3 class="font-bold text-xl text-white">Scegli Icona</h3>
+               <button onclick="document.getElementById('icon-picker-modal').classList.add('hidden')" class="text-gray-400 hover:text-white">
+                  <i class="fa-solid fa-xmark text-2xl"></i>
+               </button>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[calc(80vh-80px)] grid grid-cols-5 gap-3">
+               <!-- Icone iniettate da JS -->
+            </div>
          </div>
       </div>
+      
       <!-- AUDIO ELEMENTS -->
+
       <!-- <audio id="audio-beep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio> -->
       <audio id="audio-beep" src="https://cdn.freesound.org/previews/22/22627_7037-lq.ogg" preload="auto"></audio>
       <audio id="audio-complete" src="https://cdn.freesound.org/previews/619/619839_7614679-lq.ogg" preload="auto"></audio>
@@ -1887,10 +2048,10 @@ renderDashboard: () => {
     document.getElementById('period-fat-burned').innerText = fatBurnedGrams;
      
     // Today's Recommended Workouts
-    const today = new Date().getDay(); // 0=Dom, 1=Lun, etc.
-    const todayWorkouts = app.state.workouts.filter(w => 
-        w.preferredDays && w.preferredDays.includes(today)
-    );
+const today = new Date().getDay(); // 0=Dom, 1=Lun, etc.
+const todayWorkouts = app.state.workouts.filter(w => 
+    w.preferredDays && w.preferredDays.includes(today) && !w.archived
+);
 
     // ✅ Definisci sempre le variabili per la data
     const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
@@ -1908,23 +2069,28 @@ renderDashboard: () => {
 
     if (todayWorkouts.length > 0) {
         // ✅ Caso: Ci sono workout per oggi
-        list.innerHTML += `
-            <div class="space-y-3">
-                ${todayWorkouts.map(w => {
-                    // Check if completed this week
-                    const weekStart = new Date();
-                    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-                    weekStart.setHours(0, 0, 0, 0);
-                    
-                    const completedThisWeek = app.state.history
-                        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
-                        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-                    
-                    return `
-                        <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
-                            <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
-                                <h4 class="font-bold text-md">${w.name}</h4>
-                                <p class="text-xs text-gray-400">${w.exercises.length} Esercizi</p>
+       list.innerHTML += `
+    <div class="space-y-3">
+        ${todayWorkouts.map(w => {
+            // Check if completed this week
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            weekStart.setHours(0, 0, 0, 0);
+            
+            const completedThisWeek = app.state.history
+                .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
+                .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+            
+            return `
+                <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
+                    <div class="flex items-center gap-3 flex-1">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" 
+                             style="background: ${w.color || '#5127f2'}">
+                            <i class="hgi hgi-stroke ${w.icon || 'hgi-dumbbell-01'} text-2xl text-white"></i>
+                        </div>
+                        <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
+                            <h4 class="font-bold text-md">${w.name}</h4>
+                            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)), 0)/60 + (w.exercises.length * 2) | 0} min stimati</p>
                                 ${completedThisWeek ? `
                                     <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
                                         <i class="fa-solid fa-check"></i>
@@ -2016,49 +2182,87 @@ renderDashboard: () => {
         return;
     }
 
-    app.state.workouts.forEach(w => {
-        // Check if completed this week
-        const weekStart = new Date();
-        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-        weekStart.setHours(0, 0, 0, 0);
-        
-        const completedThisWeek = app.state.history
-            .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
-            .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-        
+// Filtra workout attivi e archiviati
+const activeWorkouts = app.state.workouts.filter(w => !w.archived);
+const archivedWorkouts = app.state.workouts.filter(w => w.archived);
+
+// Render workout attivi
+activeWorkouts.forEach(w => {
+    // Check if completed this week
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const completedThisWeek = app.state.history
+        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    
+    const el = document.createElement('div');
+    el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
+
+    const dayLabels = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
+    const preferredDaysHTML = (w.preferredDays && w.preferredDays.length > 0) ? `
+        <div class="flex items-center gap-1 mt-1">
+            <i class="fa-regular fa-calendar text-gray-500" style="font-size: 14px;"></i>
+            ${dayLabels.map((day, idx) => {
+                const isAssigned = w.preferredDays.includes(idx);
+                return `<span class="text-[12px] font-semibold px-1.5 py-0.5 rounded ${isAssigned ? 'bg-primary/20 text-white' : 'bg-gray-800 text-gray-600'}">${day}</span>`;
+            }).join('')}
+        </div>
+    ` : '';
+
+    el.innerHTML = `
+    <div class="flex items-center gap-3 flex-1">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" 
+             style="background: ${w.color || '#5127f2'}">
+            <i class="hgi hgi-stroke ${w.icon || 'hgi-dumbbell-01'} text-2xl text-white"></i>
+        </div>
+        <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
+            <h4 class="font-bold text-md">${w.name}</h4>
+            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)), 0)/60 + (w.exercises.length * 2) | 0} min stimati</p>
+            ${completedThisWeek ? `
+                <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
+                    <i class="fa-solid fa-check"></i>
+                    Lo hai completato ${new Date(completedThisWeek.date).toLocaleDateString('it-IT', {weekday: 'short', day: 'numeric', month: 'short'})}
+                </p>
+            ` : ''}
+            ${preferredDaysHTML}
+        </div>
+        <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
+            <i class="fa-solid fa-play ml-1"></i>
+        </button>
+    `;
+    list.appendChild(el);
+});
+
+// ✅ SEZIONE WORKOUT ARCHIVIATI
+if (archivedWorkouts.length > 0) {
+    list.innerHTML += `<h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 flex items-center justify-center gap-2 text-center " style="margin-top:50px !important;">
+       🗃️ Workout Archiviati
+    </h3>`;
+    
+    archivedWorkouts.forEach(w => {
         const el = document.createElement('div');
-        el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
+        el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98 opacity-60';
 
-        // Genera i giorni assegnati
-        const dayLabels = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
-        const preferredDaysHTML = (w.preferredDays && w.preferredDays.length > 0) ? `
-            <div class="flex items-center gap-1 mt-1">
-                <i class="fa-regular fa-calendar text-gray-500" style="font-size: 14px;"></i>
-                ${dayLabels.map((day, idx) => {
-                    const isAssigned = w.preferredDays.includes(idx);
-                    return `<span class="text-[12px] font-semibold px-1.5 py-0.5 rounded ${isAssigned ? 'bg-primary/20 text-white' : 'bg-gray-800 text-gray-600'}">${day}</span>`;
-                }).join('')}
-            </div>
-        ` : '';
-
-        el.innerHTML = `
-            <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
+el.innerHTML = `
+    <div class="flex items-center gap-3 flex-1">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 opacity-50" 
+             style="background: ${w.color || '#5127f2'}">
+            <i class="hgi hgi-stroke ${w.icon || 'hgi-dumbbell-01'} text-2xl text-white"></i>
+        </div>
+        <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
+            <div class="flex items-center gap-2">
+                
                 <h4 class="font-bold text-md">${w.name}</h4>
-                <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
-                ${completedThisWeek ? `
-                    <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
-                        <i class="fa-solid fa-check"></i>
-                        Lo hai completato ${new Date(completedThisWeek.date).toLocaleDateString('it-IT', {weekday: 'short', day: 'numeric', month: 'short'})}
-                    </p>
-                ` : ''}
-                ${preferredDaysHTML}
             </div>
-            <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
-                <i class="fa-solid fa-play ml-1"></i>
-            </button>
+                <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)), 0)/60 + (w.exercises.length * 2) | 0} min stimati</p>
+            </div>
         `;
         list.appendChild(el);
     });
+}
+
 },
 				 
 				 
@@ -2193,9 +2397,9 @@ if (app.state.editingWorkout.exercises.length === 0) {
 } else {
   // 2 o più esercizi - mostra intestazione con drag
   container.innerHTML = `
-    <div class="mb-4 pb-3 border-b border-gray-700">
-      <h3 class="text-lg font-bold text-white">Esercizi</h3>
-      <p class="text-sm text-gray-400"><i class="fa-solid fa-arrows-up-down"></i> L’ordine degli esercizi può essere modificato tramite trascinamento.</p>
+    <div class="mb-4 mt-5 pb-3 border-b border-gray-700">
+      <h3 class="text-lg font-bold text-white text-center"><i class="fa-solid fa-list-check"></i> Esercizi</h3>
+      <p class="text-sm text-gray-400 text-center"><i class="fa-solid fa-arrows-up-down"></i> Riordina gli esercizi trascinandoli</p>
     </div>
   `;
 }
@@ -3061,13 +3265,16 @@ showWorkoutSummaryModal: (stats) => {
          
              handlers: {
                  // Editor Handlers
-                 createNewWorkout: () => {
-                     app.state.editingWorkout = {
-                         id: 'w_' + Date.now(),
-                         name: '',
-                         exercises: [],
-						  preferredDays: []
-                     };
+				createNewWorkout: () => {
+					app.state.editingWorkout = {
+						id: 'w_' + Date.now(),
+						name: '',
+						exercises: [],
+						preferredDays: [],
+						archived: false,
+						icon: 'hgi-dumbbell-01',
+						color: '#5127f2'
+					};
                      document.getElementById('editor-name').value = '';
                      document.getElementById('btn-delete-workout').classList.add('hidden');
                      app.ui.renderEditorExercises();
@@ -3077,14 +3284,32 @@ showWorkoutSummaryModal: (stats) => {
          
 openWorkoutEditor: (id) => {
     const w = app.state.workouts.find(w => w.id === id);
-    // Clone to avoid ref issues
     app.state.editingWorkout = JSON.parse(JSON.stringify(w));
     document.getElementById('editor-name').value = w.name;
     document.getElementById('btn-delete-workout').classList.remove('hidden');
     app.ui.renderEditorExercises();
-    app.ui.renderEditorPreferredDays(); // ✅ AGGIUNGI QUESTA RIGA
-    app.router.go('editor');
-},         
+    app.ui.renderEditorPreferredDays();
+    
+    // ✅ AGGIUNGI QUESTE RIGHE
+const archivedCheckbox = document.getElementById('editor-archived');
+if (archivedCheckbox) {
+    archivedCheckbox.checked = w.archived || false;
+}
+
+// ✅ Carica icona e colore
+const iconPreview = document.getElementById('editor-icon-preview');
+if (iconPreview && w.icon) {
+    iconPreview.className = `hgi hgi-stroke ${w.icon} text-2xl text-white`;
+}
+
+const colorBtn = document.querySelector(`[data-color="${w.color || '#5127f2'}"]`);
+if (colorBtn) {
+    document.querySelectorAll('.workout-color-btn').forEach(btn => btn.classList.remove('selected'));
+    colorBtn.classList.add('selected');
+}
+
+app.router.go('editor');
+},     
          
          // --- Sostituisci addExerciseToEditor ---
          addExerciseToEditor: () => {
@@ -3161,12 +3386,16 @@ openWorkoutEditor: (id) => {
                      }
                  },
          
-                 saveWorkout: async () => {
-                     const name = document.getElementById('editor-name').value || 'Workout Senza Nome';
-                     app.state.editingWorkout.name = name;
-                     
-                     // Save to DB
-                     await app.db.put('workouts', app.state.editingWorkout);
+saveWorkout: async () => {
+    const name = document.getElementById('editor-name').value || 'Workout Senza Nome';
+    app.state.editingWorkout.name = name;
+    
+    // ✅ SALVA STATO ARCHIVIAZIONE
+    const archivedCheckbox = document.getElementById('editor-archived');
+    app.state.editingWorkout.archived = archivedCheckbox ? archivedCheckbox.checked : false;
+    
+    // Save to DB
+    await app.db.put('workouts', app.state.editingWorkout);
                      
                      // Update Local State
                      await app.loadData();
@@ -4010,6 +4239,50 @@ skipRating: () => {
    document.getElementById('rating-modal').classList.add('hidden');
 },
 
+openIconPicker: () => {
+   const modal = document.getElementById('icon-picker-modal');
+   const grid = modal.querySelector('.grid');
+   
+   const icons = [
+      'hgi-back-muscle-body', 'hgi-body-part-leg', 'hgi-body-part-muscle', 
+      'hgi-body-part-six-pack', 'hgi-body-weight', 'hgi-boxing-bag', 
+      'hgi-boxing-glove-01', 'hgi-dumbbell-01', 'hgi-dumbbell-02', 
+      'hgi-dumbbell-03', 'hgi-equipment-bench-press', 'hgi-equipment-chest-press', 
+      'hgi-equipment-gym-01', 'hgi-equipment-gym-02', 'hgi-equipment-gym-03', 
+      'hgi-equipment-weightlifting', 'hgi-gymnastic-rings', 'hgi-kettlebell', 
+      'hgi-punching-ball-02', 'hgi-push-up-bar', 'hgi-running-shoes', 
+      'hgi-shoulder', 'hgi-skipping-rope', 'hgi-treadmill-01', 
+      'hgi-treadmill-02', 'hgi-walking', 
+      'hgi-workout-gymnastics', 'hgi-workout-kicking', 'hgi-workout-run', 
+      'hgi-workout-stretching', 'hgi-yoga-ball', 'hgi-yoga-mat'
+   ];
+   
+   grid.innerHTML = icons.map(icon => `
+      <button onclick="app.handlers.selectIcon('${icon}')" 
+         class="bg-gray-800 hover:bg-primary/20 border-2 border-gray-700 hover:border-primary rounded-xl p-4 transition-all active:scale-95 flex items-center justify-center">
+         <i class="hgi hgi-stroke ${icon} text-3xl"></i>
+      </button>
+   `).join('');
+   
+   modal.classList.remove('hidden');
+},
+
+selectIcon: (iconClass) => {
+   app.state.editingWorkout.icon = iconClass;
+   document.getElementById('editor-icon-preview').className = `hgi hgi-stroke ${iconClass} text-2xl text-white`;
+   document.getElementById('icon-picker-modal').classList.add('hidden');
+},
+
+selectColor: (color) => {
+   app.state.editingWorkout.color = color;
+   
+   // Update selected state
+   document.querySelectorAll('.workout-color-btn').forEach(btn => {
+      btn.classList.remove('selected');
+   });
+   document.querySelector(`[data-color="${color}"]`).classList.add('selected');
+},
+
 toggleStatsPeriod: () => {
     app.state.statsPeriod = app.state.statsPeriod === 'week' ? 'month' : 'week';
     app.ui.renderDashboard();
@@ -4205,6 +4478,10 @@ installPWA: () => {
            for (const w of data.workouts) {
                // Aggiungi preferredDays se mancante
                if (!w.preferredDays) w.preferredDays = [];
+			   if (w.archived === undefined) w.archived = false; // ✅ AGGIUNGI
+			   if (!w.icon) w.icon = 'hgi-dumbbell-01';
+				if (!w.color) w.color = '#5127f2';
+			   
                
                // Normalizza esercizi
                if (w.exercises) {
