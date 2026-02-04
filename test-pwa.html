@@ -1926,7 +1926,7 @@ if (app.state.currentView === 'editor' && viewId === 'dashboard') {
             nav.style.display = 'flex';
 			header.classList.remove('header-hidden');
             if (appContainer) {
-                appContainer.style.setProperty('margin-top', '52px', 'important');
+                appContainer.style.setProperty('margin-top', '53px', 'important');
             }
         }
         
@@ -4643,12 +4643,12 @@ appContainer.addEventListener('scroll', () => {
         } else {
             // Scrolling UP - Mostra header
             header.classList.remove('header-hidden');
-            appContainer.style.marginTop = '60px'; // ← AGGIUNGI QUESTA RIGA
+            appContainer.style.marginTop = '53px'; // ← AGGIUNGI QUESTA RIGA
         }
     } else {
         // Vicino al top - Mostra sempre
         header.classList.remove('header-hidden');
-        appContainer.style.marginTop = '60px'; // ← AGGIUNGI QUESTA RIGA
+        appContainer.style.marginTop = '53px'; // ← AGGIUNGI QUESTA RIGA
     }
     
     lastScrollTop = currentScroll;
