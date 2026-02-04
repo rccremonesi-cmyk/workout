@@ -105,7 +105,36 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 
 	   <script data-goatcounter="https://redmood.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
       <style>	
-	  
+	  /* Coriandoli Animation */
+/* Coriandoli Animation */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #f0f;
+  animation: confetti-fall 3s linear forwards;
+  pointer-events: none;
+  opacity: 0; /* ← AGGIUNGI QUESTA RIGA */
+}
+
+.emoji-rest-day {
+  display: inline-block;
+  animation: gentleBounce 2s ease-in-out infinite;
+}
 /* Progress Accordion Animation */
 [id^="progress-content-"] {
     animation: fadeInOnly 0.3s ease-in-out;
@@ -527,7 +556,7 @@ color:#c084fc;
          <div></div>
          <!-- Centro: LOGO -->
          <div class="flex items-center justify-center gap-2">
-            <i class="fa-solid fa-dumbbell text-primary text-xl"></i>
+            <!-- <i class="fa-solid fa-dumbbell text-primary text-xl"></i> -->
             <h1 class="font-bold text-lg tracking-tight">WorkoutTracker</h1>
          </div>
          <!-- Destra -->
@@ -1839,44 +1868,47 @@ renderDashboard: () => {
         weekIcon.classList.add('opacity-50');
         monthIcon.classList.remove('opacity-50');
     }
-                     
-let totalVol = 0;
-let totalCal = 0;
-filteredHistory.forEach(h => {
-         const vol = parseFloat(h.totalVolume);
-         if (!isNaN(vol)) totalVol += vol;
-         const cal = parseFloat(h.caloriesBurned);
-         if (!isNaN(cal)) totalCal += cal;
-         });
-         
-         // Calcolo grammi di grasso: 1g grasso = 9 kcal, quindi 1kg = ~7500 kcal
-         const fatBurnedGrams = Math.round((totalCal / 7500) * 1000);
-         
-document.getElementById('period-workouts-count').innerText = filteredHistory.length;
-document.getElementById('period-volume').innerText = Math.round(totalVol).toLocaleString();
-document.getElementById('period-calories').innerText = Math.round(totalCal).toLocaleString();
-document.getElementById('period-fat-burned').innerText = fatBurnedGrams;
-         
-		 
-		 // Today's Recommended Workouts
-const today = new Date().getDay(); // 0=Dom, 1=Lun, etc.
-const todayWorkouts = app.state.workouts.filter(w => 
-    w.preferredDays && w.preferredDays.includes(today)
-);
+                 
+    let totalVol = 0;
+    let totalCal = 0;
+    filteredHistory.forEach(h => {
+        const vol = parseFloat(h.totalVolume);
+        if (!isNaN(vol)) totalVol += vol;
+        const cal = parseFloat(h.caloriesBurned);
+        if (!isNaN(cal)) totalCal += cal;
+    });
+     
+    // Calcolo grammi di grasso: 1g grasso = 9 kcal, quindi 1kg = ~7500 kcal
+    const fatBurnedGrams = Math.round((totalCal / 7500) * 1000);
+     
+    document.getElementById('period-workouts-count').innerText = filteredHistory.length;
+    document.getElementById('period-volume').innerText = Math.round(totalVol).toLocaleString();
+    document.getElementById('period-calories').innerText = Math.round(totalCal).toLocaleString();
+    document.getElementById('period-fat-burned').innerText = fatBurnedGrams;
+     
+    // Today's Recommended Workouts
+    const today = new Date().getDay(); // 0=Dom, 1=Lun, etc.
+    const todayWorkouts = app.state.workouts.filter(w => 
+        w.preferredDays && w.preferredDays.includes(today)
+    );
 
-if (todayWorkouts.length > 0) {
+    // ✅ Definisci sempre le variabili per la data
     const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
-    const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-    const now = new Date();
-    const dateStr = `${dayNames[now.getDay()]} ${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+    const monthNames2 = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+    const dateStr = `${dayNames[now.getDay()]} ${now.getDate()} ${monthNames2[now.getMonth()]} ${now.getFullYear()}`;
     
+    // ✅ Mostra sempre la sezione
     list.innerHTML += `
-        <div class="mb-10">
-            <h3 class=" p-3 rounded-xl shadow-sm font-bold text-lg mb-3   text-center">
-                
-				
-                📅 Workout scelti per oggi:<br/> <div style="font-size:15px; font-weight:400;">${dateStr}</div>
+        <div class="mb-0">
+            <h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 text-center">
+                📅 Workout scelti per oggi:<br/> 
+                <div style="font-size:15px; font-weight:400;">${dateStr}</div>
             </h3>
+    `;
+
+    if (todayWorkouts.length > 0) {
+        // ✅ Caso: Ci sono workout per oggi
+        list.innerHTML += `
             <div class="space-y-3">
                 ${todayWorkouts.map(w => {
                     // Check if completed this week
@@ -1884,9 +1916,9 @@ if (todayWorkouts.length > 0) {
                     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
                     weekStart.setHours(0, 0, 0, 0);
                     
-const completedThisWeek = app.state.history
-        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
-        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                    const completedThisWeek = app.state.history
+                        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
+                        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
                     
                     return `
                         <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
@@ -1907,101 +1939,129 @@ const completedThisWeek = app.state.history
                     `;
                 }).join('')}
             </div>
+        `;
+    } else {
+        // ✅ Caso: Nessun workout oggi - Giorno di riposo
+        const restMessages = [
+            { emoji: '😴', text: 'Oggi è il tuo giorno di riposo!<br/>Rilassati e recupera energia' },
+            { emoji: '🛋️', text: 'Nessun workout programmato oggi.<br/>Goditi il meritato riposo!' },
+            { emoji: '🧘', text: 'Rest day! <br/>Il riposo è parte del progresso' },
+            { emoji: '☕', text: 'Oggi rilassati.<br/>I muscoli crescono quando riposano!' },
+            { emoji: '✨', text: 'Niente allenamento oggi.<br/>Prenditi cura di te!' }
+        ];
+        
+       const randomMessage = restMessages[Math.floor(Math.random() * restMessages.length)];
+    
+    list.innerHTML += `
+        <div id="rest-day-card" class="bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm p-6 text-center relative overflow-hidden">
+            <div class="text-6xl mb-3 emoji-rest-day">${randomMessage.emoji}</div>
+            <p class="text-gray-300 font-semibold">${randomMessage.text}</p>
+            <p class="text-sm text-gray-400 mt-2">Il recupero è essenziale per migliorare le performance</p>
         </div>
-       
     `;
+    
+    // ✅ Trigger confetti dopo il render
+    setTimeout(() => {
+        const card = document.getElementById('rest-day-card');
+        if (card) app.handlers.createConfetti(card);
+    }, 100);
 }
-		 
-                     // Render Workouts
-					 list.innerHTML += `<h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 flex items-center justify-center gap-2 text-center">📂 Tutti i tuoi Workout salvati</h3>`;
-                     if (app.state.workouts.length === 0) {
-                         list.innerHTML = `<div class="relative overflow-hidden bg-gradient-to-br from-darkCard to-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800">
-   <!-- Decorative elements -->
-   <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
-   <div class="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl"></div>
-   
-   <div class="relative z-10 text-center space-y-4">
-      <!-- Icon -->
-      <div class="inline-flex items-center justify-center w-20 h-20 bg-primary/20 rounded-full mb-2">
-         <i class="fa-solid fa-dumbbell text-4xl text-primary animate-pulse"></i>
-      </div>
-      
-      <!-- Title -->
-      <h3 class="text-xl font-bold text-white">Inizia il tuo percorso!</h3>
-      
-      <!-- Description -->
-      <p class="text-gray-400 max-w-sm mx-auto">
-         Non hai ancora creato nessun workout.<br/>
-         Crea il tuo primo allenamento e inizia a tracciare i tuoi progressi.
-      </p>
-      
-      <!-- Settings reminder -->
-      <div class="bg-primary/10 border border-primary/30 rounded-xl p-4 mt-6 cursor-pointer hover:bg-primary/20 transition-all" 
-           onclick="app.router.go('settings')">
-         <div class="flex items-start gap-3 text-left">
-            <div class="bg-primary/20 rounded-lg p-2 flex-shrink-0">
-               <i class="fa-solid fa-gear"></i>
-            </div>
-            <div class="flex-1">
-               <h4 class="font-semibold text-white text-sm mb-1 flex items-center gap-2">
-                  Prima di iniziare
-                  <i class="fa-solid fa-arrow-right text-xs"></i>
-               </h4>
-               <p class="text-sm text-gray-400">
-                  Configura peso, altezza ed età nelle <span class="text-primary font-semibold">Impostazioni</span> per monitorare calorie e progressi
-               </p>
-            </div>
-         </div>
-      </div>
-   </div>
-</div>`;
-                         return;
-                     }
-         
-                  app.state.workouts.forEach(w => {
-    // Check if completed this week
-    const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-    weekStart.setHours(0, 0, 0, 0);
-    
-const completedThisWeek = app.state.history
-        .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
-        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-    
-const el = document.createElement('div');
-el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
 
-// Genera i giorni assegnati
-const dayLabels = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
-const preferredDaysHTML = (w.preferredDays && w.preferredDays.length > 0) ? `
-    <div class="flex items-center gap-1 mt-1">
-        <i class="fa-regular fa-calendar text-gray-500" style="font-size: 14px;"></i>
-        ${dayLabels.map((day, idx) => {
-            const isAssigned = w.preferredDays.includes(idx);
-            return `<span class="text-[12px] font-semibold px-1.5 py-0.5 rounded ${isAssigned ? 'bg-primary/20 text-white' : 'bg-gray-800 text-gray-600'}">${day}</span>`;
-        }).join('')}
-    </div>
-` : '';
+    list.innerHTML += `</div>`; // ← Chiusura div mb-10
+     
+    // Render Workouts
+    list.innerHTML += `<h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 flex items-center justify-center gap-2 text-center" style="margin-top:50px !important;">📂 Tutti i tuoi Workout salvati</h3>`;
+    
+    if (app.state.workouts.length === 0) {
+        list.innerHTML += `<div class="relative overflow-hidden bg-gradient-to-br from-darkCard to-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800">
+            <!-- Decorative elements -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl"></div>
+            
+            <div class="relative z-10 text-center space-y-4">
+                <!-- Icon -->
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-primary/20 rounded-full mb-2">
+                    <i class="fa-solid fa-dumbbell text-4xl text-primary animate-pulse"></i>
+                </div>
+                
+                <!-- Title -->
+                <h3 class="text-xl font-bold text-white">Inizia il tuo percorso!</h3>
+                
+                <!-- Description -->
+                <p class="text-gray-400 max-w-sm mx-auto">
+                    Non hai ancora creato nessun workout.<br/>
+                    Crea il tuo primo allenamento e inizia a tracciare i tuoi progressi.
+                </p>
+                
+                <!-- Settings reminder -->
+                <div class="bg-primary/10 border border-primary/30 rounded-xl p-4 mt-6 cursor-pointer hover:bg-primary/20 transition-all" 
+                    onclick="app.router.go('settings')">
+                    <div class="flex items-start gap-3 text-left">
+                        <div class="bg-primary/20 rounded-lg p-2 flex-shrink-0">
+                            <i class="fa-solid fa-gear"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white text-sm mb-1 flex items-center gap-2">
+                                Prima di iniziare
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </h4>
+                            <p class="text-sm text-gray-400">
+                                Configura peso, altezza ed età nelle <span class="text-primary font-semibold">Impostazioni</span> per monitorare calorie e progressi
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        return;
+    }
 
-el.innerHTML = `
-    <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
-        <h4 class="font-bold text-md">${w.name}</h4>
-        <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
-        ${completedThisWeek ? `
-            <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
-                <i class="fa-solid fa-check"></i>
-                Lo hai completato ${new Date(completedThisWeek.date).toLocaleDateString('it-IT', {weekday: 'short', day: 'numeric', month: 'short'})}
-            </p>
-        ` : ''}
-        ${preferredDaysHTML}
-    </div>
-                             <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
-                                 <i class="fa-solid fa-play ml-1"></i>
-                             </button>
-                         `;
-                         list.appendChild(el);
-                     });
-                 },
+    app.state.workouts.forEach(w => {
+        // Check if completed this week
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        
+        const completedThisWeek = app.state.history
+            .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
+            .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+        
+        const el = document.createElement('div');
+        el.className = 'bg-darkBg bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center transform transition active:scale-98';
+
+        // Genera i giorni assegnati
+        const dayLabels = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
+        const preferredDaysHTML = (w.preferredDays && w.preferredDays.length > 0) ? `
+            <div class="flex items-center gap-1 mt-1">
+                <i class="fa-regular fa-calendar text-gray-500" style="font-size: 14px;"></i>
+                ${dayLabels.map((day, idx) => {
+                    const isAssigned = w.preferredDays.includes(idx);
+                    return `<span class="text-[12px] font-semibold px-1.5 py-0.5 rounded ${isAssigned ? 'bg-primary/20 text-white' : 'bg-gray-800 text-gray-600'}">${day}</span>`;
+                }).join('')}
+            </div>
+        ` : '';
+
+        el.innerHTML = `
+            <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
+                <h4 class="font-bold text-md">${w.name}</h4>
+                <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${w.exercises.reduce((acc,e) => acc+parseInt(e.rest),0)/60 | 0} min stimati</p>
+                ${completedThisWeek ? `
+                    <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
+                        <i class="fa-solid fa-check"></i>
+                        Lo hai completato ${new Date(completedThisWeek.date).toLocaleDateString('it-IT', {weekday: 'short', day: 'numeric', month: 'short'})}
+                    </p>
+                ` : ''}
+                ${preferredDaysHTML}
+            </div>
+            <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
+                <i class="fa-solid fa-play ml-1"></i>
+            </button>
+        `;
+        list.appendChild(el);
+    });
+},
+				 
+				 
 				 
 	     renderEditorPreferredDays: () => {
     const container = document.getElementById('editor-preferred-days');
@@ -2506,8 +2566,16 @@ const renderWorkoutCard = (h, index, isFirstInGroup = false) => {
     const timeLabel = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
     
     return `
-        <div class="bg-darkCard rounded-xl p-4 ${isToday ? 'border-green-500' : 'border-primary'} shadow-sm hover:shadow-md transition-all">
-            <div class="flex items-center justify-between mb-3">
+        <div class="bg-darkCard rounded-xl p-4 ${isToday ? 'border-green-500' : 'border-primary'} shadow-sm hover:shadow-md transition-all relative">
+            <!-- Delete Button -->
+            <button 
+                onclick="app.handlers.deleteHistoryItem('${h.id}')" 
+                class="absolute top-3 right-3 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-3 py-2 rounded-lg text-xs transition-all active:scale-95 border border-red-500/30"
+                title="Elimina questo allenamento"
+            >
+                <i class="fa-solid fa-trash"></i>
+            </button>
+            <div class="flex items-center justify-between mb-3 pr-10">
                 <div class="flex items-center gap-2">
                     <div>
                         <h4 class="font-bold text-white">${h.workoutName}</h4>
@@ -3746,6 +3814,38 @@ dismissBadge: () => {
     }
 },
 
+createConfetti: (element) => {
+    const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE'];
+    const confettiCount = 30;
+    
+    for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        
+        // Random properties
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const left = Math.random() * 100;
+        const delay = Math.random() * 0.5;
+        const duration = 2 + Math.random() * 2;
+        const size = 5 + Math.random() * 8;
+        
+        confetti.style.cssText = `
+            background: ${color};
+            left: ${left}%;
+            animation-delay: ${delay}s;
+            animation-duration: ${duration}s;
+            width: ${size}px;
+            height: ${size}px;
+            border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+        `;
+        
+        element.appendChild(confetti);
+        
+        // Remove after animation
+        setTimeout(() => confetti.remove(), (duration + delay) * 1000);
+    }
+},
+
 closeWorkoutSummary: () => {
     const modal = document.getElementById('workout-summary-modal');
     if (modal) {
@@ -4034,7 +4134,47 @@ installPWA: () => {
         alert('✅ Statistiche cancellate! I tuoi workout sono al sicuro.');
     }
 },
-                 
+     deleteHistoryItem: async (historyId) => {
+    if (!confirm('⚠️ Eliminare questo allenamento dallo storico?\n\nQuesta azione è irreversibile e aggiornerà tutte le statistiche.')) {
+        return;
+    }
+    
+    try {
+        // Elimina dal DB
+        await app.db.delete('history', historyId);
+        
+        // Ricarica dati
+        await app.loadData();
+        
+        // Aggiorna vista corrente
+        if (app.state.currentView === 'stats') {
+            app.ui.renderStats();
+        } else if (app.state.currentView === 'dashboard') {
+            app.ui.renderDashboard();
+        }
+        
+        // Feedback visivo
+        if (app.state.settings.vibrate && navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+        
+        // Notifica successo
+        const notification = document.createElement('div');
+        notification.className = 'fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 font-semibold';
+        notification.style.animation = 'beastShake 0.5s ease-out';
+        notification.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Allenamento eliminato';
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'fadeInOnly 0.3s ease-in-out reverse';
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Errore eliminazione:', error);
+        alert('❌ Errore durante l\'eliminazione. Riprova.');
+    }
+},            
          exportData: async () => {
          const settingsArray = await app.db.getAll('settings'); // AGGIUNTO
 		 const badgesArray = await app.db.getAll('badges');
@@ -4395,7 +4535,17 @@ if ('serviceWorker' in navigator) {
         }
     });
     `;
+    
+    // ✅ REGISTRA IL SERVICE WORKER
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+    
+    navigator.serviceWorker.register(swUrl).then(reg => {
+        console.log('✅ Service Worker registrato');
+    }).catch(err => {
+        console.error('❌ Errore SW:', err);
+    });
+}
 </script>
 </body>
-   </body>
 </html>
