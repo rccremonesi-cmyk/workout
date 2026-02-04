@@ -84,7 +84,7 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 <meta name="application-name" content="WorkoutTracker">
 
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3C!-- Icona dumbbell di Font Awesome (simil-v6) --%3E%3Cpath fill='%235127F2' d='M88.75 35.5h-9.87c-1.39 0-2.5 1.12-2.5 2.5v22c0 1.38 1.11 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zm-66.25 0h-9.87c-1.38 0-2.5 1.12-2.5 2.5v22c0 1.38 1.12 2.5 2.5 2.5h9.87c1.38 0 2.5-1.12 2.5-2.5v-22c0-1.38-1.12-2.5-2.5-2.5zM36.1 48h27.8c1.38 0 2.5-1.12 2.5-2.5s-1.12-2.5-2.5-2.5h-27.8c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5z' /%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="https://rccremonesi-cmyk.github.io/workout/barbell-ico.png">
 
 <meta name="apple-mobile-web-app-title" content="WorkoutTracker">
 <link rel="apple-touch-icon" href="https://rccremonesi-cmyk.github.io/workout/barbell-ico.png">
@@ -2772,20 +2772,25 @@ const renderWorkoutCard = (h, index, isFirstInGroup = false) => {
     
     const timeLabel = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
     
-    return `
-        <div class="bg-darkCard rounded-xl p-4 ${isToday ? 'border-green-500' : 'border-primary'} shadow-sm hover:shadow-md transition-all relative">
-            <!-- Delete Button -->
-            <button 
-                onclick="app.handlers.deleteHistoryItem('${h.id}')" 
-                class="absolute top-3 right-3 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-3 py-2 rounded-lg text-xs transition-all active:scale-95 border border-red-500/30"
-                title="Elimina questo allenamento"
-            >
-                <i class="fa-solid fa-trash"></i>
-            </button>
-            <div class="flex items-center justify-between mb-3 pr-10">
-                <div class="flex items-center gap-2">
-                    <div>
-                        <h4 class="font-bold text-white">${h.workoutName}</h4>
+    // Verifica se il workout è archiviato
+const workout = app.state.workouts.find(w => w.id === h.workoutId);
+const isArchived = workout && workout.archived;
+
+return `
+    <div class="bg-darkCard rounded-xl p-4 ${isToday ? 'border-green-500' : 'border-primary'} shadow-sm hover:shadow-md transition-all relative">
+        <!-- Delete Button -->
+        <button 
+            onclick="app.handlers.deleteHistoryItem('${h.id}')" 
+            class="absolute top-3 right-3 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-3 py-2 rounded-lg text-xs transition-all active:scale-95 border border-red-500/30"
+            title="Elimina questo allenamento"
+        >
+            <i class="fa-solid fa-trash"></i>
+        </button>
+        <div class="flex items-center justify-between mb-3 pr-10">
+            <div class="flex items-center gap-2">
+               
+                <div>
+                    <h4 class="font-bold text-white">${h.workoutName}${isArchived ? ' <span class="text-xs text-gray-500">(Archiviato)</span>' : ''}</h4>
                         <div class="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
                             <i class="fa-regular fa-calendar"></i>
                             <span>${dateLabel}</span>
@@ -2795,7 +2800,7 @@ const renderWorkoutCard = (h, index, isFirstInGroup = false) => {
                         </div>
                     </div>
                 </div>
-                ${index === 0 && isFirstInGroup ? '<span class="text-xs bg-primary/50 text-white/70 px-2 py-1 rounded-full font-semibold">Recente</span>' : ''}
+                
             </div>
             
             <div class="grid grid-cols-3 gap-3">
@@ -2842,7 +2847,7 @@ let html = '';
 // Questa settimana
 if (grouped.thisWeek.length > 0) {
     html += `
-        <div class="mb-6">
+        <div class="mb-6 mt-6">
             <h3 class="text-sm font-bold uppercase tracking-wider text-purple-300 mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-calendar-week"></i>
                 Questa Settimana
@@ -2856,7 +2861,7 @@ if (grouped.thisWeek.length > 0) {
 // Settimana scorsa
 if (grouped.lastWeek.length > 0) {
     html += `
-        <div class="mb-6">
+        <div class="mb-6 mt-6">
             <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-calendar-week"></i>
                 Settimana Scorsa
@@ -2881,7 +2886,7 @@ monthKeys.forEach(key => {
     const monthLabel = `${monthNames[monthData.date.getMonth()]} ${monthData.date.getFullYear()}`;
     
     html += `
-        <div class="mb-6">
+        <div class="mb-6 mt-6">
             <h3 class="text-sm font-bold uppercase tracking-wider mt-10 text-gray-500 mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-calendar"></i>
                 ${monthLabel}
@@ -2973,8 +2978,8 @@ workoutCard.innerHTML = `
     <div class="cursor-pointer" onclick="app.handlers.toggleProgressAccordion('${workout.id}')">
         <h3 class="text-l font-bold text-white flex items-center justify-between">
             <div class="flex items-center gap-2">
-              
-                ${workout.name}
+                ${workout.archived ? '<i class="fa-solid fa-box-archive text-gray-500 text-sm"></i>' : ''}
+                ${workout.name}${workout.archived ? ' <span class="text-xs text-gray-400 font-normal">(Archiviato)</span>' : ''}
             </div>
             <i class="fa-solid fa-chevron-down text-gray-400 ml-4 transition-transform duration-300" id="chevron-${workout.id}"></i>
         </h3>
@@ -4816,7 +4821,8 @@ if ('serviceWorker' in navigator) {
     });
     `;
     
-    // ✅ REGISTRA IL SERVICE WORKER
+// ✅ REGISTRA IL SERVICE WORKER (solo su HTTPS o localhost)
+if (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     const blob = new Blob([swCode], { type: 'application/javascript' });
     const swUrl = URL.createObjectURL(blob);
     
@@ -4825,6 +4831,9 @@ if ('serviceWorker' in navigator) {
     }).catch(err => {
         console.error('❌ Errore SW:', err);
     });
+} else {
+    console.warn('⚠️ Service Worker non disponibile (richiede HTTPS o localhost)');
+}
 }
 </script>
 </body>
