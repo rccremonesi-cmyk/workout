@@ -627,7 +627,7 @@ color:#c084fc;
       <img src="https://rccremonesi-cmyk.github.io/workout/barbell-ico.png" 
            alt="WorkoutTracker" 
            class="w-8 h-8"
-           style="border-radius: 22%; box-shadow: 0 2px 8px rgba(81, 39, 242, 0.3);">
+           style="border-radius: 33%; box-shadow: 0 2px 8px rgba(81, 39, 242, 0.3);">
       <h1 class="font-bold text-lg tracking-tight">WorkoutTracker</h1>
    </div>
    <!-- Destra -->
@@ -2056,12 +2056,15 @@ const todayWorkouts = app.state.workouts.filter(w =>
     w.preferredDays && w.preferredDays.includes(today) && !w.archived
 );
 
-    // ✅ Definisci sempre le variabili per la data
+    
+// ✅ MOSTRA SEZIONE SOLO SE CI SONO WORKOUT
+const hasAnyWorkouts = app.state.workouts.some(w => !w.archived);
+
+if (hasAnyWorkouts) {
     const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
     const monthNames2 = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
     const dateStr = `${dayNames[now.getDay()]} ${now.getDate()} ${monthNames2[now.getMonth()]} ${now.getFullYear()}`;
     
-    // ✅ Mostra sempre la sezione
     list.innerHTML += `
         <div class="mb-0">
             <h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 text-center">
@@ -2087,13 +2090,16 @@ const todayWorkouts = app.state.workouts.filter(w =>
             return `
                 <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
                     <div class="flex items-center gap-3 flex-1">
-                        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" 
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" 
                              style="background: ${w.color || '#5127f2'}">
                             <i class="hgi hgi-stroke ${w.icon || 'hgi-dumbbell-01'} text-2xl text-white"></i>
                         </div>
                         <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
                             <h4 class="font-bold text-md">${w.name}</h4>
-                            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0))} min stimati</p>
+                            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi${(() => {
+    const estimatedTime = Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0));
+    return isNaN(estimatedTime) || estimatedTime === 0 ? '' : ' • ' + estimatedTime + ' min stimati';
+})()}</p>
                                 ${completedThisWeek ? `
                                     <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
                                         <i class="fa-solid fa-check"></i>
@@ -2137,9 +2143,10 @@ const todayWorkouts = app.state.workouts.filter(w =>
 }
 
     list.innerHTML += `</div>`; // ← Chiusura div mb-10
+	
+}
      
     // Render Workouts
-    list.innerHTML += `<h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 flex items-center justify-center gap-2 text-center" style="margin-top:50px !important;">📂 Tutti i tuoi Workout salvati</h3>`;
     
     if (app.state.workouts.length === 0) {
         list.innerHTML += `<div class="relative overflow-hidden bg-gradient-to-br from-darkCard to-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800">
@@ -2184,10 +2191,16 @@ const todayWorkouts = app.state.workouts.filter(w =>
         </div>`;
         return;
     }
-
-// Filtra workout attivi e archiviati
+	
+	// Filtra workout attivi e archiviati
 const activeWorkouts = app.state.workouts.filter(w => !w.archived);
 const archivedWorkouts = app.state.workouts.filter(w => w.archived);
+	
+if (activeWorkouts.length > 0) {
+    list.innerHTML += `<h3 class="p-3 rounded-xl shadow-sm font-bold text-lg mb-3 flex items-center justify-center gap-2 text-center" style="margin-top:50px !important;">📂 Tutti i tuoi Workout salvati</h3>`;
+}
+
+
 
 // Render workout attivi
 activeWorkouts.forEach(w => {
@@ -2216,13 +2229,16 @@ activeWorkouts.forEach(w => {
 
     el.innerHTML = `
     <div class="flex items-center gap-3 flex-1">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" 
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" 
              style="background: ${w.color || '#5127f2'}">
             <i class="hgi hgi-stroke ${w.icon || 'hgi-dumbbell-01'} text-2xl text-white"></i>
         </div>
         <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
             <h4 class="font-bold text-md">${w.name}</h4>
-            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0))} min stimati</p>
+            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi${(() => {
+    const estimatedTime = Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0));
+    return isNaN(estimatedTime) || estimatedTime === 0 ? '' : ' • ' + estimatedTime + ' min stimati';
+})()}</p>
             ${completedThisWeek ? `
                 <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
                     <i class="fa-solid fa-check"></i>
@@ -2250,7 +2266,7 @@ if (archivedWorkouts.length > 0) {
 
 el.innerHTML = `
     <div class="flex items-center gap-3 flex-1">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 opacity-50" 
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 opacity-50" 
              style="background: ${w.color || '#5127f2'}">
             <i class="hgi hgi-stroke ${w.icon || 'hgi-dumbbell-01'} text-2xl text-white"></i>
         </div>
@@ -2259,7 +2275,10 @@ el.innerHTML = `
                 
                 <h4 class="font-bold text-md">${w.name}</h4>
             </div>
-                <p class="text-xs text-gray-400">${w.exercises.length} Esercizi • ${Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0))} min stimati</p>
+                <p class="text-xs text-gray-400">${w.exercises.length} Esercizi${(() => {
+    const estimatedTime = Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0));
+    return isNaN(estimatedTime) || estimatedTime === 0 ? '' : ' • ' + estimatedTime + ' min stimati';
+})()}</p>
             </div>
         `;
         list.appendChild(el);
