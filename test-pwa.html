@@ -3629,9 +3629,35 @@ completeSet: () => {
     
     // Log the set
     const weight = parseFloat(ex.lastWeight);
-    // Extract first number from reps string (e.g., "8-10" -> 8, "10" -> 10)
-    const repsStr = String(ex.reps).split('-')[0].trim();
-    const reps = parseFloat(repsStr);
+    
+    // ✅ PARSING MIGLIORATO DEL CAMPO REPS
+    let reps = 0;
+    const repsStr = String(ex.reps).toLowerCase().trim();
+    
+    // Gestisci parole chiave (maxreps, max, cedimento, ecc.)
+    if (repsStr === 'maxreps' || repsStr === 'max' || repsStr === 'cedimento' || 
+        repsStr === 'failure' || repsStr === 'massimo' || repsStr === 'esaurimento') {
+        reps = 12;  // Stima conservativa per maxreps
+    }
+    // Gestisci range con - o / (es: "10-12" o "10/12")
+    else if (repsStr.includes('-') || repsStr.includes('/')) {
+        const separator = repsStr.includes('-') ? '-' : '/';
+        const parts = repsStr.split(separator);
+        const min = parseFloat(parts[0]);
+        const max = parseFloat(parts[1]);
+        
+        if (!isNaN(min) && !isNaN(max)) {
+            reps = Math.round((min + max) / 2);  // Media: "10-12" → 11
+        } else if (!isNaN(min)) {
+            reps = min;  // Se solo il primo è valido, usa quello
+        }
+    }
+    // Gestisci numero singolo
+    else {
+        const parsed = parseFloat(repsStr);
+        reps = isNaN(parsed) ? 0 : parsed;
+    }
+    
     const multiplier = ex.isDouble ? 2 : 1;
     
     console.log('Completing set:', { exercise: ex.name, weight, reps, multiplier });
