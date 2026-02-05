@@ -2075,60 +2075,60 @@ if (hasAnyWorkouts) {
             </h3>
     `;
 
-    if (todayWorkouts.length > 0) {
-        // ✅ Caso: Ci sono workout per oggi
-       list.innerHTML += `
-    <div class="space-y-3">
-        ${todayWorkouts.map(w => {
-            // Check if completed this week
-            const weekStart = new Date();
-            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-            weekStart.setHours(0, 0, 0, 0);
-            
-            const completedThisWeek = app.state.history
-                .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
-                .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-            
-            return `
-                <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
-                    <div class="flex items-center gap-3 flex-1">
-                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" 
-                             style="background: ${w.color || '#5127f2'}">
-                            <i class="hgi hgi-stroke ${w.icon || 'hgi-dumbbell-01'} text-2xl text-white"></i>
-                        </div>
-                        <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
-                            <h4 class="font-bold text-md">${w.name}</h4>
-                            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi${(() => {
-    const estimatedTime = Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0));
-    return isNaN(estimatedTime) || estimatedTime === 0 ? '' : ' • ' + estimatedTime + ' min stimati';
-})()}</p>
-                                ${completedThisWeek ? `
-    <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
-        <i class="fa-solid fa-check"></i>
-        ${(() => {
-            const completedDate = new Date(completedThisWeek.date);
-            const today = new Date();
-            const yesterday = new Date(today);
-            yesterday.setDate(today.getDate() - 1);
-            
-            const isToday = completedDate.toDateString() === today.toDateString();
-            const isYesterday = completedDate.toDateString() === yesterday.toDateString();
-            
-            if (isToday) return 'Lo hai completato oggi';
-            if (isYesterday) return 'Lo hai completato ieri';
-            return `Lo hai completato ${completedDate.toLocaleDateString('it-IT', {weekday: 'short', day: 'numeric', month: 'short'})}`;
-        })()}
-    </p>
-` : ''}
-                            </div>
-                            <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
-                                <i class="fa-solid fa-play ml-1"></i>
-                            </button>
-                        </div>
-                    `;
-                }).join('')}
+if (todayWorkouts.length > 0) {
+    // ✅ Caso: Ci sono workout per oggi
+    const todayWorkoutsHTML = todayWorkouts.map(w => {
+        // Check if completed this week
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        
+        const completedThisWeek = app.state.history
+            .filter(h => h.workoutId === w.id && new Date(h.date) >= weekStart)
+            .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+        
+        return `
+            <div class="bg-darkCard p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-primary">
+                <div class="flex items-center gap-3 flex-1">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" 
+                         style="background: ${w.color || '#5127f2'}">
+                        <i class="hgi hgi-stroke ${w.icon || 'hgi-dumbbell-01'} text-2xl text-white"></i>
+                    </div>
+                    <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
+                        <h4 class="font-bold text-md">${w.name}</h4>
+                        <p class="text-xs text-gray-400">${w.exercises.length} Esercizi${(() => {
+                            const estimatedTime = Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0));
+                            return isNaN(estimatedTime) || estimatedTime === 0 ? '' : ' • ' + estimatedTime + ' min stimati';
+                        })()}</p>
+                        ${completedThisWeek ? `
+                            <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-check"></i>
+                                ${(() => {
+                                    const completedDate = new Date(completedThisWeek.date);
+                                    const today = new Date();
+                                    const yesterday = new Date(today);
+                                    yesterday.setDate(today.getDate() - 1);
+                                    
+                                    const isToday = completedDate.toDateString() === today.toDateString();
+                                    const isYesterday = completedDate.toDateString() === yesterday.toDateString();
+                                    
+                                    if (isToday) return 'Lo hai completato oggi';
+                                    if (isYesterday) return 'Lo hai completato ieri';
+                                    return `Lo hai completato ${completedDate.toLocaleDateString('it-IT', {weekday: 'short', day: 'numeric', month: 'short'})}`;
+                                })()}
+                            </p>
+                        ` : ''}
+                    </div>
+                    <button onclick="app.handlers.startWorkout('${w.id}')" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-primaryDark">
+                        <i class="fa-solid fa-play ml-1"></i>
+                    </button>
+                </div>
             </div>
         `;
+    }).join('');
+    
+    list.innerHTML += `<div class="space-y-3">${todayWorkoutsHTML}</div>`;
+
     } else {
         // ✅ Caso: Nessun workout oggi - Giorno di riposo
         const restMessages = [
