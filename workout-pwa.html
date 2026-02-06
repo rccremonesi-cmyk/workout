@@ -971,17 +971,19 @@ color:#c084fc;
    <span id="active-weight-value" class="text-5xl font-bold font-mono text-white">0</span>
    <span class="text-l font-bold text-gray-500 block uppercase">kg</span>
    
-   <div id="weight-comparison" class="text-xs mt-2 text-gray-400"></div>
-   
-   <!-- Reset Weight Button -->
+    <!-- Reset Weight Button -->
    <button 
       onclick="app.handlers.resetWeight()" 
       id="btn-reset-weight"
-      class="hidden  mt-3 bg-purple-500/20 text-white-400 hover:bg-purple-800 hover:text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 border border-purple-500/30 flex items-center gap-1 mx-auto"
+      class="hidden  mt-3 bg-purple-500/20 text-white-400 hover:bg-purple-800 hover:text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95 border border-purple-500/30 flex items-center gap-1 mx-auto w-full justify-center"
    >
       <i class="fa-solid fa-rotate-left"></i>
-      Reset
+      Reset Kg
    </button>
+   
+   <div id="weight-comparison" class="text-xs mt-2 text-gray-400"></div>
+   
+  
 </div>
                      <!-- Pulsanti +1 e +5 -->
                         <div class="flex flex-col gap-1">
@@ -1222,6 +1224,42 @@ color:#c084fc;
                   ~7.500 kcal = 1 kg di grasso corporeo
                </div>
             </div>
+			
+			<!-- ✅ LEGENDA PALLINI (NUOVO) -->
+		<div class="bg-darkCard rounded-2xl p-4 shadow-sm mb-6 border border-gray-700/50">
+		   <div class="flex items-start gap-3 mb-3">
+			
+			  <div class="flex-1">
+				 
+				 <div class="space-y-2 text-xs">
+					<!-- Pallino Verde -->
+					<div class="flex items-center gap-2">
+					   <span class="text-sm">🟢</span>
+					   <span class="text-gray-300">
+						  <strong class="text-white">Workout Valido</strong> - Completato correttamente, traguardi assegnati
+					   </span>
+					</div>
+					
+					<!-- Pallino Rosso -->
+					<div class="flex items-center gap-2">
+					   <span class="text-sm">🔴</span>
+					   <span class="text-gray-300">
+						  <strong class="text-red-400">Workout Sospetto</strong> - Completato troppo velocemente, traguardi non assegnati
+					   </span>
+					</div>
+				 </div>
+			  </div>
+			  
+			  <!-- Pulsante Chiudi (opzionale) -->
+			  <button onclick="this.closest('.bg-darkCard').remove(); localStorage.setItem('hideLegend', 'true')" 
+				 class="text-gray-500 hover:text-white transition-colors" 
+				 title="Nascondi legenda">
+				 <i class="fa-solid fa-xmark"></i>
+			  </button>
+		   </div>
+			  
+		</div>
+
                <div id="history-list" class="space-y-3 text-sm">
                   <!-- Logs injected here -->
                </div>
@@ -2890,17 +2928,21 @@ const groupByPeriod = (historyArray) => {
 // Funzione per renderizzare un singolo workout
 const renderWorkoutCard = (h, index, isFirstInGroup = false) => {
     const date = new Date(h.date);
-    const isToday = date.toDateString() === new Date().toDateString();
-    const isYesterday = date.toDateString() === new Date(Date.now() - 86400000).toDateString();
-    
-    let dateLabel;
-    if (isToday) {
-        dateLabel = '🟢 Oggi';
-    } else if (isYesterday) {
-        dateLabel = 'Ieri';
-    } else {
-        dateLabel = date.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
-    }
+	const isToday = date.toDateString() === new Date().toDateString();
+	const isYesterday = date.toDateString() === new Date(Date.now() - 86400000).toDateString();
+
+	// ✅ DETERMINA COLORE PALLINO IN BASE A VALIDITÀ
+	const isValid = h.isValid !== false; // Considera validi anche i vecchi workout
+	const statusDot = isValid ? '🟢' : '🔴';
+
+	let dateLabel;
+	if (isToday) {
+		dateLabel = `${statusDot} Oggi`;
+	} else if (isYesterday) {
+		dateLabel = `${statusDot} Ieri`;
+	} else {
+		dateLabel = `${statusDot} ${date.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' })}`;
+	}
     
     const timeLabel = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
     
