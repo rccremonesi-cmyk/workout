@@ -1472,7 +1472,7 @@ color:#c084fc;
          <div class="bg-gradient-to-br from-darkCard to-gray-900 rounded-3xl w-full max-w-md shadow-2xl border-2 border-primary/30 flex flex-col max-h-[90vh]">
             
             <!-- Header Fisso -->
-            <div class="bg-gradient-to-r from-primary to-purple-600 p-6 text-center relative overflow-hidden flex-shrink-0">
+            <div class="bg-gradient-to-r from-primary to-purple-600 p-6 text-center relative overflow-hidden flex-shrink-0  rounded-tl-2xl rounded-tr-2xl">
                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
                
@@ -3585,29 +3585,35 @@ confirmStartWorkout: () => {
     const w = app.state.pendingWorkoutStart;
     if (!w) return;
     
+    // ✅ CHIUDI LA MODALE PRIMA
+    document.getElementById('start-workout-modal').classList.add('hidden');
+    
     document.body.classList.add('workout-started');
+    
+    // ✅ TIMESTAMP PRECISO
+    const now = Date.now();
+    
     app.state.activeSession = {
         workout: JSON.parse(JSON.stringify(w)),
         currentExIdx: 0,
         currentSet: 0,
         status: 'work',
-        startTime: Date.now(),
-        exerciseStartTime: Date.now(),
-        exerciseDurations: [], // ✨ AGGIUNGI QUESTA RIGA
+        startTime: now,
+        exerciseStartTime: now,  // ← USA LO STESSO TIMESTAMP
+        exerciseDurations: [],
         logs: [],
-        weightDelta: 0,           // ← AGGIUNGI
-        initialWeight: null 
-         };
-         app.router.go('active');
-         
-         // Delay per permettere il rendering prima di attivare animazioni
-         setTimeout(() => {
-         app.ui.updateActiveView();
-         app.handlers.startTotalTimer();
-         app.handlers.startExerciseTimer(); // ✨ AGGIUNGI QUESTO
-		 app.handlers.setRandomMotivation();
-         }, 250);
-         },
+        weightDelta: 0,
+        lastSavedWeight: null 
+    };
+    
+    app.router.go('active');
+    
+    // ✅ AVVIA I TIMER IMMEDIATAMENTE
+    app.handlers.startTotalTimer();
+    app.handlers.startExerciseTimer();
+    app.handlers.setRandomMotivation();
+    app.ui.updateActiveView();
+},
          
 adjustWeight: (delta) => {
     const session = app.state.activeSession;
