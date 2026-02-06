@@ -2105,7 +2105,7 @@ if (todayWorkouts.length > 0) {
             
             return acc + 
                 ((sets - 1) * rest / 60) +  // Pause tra serie
-                (sets * 1) +               // 1.5 min per serie invece di 1
+                (sets * 1.1) +               // 1.5 min per serie invece di 1
                 2;                           // 2 min buffer per setup
         }, 0)
     );
@@ -2268,7 +2268,7 @@ activeWorkouts.forEach(w => {
             
             return acc + 
                 ((sets - 1) * rest / 60) +  // Pause tra serie
-                (sets * 1) +               // 1.5 min per serie invece di 1
+                (sets * 1.1) +               // 1.5 min per serie invece di 1
                 2;                           // 2 min buffer per setup
         }, 0)
     );
