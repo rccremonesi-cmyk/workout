@@ -271,6 +271,7 @@ header {
     right: 0;
     transition: top 0.3s ease-in-out;
     z-index: 30;
+	background-color: #111827 !important;
 }
 
 header.header-hidden {
@@ -2096,10 +2097,20 @@ if (todayWorkouts.length > 0) {
                     </div>
                     <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
                         <h4 class="font-bold text-md">${w.name}</h4>
-                        <p class="text-xs text-gray-400">${w.exercises.length} Esercizi${(() => {
-                            const estimatedTime = Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0));
-                            return isNaN(estimatedTime) || estimatedTime === 0 ? '' : ' • ' + estimatedTime + ' min stimati';
-                        })()}</p>
+                       <p class="text-xs text-gray-400">${w.exercises.length} Esercizi${(() => {
+    const estimatedTime = Math.round(
+        w.exercises.reduce((acc, e) => {
+            const sets = parseInt(e.sets);
+            const rest = parseInt(e.rest);
+            
+            return acc + 
+                ((sets - 1) * rest / 60) +  // Pause tra serie
+                (sets * 1) +               // 1.5 min per serie invece di 1
+                2;                           // 2 min buffer per setup
+        }, 0)
+    );
+    return isNaN(estimatedTime) || estimatedTime === 0 ? '' : ' • ' + estimatedTime + ' min stimati';
+})()}</p>
                         ${completedThisWeek ? `
                             <p class="text-xs text-purple-400 mt-1 flex items-center gap-1">
                                 <i class="fa-solid fa-check"></i>
@@ -2249,8 +2260,18 @@ activeWorkouts.forEach(w => {
         </div>
         <div onclick="app.handlers.openWorkoutEditor('${w.id}')" class="flex-1 cursor-pointer">
             <h4 class="font-bold text-md">${w.name}</h4>
-            <p class="text-xs text-gray-400">${w.exercises.length} Esercizi${(() => {
-    const estimatedTime = Math.round(w.exercises.reduce((acc,e) => acc + ((parseInt(e.sets) - 1) * parseInt(e.rest)) / 60 + parseInt(e.sets), 0));
+           <p class="text-xs text-gray-400">${w.exercises.length} Esercizi${(() => {
+    const estimatedTime = Math.round(
+        w.exercises.reduce((acc, e) => {
+            const sets = parseInt(e.sets);
+            const rest = parseInt(e.rest);
+            
+            return acc + 
+                ((sets - 1) * rest / 60) +  // Pause tra serie
+                (sets * 1) +               // 1.5 min per serie invece di 1
+                2;                           // 2 min buffer per setup
+        }, 0)
+    );
     return isNaN(estimatedTime) || estimatedTime === 0 ? '' : ' • ' + estimatedTime + ' min stimati';
 })()}</p>
            ${completedThisWeek ? `
