@@ -210,7 +210,7 @@ input#editor-archived:focus {
 		    display: inline-block;
 	  }
 	  
-#add-workout-fab, #add-btn, #badge-notification,  {
+#add-workout-fab, #add-btn, #badge-notification, #btn-start-workout  {
     animation: gentleBounce 1.8s ease-in-out infinite;
 }
 .workout-started main#app-container {
@@ -1465,6 +1465,72 @@ color:#c084fc;
                <!-- Content injected by JS -->
             </div>
 </div>
+      </div>
+	  
+	  <!-- Modal Start Workout Confirmation -->
+      <div id="start-workout-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+         <div class="bg-gradient-to-br from-darkCard to-gray-900 rounded-3xl w-full max-w-md shadow-2xl border-2 border-primary/30 flex flex-col max-h-[90vh]">
+            
+            <!-- Header Fisso -->
+            <div class="bg-gradient-to-r from-primary to-purple-600 p-6 text-center relative overflow-hidden flex-shrink-0">
+               <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+               <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+               
+               <div class="relative z-10">
+                  <div class="text-5xl mb-3 emoji-rest-day">🚀</div>
+                  <h2 class="text-2xl font-bold text-white">Stai per iniziare</h2>
+               </div>
+            </div>
+            
+            <!-- Contenuto Scrollabile -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4 hide-scrollbar">
+               <!-- Workout Info Card -->
+               <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700">
+                  <div class="flex items-center gap-3 mb-3">
+                     <div id="start-modal-workout-icon" class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style="background: #5127f2">
+                        <i class="hgi hgi-stroke hgi-dumbbell-01 text-3xl text-white"></i>
+                     </div>
+                     <h3 id="start-modal-workout-name" class="font-bold text-xl text-white flex-1">Nome Workout</h3>
+                  </div>
+               </div>
+               
+               <!-- Stats Preview -->
+               <div class="grid grid-cols-2 gap-3">
+                  <div class="bg-gray-800/30 rounded-xl p-3 border border-gray-700/50 text-center">
+                     <div class="text-gray-400 text-xs mb-1">Tempo Stimato</div>
+                     <div class="font-bold text-blue-400 text-lg" id="start-modal-time">0 min</div>
+                  </div>
+                  <div class="bg-gray-800/30 rounded-xl p-3 border border-gray-700/50 text-center">
+                     <div class="text-gray-400 text-xs mb-1">Calorie Stimate</div>
+                     <div class="font-bold text-orange-400 text-lg" id="start-modal-calories">~0 kcal</div>
+                  </div>
+               </div>
+               
+               <!-- Exercises List -->
+               <div class="bg-gray-800/30 rounded-xl p-4 border border-gray-700/50">
+                  <h4 class="font-semibold text-white mb-3 flex items-center gap-2">
+                     <i class="fa-solid fa-list-check text-primary"></i>
+                     Esercizi
+                  </h4>
+                  <div id="start-modal-exercises-list" class="space-y-2">
+                     <!-- Injected by JS -->
+                  </div>
+               </div>
+            </div>
+            
+            <!-- Footer Fisso -->
+            <div class="p-6 pt-4 border-t border-gray-700/50 flex-shrink-0 space-y-3">
+               <button id="btn-start-workout" onclick="app.handlers.confirmStartWorkout()" 
+                  class="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primaryDark hover:to-purple-700 text-white font-bold py-4 rounded-2xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-play"></i>
+                  Inizia Workout
+               </button>
+               <button onclick="app.handlers.closeStartModal()" 
+                  class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-xl transition-all active:scale-95">
+                  Annulla
+               </button>
+            </div>
+         </div>
       </div>
       
       <!-- Modal Icon Picker -->
@@ -2853,10 +2919,19 @@ return `
             <i class="fa-solid fa-trash"></i>
         </button>
         <div class="flex items-center justify-between mb-3 pr-10">
-            <div class="flex items-center gap-2">
-               
-                <div>
-                    <h4 class="font-bold text-white">${h.workoutName}${isArchived ? ' <span class="text-xs text-gray-500">(Archiviato)</span>' : ''}</h4>
+<div class="flex items-center gap-2">
+    ${(() => {
+        const workout = app.state.workouts.find(w => w.id === h.workoutId);
+        if (!workout) return '';
+        return `
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" 
+                 style="background: ${workout.color || '#5127f2'}">
+                <i class="hgi hgi-stroke ${workout.icon || 'hgi-dumbbell-01'} text-sm text-white"></i>
+            </div>
+        `;
+    })()}
+    <div>
+        <h4 class="font-bold text-white">${h.workoutName}${isArchived ? ' <span class="text-xs text-gray-500">(Archiviato)</span>' : ''}</h4>
                         <div class="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
                             <i class="fa-regular fa-calendar"></i>
                             <span>${dateLabel}</span>
@@ -3043,10 +3118,15 @@ list.innerHTML = html;
 workoutCard.innerHTML = `
     <div class="cursor-pointer" onclick="app.handlers.toggleProgressAccordion('${workout.id}')">
         <h3 class="text-l font-bold text-white flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                ${workout.archived ? '<i class="fa-solid fa-box-archive text-gray-500 text-sm"></i>' : ''}
-                ${workout.name}${workout.archived ? ' <span class="text-xs text-gray-400 font-normal">(Archiviato)</span>' : ''}
-            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" 
+                     style="background: ${workout.color || '#5127f2'}">
+                    <i class="hgi hgi-stroke ${workout.icon || 'hgi-dumbbell-01'} text-xl text-white"></i>
+                </div>
+                <div class="flex items-center gap-2">
+                    ${workout.archived ? '<i class="fa-solid fa-box-archive text-gray-500 text-sm"></i>' : ''}
+                    <span>${workout.name}${workout.archived ? ' <span class="text-xs text-gray-400 font-normal">(Archiviato)</span>' : ''}</span>
+                </div>
             <i class="fa-solid fa-chevron-down text-gray-400 ml-4 transition-transform duration-300" id="chevron-${workout.id}"></i>
         </h3>
 		 <div id="progress-content-${workout.id}" class="hidden">
@@ -3491,9 +3571,21 @@ saveWorkout: async () => {
 				},
          
                  // Execution Handlers
-         startWorkout: (id) => {
-		     document.body.classList.add('workout-started');
+startWorkout: (id) => {
     const w = app.state.workouts.find(w => w.id === id);
+    
+    // Salva temporaneamente il workout da avviare
+    app.state.pendingWorkoutStart = w;
+    
+    // Popola la modale
+    app.handlers.showStartWorkoutModal(w);
+},
+
+confirmStartWorkout: () => {
+    const w = app.state.pendingWorkoutStart;
+    if (!w) return;
+    
+    document.body.classList.add('workout-started');
     app.state.activeSession = {
         workout: JSON.parse(JSON.stringify(w)),
         currentExIdx: 0,
@@ -4332,6 +4424,62 @@ closeRatingModal: () => {
       modal.classList.add('hidden');
       modal.style.animation = '';
    }, 300);
+},
+
+showStartWorkoutModal: (workout) => {
+    const modal = document.getElementById('start-workout-modal');
+    
+    // Icona e colore
+    const iconEl = document.getElementById('start-modal-workout-icon');
+    iconEl.style.background = workout.color || '#5127f2';
+    iconEl.querySelector('i').className = `hgi hgi-stroke ${workout.icon || 'hgi-dumbbell-01'} text-3xl text-white`;
+    
+    // Nome
+    document.getElementById('start-modal-workout-name').innerText = workout.name;
+    
+    // Calcola tempo stimato
+    const estimatedTime = Math.round(
+        workout.exercises.reduce((acc, e) => {
+            const sets = parseInt(e.sets);
+            const rest = parseInt(e.rest);
+            return acc + ((sets - 1) * rest / 60) + (sets * 1.5) + 2;
+        }, 0)
+    );
+    document.getElementById('start-modal-time').innerText = `${estimatedTime} min`;
+    
+    // Calcola calorie stimate (approssimazione)
+    const estimatedVolume = workout.exercises.reduce((acc, e) => {
+        const weight = parseFloat(e.lastWeight) || 0;
+        const sets = parseInt(e.sets) || 0;
+        const reps = parseInt(e.reps) || 10; // Fallback
+        const multiplier = e.isDouble ? 2 : 1;
+        return acc + (weight * sets * reps * multiplier);
+    }, 0);
+    
+    const estimatedCalories = Math.round(estimatedVolume * 0.045);
+    document.getElementById('start-modal-calories').innerText = estimatedCalories > 0 
+        ? `~${estimatedCalories} kcal` 
+        : 'N/D';
+    
+    // Lista esercizi
+    const exercisesList = document.getElementById('start-modal-exercises-list');
+exercisesList.innerHTML = workout.exercises.map(ex => `
+    <div class="py-3 border-b border-gray-700/30 last:border-0">
+        <div class="font-semibold text-white text-sm mb-2">${ex.name}</div>
+        <div class="flex items-center gap-2 text-xs text-gray-400">
+            <span class="bg-gray-700/50 px-2 py-1 rounded">${ex.sets} serie</span>
+            <span class="bg-gray-700/50 px-2 py-1 rounded">${ex.reps} reps</span>
+            <span class="bg-gray-700/50 px-2 py-1 rounded font-mono">${ex.lastWeight || 0}kg${ex.isDouble ? ' ×2' : ''}</span>
+        </div>
+    </div>
+`).join('');
+    
+    modal.classList.remove('hidden');
+},
+
+closeStartModal: () => {
+    document.getElementById('start-workout-modal').classList.add('hidden');
+    app.state.pendingWorkoutStart = null;
 },
 
 skipRating: () => {
