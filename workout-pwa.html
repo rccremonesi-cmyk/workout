@@ -108,7 +108,27 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
       <style>
 
 	 
+/* Progress Bar Workout - Stile Classico */
+#progress-bar-container {
+    background: #1f2937;
+    border-radius: 0;
+    overflow: hidden;
+    border: 1px solid #374151;
+	border-radius:3px;
+}
 
+#progress-bar-container > div {
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+
+
+#progress-bar-container > div.current-segment {
+   
+    box-shadow: 0 0 12px rgba(192, 132, 252, 0.6) !important;
+}
 
 
 
@@ -935,15 +955,7 @@ color:#c084fc;
                </div>
                <div class="h-1 bg-gray-800 w-full">
                   <div id="active-progress-bar" class=" relative h-full bg-primary transition-all duration-300 relative" style="width: 0%">
-				  <div style="
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: #a68ef8;
-    border-radius: 50%;
-    top: -2px;
-    right: 0px;
-"></div>
+
 				  </div>
                </div>
             </div>
@@ -1067,22 +1079,21 @@ color:#c084fc;
             <!-- Controls Footer -->
             <!-- Controls Footer -->
             <div class="fixed bottom-0 left-0 right-0 bg-gray-800 pb-safe z-40" style="box-shadow: rgb(17, 24, 39) 0px 0px 50px 64px;">
-               <!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
-               <!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
-               <div class="px-4 pt-2 pb-3">
-                  <div class="flex items-center justify-between text-xs text-gray-400 mb-1">
-                     <span id="footer-progress-text">Serie 1/12</span>
-                     <span id="footer-time-remaining">~15 min rimanenti</span>
-                  </div>
-                  <div class="relative h-1.5 bg-gray-700 rounded-full overflow-visible">
-                     <!-- Step Markers -->
-                     <div id="progress-steps" class="absolute inset-0 flex items-center justify-between px-0">
-                        <!-- Injected by JS -->
-                     </div>
-                     <!-- Fill Bar -->
-                     <div id="footer-progress-fill" class="h-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-300 relative z-10" style="width: 8%"></div>
-                  </div>
-               </div>
+           
+<!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
+<!-- NUOVA BARRA DI PROGRESSO COMPATTA -->
+<div class="px-4 pt-2 pb-3">
+   <div class="flex items-center justify-between text-xs text-gray-400 mb-1">
+      <span id="footer-progress-text">Serie 1/12</span>
+      <span id="footer-time-remaining">~15 min rimanenti</span>
+   </div>
+   
+   <!-- Container barra segmentata -->
+   <div id="progress-bar-container" class="flex h-3 items-stretch">
+      <!-- Segmenti iniettati da JS -->
+   </div>
+</div>
+
                <div class="px-6 pb-6 rounded-t-3xl">
                   <button id="btn-main-action" onclick="app.handlers.completeSet()" class="w-full bg-primary hover:bg-primaryDark text-white font-bold text-xl py-4 rounded-xl shadow-lg transform transition active:scale-95 flex justify-center items-center gap-3">
                   <i class="fa-solid fa-check"></i> <span>Serie Completata</span>
@@ -1745,7 +1756,7 @@ deferredPrompt: null,
 		'Hai già fatto \nriscaldamento? 🔥',
 		'È ora di \nspingere forte! 🚀',
 		'Un passo alla \nvolta, andiamo! 👣',
-		'Costanza > \nscuse 💥',
+		'Più costanza e meno scuse 💥',
 		'Focus totale, \nsei in zona 🎯',
         'Ricordati di \nrimanere idratato! 💧',
 		'Fatica oggi, \norgoglio domani 🏆',
@@ -2692,13 +2703,28 @@ if (kgLabel) {
          const workOverlay = document.getElementById('work-overlay'); // AGGIUNGI QUESTA RIGA
          
          if (session.status === 'rest') {
-         btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa</span>`;
-         btn.classList.replace('bg-primary', 'bg-gray-600');
-         btn.onclick = app.handlers.skipRest;
-         restOverlay.classList.remove('hidden');
-         restOverlay.classList.add('flex');
-         workOverlay.classList.add('hidden');        // AGGIUNGI
-         workOverlay.classList.remove('flex');       // AGGIUNGI
+// ✅ CONTROLLA SE È L'ULTIMA PAUSA DELL'ESERCIZIO
+    const ex = session.workout.exercises[session.currentExIdx];
+    const isLastSet = session.currentSet === ex.sets - 1;
+    const isLastExercise = session.currentExIdx === session.workout.exercises.length - 1;
+    
+    if (isLastSet && !isLastExercise) {
+        // Ultima pausa di questo esercizio, ma ci sono altri esercizi
+        btn.innerHTML = `<i class="fa-solid fa-arrow-right"></i> <span>Prossimo Esercizio</span>`;
+    } else if (isLastSet && isLastExercise) {
+        // Ultima pausa dell'ultimo esercizio
+        btn.innerHTML = `<i class="fa-solid fa-flag-checkered"></i> <span>Termina Workout</span>`;
+    } else {
+        // Pausa normale tra serie
+        btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa</span>`;
+    }
+    
+    btn.classList.replace('bg-primary', 'bg-gray-600');
+    btn.onclick = app.handlers.skipRest;
+    restOverlay.classList.remove('hidden');
+    restOverlay.classList.add('flex');
+    workOverlay.classList.add('hidden');
+    workOverlay.classList.remove('flex');
          } else {
          btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
          btn.classList.replace('bg-gray-600', 'bg-primary');
@@ -2709,63 +2735,95 @@ if (kgLabel) {
          workOverlay.classList.add('flex');          // AGGIUNGI
          }
          
-         // Update Footer Progress Bar (SINGOLO ESERCIZIO)
-         // Update Footer Progress Bar (SINGOLO ESERCIZIO)
-         const currentEx = session.workout.exercises[session.currentExIdx];
-         const totalStepsInExercise = parseInt(currentEx.sets) * 2 - 1;
-         let currentStep = session.currentSet * 2;
-         if (session.status === 'rest') currentStep++;
-         
-         const progressPct = (currentStep / totalStepsInExercise) * 100;
-         
-         document.getElementById('footer-progress-fill').style.width = `${Math.min(progressPct, 100)}%`;
-         
-         // Render Step Markers
-         const stepsContainer = document.getElementById('progress-steps');
-         stepsContainer.innerHTML = '';
-         for (let i = 0; i < parseInt(currentEx.sets); i++) {
-         const stepPosition = (i / (parseInt(currentEx.sets) - 1)) * 100;
-         const isPast = i < session.currentSet;
-         const isCurrent = i === session.currentSet;
-         
-         const marker = document.createElement('div');
-         marker.className = 'absolute transform -translate-x-1/2';
-         marker.style.left = `${stepPosition}%`;
-         marker.innerHTML = `
-         <div class="w-3 h-3 rounded-full border-2 ${
-            isPast ? 'bg-primary border-primary' : 
-            isCurrent && session.status === 'work' ? 'bg-darkBg border-primary animate-pulse' :
-            isCurrent && session.status === 'rest' ? 'bg-purple-500 border-purple-500 animate-pulse' :
-            'bg-gray-700 border-gray-600'
-         } shadow-lg"></div>
-         `;
-         stepsContainer.appendChild(marker);
-         }
-         
-         // Testo dinamico
-         let statusText = '';
-         if (session.status === 'rest') {
-         statusText = `Pausa ${session.currentSet + 1}/${currentEx.sets}`;
-         } else {
-         statusText = `Serie ${session.currentSet + 1}/${currentEx.sets}`;
-         }
-         document.getElementById('footer-progress-text').innerText = statusText;
-         
-         // Tempo rimanente per questo esercizio
-         const remainingSetsEx = parseInt(currentEx.sets) - session.currentSet - 1;
-         const restTime = parseInt(currentEx.rest);
-         const estimatedSecondsEx = session.status === 'rest' 
-         ? (remainingSetsEx * restTime) 
-         : (remainingSetsEx * restTime + restTime);
-         const estimatedMinutesEx = Math.ceil(estimatedSecondsEx / 60);
-         
-         if (estimatedMinutesEx > 0) {
-         document.getElementById('footer-time-remaining').innerText = `~${estimatedMinutesEx} min questo esercizio`;
-         } else if (session.status === 'rest') {
-         document.getElementById('footer-time-remaining').innerText = 'Ultima pausa!';
-         } else {
-         document.getElementById('footer-time-remaining').innerText = 'Ultima serie!';
-         }
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+        
+const currentEx = session.workout.exercises[session.currentExIdx];
+const sets = parseInt(currentEx.sets);
+const totalSegments = sets * 2; 
+
+const container = document.getElementById('progress-bar-container');
+container.innerHTML = '';
+// Aggiungiamo classi al contenitore per gestire i bordi arrotondati e l'overflow
+container.className = "flex h-4 w-full bg-gray-800 rounded-full overflow-hidden gap-0.5 p-0.5";
+
+const currentStep = session.currentSet * 2 + (session.status === 'rest' ? 1 : 0);
+
+for (let step = 0; step < totalSegments; step++) {
+    const isSet = step % 2 === 0;
+    const isPast = step < currentStep;
+    const isCurrent = step === currentStep;
+    
+    const segment = document.createElement('div');
+    segment.style.flex = isSet ? '2' : '1'; // Le serie sono più larghe delle pause
+    segment.className = 'h-full transition-all duration-500 relative overflow-hidden';
+
+    if (isSet) {
+        // --- 🟢 STILE SERIE (WORK) ---
+        if (isPast) {
+            segment.classList.add('bg-violet-500');
+            segment.innerHTML = `<div class="flex items-center justify-center h-full"><!-- <i class="fa-solid fa-check text-[7px] text-white/80"></i>--></div>`;
+        } else if (isCurrent) {
+            segment.classList.add('bg-violet-400', 'animate-pulse', 'shadow-[0_0_8px_rgba(167,139,250,0.6)]');
+        } else {
+            segment.classList.add('bg-gray-700');
+        }
+    } else {
+        // --- ☕ STILE PAUSA (REST) ---
+        if (isCurrent && session.status === 'rest') {
+            const restDuration = parseInt(currentEx.rest);
+            const restEl = document.getElementById('rest-timer-text');
+            const timeLeftMatch = restEl?.innerText.match(/(\d+):(\d+)/);
+            
+            let percentComplete = 0;
+            if (timeLeftMatch) {
+                const timeLeft = parseInt(timeLeftMatch[1]) * 60 + parseInt(timeLeftMatch[2]);
+                percentComplete = ((restDuration - timeLeft) / restDuration) * 100;
+            }
+
+            segment.classList.add('bg-gray-800');
+            segment.innerHTML = `
+                <div id="rest-progress-fill" class="h-full bg-emerald-400 transition-all duration-1000 ease-linear" 
+                     style="width: ${percentComplete}%">
+                </div>`;
+            session.restProgressSegment = segment;
+        } else if (isPast) {
+            segment.classList.add('bg-violet-500'); // Verde spento per pause passate
+        } else {
+            segment.classList.add('bg-gray-800/50');
+        }
+    }
+    
+    container.appendChild(segment);
+}
+
+
+
+
+
+
+
+
+		 
+		 
 		 
 		 
     const notesContainer = document.getElementById('exercise-notes-container');
@@ -3357,7 +3415,7 @@ showWorkoutSummaryModal: (stats) => {
     <div class="bg-gradient-to-br from-darkCard to-gray-900 rounded-3xl w-full max-w-md shadow-2xl border-2 border-primary/30 flex flex-col max-h-[90vh]" style="animation: beastShake 0.5s ease-out">
         
         <!-- ✅ HEADER FISSO -->
-        <div class="bg-gradient-to-r from-primary to-purple-600 p-6 text-center relative overflow-hidden flex-shrink-0">
+        <div class="bg-gradient-to-r from-primary to-purple-600 p-6 text-center relative overflow-hidden rounded-3xl flex-shrink-0">
             <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
             <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
             <div class="relative z-10">
@@ -3905,12 +3963,38 @@ completeSet: () => {
     app.handlers.setRandomMotivation();
 },
          
-         startRest: (seconds, isNextExercise = false) => {
-         const session = app.state.activeSession;
-         session.status = 'rest';
-         app.ui.updateActiveView();
-		 
-		 // ✨ PIANIFICA NOTIFICA BACKGROUND
+startRest: (seconds, isNextExercise = false) => {
+    const session = app.state.activeSession;
+    session.status = 'rest';
+    
+    // ✅ INIZIALIZZA TIMER PRIMA DI AGGIORNARE LA UI
+    let timeLeft = parseInt(seconds);
+    const timerEl = document.getElementById('rest-timer-text');
+    const circle = document.getElementById('rest-timer-circle');
+    
+    const maxOffset = 452;
+    circle.style.strokeDasharray = maxOffset;
+    circle.style.strokeDashoffset = maxOffset;
+    
+    // ✅ MOSTRA TEMPO INIZIALE SUBITO
+    const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const secs = (timeLeft % 60).toString().padStart(2, '0');
+    timerEl.innerText = `${mins}:${secs}`;
+    
+    // ✅ ORA aggiorna UI con i dati già pronti
+    app.ui.updateActiveView();
+    
+    // ✅ INIZIALIZZA LA BARRA FOOTER PRIMA DEL COUNTDOWN
+    setTimeout(() => {
+        if (session?.restProgressSegment) {
+            const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
+            if (fill) {
+                fill.style.width = '0%';
+            }
+        }
+    }, 50);
+    
+    // ✨ PIANIFICA NOTIFICA BACKGROUND
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
         setTimeout(() => {
             navigator.serviceWorker.controller.postMessage({
@@ -3920,41 +4004,43 @@ completeSet: () => {
             });
         }, seconds * 1000);
     }
-         
-         // ✨ CARICA STATO TOGGLE
-         const autoNextCheckbox = document.getElementById('auto-next-toggle');
-         if (autoNextCheckbox) {
-         autoNextCheckbox.checked = app.state.settings.autoNext || false;
-         }
-         
-         let timeLeft = parseInt(seconds);
-         const timerEl = document.getElementById('rest-timer-text');
-         const circle = document.getElementById('rest-timer-circle');
-         
-         const maxOffset = 452;
-         circle.style.strokeDasharray = maxOffset;
-         
-         app.restInterval = setInterval(() => {
-         timeLeft--;
-         const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-         const secs = (timeLeft % 60).toString().padStart(2, '0');
-         timerEl.innerText = `${mins}:${secs}`;
-         
-         const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
-         circle.style.strokeDashoffset = offset;
-         
-         if (timeLeft <= 0) {
+    
+    // ✨ CARICA STATO TOGGLE
+    const autoNextCheckbox = document.getElementById('auto-next-toggle');
+    if (autoNextCheckbox) {
+        autoNextCheckbox.checked = app.state.settings.autoNext || false;
+    }
+    
+    // ✅ COUNTDOWN (ORA senza inizializzazione duplicata)
+    app.restInterval = setInterval(() => {
+        timeLeft--;
+        const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const secs = (timeLeft % 60).toString().padStart(2, '0');
+        timerEl.innerText = `${mins}:${secs}`;
+        
+        const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
+        circle.style.strokeDashoffset = offset;
+        
+        // 📄 Aggiorna barra di progresso footer
+        const session = app.state.activeSession;
+        if (session?.restProgressSegment) {
+           const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
+           if (fill) {
+              const percentComplete = ((seconds - timeLeft) / seconds) * 100;
+              fill.style.width = `${percentComplete}%`;
+           }
+        }
+        
+        if (timeLeft <= 0) {
             clearInterval(app.restInterval);
-         
-         const restText = document.getElementById('rest-timer-text');
-         restText.classList.add('rest-blink');
-         
+            
+            const restText = document.getElementById('rest-timer-text');
+            restText.classList.add('rest-blink');
             
             // ✨ LOGICA AUTO-NEXT
             const isAutoNext = document.getElementById('auto-next-toggle')?.checked || false;
             
             if (isAutoNext) {
-                // Suono dedicato per auto-next
                 if(app.state.settings.sound) {
                     document.getElementById('audio-auto-next').play().catch(e=>{});
                 }
@@ -3962,18 +4048,16 @@ completeSet: () => {
                     navigator.vibrate([300, 100, 300]);
                 }
                 
-                // Continua automaticamente dopo 1 secondo
                 setTimeout(() => {
                     app.handlers.skipRest(null, isNextExercise);
-					app.handlers.setRandomMotivation();
+                    app.handlers.setRandomMotivation();
                 }, 1000);
             } else {
-                // Comportamento normale
                 app.handlers.notify();
             }
-         }
-         }, 1000);
-         },
+        }
+    }, 1000);
+},
          
 // CERCA QUESTA FUNZIONE (circa riga 1100)
 skipRest: (_, isNextExercise = false) => {
@@ -4105,6 +4189,7 @@ setTimeout(() => {
                  startTotalTimer: () => {
                      const start = Date.now();
                      const el = document.getElementById('active-timer-total');
+					 el.innerText = '00:00';
                      app.totalTimerInt = setInterval(() => {
                          const diff = Math.floor((Date.now() - start) / 1000);
                          const m = Math.floor(diff / 60).toString().padStart(2, '0');
@@ -4130,8 +4215,11 @@ startExerciseTimer: () => {
   const el = document.getElementById('exercise-timer');
   if (!el) return;
 
-  // ✨ AGGIUNGI: Reset immediato del display
-  el.innerText = '00:00';
+// ✨ Calcola e mostra subito il tempo reale invece di 00:00
+const initialDiff = Math.floor((Date.now() - session.exerciseStartTime) / 1000);
+const initialM = Math.floor(initialDiff / 60).toString().padStart(2, '0');
+const initialS = (initialDiff % 60).toString().padStart(2, '0');
+el.innerText = `${initialM}:${initialS}`;
 
   // Pulisci eventuale timer precedente
   if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
