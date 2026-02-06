@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker Farmaci</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Toggle Switch Styling */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #10b981;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">💊 Tracker Farmaci</h1>
+            <p class="text-gray-600" id="currentDate"></p>
+            <div class="mt-4 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <p class="text-sm text-gray-700">
+                    <strong>Giorno terapia:</strong> <span id="therapyDay" class="font-bold text-blue-600">-</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Da Fare -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <span class="bg-red-100 text-red-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">!</span>
+                Da Prendere Oggi
+            </h2>
+            <div id="todoList" class="space-y-3">
+                <!-- Farmaci da prendere verranno inseriti qui -->
+            </div>
+        </div>
+
+        <!-- Completati -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <span class="bg-green-100 text-green-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">✓</span>
+                Completati Oggi
+            </h2>
+            <div id="doneList" class="space-y-3">
+                <!-- Farmaci completati verranno inseriti qui -->
+            </div>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="bg-white rounded-2xl shadow-xl p-6">
+            <button onclick="resetTherapy()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
+                🔄 Reset Terapia (Ricomincia da Capo)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Configurazione farmaci
+        const MEDICATIONS = {
+            carelimus: {
+                name: 'Carelimus',
+                quantity: 'Strato sottile sulla zona interessata',
+                color: 'blue'
+            },
+            olux: {
+                name: 'Olux Gel',
+                quantity: 'Una noce piccola (≈ 0,5g) per area palmo mano',
+                color: 'purple'
+            },
+            kelual: {
+                name: 'Kelual',
+                quantity: 'Strato sottile su viso (sopracciglia, lati naso, barba)',
+                color: 'green'
+            }
+        };
+
+        // Inizializza localStorage
+        function initializeStorage() {
+            if (!localStorage.getItem('therapyStartDate')) {
+                localStorage.setItem('therapyStartDate', new Date().toISOString());
+            }
+            if (!localStorage.getItem('dailyChecks')) {
+                localStorage.setItem('dailyChecks', JSON.stringify({}));
+            }
+        }
+
+        // Calcola il giorno di terapia
+        function getTherapyDay() {
+            const startDate = new Date(localStorage.getItem('therapyStartDate'));
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            startDate.setHours(0, 0, 0, 0);
+            
+            const diffTime = today - startDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            
+            return diffDays;
+        }
+
+        // Determina quali farmaci prendere oggi
+        function getTodayMedications(day) {
+            const medications = [];
+
+            // Carelimus: giorni 1-7 tutti i giorni, giorni 8-14 a giorni alterni
+            if (day >= 1 && day <= 7) {
+                medications.push(
+                    { ...MEDICATIONS.carelimus, id: 'carelimus_morning', time: 'Mattino' },
+                    { ...MEDICATIONS.carelimus, id: 'carelimus_evening', time: 'Sera' }
+                );
+            } else if (day >= 8 && day <= 14) {
+                // Giorni alterni: 8, 10, 12, 14 (giorni pari a partire dall'8)
+                if (day % 2 === 0) {
+                    medications.push(
+                        { ...MEDICATIONS.carelimus, id: 'carelimus_morning', time: 'Mattino' },
+                        { ...MEDICATIONS.carelimus, id: 'carelimus_evening', time: 'Sera' }
+                    );
+                } else {
+                    // Giorni dispari: 9, 11, 13 - prendi Kelual
+                    medications.push(
+                        { ...MEDICATIONS.kelual, id: 'kelual_day', time: 'Durante il giorno' }
+                    );
+                }
+            }
+
+            // Olux: giorni 1-15 tutti i giorni
+            if (day >= 1 && day <= 15) {
+                medications.push(
+                    { ...MEDICATIONS.olux, id: 'olux_morning', time: 'Mattino' },
+                    { ...MEDICATIONS.olux, id: 'olux_evening', time: 'Sera' }
+                );
+            }
+
+            // Kelual: dal giorno 15 in poi per 30 giorni (fino al giorno 44)
+            if (day >= 15 && day <= 44) {
+                medications.push(
+                    { ...MEDICATIONS.kelual, id: 'kelual_day', time: 'Durante il giorno' }
+                );
+            }
+
+            return medications;
+        }
+
+        // Ottieni i check di oggi
+        function getTodayChecks() {
+            const today = new Date().toISOString().split('T')[0];
+            const allChecks = JSON.parse(localStorage.getItem('dailyChecks') || '{}');
+            return allChecks[today] || {};
+        }
+
+        // Salva un check
+        function saveCheck(medId, checked) {
+            const today = new Date().toISOString().split('T')[0];
+            const allChecks = JSON.parse(localStorage.getItem('dailyChecks') || '{}');
+            
+            if (!allChecks[today]) {
+                allChecks[today] = {};
+            }
+            
+            allChecks[today][medId] = checked;
+            localStorage.setItem('dailyChecks', JSON.stringify(allChecks));
+            
+            renderMedications();
+        }
+
+        // Crea HTML per un farmaco
+        function createMedicationHTML(med, isChecked) {
+            const colorClasses = {
+                blue: 'from-blue-50 to-blue-100 border-blue-300',
+                purple: 'from-purple-50 to-purple-100 border-purple-300',
+                green: 'from-green-50 to-green-100 border-green-300'
+            };
+
+            return `
+                <div class="bg-gradient-to-r ${colorClasses[med.color]} border-2 rounded-xl p-4 transition-all duration-300 hover:shadow-lg">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800 mb-1">${med.name}</h3>
+                            <p class="text-sm text-gray-600 mb-2 flex items-center">
+                                ${med.time === 'Mattino' ? '☀️' : med.time === 'Sera' ? '🌙' : '⏰'} 
+                                <span class="ml-2 font-semibold">${med.time}</span>
+                            </p>
+                            <p class="text-xs text-gray-500">
+                                <span class="font-semibold">Quantità:</span> ${med.quantity}
+                            </p>
+                        </div>
+                        <div class="ml-4">
+                            <label class="flex items-center cursor-pointer">
+                                <div class="relative">
+                                    <input type="checkbox" 
+                                           class="sr-only toggle-checkbox" 
+                                           ${isChecked ? 'checked' : ''}
+                                           onchange="saveCheck('${med.id}', this.checked)">
+                                    <div class="toggle-label block bg-gray-300 w-14 h-8 rounded-full transition-colors duration-200"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-all duration-200" 
+                                         style="transform: translateX(${isChecked ? '24px' : '0'})"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Renderizza tutti i farmaci
+        function renderMedications() {
+            const day = getTherapyDay();
+            const medications = getTodayMedications(day);
+            const checks = getTodayChecks();
+
+            const todoList = document.getElementById('todoList');
+            const doneList = document.getElementById('doneList');
+
+            const todo = medications.filter(med => !checks[med.id]);
+            const done = medications.filter(med => checks[med.id]);
+
+            todoList.innerHTML = todo.length > 0 
+                ? todo.map(med => createMedicationHTML(med, false)).join('')
+                : '<p class="text-gray-400 text-center py-8">Ottimo lavoro! Hai preso tutti i farmaci di oggi! 🎉</p>';
+
+            doneList.innerHTML = done.length > 0
+                ? done.map(med => createMedicationHTML(med, true)).join('')
+                : '<p class="text-gray-400 text-center py-8">Nessun farmaco completato ancora</p>';
+
+            // Aggiorna la data e il giorno di terapia
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('it-IT', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            document.getElementById('therapyDay').textContent = `Giorno ${day}`;
+        }
+
+        // Reset terapia
+        function resetTherapy() {
+            if (confirm('Sei sicuro di voler resettare la terapia? Tutti i dati verranno cancellati.')) {
+                localStorage.removeItem('therapyStartDate');
+                localStorage.removeItem('dailyChecks');
+                initializeStorage();
+                renderMedications();
+            }
+        }
+
+        // Inizializzazione
+        initializeStorage();
+        renderMedications();
+
+        // Aggiorna ogni minuto per cambiare giorno automaticamente
+        setInterval(() => {
+            const currentDate = new Date().toISOString().split('T')[0];
+            const lastCheck = localStorage.getItem('lastCheckDate');
+            
+            if (currentDate !== lastCheck) {
+                localStorage.setItem('lastCheckDate', currentDate);
+                renderMedications();
+            }
+        }, 60000);
+    </script>
+</body>
+</html>
