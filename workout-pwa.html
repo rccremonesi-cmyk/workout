@@ -1731,7 +1731,7 @@ deferredPrompt: null,
         },
         kg10000: {
             name: '10.000 kg Sollevati',
-            desc: 'Forza pura: 10 tonnellate di ghisa! 🦾',
+            desc: 'Forza pura cumulativa: 10 tonnellate di ghisa! 🦾',
             icon: 'https://rccremonesi-cmyk.github.io/workout/10000kg.png',
             repeatable: true
         },
@@ -1916,7 +1916,7 @@ updateWeightComparison: () => {
     comparisonEl.innerHTML = `<i class="fa-regular fa-calendar font-bold mr-1" style="font-size: 11px;"></i> ${dateStr} - ${weightStr}kg`;
 },
 		 
-		 checkBadges: async (session) => {
+checkBadges: async (session) => {
     const newBadges = [];
     
     // 1️⃣ Strike 4 workouts questa settimana
@@ -1949,13 +1949,13 @@ updateWeightComparison: () => {
         app.state.badges.kcal7200.lastUnlocked = new Date().toISOString();
     }
     
-    // 4️⃣ 10.000 kg questa settimana
-    const thisWeekVolume = thisWeekWorkouts.reduce((acc, h) => acc + (parseFloat(h.totalVolume) || 0), 0);
-    if (thisWeekVolume >= 10000 && !app.state.badges.kg10000.seen) {
+    // 🔥 4️⃣ 10.000 kg TOTALI (FISSO) - Ora cumulativo come le calorie
+    const totalVolume = app.state.history.reduce((acc, h) => acc + (parseFloat(h.totalVolume) || 0), 0);
+    const kg10000Milestone = Math.floor(totalVolume / 10000);
+    if (kg10000Milestone > app.state.badges.kg10000.count) {
         newBadges.push('kg10000');
-        app.state.badges.kg10000.count++;
+        app.state.badges.kg10000.count = kg10000Milestone;
         app.state.badges.kg10000.lastUnlocked = new Date().toISOString();
-        app.state.badges.kg10000.seen = true;
     }
     
     // 5️⃣ 16 allenamenti questo mese
@@ -1988,16 +1988,13 @@ updateWeightComparison: () => {
         await app.db.put('badges', { id: key, data: app.state.badges[key] });
     }
     
-    // Aggiungi ai pending
     app.state.pendingBadges.push(...newBadges);
 },
 
 resetWeeklyBadges: async () => {
     // Reset seen flags per badge settimanali
     app.state.badges.strike4.seen = false;
-    app.state.badges.kg10000.seen = false;
     await app.db.put('badges', { id: 'strike4', data: app.state.badges.strike4 });
-    await app.db.put('badges', { id: 'kg10000', data: app.state.badges.kg10000 });
 },
 
 resetMonthlyBadges: async () => {
