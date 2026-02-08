@@ -1616,6 +1616,13 @@ color:#c084fc;
       <audio id="audio-beep" src="https://cdn.freesound.org/previews/22/22627_7037-lq.ogg" preload="auto"></audio>
       <audio id="audio-complete" src="https://cdn.freesound.org/previews/619/619839_7614679-lq.ogg" preload="auto"></audio>
       <audio id="audio-auto-next" src="https://cdn.freesound.org/previews/108/108897_7037-lq.ogg" preload="auto"></audio>
+	  
+	  <!-- 🔥 NUOVO: Audio silenzioso per mantenere app attiva -->
+<audio id="audio-keepalive" loop>
+  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" type="audio/wav">
+</audio>
+
+
       <!-- LOGIC SCRIPT -->
       <script>
          /**
@@ -1700,6 +1707,7 @@ request.onupgradeneeded = (e) => {
 	isSaving: false,        
     isDeleting: false,
 deferredPrompt: null,	
+ wakeLock: null,
     
     settings: { 
         unit: 'kg', 
@@ -3708,19 +3716,33 @@ startWorkout: (id) => {
     app.handlers.showStartWorkoutModal(w);
 },
 
-confirmStartWorkout: async () => {
+confirmStartWorkout: () => {
     const w = app.state.pendingWorkoutStart;
     if (!w) return;
     
-    // 🔥 RICHIEDI PERMESSI NOTIFICHE SE NON GIÀ CONCESSI
+    // 🔥 RICHIEDI PERMESSI NOTIFICHE
     if ('Notification' in window && Notification.permission === 'default') {
-        await Notification.requestPermission();
+        Notification.requestPermission();
+    }
+    
+    // 🔥 AVVIA AUDIO SILENZIOSO (mantiene app attiva in background)
+    const keepAlive = document.getElementById('audio-keepalive');
+    if (keepAlive) {
+        keepAlive.volume = 0.01; // Quasi silenzioso
+        keepAlive.play().catch(e => console.warn('KeepAlive audio blocked:', e));
+    }
+    
+    // 🔥 RICHIEDI WAKE LOCK (impedisce standby)
+    if ('wakeLock' in navigator) {
+        navigator.wakeLock.request('screen').then(wakeLock => {
+            app.state.wakeLock = wakeLock;
+            console.log('✅ Wake Lock attivo');
+        }).catch(e => console.warn('Wake Lock error:', e));
     }
     
     document.getElementById('start-workout-modal').classList.add('hidden');
     document.body.classList.add('workout-started');
     
-    // ✅ TIMESTAMP PRECISO
     const now = Date.now();
     
     app.state.activeSession = {
@@ -3729,7 +3751,7 @@ confirmStartWorkout: async () => {
         currentSet: 0,
         status: 'work',
         startTime: now,
-        exerciseStartTime: now,  // ← USA LO STESSO TIMESTAMP
+        exerciseStartTime: now,
         exerciseDurations: [],
         logs: [],
         weightDelta: 0,
@@ -3737,8 +3759,6 @@ confirmStartWorkout: async () => {
     };
     
     app.router.go('active');
-    
-    // ✅ AVVIA I TIMER IMMEDIATAMENTE
     app.handlers.startTotalTimer();
     app.handlers.startExerciseTimer();
     app.handlers.setRandomMotivation();
@@ -4146,17 +4166,45 @@ skipExercise: () => {
                      }
                  },
          
-                 confirmExitWorkout: () => {
-                     if(confirm("Vuoi uscire senza salvare?")) {
-                         if (app.restInterval) clearInterval(app.restInterval);
-                         if (app.totalTimerInt) clearInterval(app.totalTimerInt);
-         if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
-		  document.body.classList.remove('workout-started');
-                         app.router.go('dashboard');
-                     }
-                 },
+                confirmExitWorkout: () => {
+    if(confirm("Vuoi uscire senza salvare?")) {
+        // 🔥 FERMA AUDIO SILENZIOSO
+        const keepAlive = document.getElementById('audio-keepalive');
+        if (keepAlive) {
+            keepAlive.pause();
+            keepAlive.currentTime = 0;
+        }
+        
+        // 🔥 RILASCIA WAKE LOCK
+        if (app.state.wakeLock) {
+            app.state.wakeLock.release();
+            app.state.wakeLock = null;
+        }
+        
+        if (app.restInterval) clearInterval(app.restInterval);
+        if (app.totalTimerInt) clearInterval(app.totalTimerInt);
+        if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
+        document.body.classList.remove('workout-started');
+        app.router.go('dashboard');
+    }
+},
          
  finishWorkout: async () => {
+    // 🔥 FERMA AUDIO SILENZIOSO
+    const keepAlive = document.getElementById('audio-keepalive');
+    if (keepAlive) {
+        keepAlive.pause();
+        keepAlive.currentTime = 0;
+    }
+    
+    // 🔥 RILASCIA WAKE LOCK
+    if (app.state.wakeLock) {
+        app.state.wakeLock.release().then(() => {
+            console.log('✅ Wake Lock rilasciato');
+            app.state.wakeLock = null;
+        });
+    }
+    
     if (app.restInterval) clearInterval(app.restInterval);
     if (app.totalTimerInt) clearInterval(app.totalTimerInt);
     if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
@@ -4310,42 +4358,43 @@ requestNotificationPermission: async () => {
     }
 },
          
-                 notify: () => {
-    // 🔥 1. Suono (SEMPRE, anche in background su iOS)
+notify: () => {
+    // 🔥 SUONO RIPETUTO (3 volte per essere sicuri)
     if(app.state.settings.sound) {
         const beep = document.getElementById('audio-beep');
-        beep.play().catch(e => {
-            console.warn('Audio bloccato:', e);
-        });
+        let playCount = 0;
+        const playBeep = () => {
+            if (playCount < 3) {
+                beep.currentTime = 0;
+                beep.play().catch(e => {});
+                playCount++;
+                setTimeout(playBeep, 800);
+            }
+        };
+        playBeep();
     }
     
-    // 🔥 2. Vibrazione
+    // 🔥 VIBRAZIONE FORTE E LUNGA
     if(app.state.settings.vibrate && navigator.vibrate) {
-        navigator.vibrate([500, 200, 500, 200, 500]);
+        navigator.vibrate([500, 200, 500, 200, 500, 200, 500]);
     }
     
-    // 🔥 3. Notifica nativa (se permesso concesso)
+    // 🔥 NOTIFICA CON SUONO
     if ("Notification" in window && Notification.permission === "granted") {
-        const notification = new Notification("⏰ Riposo Terminato!", { 
-            body: "Inizia la prossima serie 💪",
+        const notification = new Notification("⏰ RIPOSO TERMINATO!", { 
+            body: "Tocca per continuare l'allenamento 💪",
             icon: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
             badge: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
-            tag: 'workout-timer',
+            tag: 'workout-timer-urgent',
             requireInteraction: true,
-            vibrate: [200, 100, 200]
+            silent: false, // 🔥 IMPORTANTE: suono notifica
+            vibrate: [500, 200, 500, 200, 500]
         });
         
         notification.onclick = () => {
             window.focus();
             notification.close();
         };
-    }
-    
-    // 🔥 4. Wake Lock API (mantiene schermo attivo)
-    if ('wakeLock' in navigator && app.state.activeSession) {
-        navigator.wakeLock.request('screen').catch(e => {
-            console.warn('Wake Lock non supportato:', e);
-        });
     }
 },
          showWorkoutPreview: () => {
