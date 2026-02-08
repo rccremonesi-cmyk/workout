@@ -23,6 +23,7 @@ const manifestData = {
     "theme_color": "#111827",
     "orientation": "portrait-primary",
     "categories": ["health", "fitness", "lifestyle"],
+	"permissions": ["notifications"],
     "icons": [
         {
             "src": "https://rccremonesi-cmyk.github.io/workout/barbell-ico.png",
@@ -3995,7 +3996,6 @@ startRest: (seconds, isNextExercise = false) => {
     const session = app.state.activeSession;
     session.status = 'rest';
     
-    // ✅ INIZIALIZZA TIMER PRIMA DI AGGIORNARE LA UI
     let timeLeft = parseInt(seconds);
     const timerEl = document.getElementById('rest-timer-text');
     const circle = document.getElementById('rest-timer-circle');
@@ -4004,42 +4004,42 @@ startRest: (seconds, isNextExercise = false) => {
     circle.style.strokeDasharray = maxOffset;
     circle.style.strokeDashoffset = maxOffset;
     
-    // ✅ MOSTRA TEMPO INIZIALE SUBITO
     const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
     const secs = (timeLeft % 60).toString().padStart(2, '0');
     timerEl.innerText = `${mins}:${secs}`;
     
-    // ✅ ORA aggiorna UI con i dati già pronti
     app.ui.updateActiveView();
     
-    // ✅ INIZIALIZZA LA BARRA FOOTER PRIMA DEL COUNTDOWN
     setTimeout(() => {
         if (session?.restProgressSegment) {
             const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
-            if (fill) {
-                fill.style.width = '0%';
-            }
+            if (fill) fill.style.width = '0%';
         }
     }, 50);
     
-    // ✨ PIANIFICA NOTIFICA BACKGROUND
+    // 🔥 AVVIA TIMER NEL SERVICE WORKER (background)
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        setTimeout(() => {
-            navigator.serviceWorker.controller.postMessage({
-                type: 'SHOW_NOTIFICATION',
-                title: '⏰ Riposo Terminato!',
-                body: 'Inizia la prossima serie 💪'
-            });
-        }, seconds * 1000);
+        const ex = session.workout.exercises[session.currentExIdx];
+        navigator.serviceWorker.controller.postMessage({
+            type: 'START_TIMER',
+            data: {
+                duration: seconds,
+                exerciseName: ex.name
+            }
+        });
     }
     
-    // ✨ CARICA STATO TOGGLE
+    // 🔥 RICHIEDI PERMESSI NOTIFICHE SE NECESSARIO
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+    
     const autoNextCheckbox = document.getElementById('auto-next-toggle');
     if (autoNextCheckbox) {
         autoNextCheckbox.checked = app.state.settings.autoNext || false;
     }
     
-    // ✅ COUNTDOWN (ORA senza inizializzazione duplicata)
+    // Timer locale (per UI)
     app.restInterval = setInterval(() => {
         timeLeft--;
         const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
@@ -4049,7 +4049,6 @@ startRest: (seconds, isNextExercise = false) => {
         const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
         circle.style.strokeDashoffset = offset;
         
-        // 📄 Aggiorna barra di progresso footer
         const session = app.state.activeSession;
         if (session?.restProgressSegment) {
            const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
@@ -4065,7 +4064,6 @@ startRest: (seconds, isNextExercise = false) => {
             const restText = document.getElementById('rest-timer-text');
             restText.classList.add('rest-blink');
             
-            // ✨ LOGICA AUTO-NEXT
             const isAutoNext = document.getElementById('auto-next-toggle')?.checked || false;
             
             if (isAutoNext) {
@@ -4089,6 +4087,11 @@ startRest: (seconds, isNextExercise = false) => {
          
 // CERCA QUESTA FUNZIONE (circa riga 1100)
 skipRest: (_, isNextExercise = false) => {
+  // 🔥 FERMA TIMER NEL SERVICE WORKER
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'STOP_TIMER' });
+  }
+  
   if (app.restInterval) clearInterval(app.restInterval);
   
   // ✅ RIMUOVI LAMPEGGIO QUANDO SALTI IL RIPOSO
@@ -5226,9 +5229,10 @@ if (motivationalToggle) {
 </div>
 	  <!-- ✅ Service Worker inline per PWA -->
 <script>
+<script>
 if ('serviceWorker' in navigator) {
     const swCode = `
-    const CACHE_NAME = 'workout-tracker-v3';
+    const CACHE_NAME = 'workout-tracker-v4';
     const urlsToCache = [
         '/',
         'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png'
@@ -5238,6 +5242,11 @@ if ('serviceWorker' in navigator) {
         event.waitUntil(
             caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
         );
+        self.skipWaiting(); // 🔥 Attiva subito
+    });
+    
+    self.addEventListener('activate', event => {
+        event.waitUntil(self.clients.claim()); // 🔥 Prendi controllo subito
     });
     
     self.addEventListener('fetch', event => {
@@ -5246,45 +5255,92 @@ if ('serviceWorker' in navigator) {
         );
     });
     
-    // ✨ NUOVO: Gestione notifiche in background
+    // 🔥 NUOVO: Timer in background
+    let timers = new Map();
+    
+    self.addEventListener('message', event => {
+        const { type, data } = event.data;
+        
+        if (type === 'START_TIMER') {
+            const { duration, exerciseName } = data;
+            const endTime = Date.now() + (duration * 1000);
+            
+            timers.set('rest-timer', {
+                endTime,
+                exerciseName,
+                interval: setInterval(() => {
+                    const remaining = endTime - Date.now();
+                    
+                    if (remaining <= 0) {
+                        clearInterval(timers.get('rest-timer').interval);
+                        timers.delete('rest-timer');
+                        
+                        // Mostra notifica
+                        self.registration.showNotification('⏰ Riposo Terminato!', {
+                            body: \`Inizia la prossima serie 💪\`,
+                            icon: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
+                            badge: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
+                            vibrate: [500, 200, 500, 200, 500],
+                            tag: 'workout-timer',
+                            requireInteraction: true,
+                            silent: false,
+                            data: { action: 'timer-complete' }
+                        });
+                        
+                        // Invia messaggio al client
+                        self.clients.matchAll().then(clients => {
+                            clients.forEach(client => {
+                                client.postMessage({ type: 'TIMER_COMPLETE' });
+                            });
+                        });
+                    }
+                }, 1000)
+            });
+        }
+        
+        if (type === 'STOP_TIMER') {
+            const timer = timers.get('rest-timer');
+            if (timer) {
+                clearInterval(timer.interval);
+                timers.delete('rest-timer');
+            }
+        }
+    });
+    
     self.addEventListener('notificationclick', event => {
         event.notification.close();
         event.waitUntil(
-            clients.openWindow('/')
+            clients.openWindow('/').then(windowClient => {
+                if (windowClient) windowClient.focus();
+            })
         );
-    });
-    
-    // ✨ NUOVO: Ricevi messaggi dal client
-    self.addEventListener('message', event => {
-        if (event.data.type === 'SHOW_NOTIFICATION') {
-            self.registration.showNotification(event.data.title, {
-                body: event.data.body,
-                icon: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
-                badge: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
-                vibrate: [200, 100, 200],
-                tag: 'workout-timer',
-                requireInteraction: true,
-                actions: [
-                    { action: 'start', title: '▶️ Inizia Serie' }
-                ]
-            });
-        }
     });
     `;
     
-// ✅ REGISTRA IL SERVICE WORKER (solo su HTTPS o localhost)
-if (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-    const blob = new Blob([swCode], { type: 'application/javascript' });
-    const swUrl = URL.createObjectURL(blob);
-    
-    navigator.serviceWorker.register(swUrl).then(reg => {
-        console.log('✅ Service Worker registrato');
-    }).catch(err => {
-        console.error('❌ Errore SW:', err);
-    });
-} else {
-    console.warn('⚠️ Service Worker non disponibile (richiede HTTPS o localhost)');
-}
+    // 🔥 REGISTRA IL SERVICE WORKER
+    if (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        
+        navigator.serviceWorker.register(swUrl).then(reg => {
+            console.log('✅ Service Worker registrato');
+            
+            // 🔥 Listener per messaggi dal SW
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data.type === 'TIMER_COMPLETE') {
+                    // Esegui azioni quando il timer finisce
+                    if (app.state.settings.sound) {
+                        document.getElementById('audio-beep').play().catch(e => {});
+                    }
+                    if (app.state.settings.vibrate && navigator.vibrate) {
+                        navigator.vibrate([500, 200, 500]);
+                    }
+                }
+            });
+        }).catch(err => {
+            console.error('❌ Errore SW:', err);
+        });
+    }
 }
 </script>
 </body>
