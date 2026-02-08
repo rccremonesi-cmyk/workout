@@ -1919,12 +1919,20 @@ updateWeightComparison: () => {
 checkBadges: async (session) => {
     const newBadges = [];
     
-    // 1️⃣ Strike 4 workouts questa settimana
-    const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    // 🔥 1️⃣ Strike 4 workouts questa settimana (FISSO)
+    const now = new Date();
+    const weekStart = new Date(now);
+    const dayOfWeek = now.getDay();
+    // Se domenica (0), torna indietro di 6 giorni, altrimenti calcola normalmente
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    weekStart.setDate(now.getDate() - daysToMonday);
     weekStart.setHours(0, 0, 0, 0);
     
     const thisWeekWorkouts = app.state.history.filter(h => new Date(h.date) >= weekStart);
+    
+    // 🔥 DEBUG: Vedi il conteggio in console
+    console.log(`📊 Workout questa settimana: ${thisWeekWorkouts.length}/4`);
+    
     if (thisWeekWorkouts.length === 4 && !app.state.badges.strike4.seen) {
         newBadges.push('strike4');
         app.state.badges.strike4.count++;
@@ -1958,18 +1966,21 @@ checkBadges: async (session) => {
         app.state.badges.kg10000.lastUnlocked = new Date().toISOString();
     }
     
-    // 5️⃣ 16 allenamenti questo mese
-    const now = new Date();
-    const thisMonthWorkouts = app.state.history.filter(h => {
-        const d = new Date(h.date);
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    });
-    if (thisMonthWorkouts.length === 16 && !app.state.badges.month16.seen) {
-        newBadges.push('month16');
-        app.state.badges.month16.count++;
-        app.state.badges.month16.lastUnlocked = new Date().toISOString();
-        app.state.badges.month16.seen = true;
-    }
+	// 5️⃣ 16 allenamenti questo mese
+	const now = new Date();
+	const thisMonthWorkouts = app.state.history.filter(h => {
+		const d = new Date(h.date);
+		return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+	});
+
+	console.log(`📊 Workout questo mese: ${thisMonthWorkouts.length}/16`); // 🔥 AGGIUNGI QUESTO
+
+	if (thisMonthWorkouts.length === 16 && !app.state.badges.month16.seen) {
+		newBadges.push('month16');
+		app.state.badges.month16.count++;
+		app.state.badges.month16.lastUnlocked = new Date().toISOString();
+		app.state.badges.month16.seen = true;
+	}
     
     // 6️⃣ Panca piana 100kg (one-time)
     if (app.state.badges.bench100.count === 0) {
@@ -2095,13 +2106,13 @@ renderDashboard: () => {
     let periodName;
     let iconClass;
     
-    if (app.state.statsPeriod === 'week') {
-        // Weekly stats (Monday to Sunday)
-        const startOfWeek = new Date(now);
-        const dayOfWeek = now.getDay();
-        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust to Monday
-        startOfWeek.setDate(now.getDate() + diff);
-        startOfWeek.setHours(0, 0, 0, 0);
+	if (app.state.statsPeriod === 'week') {
+		// Weekly stats (Monday to Sunday)
+		const startOfWeek = new Date(now);
+		const dayOfWeek = now.getDay();
+		const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // 🔥 CORRETTO
+		startOfWeek.setDate(now.getDate() + diff);
+		startOfWeek.setHours(0, 0, 0, 0);
         
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(startOfWeek.getDate() + 6);
