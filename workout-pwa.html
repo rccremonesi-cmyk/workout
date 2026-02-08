@@ -1380,6 +1380,17 @@ color:#c084fc;
     <input type="checkbox" id="setting-vibrate" checked class="accent-primary w-5 h-5">
 </div>
 
+<!-- 🔥 NUOVO: Richiesta permessi notifiche -->
+<div class="p-4 border-t border-gray-700">
+    <button onclick="app.handlers.requestNotificationPermission()" 
+        id="notification-permission-btn"
+        class="w-full bg-gradient-to-r from-primary to-purple-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:from-primaryDark hover:to-purple-700 transition-all active:scale-95">
+        <i class="fa-solid fa-bell"></i>
+        <span id="notification-btn-text">Abilita Notifiche</span>
+    </button>
+    <p class="text-xs text-gray-400 mt-2 text-center">Ricevi avvisi quando il timer termina (anche in background)</p>
+</div>
+
 <!-- ✅ PULSANTE INSTALLA PWA -->
 <div id="pwa-install-section" class="p-4 border-t border-gray-700 hidden">
     <button onclick="app.handlers.installPWA()" class="w-full bg-gradient-to-r from-primary to-purple-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:from-primaryDark hover:to-purple-700 transition-all active:scale-95">
@@ -1767,13 +1778,21 @@ deferredPrompt: null,
 },
        
              
-             init: async () => {
-                 await app.db.connect();
-                 await app.loadData();
-                 app.ui.applyTheme();
-                 app.router.go('dashboard');
-                 app.handlers.requestNotificationPermission();
-             },
+init: async () => {
+    await app.db.connect();
+    await app.loadData();
+    app.ui.applyTheme();
+    app.router.go('dashboard');
+    
+    // 🔥 AGGIUNGI QUESTO
+    // Aggiorna UI permessi notifiche
+    setTimeout(() => {
+        const btn = document.getElementById('notification-btn-text');
+        if (btn && Notification.permission === 'granted') {
+            btn.textContent = '✅ Notifiche Attive';
+        }
+    }, 500);
+},
          
 loadData: async () => {
     app.state.workouts = await app.db.getAll('workouts');
@@ -3688,13 +3707,16 @@ startWorkout: (id) => {
     app.handlers.showStartWorkoutModal(w);
 },
 
-confirmStartWorkout: () => {
+confirmStartWorkout: async () => {
     const w = app.state.pendingWorkoutStart;
     if (!w) return;
     
-    // ✅ CHIUDI LA MODALE PRIMA
-    document.getElementById('start-workout-modal').classList.add('hidden');
+    // 🔥 RICHIEDI PERMESSI NOTIFICHE SE NON GIÀ CONCESSI
+    if ('Notification' in window && Notification.permission === 'default') {
+        await Notification.requestPermission();
+    }
     
+    document.getElementById('start-workout-modal').classList.add('hidden');
     document.body.classList.add('workout-started');
     
     // ✅ TIMESTAMP PRECISO
@@ -4246,37 +4268,83 @@ el.innerText = `${initialM}:${initialS}`;
          
 requestNotificationPermission: async () => {
     if (!("Notification" in window)) {
-        console.warn('Browser non supporta notifiche');
+        alert('❌ Il tuo browser non supporta le notifiche');
         return;
     }
     
-    if (Notification.permission === 'default') {
-        const permission = await Notification.requestPermission();
+    const btn = document.getElementById('notification-btn-text');
+    
+    if (Notification.permission === 'granted') {
+        btn.textContent = '✅ Notifiche Attive';
         
-        if (permission === 'granted') {
-            // Test notifica
-            new Notification('✅ Notifiche Attivate', {
-                body: 'Riceverai avvisi quando il timer finisce',
-                icon: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png'
-            });
-        }
+        // Test notifica
+        new Notification('✅ Notifiche Configurate', {
+            body: 'Riceverai avvisi quando il timer finisce',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
+            vibrate: [200, 100, 200]
+        });
+        return;
+    }
+    
+    if (Notification.permission === 'denied') {
+        alert('❌ Notifiche bloccate dal browser.\n\nVai nelle impostazioni del sito e abilita le notifiche manualmente.');
+        return;
+    }
+    
+    // Richiedi permesso
+    const permission = await Notification.requestPermission();
+    
+    if (permission === 'granted') {
+        btn.textContent = '✅ Notifiche Attive';
+        
+        new Notification('✅ Notifiche Attivate!', {
+            body: 'Riceverai avvisi quando il timer termina',
+            icon: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
+            vibrate: [200, 100, 200]
+        });
+    } else {
+        btn.textContent = '❌ Permesso Negato';
     }
 },
          
                  notify: () => {
-                     // Sound
-                     if(app.state.settings.sound) {
-                         document.getElementById('audio-beep').play().catch(e=>{});
-                     }
-                     // Vibrate
-                     if(app.state.settings.vibrate && navigator.vibrate) {
-                         navigator.vibrate([500]);
-                     }
-                     // Web Notification
-                     if ("Notification" in window && Notification.permission === "granted") {
-                         new Notification("Riposo Terminato!", { body: "Inizia la prossima serie." });
-                     }
-                 },
+    // 🔥 1. Suono (SEMPRE, anche in background su iOS)
+    if(app.state.settings.sound) {
+        const beep = document.getElementById('audio-beep');
+        beep.play().catch(e => {
+            console.warn('Audio bloccato:', e);
+        });
+    }
+    
+    // 🔥 2. Vibrazione
+    if(app.state.settings.vibrate && navigator.vibrate) {
+        navigator.vibrate([500, 200, 500, 200, 500]);
+    }
+    
+    // 🔥 3. Notifica nativa (se permesso concesso)
+    if ("Notification" in window && Notification.permission === "granted") {
+        const notification = new Notification("⏰ Riposo Terminato!", { 
+            body: "Inizia la prossima serie 💪",
+            icon: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
+            badge: 'https://rccremonesi-cmyk.github.io/workout/barbell-ico.png',
+            tag: 'workout-timer',
+            requireInteraction: true,
+            vibrate: [200, 100, 200]
+        });
+        
+        notification.onclick = () => {
+            window.focus();
+            notification.close();
+        };
+    }
+    
+    // 🔥 4. Wake Lock API (mantiene schermo attivo)
+    if ('wakeLock' in navigator && app.state.activeSession) {
+        navigator.wakeLock.request('screen').catch(e => {
+            console.warn('Wake Lock non supportato:', e);
+        });
+    }
+},
          showWorkoutPreview: () => {
          const session = app.state.activeSession;
          if (!session) return;
