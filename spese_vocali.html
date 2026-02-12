@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Spese Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Registro Spese Vocale</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6366f1;
-            --primary-dark: #4f46e5;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
             --bg: #f8fafc;
-            --card-bg: #ffffff;
+            --card: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --danger: #ef4444;
-            --success: #10b981;
-            --radius: 24px;
+            --radius-lg: 28px;
+            --radius-md: 18px;
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
         }
 
@@ -30,7 +31,7 @@
             font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
-            line-height: 1.5;
+            line-height: 1.6;
             padding: 20px 16px env(safe-area-inset-bottom);
             min-height: 100vh;
         }
@@ -42,133 +43,143 @@
 
         /* Header */
         .header {
-            margin-bottom: 32px;
-            padding-top: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 10px;
         }
 
         .header h1 {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
-            letter-spacing: -1px;
-            background: linear-gradient(135deg, var(--primary), #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+            margin-bottom: 5px;
         }
 
         .header p {
             color: var(--text-muted);
             font-size: 15px;
-            margin-top: 4px;
         }
 
-        /* Cards */
+        /* Card Style */
         .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
+            background: var(--card);
+            border-radius: var(--radius-lg);
             padding: 24px;
             box-shadow: var(--shadow);
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0,0,0,0.03);
         }
 
-        /* Voice Button Section */
-        .record-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
+        /* Instructions */
+        .instructions {
+            background: #f1f5f9;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
         }
 
+        .instructions strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Recording Section */
         .record-button {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: none;
-            background: var(--primary);
+            width: 100%;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 700;
             color: white;
-            font-size: 28px;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-            position: relative;
+            gap: 10px;
         }
 
-        .record-button::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: var(--primary);
-            opacity: 0.5;
-            z-index: -1;
-            transition: all 0.3s;
+        .record-button:active {
+            transform: scale(0.96);
         }
 
         .record-button.recording {
-            background: var(--danger);
-            transform: scale(1.1);
-            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+            background: var(--danger-gradient);
+            animation: pulse-border 1.5s infinite;
         }
 
-        .record-button.recording::after {
-            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-            background: var(--danger);
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        @keyframes pulse-ring {
-            0% { transform: scale(.8); opacity: 0.5; }
-            100% { transform: scale(2); opacity: 0; }
-        }
-
-        .status-badge {
+        .status {
+            text-align: center;
+            color: var(--text-muted);
             font-size: 13px;
             font-weight: 600;
-            color: var(--primary);
-            background: #eef2ff;
-            padding: 6px 16px;
-            border-radius: 20px;
+            margin: 12px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .transcript {
-            font-style: italic;
-            color: var(--text-muted);
-            text-align: center;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            min-height: 60px;
+            color: var(--text-main);
             font-size: 15px;
-            margin-top: 8px;
-            min-height: 22px;
+            font-style: italic;
+            border: 1px dashed #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
-        /* Totale Display */
-        .total-display {
+        /* Totale */
+        .total {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 24px;
+            border-radius: var(--radius-md);
             text-align: center;
-            padding: 10px 0 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
         }
 
         .total-label {
-            font-size: 14px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--text-muted);
-            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 5px;
         }
 
-        .total-amount {
-            font-size: 42px;
+        .total-value {
+            font-size: 36px;
             font-weight: 800;
-            color: var(--text-main);
         }
 
-        /* Segmented Control (Tabs) */
+        /* Tabs (Segmented Control) */
         .tabs {
+            display: flex;
             background: #f1f5f9;
             padding: 4px;
             border-radius: 14px;
-            display: flex;
-            margin-bottom: 24px;
+            margin-bottom: 25px;
         }
 
         .tab-btn {
@@ -176,11 +187,11 @@
             padding: 10px;
             border: none;
             background: transparent;
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-muted);
+            border-radius: 11px;
             cursor: pointer;
-            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
             transition: all 0.2s;
         }
 
@@ -190,190 +201,164 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        /* Liste Spese */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* List Styling */
         .expense-item {
-            display: flex;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .expense-item:last-child {
-            border-bottom: none;
-        }
-
-        .expense-icon {
-            width: 48px;
-            height: 48px;
-            background: #f1f5f9;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-right: 16px;
-        }
-
-        .expense-info {
-            flex: 1;
-        }
-
-        .expense-store {
-            font-weight: 700;
-            font-size: 16px;
-            color: var(--text-main);
-            display: block;
-        }
-
-        .expense-date {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .expense-amount {
-            text-align: right;
-            font-weight: 700;
-            font-size: 17px;
-            color: var(--primary);
-        }
-
-        .delete-btn {
-            background: transparent;
-            border: none;
-            color: #cbd5e1;
-            padding: 8px;
-            margin-left: 12px;
-            cursor: pointer;
-            font-size: 18px;
-            transition: color 0.2s;
-        }
-
-        .delete-btn:active {
-            color: var(--danger);
-        }
-
-        /* Period Styling */
-        .period-section {
-            margin-bottom: 24px;
-        }
-
-        .period-header {
-            font-size: 13px;
-            text-transform: uppercase;
-            font-weight: 700;
-            color: var(--text-muted);
+            background: #ffffff;
+            padding: 16px;
+            border-radius: var(--radius-md);
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            border: 1px solid #f1f5f9;
+            transition: transform 0.2s;
         }
 
-        /* Actions Footer */
+        .expense-item:active {
+            transform: scale(0.98);
+        }
+
+        .expense-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .expense-amount {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .expense-details {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* History Sections */
+        .period-section { margin-bottom: 30px; }
+        .period-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4px;
+        }
+
+        .period-total {
+            background: #eef2ff;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        /* Actions Bar */
         .actions-bar {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-top: 10px;
+            margin-top: 20px;
         }
 
         .action-btn {
             padding: 14px;
-            border-radius: 16px;
-            border: none;
             background: #f1f5f9;
             color: var(--text-main);
+            border: none;
+            border-radius: 14px;
             font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            font-size: 13px;
             cursor: pointer;
         }
 
         .action-btn.danger {
             grid-column: span 2;
-            background: #fef2f2;
-            color: var(--danger);
-        }
-
-        .instructions {
-            background: #fffbeb;
-            border: 1px solid #fef3c7;
-            padding: 16px;
-            border-radius: 16px;
-            font-size: 13px;
-            color: #92400e;
-            margin-bottom: 24px;
+            background: #fff1f2;
+            color: #e11d48;
+            margin-top: 8px;
         }
 
         .empty-state {
             padding: 40px 0;
             text-align: center;
             color: var(--text-muted);
+            font-size: 14px;
         }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
-   <div class="container">
+    <div class="container">
         <div class="header">
-            <h1>💰 Registro Spese Vocale</h1>
-            <p>Registra le tue spese con la voce</p>
+            <h1>Spese Vocali</h1>
+            <p>Tieni traccia delle tue uscite in un attimo</p>
         </div>
 
         <div class="card">
             <div class="instructions">
-                <strong>Come usare:</strong>
-                Premi il pulsante e dì qualcosa come:<br>
-                "Cinquanta euro e trenta Esselunga"<br>
-                "23 euro Bennet"<br>
-                "100 Coop"
+                <strong>Suggerimento</strong>
+                "50 euro e 30 Esselunga" oppure "15.50 benzina"
             </div>
 
             <button class="record-button" id="recordBtn">
-                🎤 Tocca per Registrare
+                <span>🎤</span> <span id="btnText">Tocca per Registrare</span>
             </button>
 
-            <div class="status" id="status">Pronto per registrare</div>
-            <div class="transcript" id="transcript">Il testo apparirà qui...</div>
+            <div class="status" id="status">Pronto all'ascolto</div>
+            <div class="transcript" id="transcript">"Il tuo parlato apparirà qui..."</div>
         </div>
 
         <div class="card">
-            <div class="total" id="total">Totale: €0.00</div>
+            <div class="total">
+                <div class="total-label">Totale Complessivo</div>
+                <div class="total-value" id="total">€0.00</div>
+            </div>
             
             <div class="tabs">
-                <button class="tab-btn active" data-tab="recent">📝 Recenti</button>
-                <button class="tab-btn" data-tab="history">📊 Storico</button>
+                <button class="tab-btn active" data-tab="recent">Recenti</button>
+                <button class="tab-btn" data-tab="history">Storico</button>
             </div>
 
             <div class="tab-content active" id="recent-tab">
-                <h3 style="margin-bottom: 15px;">Ultime 10 spese</h3>
                 <div class="expense-list" id="expenseListRecent"></div>
             </div>
 
             <div class="tab-content" id="history-tab">
-                <h3 style="margin-bottom: 15px;">Tutte le spese</h3>
                 <div id="historyContent"></div>
             </div>
             
             <div class="actions-bar">
-                <button class="action-btn" id="exportBtn">
-                    📤 Esporta
-                </button>
-                <button class="action-btn" id="importBtn">
-                    📥 Importa
-                </button>
-                <button class="action-btn danger" id="clearAllBtn" style="display: none;">
-                    🗑️ Cancella
-                </button>
+                <button class="action-btn" id="exportBtn">📤 Esporta</button>
+                <button class="action-btn" id="importBtn">📥 Importa</button>
+                <button class="action-btn danger" id="clearAllBtn" style="display: none;">🗑️ Cancella tutto lo storico</button>
             </div>
             <input type="file" id="fileInput" accept=".json" style="display: none;">
         </div>
     </div>
 
     <script>
+        // --- LOGICA ORIGINALE ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
         if (!SpeechRecognition) {
@@ -386,6 +371,7 @@
         recognition.interimResults = false;
 
         const recordBtn = document.getElementById('recordBtn');
+        const btnText = document.getElementById('btnText');
         const status = document.getElementById('status');
         const transcript = document.getElementById('transcript');
         const expenseListRecent = document.getElementById('expenseListRecent');
@@ -401,39 +387,32 @@
 
         renderExpenses();
 
-        // Tab switching
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const tabName = btn.dataset.tab;
-                
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
                 btn.classList.add('active');
                 document.getElementById(tabName + '-tab').classList.add('active');
             });
         });
 
         recordBtn.addEventListener('click', () => {
-            if (isRecording) {
-                recognition.stop();
-            } else {
-                recognition.start();
-            }
+            if (isRecording) recognition.stop();
+            else recognition.start();
         });
 
         recognition.onstart = () => {
             isRecording = true;
             recordBtn.classList.add('recording');
-            recordBtn.textContent = '🔴 Registrando...';
-            status.textContent = 'Sto ascoltando...';
+            btnText.textContent = 'Sto ascoltando...';
+            status.textContent = '🔴 Registrazione attiva';
             transcript.textContent = 'Parla ora...';
         };
 
         recognition.onresult = (event) => {
             const speechResult = event.results[0][0].transcript;
-            transcript.textContent = speechResult;
-            status.textContent = 'Elaborazione...';
+            transcript.textContent = `"${speechResult}"`;
             processExpense(speechResult);
         };
 
@@ -442,17 +421,15 @@
             resetButton();
         };
 
-        recognition.onend = () => {
-            resetButton();
-        };
+        recognition.onend = () => resetButton();
 
         function resetButton() {
             isRecording = false;
             recordBtn.classList.remove('recording');
-            recordBtn.textContent = '🎤 Tocca per Registrare';
+            btnText.textContent = 'Tocca per Registrare';
             setTimeout(() => {
                 if (status.textContent !== 'Spesa aggiunta!') {
-                    status.textContent = 'Pronto per registrare';
+                    status.textContent = 'Pronto all\'ascolto';
                 }
             }, 2000);
         }
