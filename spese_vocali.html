@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Registro Spese Vocale</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Spese Pro</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --primary: #6366f1;
-            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
-            --success-gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            --primary-dark: #4f46e5;
             --bg: #f8fafc;
-            --card: #ffffff;
+            --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --radius-lg: 28px;
-            --radius-md: 18px;
+            --danger: #ef4444;
+            --success: #10b981;
+            --radius: 24px;
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
         }
 
@@ -31,7 +34,7 @@
             font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
-            line-height: 1.6;
+            line-height: 1.5;
             padding: 20px 16px env(safe-area-inset-bottom);
             min-height: 100vh;
         }
@@ -43,143 +46,133 @@
 
         /* Header */
         .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-top: 10px;
+            margin-bottom: 32px;
+            padding-top: 20px;
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 800;
-            letter-spacing: -0.5px;
-            color: var(--text-main);
-            margin-bottom: 5px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .header p {
             color: var(--text-muted);
             font-size: 15px;
+            margin-top: 4px;
         }
 
-        /* Card Style */
+        /* Cards */
         .card {
-            background: var(--card);
-            border-radius: var(--radius-lg);
+            background: var(--card-bg);
+            border-radius: var(--radius);
             padding: 24px;
             box-shadow: var(--shadow);
             margin-bottom: 20px;
-            border: 1px solid rgba(0,0,0,0.03);
+            border: 1px solid rgba(255, 255, 255, 0.7);
         }
 
-        /* Instructions */
-        .instructions {
-            background: #f1f5f9;
-            padding: 16px;
-            border-radius: var(--radius-md);
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.4;
+        /* Voice Button Section */
+        .record-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
         }
 
-        .instructions strong {
-            color: var(--primary);
-            display: block;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Recording Section */
         .record-button {
-            width: 100%;
-            padding: 18px;
-            font-size: 16px;
-            font-weight: 700;
-            color: white;
-            background: var(--primary-gradient);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
             border: none;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+            background: var(--primary);
+            color: white;
+            font-size: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            position: relative;
         }
 
-        .record-button:active {
-            transform: scale(0.96);
+        .record-button::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--primary);
+            opacity: 0.5;
+            z-index: -1;
+            transition: all 0.3s;
         }
 
         .record-button.recording {
-            background: var(--danger-gradient);
-            animation: pulse-border 1.5s infinite;
+            background: var(--danger);
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
         }
 
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        .record-button.recording::after {
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            background: var(--danger);
         }
 
-        .status {
-            text-align: center;
-            color: var(--text-muted);
+        @keyframes pulse-ring {
+            0% { transform: scale(.8); opacity: 0.5; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .status-badge {
             font-size: 13px;
             font-weight: 600;
-            margin: 12px 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: var(--primary);
+            background: #eef2ff;
+            padding: 6px 16px;
+            border-radius: 20px;
         }
 
         .transcript {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: var(--radius-md);
-            min-height: 60px;
-            color: var(--text-main);
-            font-size: 15px;
             font-style: italic;
-            border: 1px dashed #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: var(--text-muted);
             text-align: center;
+            font-size: 15px;
+            margin-top: 8px;
+            min-height: 22px;
         }
 
-        /* Totale */
-        .total {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 24px;
-            border-radius: var(--radius-md);
+        /* Totale Display */
+        .total-display {
             text-align: center;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
+            padding: 10px 0 20px;
         }
 
         .total-label {
-            font-size: 12px;
+            font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            opacity: 0.9;
-            margin-bottom: 5px;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
-        .total-value {
-            font-size: 36px;
+        .total-amount {
+            font-size: 42px;
             font-weight: 800;
+            color: var(--text-main);
         }
 
-        /* Tabs (Segmented Control) */
+        /* Tabs */
         .tabs {
-            display: flex;
             background: #f1f5f9;
             padding: 4px;
             border-radius: 14px;
-            margin-bottom: 25px;
+            display: flex;
+            margin-bottom: 24px;
         }
 
         .tab-btn {
@@ -187,11 +180,11 @@
             padding: 10px;
             border: none;
             background: transparent;
-            border-radius: 11px;
-            cursor: pointer;
-            font-size: 14px;
             font-weight: 600;
+            font-size: 14px;
             color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 10px;
             transition: all 0.2s;
         }
 
@@ -201,138 +194,156 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* List Styling */
+        /* Expense Items */
         .expense-item {
-            background: #ffffff;
-            padding: 16px;
-            border-radius: var(--radius-md);
-            margin-bottom: 12px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            border: 1px solid #f1f5f9;
-            transition: transform 0.2s;
+            padding: 16px 0;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .expense-item:active {
-            transform: scale(0.98);
+        .expense-item:last-child {
+            border-bottom: none;
         }
 
-        .expense-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .expense-amount {
-            font-size: 19px;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .expense-details {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .delete-btn {
-            background: #fee2e2;
-            color: #ef4444;
-            border: none;
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            cursor: pointer;
+        .expense-icon {
+            width: 48px;
+            height: 48px;
+            background: #f1f5f9;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 20px;
+            margin-right: 16px;
         }
 
-        /* History Sections */
-        .period-section { margin-bottom: 30px; }
-        .period-header {
-            font-size: 14px;
+        .expense-info {
+            flex: 1;
+        }
+
+        .expense-store {
             font-weight: 700;
+            font-size: 16px;
             color: var(--text-main);
+            display: block;
+        }
+
+        .expense-date {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .expense-amount {
+            text-align: right;
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--primary);
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            padding: 8px;
+            margin-left: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+
+        .delete-btn:active {
+            color: var(--danger);
+        }
+
+        .period-section {
+            margin-bottom: 24px;
+        }
+
+        .period-header {
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-muted);
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 0 4px;
         }
 
-        .period-total {
-            background: #eef2ff;
-            color: var(--primary);
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-        }
-
-        /* Actions Bar */
+        /* Actions */
         .actions-bar {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .action-btn {
             padding: 14px;
+            border-radius: 16px;
+            border: none;
             background: #f1f5f9;
             color: var(--text-main);
-            border: none;
-            border-radius: 14px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             cursor: pointer;
         }
 
         .action-btn.danger {
             grid-column: span 2;
-            background: #fff1f2;
-            color: #e11d48;
-            margin-top: 8px;
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .instructions {
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            color: #92400e;
+            margin-bottom: 24px;
         }
 
         .empty-state {
             padding: 40px 0;
             text-align: center;
             color: var(--text-muted);
-            font-size: 14px;
         }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Spese Vocali</h1>
-            <p>Tieni traccia delle tue uscite in un attimo</p>
-        </div>
+        <header class="header">
+            <h1>Spese Pro</h1>
+            <p>Tieni traccia della tue uscite a voce</p>
+        </header>
 
         <div class="card">
-            <div class="instructions">
-                <strong>Suggerimento</strong>
-                "50 euro e 30 Esselunga" oppure "15.50 benzina"
+            <div class="record-section">
+                <div class="status-badge" id="status">Pronto all'ascolto</div>
+                <button class="record-button" id="recordBtn">
+                    🎤
+                </button>
+                <div class="transcript" id="transcript">"20 euro benzina"</div>
             </div>
+        </div>
 
-            <button class="record-button" id="recordBtn">
-                <span>🎤</span> <span id="btnText">Tocca per Registrare</span>
-            </button>
-
-            <div class="status" id="status">Pronto all'ascolto</div>
-            <div class="transcript" id="transcript">"Il tuo parlato apparirà qui..."</div>
+        <div class="instructions">
+            <strong>Suggerimento:</strong> Dì ad esempio <em>"Quindici euro pizza"</em> o <em>"5,50 caffè"</em>. L'app capirà l'importo e il negozio.
         </div>
 
         <div class="card">
-            <div class="total">
-                <div class="total-label">Totale Complessivo</div>
-                <div class="total-value" id="total">€0.00</div>
+            <div class="total-display">
+                <div class="total-label">Totale Speso</div>
+                <div class="total-amount" id="total">€0.00</div>
             </div>
             
             <div class="tabs">
@@ -341,7 +352,7 @@
             </div>
 
             <div class="tab-content active" id="recent-tab">
-                <div class="expense-list" id="expenseListRecent"></div>
+                <div id="expenseListRecent"></div>
             </div>
 
             <div class="tab-content" id="history-tab">
@@ -351,14 +362,13 @@
             <div class="actions-bar">
                 <button class="action-btn" id="exportBtn">📤 Esporta</button>
                 <button class="action-btn" id="importBtn">📥 Importa</button>
-                <button class="action-btn danger" id="clearAllBtn" style="display: none;">🗑️ Cancella tutto lo storico</button>
+                <button class="action-btn danger" id="clearAllBtn" style="display: none;">🗑️ Cancella tutto</button>
             </div>
             <input type="file" id="fileInput" accept=".json" style="display: none;">
         </div>
     </div>
 
     <script>
-        // --- LOGICA ORIGINALE ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
         if (!SpeechRecognition) {
@@ -371,7 +381,6 @@
         recognition.interimResults = false;
 
         const recordBtn = document.getElementById('recordBtn');
-        const btnText = document.getElementById('btnText');
         const status = document.getElementById('status');
         const transcript = document.getElementById('transcript');
         const expenseListRecent = document.getElementById('expenseListRecent');
@@ -389,11 +398,10 @@
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const tabName = btn.dataset.tab;
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 btn.classList.add('active');
-                document.getElementById(tabName + '-tab').classList.add('active');
+                document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
             });
         });
 
@@ -405,9 +413,9 @@
         recognition.onstart = () => {
             isRecording = true;
             recordBtn.classList.add('recording');
-            btnText.textContent = 'Sto ascoltando...';
-            status.textContent = '🔴 Registrazione attiva';
-            transcript.textContent = 'Parla ora...';
+            status.textContent = 'Ti ascolto...';
+            status.style.background = '#fee2e2';
+            status.style.color = '#ef4444';
         };
 
         recognition.onresult = (event) => {
@@ -416,130 +424,25 @@
             processExpense(speechResult);
         };
 
-        recognition.onerror = (event) => {
-            status.textContent = 'Errore: ' + event.error;
-            resetButton();
-        };
-
+        recognition.onerror = () => resetButton();
         recognition.onend = () => resetButton();
 
         function resetButton() {
             isRecording = false;
             recordBtn.classList.remove('recording');
-            btnText.textContent = 'Tocca per Registrare';
-            setTimeout(() => {
-                if (status.textContent !== 'Spesa aggiunta!') {
-                    status.textContent = 'Pronto all\'ascolto';
-                }
-            }, 2000);
-        }
-
-        // Supermarket database with logos
-        const supermarkets = {
-            'esselunga': { name: 'Esselunga', logo: '🔴' },
-            'coop': { name: 'Coop', logo: '🔵' },
-            'conad': { name: 'Conad', logo: '🟢' },
-            'carrefour': { name: 'Carrefour', logo: '🔷' },
-            'lidl': { name: 'Lidl', logo: '🟡' },
-            'eurospin': { name: 'Eurospin', logo: '🟠' },
-            'aldi': { name: 'ALDI', logo: '🔶' },
-            'bennet': { name: 'Bennet', logo: '🟣' },
-            'md': { name: 'MD', logo: '🟤' },
-            'famila': { name: 'Famila', logo: '💚' },
-            'superstore famila': { name: 'Superstore Famila', logo: '💚' },
-            'despar': { name: 'Despar', logo: '🌲' },
-            'eurospar': { name: 'Eurospar', logo: '🌲' },
-            'interspar': { name: 'Interspar', logo: '🌲' },
-            'crai': { name: 'Crai', logo: '⭐' },
-            'alì': { name: 'Alì', logo: '🦋' },
-            'ali': { name: 'Alì', logo: '🦋' },
-            'a&o': { name: 'A&O', logo: '🅰️' },
-            'basko': { name: 'Basko', logo: '🏪' },
-            'decò': { name: 'Decò', logo: '🏬' },
-            'deco': { name: 'Decò', logo: '🏬' },
-            'dpiù': { name: 'DPiù', logo: '➕' },
-            'dpiu': { name: 'DPiù', logo: '➕' },
-            'd più': { name: 'DPiù', logo: '➕' },
-            'd piu': { name: 'DPiù', logo: '➕' },
-            'gran risparmio': { name: 'Gran Risparmio', logo: '💰' }
-        };
-
-        function findSupermarket(storeName) {
-            const normalized = storeName.toLowerCase().trim();
-            
-            // Exact match
-            if (supermarkets[normalized]) {
-                return supermarkets[normalized];
-            }
-            
-            // Fuzzy match - check if any supermarket name is contained in the store name
-            for (let [key, value] of Object.entries(supermarkets)) {
-                if (normalized.includes(key) || key.includes(normalized)) {
-                    return value;
-                }
-            }
-            
-            // Similarity check for common misspellings
-            const similarityThreshold = 0.7;
-            for (let [key, value] of Object.entries(supermarkets)) {
-                if (similarity(normalized, key) > similarityThreshold) {
-                    return value;
-                }
-            }
-            
-            return { name: storeName.charAt(0).toUpperCase() + storeName.slice(1), logo: '🛒' };
-        }
-
-        function similarity(s1, s2) {
-            let longer = s1;
-            let shorter = s2;
-            if (s1.length < s2.length) {
-                longer = s2;
-                shorter = s1;
-            }
-            const longerLength = longer.length;
-            if (longerLength === 0) {
-                return 1.0;
-            }
-            return (longerLength - editDistance(longer, shorter)) / longerLength;
-        }
-
-        function editDistance(s1, s2) {
-            s1 = s1.toLowerCase();
-            s2 = s2.toLowerCase();
-            const costs = [];
-            for (let i = 0; i <= s1.length; i++) {
-                let lastValue = i;
-                for (let j = 0; j <= s2.length; j++) {
-                    if (i === 0) {
-                        costs[j] = j;
-                    } else {
-                        if (j > 0) {
-                            let newValue = costs[j - 1];
-                            if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
-                                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-                            }
-                            costs[j - 1] = lastValue;
-                            lastValue = newValue;
-                        }
-                    }
-                }
-                if (i > 0) {
-                    costs[s2.length] = lastValue;
-                }
-            }
-            return costs[s2.length];
+            status.textContent = 'Pronto all\'ascolto';
+            status.style.background = '#eef2ff';
+            status.style.color = 'var(--primary)';
         }
 
         function processExpense(text) {
             text = text.toLowerCase();
-            
             const patterns = [
-                /(\d+)\s*euro\s*e\s*(\d+)/i,      // "50 euro e 30"
-                /(\d+)[.,](\d+)\s*euro/i,          // "50,30 euro"
-                /(\d+)[.,](\d+)/,                   // "50,30"
-                /(\d+)\s*euro/i,                    // "50 euro"
-                /(\d+)/                             // "50" (solo numero)
+                /(\d+)\s*euro\s*e\s*(\d+)/i,
+                /(\d+)[.,](\d+)\s*euro/i,
+                /(\d+)[.,](\d+)/,
+                /(\d+)\s*euro/i,
+                /(\d+)/
             ];
 
             let amount = null;
@@ -548,48 +451,32 @@
             for (let pattern of patterns) {
                 const match = text.match(pattern);
                 if (match) {
-                    if (match[2] !== undefined) {
-                        // Ha i centesimi
-                        amount = parseFloat(match[1] + '.' + match[2]);
-                    } else {
-                        // Solo euro
-                        amount = parseFloat(match[1]);
-                    }
+                    amount = match[2] !== undefined ? parseFloat(match[1] + '.' + match[2]) : parseFloat(match[1]);
                     patternUsed = pattern;
                     break;
                 }
             }
 
             if (amount === null) {
-                status.textContent = 'Non ho capito l\'importo. Riprova!';
+                status.textContent = 'Non ho capito l\'importo';
                 return;
             }
 
-            let store = text;
-            if (patternUsed) {
-                store = text.replace(patternUsed, '').trim();
-            }
-            
+            let store = text.replace(patternUsed, '').trim();
             store = store.replace(/^(a|al|alla|da|presso|per|in)\s+/i, '');
-            store = store || 'Non specificato';
-            
-            // Find matching supermarket
-            const supermarketInfo = findSupermarket(store);
+            store = store || 'Spesa generica';
+            store = store.charAt(0).toUpperCase() + store.slice(1);
 
             const expense = {
                 id: Date.now(),
                 amount: amount,
-                store: supermarketInfo.name,
-                logo: supermarketInfo.logo,
+                store: store,
                 date: new Date().toISOString(),
-                dateDisplay: new Date().toLocaleString('it-IT'),
-                originalText: text
+                dateDisplay: new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
             };
 
             expenses.unshift(expense);
             localStorage.setItem('expenses', JSON.stringify(expenses));
-            
-            status.textContent = 'Spesa aggiunta!';
             renderExpenses();
         }
 
@@ -602,115 +489,63 @@
                 return;
             }
 
-            // Render recent (last 10)
             const recent = expenses.slice(0, 10);
             expenseListRecent.innerHTML = recent.map(expense => createExpenseHTML(expense)).join('');
-
-            // Render history organized by periods
             renderHistory();
-
-            clearAllBtn.style.display = 'block';
+            clearAllBtn.style.display = 'flex';
             updateTotal();
         }
 
         function renderHistory() {
             const now = new Date();
-            const periods = {
-                thisWeek: [],
-                thisMonth: [],
-                previousMonths: {}
-            };
-
-            const startOfWeek = new Date(now);
-            startOfWeek.setDate(now.getDate() - now.getDay());
-            startOfWeek.setHours(0, 0, 0, 0);
-
+            const periods = { thisWeek: [], thisMonth: [], older: {} };
+            const startOfWeek = new Date(now); startOfWeek.setDate(now.getDate() - now.getDay());
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-            expenses.forEach(expense => {
-                const expenseDate = new Date(expense.date);
-                
-                if (expenseDate >= startOfWeek) {
-                    periods.thisWeek.push(expense);
-                } else if (expenseDate >= startOfMonth) {
-                    periods.thisMonth.push(expense);
-                } else {
-                    const monthKey = expenseDate.toLocaleDateString('it-IT', { year: 'numeric', month: 'long' });
-                    if (!periods.previousMonths[monthKey]) {
-                        periods.previousMonths[monthKey] = [];
-                    }
-                    periods.previousMonths[monthKey].push(expense);
+            expenses.forEach(e => {
+                const d = new Date(e.date);
+                if (d >= startOfWeek) periods.thisWeek.push(e);
+                else if (d >= startOfMonth) periods.thisMonth.push(e);
+                else {
+                    const key = d.toLocaleDateString('it-IT', { year: 'numeric', month: 'long' });
+                    if (!periods.older[key]) periods.older[key] = [];
+                    periods.older[key].push(e);
                 }
             });
 
             let html = '';
-
-            if (periods.thisWeek.length > 0) {
-                const total = periods.thisWeek.reduce((sum, e) => sum + e.amount, 0);
-                html += `
+            const renderSection = (title, items) => {
+                if (items.length === 0) return '';
+                const sum = items.reduce((s, i) => s + i.amount, 0);
+                return `
                     <div class="period-section">
-                        <div class="period-header">
-                            📅 Questa settimana
-                            <span class="period-total">€${total.toFixed(2)}</span>
-                        </div>
-                        ${periods.thisWeek.map(e => createExpenseHTML(e)).join('')}
-                    </div>
-                `;
-            }
+                        <div class="period-header"><span>${title}</span><span>€${sum.toFixed(2)}</span></div>
+                        ${items.map(e => createExpenseHTML(e)).join('')}
+                    </div>`;
+            };
 
-            if (periods.thisMonth.length > 0) {
-                const total = periods.thisMonth.reduce((sum, e) => sum + e.amount, 0);
-                html += `
-                    <div class="period-section">
-                        <div class="period-header">
-                            📆 Questo mese (prima di questa settimana)
-                            <span class="period-total">€${total.toFixed(2)}</span>
-                        </div>
-                        ${periods.thisMonth.map(e => createExpenseHTML(e)).join('')}
-                    </div>
-                `;
-            }
-
-            Object.keys(periods.previousMonths).sort((a, b) => {
-                return new Date(b) - new Date(a);
-            }).forEach(monthKey => {
-                const monthExpenses = periods.previousMonths[monthKey];
-                const total = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
-                html += `
-                    <div class="period-section">
-                        <div class="period-header">
-                            📊 ${monthKey}
-                            <span class="period-total">€${total.toFixed(2)}</span>
-                        </div>
-                        ${monthExpenses.map(e => createExpenseHTML(e)).join('')}
-                    </div>
-                `;
-            });
-
-            historyContent.innerHTML = html || '<div class="empty-state">Nessuna spesa registrata</div>';
+            html += renderSection('Questa settimana', periods.thisWeek);
+            html += renderSection('Questo mese', periods.thisMonth);
+            Object.keys(periods.older).forEach(k => html += renderSection(k, periods.older[k]));
+            historyContent.innerHTML = html;
         }
 
         function createExpenseHTML(expense) {
-            // Add default logo if missing (for old expenses)
-            const logo = expense.logo || '🛒';
-            
             return `
                 <div class="expense-item">
+                    <div class="expense-icon">💰</div>
                     <div class="expense-info">
-                        <div class="expense-amount">€${expense.amount.toFixed(2)}</div>
-                        <div class="expense-details">
-                            ${logo} ${expense.store} • ${expense.dateDisplay}
-                        </div>
+                        <span class="expense-store">${expense.store}</span>
+                        <span class="expense-date">${expense.dateDisplay}</span>
                     </div>
-                    <button class="delete-btn" onclick="deleteExpense(${expense.id})">
-                        🗑️
-                    </button>
+                    <div class="expense-amount">€${expense.amount.toFixed(2)}</div>
+                    <button class="delete-btn" onclick="deleteExpense(${expense.id})">✕</button>
                 </div>
             `;
         }
 
         function deleteExpense(id) {
-            if (confirm('Vuoi eliminare questa spesa?')) {
+            if (confirm('Eliminare questa spesa?')) {
                 expenses = expenses.filter(e => e.id !== id);
                 localStorage.setItem('expenses', JSON.stringify(expenses));
                 renderExpenses();
@@ -718,19 +553,18 @@
         }
 
         function updateTotal() {
-            const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-            totalElement.textContent = `Totale: €${total.toFixed(2)}`;
+            const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+            totalElement.textContent = `€${total.toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
         }
 
         clearAllBtn.addEventListener('click', () => {
-            if (confirm('Vuoi cancellare tutte le spese?')) {
+            if (confirm('Cancellare tutto lo storico?')) {
                 expenses = [];
                 localStorage.setItem('expenses', JSON.stringify(expenses));
                 renderExpenses();
             }
         });
 
-        // Export functionality
         exportBtn.addEventListener('click', () => {
             const dataStr = JSON.stringify(expenses, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
@@ -738,59 +572,25 @@
             const a = document.createElement('a');
             a.href = url;
             a.download = `spese_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            status.textContent = 'Dati esportati!';
-            setTimeout(() => {
-                status.textContent = 'Pronto per registrare';
-            }, 2000);
         });
 
-        // Import functionality
-        importBtn.addEventListener('click', () => {
-            fileInput.click();
-        });
-
+        importBtn.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (event) => {
                 try {
-                    const importedData = JSON.parse(event.target.result);
-                    
-                    if (!Array.isArray(importedData)) {
-                        alert('File non valido!');
-                        return;
-                    }
-
-                    if (confirm(`Importare ${importedData.length} spese? Questo aggiungerà le spese a quelle esistenti.`)) {
-                        // Merge avoiding duplicates by ID
-                        const existingIds = new Set(expenses.map(e => e.id));
-                        const newExpenses = importedData.filter(e => !existingIds.has(e.id));
-                        
-                        expenses = [...expenses, ...newExpenses].sort((a, b) => 
-                            new Date(b.date) - new Date(a.date)
-                        );
-                        
+                    const imported = JSON.parse(event.target.result);
+                    if (confirm(`Importare ${imported.length} spese?`)) {
+                        expenses = [...expenses, ...imported].sort((a,b) => new Date(b.date) - new Date(a.date));
                         localStorage.setItem('expenses', JSON.stringify(expenses));
                         renderExpenses();
-                        
-                        status.textContent = `Importate ${newExpenses.length} nuove spese!`;
-                        setTimeout(() => {
-                            status.textContent = 'Pronto per registrare';
-                        }, 2000);
                     }
-                } catch (error) {
-                    alert('Errore nella lettura del file: ' + error.message);
-                }
+                } catch (err) { alert('Errore file'); }
             };
             reader.readAsText(file);
-            fileInput.value = '';
         });
     </script>
 </body>
