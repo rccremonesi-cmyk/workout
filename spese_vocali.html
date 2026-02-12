@@ -317,56 +317,63 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>Spese Pro</h1>
-            <p>Tieni traccia della tue uscite a voce</p>
-        </header>
-
-        <div class="card">
-            <div class="record-section">
-                <div class="status-badge" id="status">Pronto all'ascolto</div>
-                <button class="record-button" id="recordBtn">
-                    🎤
-                </button>
-                <div class="transcript" id="transcript">"20 euro benzina"</div>
-            </div>
-        </div>
-
-        <div class="instructions">
-            <strong>Suggerimento:</strong> Dì ad esempio <em>"Quindici euro pizza"</em> o <em>"5,50 caffè"</em>. L'app capirà l'importo e il negozio.
+   <div class="container">
+        <div class="header">
+            <h1>💰 Registro Spese Vocale</h1>
+            <p>Registra le tue spese con la voce</p>
         </div>
 
         <div class="card">
-            <div class="total-display">
-                <div class="total-label">Totale Speso</div>
-                <div class="total-amount" id="total">€0.00</div>
+            <div class="instructions">
+                <strong>Come usare:</strong>
+                Premi il pulsante e dì qualcosa come:<br>
+                "Cinquanta euro e trenta Esselunga"<br>
+                "23 euro Bennet"<br>
+                "100 Coop"
             </div>
+
+            <button class="record-button" id="recordBtn">
+                🎤 Tocca per Registrare
+            </button>
+
+            <div class="status" id="status">Pronto per registrare</div>
+            <div class="transcript" id="transcript">Il testo apparirà qui...</div>
+        </div>
+
+        <div class="card">
+            <div class="total" id="total">Totale: €0.00</div>
             
             <div class="tabs">
-                <button class="tab-btn active" data-tab="recent">Recenti</button>
-                <button class="tab-btn" data-tab="history">Storico</button>
+                <button class="tab-btn active" data-tab="recent">📝 Recenti</button>
+                <button class="tab-btn" data-tab="history">📊 Storico</button>
             </div>
 
             <div class="tab-content active" id="recent-tab">
-                <div id="expenseListRecent"></div>
+                <h3 style="margin-bottom: 15px;">Ultime 10 spese</h3>
+                <div class="expense-list" id="expenseListRecent"></div>
             </div>
 
             <div class="tab-content" id="history-tab">
+                <h3 style="margin-bottom: 15px;">Tutte le spese</h3>
                 <div id="historyContent"></div>
             </div>
             
             <div class="actions-bar">
-                <button class="action-btn" id="exportBtn">📤 Esporta</button>
-                <button class="action-btn" id="importBtn">📥 Importa</button>
-                <button class="action-btn danger" id="clearAllBtn" style="display: none;">🗑️ Cancella tutto</button>
+                <button class="action-btn" id="exportBtn">
+                    📤 Esporta
+                </button>
+                <button class="action-btn" id="importBtn">
+                    📥 Importa
+                </button>
+                <button class="action-btn danger" id="clearAllBtn" style="display: none;">
+                    🗑️ Cancella
+                </button>
             </div>
             <input type="file" id="fileInput" accept=".json" style="display: none;">
         </div>
     </div>
 
     <script>
-        // --- LOGICA ORIGINALE PRESERVATA ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
         if (!SpeechRecognition) {
@@ -394,53 +401,168 @@
 
         renderExpenses();
 
+        // Tab switching
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                const tabName = btn.dataset.tab;
+                
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
                 btn.classList.add('active');
-                document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
+                document.getElementById(tabName + '-tab').classList.add('active');
             });
         });
 
         recordBtn.addEventListener('click', () => {
-            if (isRecording) recognition.stop();
-            else recognition.start();
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
         });
 
         recognition.onstart = () => {
             isRecording = true;
             recordBtn.classList.add('recording');
-            status.textContent = 'Ti ascolto...';
-            status.style.background = '#fee2e2';
-            status.style.color = '#ef4444';
+            recordBtn.textContent = '🔴 Registrando...';
+            status.textContent = 'Sto ascoltando...';
+            transcript.textContent = 'Parla ora...';
         };
 
         recognition.onresult = (event) => {
             const speechResult = event.results[0][0].transcript;
-            transcript.textContent = `"${speechResult}"`;
+            transcript.textContent = speechResult;
+            status.textContent = 'Elaborazione...';
             processExpense(speechResult);
         };
 
-        recognition.onerror = () => resetButton();
-        recognition.onend = () => resetButton();
+        recognition.onerror = (event) => {
+            status.textContent = 'Errore: ' + event.error;
+            resetButton();
+        };
+
+        recognition.onend = () => {
+            resetButton();
+        };
 
         function resetButton() {
             isRecording = false;
             recordBtn.classList.remove('recording');
-            status.textContent = 'Pronto all\'ascolto';
-            status.style.background = '#eef2ff';
-            status.style.color = 'var(--primary)';
+            recordBtn.textContent = '🎤 Tocca per Registrare';
+            setTimeout(() => {
+                if (status.textContent !== 'Spesa aggiunta!') {
+                    status.textContent = 'Pronto per registrare';
+                }
+            }, 2000);
+        }
+
+        // Supermarket database with logos
+        const supermarkets = {
+            'esselunga': { name: 'Esselunga', logo: '🔴' },
+            'coop': { name: 'Coop', logo: '🔵' },
+            'conad': { name: 'Conad', logo: '🟢' },
+            'carrefour': { name: 'Carrefour', logo: '🔷' },
+            'lidl': { name: 'Lidl', logo: '🟡' },
+            'eurospin': { name: 'Eurospin', logo: '🟠' },
+            'aldi': { name: 'ALDI', logo: '🔶' },
+            'bennet': { name: 'Bennet', logo: '🟣' },
+            'md': { name: 'MD', logo: '🟤' },
+            'famila': { name: 'Famila', logo: '💚' },
+            'superstore famila': { name: 'Superstore Famila', logo: '💚' },
+            'despar': { name: 'Despar', logo: '🌲' },
+            'eurospar': { name: 'Eurospar', logo: '🌲' },
+            'interspar': { name: 'Interspar', logo: '🌲' },
+            'crai': { name: 'Crai', logo: '⭐' },
+            'alì': { name: 'Alì', logo: '🦋' },
+            'ali': { name: 'Alì', logo: '🦋' },
+            'a&o': { name: 'A&O', logo: '🅰️' },
+            'basko': { name: 'Basko', logo: '🏪' },
+            'decò': { name: 'Decò', logo: '🏬' },
+            'deco': { name: 'Decò', logo: '🏬' },
+            'dpiù': { name: 'DPiù', logo: '➕' },
+            'dpiu': { name: 'DPiù', logo: '➕' },
+            'd più': { name: 'DPiù', logo: '➕' },
+            'd piu': { name: 'DPiù', logo: '➕' },
+            'gran risparmio': { name: 'Gran Risparmio', logo: '💰' }
+        };
+
+        function findSupermarket(storeName) {
+            const normalized = storeName.toLowerCase().trim();
+            
+            // Exact match
+            if (supermarkets[normalized]) {
+                return supermarkets[normalized];
+            }
+            
+            // Fuzzy match - check if any supermarket name is contained in the store name
+            for (let [key, value] of Object.entries(supermarkets)) {
+                if (normalized.includes(key) || key.includes(normalized)) {
+                    return value;
+                }
+            }
+            
+            // Similarity check for common misspellings
+            const similarityThreshold = 0.7;
+            for (let [key, value] of Object.entries(supermarkets)) {
+                if (similarity(normalized, key) > similarityThreshold) {
+                    return value;
+                }
+            }
+            
+            return { name: storeName.charAt(0).toUpperCase() + storeName.slice(1), logo: '🛒' };
+        }
+
+        function similarity(s1, s2) {
+            let longer = s1;
+            let shorter = s2;
+            if (s1.length < s2.length) {
+                longer = s2;
+                shorter = s1;
+            }
+            const longerLength = longer.length;
+            if (longerLength === 0) {
+                return 1.0;
+            }
+            return (longerLength - editDistance(longer, shorter)) / longerLength;
+        }
+
+        function editDistance(s1, s2) {
+            s1 = s1.toLowerCase();
+            s2 = s2.toLowerCase();
+            const costs = [];
+            for (let i = 0; i <= s1.length; i++) {
+                let lastValue = i;
+                for (let j = 0; j <= s2.length; j++) {
+                    if (i === 0) {
+                        costs[j] = j;
+                    } else {
+                        if (j > 0) {
+                            let newValue = costs[j - 1];
+                            if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+                                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                            }
+                            costs[j - 1] = lastValue;
+                            lastValue = newValue;
+                        }
+                    }
+                }
+                if (i > 0) {
+                    costs[s2.length] = lastValue;
+                }
+            }
+            return costs[s2.length];
         }
 
         function processExpense(text) {
             text = text.toLowerCase();
+            
             const patterns = [
-                /(\d+)\s*euro\s*e\s*(\d+)/i,
-                /(\d+)[.,](\d+)\s*euro/i,
-                /(\d+)[.,](\d+)/,
-                /(\d+)\s*euro/i,
-                /(\d+)/
+                /(\d+)\s*euro\s*e\s*(\d+)/i,      // "50 euro e 30"
+                /(\d+)[.,](\d+)\s*euro/i,          // "50,30 euro"
+                /(\d+)[.,](\d+)/,                   // "50,30"
+                /(\d+)\s*euro/i,                    // "50 euro"
+                /(\d+)/                             // "50" (solo numero)
             ];
 
             let amount = null;
@@ -449,32 +571,48 @@
             for (let pattern of patterns) {
                 const match = text.match(pattern);
                 if (match) {
-                    amount = match[2] !== undefined ? parseFloat(match[1] + '.' + match[2]) : parseFloat(match[1]);
+                    if (match[2] !== undefined) {
+                        // Ha i centesimi
+                        amount = parseFloat(match[1] + '.' + match[2]);
+                    } else {
+                        // Solo euro
+                        amount = parseFloat(match[1]);
+                    }
                     patternUsed = pattern;
                     break;
                 }
             }
 
             if (amount === null) {
-                status.textContent = 'Non ho capito l\'importo';
+                status.textContent = 'Non ho capito l\'importo. Riprova!';
                 return;
             }
 
-            let store = text.replace(patternUsed, '').trim();
+            let store = text;
+            if (patternUsed) {
+                store = text.replace(patternUsed, '').trim();
+            }
+            
             store = store.replace(/^(a|al|alla|da|presso|per|in)\s+/i, '');
-            store = store || 'Spesa generica';
-            store = store.charAt(0).toUpperCase() + store.slice(1);
+            store = store || 'Non specificato';
+            
+            // Find matching supermarket
+            const supermarketInfo = findSupermarket(store);
 
             const expense = {
                 id: Date.now(),
                 amount: amount,
-                store: store,
+                store: supermarketInfo.name,
+                logo: supermarketInfo.logo,
                 date: new Date().toISOString(),
-                dateDisplay: new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+                dateDisplay: new Date().toLocaleString('it-IT'),
+                originalText: text
             };
 
             expenses.unshift(expense);
             localStorage.setItem('expenses', JSON.stringify(expenses));
+            
+            status.textContent = 'Spesa aggiunta!';
             renderExpenses();
         }
 
@@ -487,63 +625,115 @@
                 return;
             }
 
+            // Render recent (last 10)
             const recent = expenses.slice(0, 10);
             expenseListRecent.innerHTML = recent.map(expense => createExpenseHTML(expense)).join('');
+
+            // Render history organized by periods
             renderHistory();
-            clearAllBtn.style.display = 'flex';
+
+            clearAllBtn.style.display = 'block';
             updateTotal();
         }
 
         function renderHistory() {
             const now = new Date();
-            const periods = { thisWeek: [], thisMonth: [], older: {} };
-            const startOfWeek = new Date(now); startOfWeek.setDate(now.getDate() - now.getDay());
+            const periods = {
+                thisWeek: [],
+                thisMonth: [],
+                previousMonths: {}
+            };
+
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-            expenses.forEach(e => {
-                const d = new Date(e.date);
-                if (d >= startOfWeek) periods.thisWeek.push(e);
-                else if (d >= startOfMonth) periods.thisMonth.push(e);
-                else {
-                    const key = d.toLocaleDateString('it-IT', { year: 'numeric', month: 'long' });
-                    if (!periods.older[key]) periods.older[key] = [];
-                    periods.older[key].push(e);
+            expenses.forEach(expense => {
+                const expenseDate = new Date(expense.date);
+                
+                if (expenseDate >= startOfWeek) {
+                    periods.thisWeek.push(expense);
+                } else if (expenseDate >= startOfMonth) {
+                    periods.thisMonth.push(expense);
+                } else {
+                    const monthKey = expenseDate.toLocaleDateString('it-IT', { year: 'numeric', month: 'long' });
+                    if (!periods.previousMonths[monthKey]) {
+                        periods.previousMonths[monthKey] = [];
+                    }
+                    periods.previousMonths[monthKey].push(expense);
                 }
             });
 
             let html = '';
-            const renderSection = (title, items) => {
-                if (items.length === 0) return '';
-                const sum = items.reduce((s, i) => s + i.amount, 0);
-                return `
-                    <div class="period-section">
-                        <div class="period-header"><span>${title}</span><span>€${sum.toFixed(2)}</span></div>
-                        ${items.map(e => createExpenseHTML(e)).join('')}
-                    </div>`;
-            };
 
-            html += renderSection('Questa settimana', periods.thisWeek);
-            html += renderSection('Questo mese', periods.thisMonth);
-            Object.keys(periods.older).forEach(k => html += renderSection(k, periods.older[k]));
-            historyContent.innerHTML = html;
+            if (periods.thisWeek.length > 0) {
+                const total = periods.thisWeek.reduce((sum, e) => sum + e.amount, 0);
+                html += `
+                    <div class="period-section">
+                        <div class="period-header">
+                            📅 Questa settimana
+                            <span class="period-total">€${total.toFixed(2)}</span>
+                        </div>
+                        ${periods.thisWeek.map(e => createExpenseHTML(e)).join('')}
+                    </div>
+                `;
+            }
+
+            if (periods.thisMonth.length > 0) {
+                const total = periods.thisMonth.reduce((sum, e) => sum + e.amount, 0);
+                html += `
+                    <div class="period-section">
+                        <div class="period-header">
+                            📆 Questo mese (prima di questa settimana)
+                            <span class="period-total">€${total.toFixed(2)}</span>
+                        </div>
+                        ${periods.thisMonth.map(e => createExpenseHTML(e)).join('')}
+                    </div>
+                `;
+            }
+
+            Object.keys(periods.previousMonths).sort((a, b) => {
+                return new Date(b) - new Date(a);
+            }).forEach(monthKey => {
+                const monthExpenses = periods.previousMonths[monthKey];
+                const total = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+                html += `
+                    <div class="period-section">
+                        <div class="period-header">
+                            📊 ${monthKey}
+                            <span class="period-total">€${total.toFixed(2)}</span>
+                        </div>
+                        ${monthExpenses.map(e => createExpenseHTML(e)).join('')}
+                    </div>
+                `;
+            });
+
+            historyContent.innerHTML = html || '<div class="empty-state">Nessuna spesa registrata</div>';
         }
 
         function createExpenseHTML(expense) {
+            // Add default logo if missing (for old expenses)
+            const logo = expense.logo || '🛒';
+            
             return `
                 <div class="expense-item">
-                    <div class="expense-icon">💰</div>
                     <div class="expense-info">
-                        <span class="expense-store">${expense.store}</span>
-                        <span class="expense-date">${expense.dateDisplay}</span>
+                        <div class="expense-amount">€${expense.amount.toFixed(2)}</div>
+                        <div class="expense-details">
+                            ${logo} ${expense.store} • ${expense.dateDisplay}
+                        </div>
                     </div>
-                    <div class="expense-amount">€${expense.amount.toFixed(2)}</div>
-                    <button class="delete-btn" onclick="deleteExpense(${expense.id})">✕</button>
+                    <button class="delete-btn" onclick="deleteExpense(${expense.id})">
+                        🗑️
+                    </button>
                 </div>
             `;
         }
 
         function deleteExpense(id) {
-            if (confirm('Eliminare questa spesa?')) {
+            if (confirm('Vuoi eliminare questa spesa?')) {
                 expenses = expenses.filter(e => e.id !== id);
                 localStorage.setItem('expenses', JSON.stringify(expenses));
                 renderExpenses();
@@ -551,18 +741,19 @@
         }
 
         function updateTotal() {
-            const total = expenses.reduce((sum, e) => sum + e.amount, 0);
-            totalElement.textContent = `€${total.toLocaleString('it-IT', {minimumFractionDigits: 2})}`;
+            const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            totalElement.textContent = `Totale: €${total.toFixed(2)}`;
         }
 
         clearAllBtn.addEventListener('click', () => {
-            if (confirm('Cancellare tutto lo storico?')) {
+            if (confirm('Vuoi cancellare tutte le spese?')) {
                 expenses = [];
                 localStorage.setItem('expenses', JSON.stringify(expenses));
                 renderExpenses();
             }
         });
 
+        // Export functionality
         exportBtn.addEventListener('click', () => {
             const dataStr = JSON.stringify(expenses, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
@@ -570,25 +761,59 @@
             const a = document.createElement('a');
             a.href = url;
             a.download = `spese_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            status.textContent = 'Dati esportati!';
+            setTimeout(() => {
+                status.textContent = 'Pronto per registrare';
+            }, 2000);
         });
 
-        importBtn.addEventListener('click', () => fileInput.click());
+        // Import functionality
+        importBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = (event) => {
                 try {
-                    const imported = JSON.parse(event.target.result);
-                    if (confirm(`Importare ${imported.length} spese?`)) {
-                        expenses = [...expenses, ...imported].sort((a,b) => new Date(b.date) - new Date(a.date));
+                    const importedData = JSON.parse(event.target.result);
+                    
+                    if (!Array.isArray(importedData)) {
+                        alert('File non valido!');
+                        return;
+                    }
+
+                    if (confirm(`Importare ${importedData.length} spese? Questo aggiungerà le spese a quelle esistenti.`)) {
+                        // Merge avoiding duplicates by ID
+                        const existingIds = new Set(expenses.map(e => e.id));
+                        const newExpenses = importedData.filter(e => !existingIds.has(e.id));
+                        
+                        expenses = [...expenses, ...newExpenses].sort((a, b) => 
+                            new Date(b.date) - new Date(a.date)
+                        );
+                        
                         localStorage.setItem('expenses', JSON.stringify(expenses));
                         renderExpenses();
+                        
+                        status.textContent = `Importate ${newExpenses.length} nuove spese!`;
+                        setTimeout(() => {
+                            status.textContent = 'Pronto per registrare';
+                        }, 2000);
                     }
-                } catch (err) { alert('Errore file'); }
+                } catch (error) {
+                    alert('Errore nella lettura del file: ' + error.message);
+                }
             };
             reader.readAsText(file);
+            fileInput.value = '';
         });
     </script>
 </body>
