@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Spese Vocale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .record-button {
+            width: 100%;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .record-button:active {
+            transform: scale(0.98);
+        }
+
+        .record-button.recording {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(245, 87, 108, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 15px rgba(245, 87, 108, 0);
+            }
+        }
+
+        .status {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            min-height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .transcript {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 50px;
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .total {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .expense-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .expense-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .expense-item:hover {
+            background: #f0f0f0;
+        }
+
+        .expense-info {
+            flex: 1;
+        }
+
+        .expense-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .expense-details {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .delete-btn:active {
+            background: #e84118;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+
+        .clear-all-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .instructions strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Registro Spese Vocale</h1>
+            <p>Registra le tue spese con la voce</p>
+        </div>
+
+        <div class="card">
+            <div class="instructions">
+                <strong>Come usare:</strong>
+                Premi il pulsante e dì qualcosa come:<br>
+                "Cinquanta euro e trenta Esselunga"<br>
+                "23 euro Bennet"<br>
+                "100 Coop"
+            </div>
+
+            <button class="record-button" id="recordBtn">
+                🎤 Tocca per Registrare
+            </button>
+
+            <div class="status" id="status">Pronto per registrare</div>
+            <div class="transcript" id="transcript">Il testo apparirà qui...</div>
+        </div>
+
+        <div class="card">
+            <div class="total" id="total">Totale: €0.00</div>
+            
+            <h3 style="margin-bottom: 15px;">Spese registrate</h3>
+            <div class="expense-list" id="expenseList"></div>
+            
+            <button class="clear-all-btn" id="clearAllBtn" style="display: none;">
+                🗑️ Cancella Tutte
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            alert('Il tuo browser non supporta il riconoscimento vocale. Prova con Chrome o Safari.');
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'it-IT';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        const recordBtn = document.getElementById('recordBtn');
+        const status = document.getElementById('status');
+        const transcript = document.getElementById('transcript');
+        const expenseList = document.getElementById('expenseList');
+        const totalElement = document.getElementById('total');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+        let isRecording = false;
+
+        renderExpenses();
+
+        recordBtn.addEventListener('click', () => {
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+
+        recognition.onstart = () => {
+            isRecording = true;
+            recordBtn.classList.add('recording');
+            recordBtn.textContent = '🔴 Registrando...';
+            status.textContent = 'Sto ascoltando...';
+            transcript.textContent = 'Parla ora...';
+        };
+
+        recognition.onresult = (event) => {
+            const speechResult = event.results[0][0].transcript;
+            transcript.textContent = speechResult;
+            status.textContent = 'Elaborazione...';
+            processExpense(speechResult);
+        };
+
+        recognition.onerror = (event) => {
+            status.textContent = 'Errore: ' + event.error;
+            resetButton();
+        };
+
+        recognition.onend = () => {
+            resetButton();
+        };
+
+        function resetButton() {
+            isRecording = false;
+            recordBtn.classList.remove('recording');
+            recordBtn.textContent = '🎤 Tocca per Registrare';
+            setTimeout(() => {
+                if (status.textContent !== 'Spesa aggiunta!') {
+                    status.textContent = 'Pronto per registrare';
+                }
+            }, 2000);
+        }
+
+        function processExpense(text) {
+            text = text.toLowerCase();
+            
+            const patterns = [
+                /(\d+)\s*euro\s*e\s*(\d+)/i,
+                /(\d+)[.,](\d+)\s*euro/i,
+                /(\d+)[.,](\d+)/,
+                /(\d+)\s*euro/i
+            ];
+
+            let amount = null;
+            let patternUsed = null;
+
+            for (let pattern of patterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    if (match[2]) {
+                        amount = parseFloat(match[1] + '.' + match[2]);
+                    } else {
+                        amount = parseFloat(match[1]);
+                    }
+                    patternUsed = pattern;
+                    break;
+                }
+            }
+
+            if (amount === null) {
+                status.textContent = 'Non ho capito l\'importo. Riprova!';
+                return;
+            }
+
+            let store = text;
+            if (patternUsed) {
+                store = text.replace(patternUsed, '').trim();
+            }
+            
+            store = store.replace(/^(a|al|alla|da|presso|per|in)\s+/i, '');
+            store = store || 'Non specificato';
+            store = store.charAt(0).toUpperCase() + store.slice(1);
+
+            const expense = {
+                id: Date.now(),
+                amount: amount,
+                store: store,
+                date: new Date().toLocaleString('it-IT'),
+                originalText: text
+            };
+
+            expenses.unshift(expense);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            
+            status.textContent = 'Spesa aggiunta!';
+            renderExpenses();
+        }
+
+        function renderExpenses() {
+            if (expenses.length === 0) {
+                expenseList.innerHTML = '<div class="empty-state">Nessuna spesa registrata</div>';
+                clearAllBtn.style.display = 'none';
+                updateTotal();
+                return;
+            }
+
+            expenseList.innerHTML = expenses.map(expense => `
+                <div class="expense-item">
+                    <div class="expense-info">
+                        <div class="expense-amount">€${expense.amount.toFixed(2)}</div>
+                        <div class="expense-details">
+                            ${expense.store} • ${expense.date}
+                        </div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteExpense(${expense.id})">
+                        🗑️
+                    </button>
+                </div>
+            `).join('');
+
+            clearAllBtn.style.display = 'block';
+            updateTotal();
+        }
+
+        function deleteExpense(id) {
+            if (confirm('Vuoi eliminare questa spesa?')) {
+                expenses = expenses.filter(e => e.id !== id);
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                renderExpenses();
+            }
+        }
+
+        function updateTotal() {
+            const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            totalElement.textContent = `Totale: €${total.toFixed(2)}`;
+        }
+
+        clearAllBtn.addEventListener('click', () => {
+            if (confirm('Vuoi cancellare tutte le spese?')) {
+                expenses = [];
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                renderExpenses();
+            }
+        });
+    </script>
+</body>
+</html>
