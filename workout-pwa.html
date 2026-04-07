@@ -2650,16 +2650,19 @@ if (app.state.editingWorkout.exercises.length === 0) {
          });
          
          // Init Sortable (rimane uguale)
-         if (app.sortable) app.sortable.destroy();
-         app.sortable = new Sortable(container, {
-         animation: 150,
-         handle: '.fa-grip-lines',
-         ghostClass: 'sortable-ghost',
-         onEnd: (evt) => {
-         const item = app.state.editingWorkout.exercises.splice(evt.oldIndex, 1)[0];
-         app.state.editingWorkout.exercises.splice(evt.newIndex, 0, item);
-         }
-         });
+		if (app.sortable) app.sortable.destroy();
+		app.sortable = new Sortable(container, {
+			animation: 150,
+			handle: '.fa-grip-lines',
+			ghostClass: 'sortable-ghost',
+			onEnd: (evt) => {
+				const oldIdx = evt.oldIndex - 1;
+				const newIdx = evt.newIndex - 1;
+				if (oldIdx < 0 || newIdx < 0) return;
+				const item = app.state.editingWorkout.exercises.splice(oldIdx, 1)[0];
+				app.state.editingWorkout.exercises.splice(newIdx, 0, item);
+			}
+		});
          },
          
                  updateActiveView: () => {
