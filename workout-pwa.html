@@ -118,6 +118,30 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 	border-radius:3px;
 }
 
+/* Circuit Mode */
+@keyframes circuitPulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(251, 146, 60, 0.6); }
+    50% { box-shadow: 0 0 20px rgba(251, 146, 60, 1); }
+}
+@keyframes circuitWorkPulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
+    50% { box-shadow: 0 0 20px rgba(34, 197, 94, 1); }
+}
+.circuit-badge {
+    animation: circuitPulse 1.5s ease-in-out infinite;
+}
+#rest-overlay.circuit-rest-mode .text-gray-400 {
+    color: #fb923c !important;
+}
+#rest-overlay.circuit-work-mode {
+    background: rgba(34, 197, 94, 0.05);
+    border-radius: 1rem;
+}
+#rest-overlay.circuit-rest-mode {
+    background: rgba(251, 146, 60, 0.05);
+    border-radius: 1rem;
+}
+
 #progress-bar-container > div {
     border-radius: 0 !important;
     border: none !important;
@@ -1008,13 +1032,17 @@ color:#c084fc;
                </div>
                <!-- Timer / Rest Overlay -->
                <div id="rest-overlay" class="hidden flex-col items-center justify-center w-full py-0">
+                  <!-- Badge circuito (visibile solo in circuit mode) -->
+                  <div id="circuit-mode-badge" class="hidden mb-3 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider circuit-badge" style="background: rgba(251,146,60,0.15); border: 1px solid rgba(251,146,60,0.4); color: #fb923c;">
+                     <i class="fa-solid fa-rotate mr-1"></i> <span id="circuit-badge-label">Mini Circuito — Pausa</span>
+                  </div>
                   <div class="relative w-40 h-40">
                      <svg class="w-full h-full transform -rotate-90">
                         <circle cx="80" cy="80" r="72" stroke="currentColor" stroke-width="6" fill="transparent" class="text-gray-800" />
                         <circle id="rest-timer-circle" cx="80" cy="80" r="72" stroke="currentColor" stroke-width="6" fill="transparent" class="text-primary timer-circle" stroke-dasharray="452" stroke-dashoffset="0" />
                      </svg>
                      <div class="absolute inset-0 flex items-center justify-center flex-col">
-                        <span class="text-gray-400 text-xs uppercase tracking-widest">Pausa</span>
+                        <span id="rest-overlay-label" class="text-gray-400 text-xs uppercase tracking-widest">Pausa</span>
                         <span id="rest-timer-text" class="text-3xl font-mono font-bold">00:00</span>
                         <div class="flex flex-col items-center gap-2">
                            <label for="auto-next-toggle" class="text-sm text-gray-300">
@@ -1462,7 +1490,23 @@ color:#c084fc;
 			<small style="line-height: 17px;
     margin-top: 14px;
     display: block;"><i class="fa-regular fa-circle-question"></i> Reps: puoi inserire anche una parola al posto di un numero, per esempio: maxreps</small>
-            <div class="grid grid-cols-2 gap-4">
+            <!-- Tipo pausa: normale o circuito -->
+            <div class="bg-gray-800 rounded-xl p-3 mb-1">
+               <label class="text-xs text-gray-400 ml-1 block mb-2">Tipo di recupero</label>
+               <div class="grid grid-cols-2 gap-2">
+                  <button type="button" id="modal-type-normal" onclick="app.handlers.setExRestType('normal')"
+                     class="rest-type-btn py-2 px-3 rounded-lg text-sm font-semibold border-2 border-primary bg-primary/20 text-white transition-all">
+                     <i class="fa-solid fa-pause mr-1"></i> Pausa Normale
+                  </button>
+                  <button type="button" id="modal-type-circuit" onclick="app.handlers.setExRestType('circuit')"
+                     class="rest-type-btn py-2 px-3 rounded-lg text-sm font-semibold border-2 border-gray-600 bg-gray-700 text-gray-400 transition-all">
+                     <i class="fa-solid fa-rotate mr-1"></i> Mini Circuito
+                  </button>
+               </div>
+            </div>
+
+            <!-- Sezione pausa normale -->
+            <div id="modal-rest-normal-section" class="grid grid-cols-2 gap-4">
                <div>
                   <label class="text-xs text-gray-400 ml-1">Pausa</label>
                   <select id="modal-ex-rest" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3">
@@ -1485,6 +1529,45 @@ color:#c084fc;
                <div>
                   <label class="text-xs text-gray-400 ml-1">Peso Iniziale (Kg)</label>
                   <input type="number" id="modal-ex-weight" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3" placeholder="es. 15">
+               </div>
+            </div>
+
+            <!-- Sezione circuito -->
+            <div id="modal-rest-circuit-section" class="hidden space-y-3">
+               <div class="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3 text-xs text-orange-300">
+                  <i class="fa-solid fa-circle-info mr-1"></i>
+                  In modalità circuito ogni "serie" alterna <strong>lavoro attivo</strong> e <strong>pausa breve</strong>. 
+                  Le reps diventano il tempo di lavoro. Il peso può essere 0 per esercizi a corpo libero.
+               </div>
+               <div>
+                  <label class="text-xs text-gray-400 ml-1 block mb-2">Schema circuito</label>
+                  <div class="space-y-2">
+                     <label class="flex items-center gap-3 bg-gray-700 rounded-lg p-3 cursor-pointer border-2 border-transparent has-[:checked]:border-orange-500 has-[:checked]:bg-orange-500/10 transition-all">
+                        <input type="radio" name="circuit-scheme" id="circuit-20-20" value="20-20" class="accent-orange-500">
+                        <div>
+                           <div class="font-semibold text-sm text-white">20" lavoro / 20" pausa</div>
+                           <div class="text-xs text-gray-400">Schema intenso, ottimo per HIIT</div>
+                        </div>
+                     </label>
+                     <label class="flex items-center gap-3 bg-gray-700 rounded-lg p-3 cursor-pointer border-2 border-transparent has-[:checked]:border-orange-500 has-[:checked]:bg-orange-500/10 transition-all">
+                        <input type="radio" name="circuit-scheme" id="circuit-30-30" value="30-30" class="accent-orange-500" checked>
+                        <div>
+                           <div class="font-semibold text-sm text-white">30" lavoro / 30" pausa</div>
+                           <div class="text-xs text-gray-400">Schema bilanciato, il più comune</div>
+                        </div>
+                     </label>
+                     <label class="flex items-center gap-3 bg-gray-700 rounded-lg p-3 cursor-pointer border-2 border-transparent has-[:checked]:border-orange-500 has-[:checked]:bg-orange-500/10 transition-all">
+                        <input type="radio" name="circuit-scheme" id="circuit-30-60" value="30-60" class="accent-orange-500">
+                        <div>
+                           <div class="font-semibold text-sm text-white">30" lavoro / 60" pausa</div>
+                           <div class="text-xs text-gray-400">Più recupero, buono per forza-endurance</div>
+                        </div>
+                     </label>
+                  </div>
+               </div>
+               <div>
+                  <label class="text-xs text-gray-400 ml-1">Peso Iniziale (Kg) — opzionale</label>
+                  <input type="number" id="modal-ex-weight" class="w-full bg-gray-100 bg-gray-800 rounded-lg p-3" placeholder="es. 0 per corpo libero">
                </div>
             </div>
             <div class="flex items-center gap-2  bg-gray-800 p-3 rounded-lg">
@@ -2631,7 +2714,8 @@ if (app.state.editingWorkout.exercises.length === 0) {
   <i class="fa-solid fa-grip-lines text-gray-400 cursor-move text-xl"></i>
   <div class="overflow-hidden">
     <div class="font-bold text-sm">${ex.name}</div>
-    <div class="text-xs text-gray-400">${ex.sets} x ${ex.reps} • ${ex.rest}s${ex.isDouble ? ' • 2x' : ''}</div>
+    <div class="text-xs text-gray-400">${ex.sets} x ${ex.reps} • ${ex.circuitScheme ? `⚡ Circuito ${ex.circuitScheme}` : ex.rest + 's pausa'}${ex.isDouble ? ' • 2x' : ''}</div>
+    ${ex.circuitScheme ? `<div class="mt-1"><span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(251,146,60,0.2);color:#fb923c;border:1px solid rgba(251,146,60,0.4)"><i class="fa-solid fa-rotate mr-1"></i>Mini Circuito</span></div>` : ''}
   </div>
 </div>
 
@@ -2649,20 +2733,20 @@ if (app.state.editingWorkout.exercises.length === 0) {
          container.appendChild(el);
          });
          
-         // Init Sortable (rimane uguale)
-		if (app.sortable) app.sortable.destroy();
-		app.sortable = new Sortable(container, {
-			animation: 150,
-			handle: '.fa-grip-lines',
-			ghostClass: 'sortable-ghost',
-			onEnd: (evt) => {
-				const oldIdx = evt.oldIndex - 1;
-				const newIdx = evt.newIndex - 1;
-				if (oldIdx < 0 || newIdx < 0) return;
-				const item = app.state.editingWorkout.exercises.splice(oldIdx, 1)[0];
-				app.state.editingWorkout.exercises.splice(newIdx, 0, item);
-			}
-		});
+         // Init Sortable — fix: -1 per compensare l'header nel DOM
+         if (app.sortable) app.sortable.destroy();
+         app.sortable = new Sortable(container, {
+         animation: 150,
+         handle: '.fa-grip-lines',
+         ghostClass: 'sortable-ghost',
+         onEnd: (evt) => {
+             const oldIdx = evt.oldIndex - 1;
+             const newIdx = evt.newIndex - 1;
+             if (oldIdx < 0 || newIdx < 0) return;
+             const item = app.state.editingWorkout.exercises.splice(oldIdx, 1)[0];
+             app.state.editingWorkout.exercises.splice(newIdx, 0, item);
+         }
+         });
          },
          
                  updateActiveView: () => {
@@ -2677,7 +2761,19 @@ if (app.state.editingWorkout.exercises.length === 0) {
                      document.getElementById('active-workout-name').innerText = session.workout.name;
                      document.getElementById('active-exercise-name').innerText = ex.name;
                      document.getElementById('active-set-display').innerText = `Serie ${session.currentSet + 1} / ${ex.sets}`;
-                     document.getElementById('active-target-display').innerText = `${ex.reps} Reps`;
+                     // In circuito: target mostra schema, altrimenti reps normali
+                     if (ex.circuitScheme) {
+                         const parts = ex.circuitScheme.split('-');
+                         document.getElementById('active-target-display').innerHTML = `<i class="fa-solid fa-rotate mr-1"></i>${parts[0]}" lav. / ${parts[1]}" pausa`;
+                         document.getElementById('active-target-display').style.background = 'rgba(251,146,60,0.2)';
+                         document.getElementById('active-target-display').style.borderColor = 'rgba(251,146,60,0.4)';
+                         document.getElementById('active-target-display').style.color = '#fb923c';
+                     } else {
+                         document.getElementById('active-target-display').innerHTML = `${ex.reps} Reps`;
+                         document.getElementById('active-target-display').style.background = '';
+                         document.getElementById('active-target-display').style.borderColor = '';
+                         document.getElementById('active-target-display').style.color = '#fff';
+                     }
                      document.getElementById('active-weight-value').innerText = ex.lastWeight || 0;
 					 
 					     // ✅ MOSTRA IL DELTA SE ESISTE
@@ -2740,22 +2836,44 @@ if (kgLabel) {
          const workOverlay = document.getElementById('work-overlay'); // AGGIUNGI QUESTA RIGA
          
          if (session.status === 'rest') {
-// ✅ CONTROLLA SE È L'ULTIMA PAUSA DELL'ESERCIZIO
     const ex = session.workout.exercises[session.currentExIdx];
-    const isLastSet = session.currentSet === ex.sets - 1;
+    const isLastSet = session.currentSet === parseInt(ex.sets) - 1;
     const isLastExercise = session.currentExIdx === session.workout.exercises.length - 1;
-    
+    const isCircuit = !!ex.circuitScheme;
+
+    // Badge e label circuito
+    const badge = document.getElementById('circuit-mode-badge');
+    const overlayLabel = document.getElementById('rest-overlay-label');
+    const circle = document.getElementById('rest-timer-circle');
+
+    if (isCircuit) {
+        badge.classList.remove('hidden');
+        badge.querySelector('#circuit-badge-label').innerText = 'Mini Circuito — Pausa 🟠';
+        overlayLabel.innerText = 'Pausa';
+        overlayLabel.style.color = '#fb923c';
+        circle.classList.remove('text-primary');
+        circle.style.stroke = '#fb923c';
+        restOverlay.classList.add('circuit-rest-mode');
+        restOverlay.classList.remove('circuit-work-mode');
+    } else {
+        badge.classList.add('hidden');
+        overlayLabel.innerText = 'Pausa';
+        overlayLabel.style.color = '';
+        circle.classList.add('text-primary');
+        circle.style.stroke = '';
+        restOverlay.classList.remove('circuit-rest-mode', 'circuit-work-mode');
+    }
+
     if (isLastSet && !isLastExercise) {
-        // Ultima pausa di questo esercizio, ma ci sono altri esercizi
         btn.innerHTML = `<i class="fa-solid fa-arrow-right"></i> <span>Prossimo Esercizio</span>`;
     } else if (isLastSet && isLastExercise) {
-        // Ultima pausa dell'ultimo esercizio
         btn.innerHTML = `<i class="fa-solid fa-flag-checkered"></i> <span>Termina Workout</span>`;
+    } else if (isCircuit) {
+        btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa Circuito</span>`;
     } else {
-        // Pausa normale tra serie
         btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa</span>`;
     }
-    
+
     btn.classList.replace('bg-primary', 'bg-gray-600');
     btn.onclick = app.handlers.skipRest;
     restOverlay.classList.remove('hidden');
@@ -2763,13 +2881,40 @@ if (kgLabel) {
     workOverlay.classList.add('hidden');
     workOverlay.classList.remove('flex');
          } else {
-         btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
-         btn.classList.replace('bg-gray-600', 'bg-primary');
-         btn.onclick = app.handlers.completeSet;
-         restOverlay.classList.add('hidden');
-         restOverlay.classList.remove('flex');
-         workOverlay.classList.remove('hidden');     // AGGIUNGI
-         workOverlay.classList.add('flex');          // AGGIUNGI
+    const ex = session.workout.exercises[session.currentExIdx];
+    const isCircuit = !!ex.circuitScheme;
+
+    // In circuit work phase: pulsante verde "Fatto!"
+    if (isCircuit) {
+        btn.innerHTML = `<i class="fa-solid fa-rotate"></i> <span>Completato! Avvia Pausa</span>`;
+        btn.style.background = 'linear-gradient(135deg, #16a34a, #15803d)';
+    } else {
+        btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
+        btn.style.background = '';
+    }
+    btn.classList.replace('bg-gray-600', 'bg-primary');
+    if (isCircuit) btn.classList.remove('bg-primary'); // lascia il gradient
+    btn.onclick = app.handlers.completeSet;
+    restOverlay.classList.add('hidden');
+    restOverlay.classList.remove('flex');
+    workOverlay.classList.remove('hidden');
+    workOverlay.classList.add('flex');
+
+    // Badge circuito nella work phase
+    const badge = document.getElementById('circuit-mode-badge');
+    if (badge) {
+        if (isCircuit) {
+            badge.classList.remove('hidden');
+            badge.querySelector('#circuit-badge-label').innerText = 'Mini Circuito — Lavoro 🟢';
+            badge.style.background = 'rgba(34,197,94,0.15)';
+            badge.style.borderColor = 'rgba(34,197,94,0.4)';
+            badge.style.color = '#4ade80';
+            // Sposta il badge nel work-overlay
+            workOverlay.querySelector('.w-full.px-6')?.prepend(badge);
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
          }
          
 		 
@@ -2795,11 +2940,11 @@ if (kgLabel) {
         
 const currentEx = session.workout.exercises[session.currentExIdx];
 const sets = parseInt(currentEx.sets);
-const totalSegments = sets * 2; 
+const totalSegments = sets * 2;
+const isCircuitEx = !!currentEx.circuitScheme;
 
 const container = document.getElementById('progress-bar-container');
 container.innerHTML = '';
-// Aggiungiamo classi al contenitore per gestire i bordi arrotondati e l'overflow
 container.className = "flex h-4 w-full bg-gray-800 rounded-full overflow-hidden gap-0.5 p-0.5";
 
 const currentStep = session.currentSet * 2 + (session.status === 'rest' ? 1 : 0);
@@ -2808,28 +2953,35 @@ for (let step = 0; step < totalSegments; step++) {
     const isSet = step % 2 === 0;
     const isPast = step < currentStep;
     const isCurrent = step === currentStep;
-    
+
     const segment = document.createElement('div');
-    segment.style.flex = isSet ? '2' : '1'; // Le serie sono più larghe delle pause
+    segment.style.flex = isSet ? '2' : '1';
     segment.className = 'h-full transition-all duration-500 relative overflow-hidden';
 
     if (isSet) {
-        // --- 🟢 STILE SERIE (WORK) ---
+        // Segmento LAVORO
         if (isPast) {
-            segment.classList.add('bg-violet-500');
-            segment.innerHTML = `<div class="flex items-center justify-center h-full"><!-- <i class="fa-solid fa-check text-[7px] text-white/80"></i>--></div>`;
+            segment.classList.add(isCircuitEx ? 'bg-green-600' : 'bg-violet-500');
         } else if (isCurrent) {
-            segment.classList.add('bg-violet-400', 'animate-pulse', 'shadow-[0_0_8px_rgba(167,139,250,0.6)]');
+            if (isCircuitEx) {
+                segment.style.background = '#16a34a';
+                segment.style.boxShadow = '0 0 8px rgba(34,197,94,0.7)';
+                segment.classList.add('animate-pulse');
+            } else {
+                segment.classList.add('bg-violet-400', 'animate-pulse', 'shadow-[0_0_8px_rgba(167,139,250,0.6)]');
+            }
         } else {
             segment.classList.add('bg-gray-700');
         }
     } else {
-        // --- ☕ STILE PAUSA (REST) ---
+        // Segmento PAUSA
         if (isCurrent && session.status === 'rest') {
-            const restDuration = parseInt(currentEx.rest);
+            const restDuration = isCircuitEx
+                ? parseInt(currentEx.circuitScheme.split('-')[1])
+                : parseInt(currentEx.rest);
             const restEl = document.getElementById('rest-timer-text');
             const timeLeftMatch = restEl?.innerText.match(/(\d+):(\d+)/);
-            
+
             let percentComplete = 0;
             if (timeLeftMatch) {
                 const timeLeft = parseInt(timeLeftMatch[1]) * 60 + parseInt(timeLeftMatch[2]);
@@ -2837,18 +2989,19 @@ for (let step = 0; step < totalSegments; step++) {
             }
 
             segment.classList.add('bg-gray-800');
+            const fillColor = isCircuitEx ? '#fb923c' : '#34d399';
             segment.innerHTML = `
-                <div id="rest-progress-fill" class="h-full bg-emerald-400 transition-all duration-1000 ease-linear" 
-                     style="width: ${percentComplete}%">
+                <div id="rest-progress-fill" class="h-full transition-all duration-1000 ease-linear"
+                     style="width:${percentComplete}%;background:${fillColor}">
                 </div>`;
             session.restProgressSegment = segment;
         } else if (isPast) {
-            segment.classList.add('bg-violet-500'); // Verde spento per pause passate
+            segment.classList.add(isCircuitEx ? 'bg-orange-500/60' : 'bg-violet-500');
         } else {
             segment.classList.add('bg-gray-800/50');
         }
     }
-    
+
     container.appendChild(segment);
 }
 
@@ -3616,6 +3769,10 @@ app.router.go('editor');
          document.getElementById('modal-ex-double').checked = false;
          document.getElementById('modal-ex-notes').value = '';
          
+         // Reset tipo pausa → normale
+         app.handlers.setExRestType('normal');
+         document.querySelector('input[name="circuit-scheme"][value="30-30"]').checked = true;
+         
          // Cambia testo bottone
          document.querySelector('#exercise-modal button.bg-primary').innerText = "Aggiungi";
          
@@ -3637,6 +3794,15 @@ app.router.go('editor');
          document.getElementById('modal-ex-double').checked = ex.isDouble || false;
          document.getElementById('modal-ex-notes').value = ex.notes || '';
          
+         // Ripristina tipo pausa
+         if (ex.circuitScheme) {
+             app.handlers.setExRestType('circuit');
+             const radio = document.querySelector(`input[name="circuit-scheme"][value="${ex.circuitScheme}"]`);
+             if (radio) radio.checked = true;
+         } else {
+             app.handlers.setExRestType('normal');
+         }
+         
          // Cambia testo bottone per chiarezza
          document.querySelector('#exercise-modal button.bg-primary').innerText = "Salva Modifiche";
          
@@ -3648,14 +3814,27 @@ app.router.go('editor');
          const name = document.getElementById('modal-ex-name').value;
          if(!name) return;
          
+         const isCircuit = document.getElementById('modal-type-circuit').classList.contains('border-orange-500');
+         const circuitScheme = isCircuit 
+             ? (document.querySelector('input[name="circuit-scheme"]:checked')?.value || '30-30')
+             : null;
+         
+         // Se circuito: rest = tempo pausa dello schema, reps = tempo lavoro
+         let restValue = document.getElementById('modal-ex-rest').value;
+         if (isCircuit && circuitScheme) {
+             const parts = circuitScheme.split('-');
+             restValue = parts[1]; // secondi di pausa
+         }
+         
          const exerciseData = {
          name,
          sets: document.getElementById('modal-ex-sets').value,
          reps: document.getElementById('modal-ex-reps').value,
-         rest: document.getElementById('modal-ex-rest').value,
+         rest: restValue,
          lastWeight: document.getElementById('modal-ex-weight').value,
          isDouble: document.getElementById('modal-ex-double').checked,
-         notes: document.getElementById('modal-ex-notes').value || ''
+         notes: document.getElementById('modal-ex-notes').value || '',
+         circuitScheme: circuitScheme || null
          };
          
          if (app.state.editingExerciseIndex !== null) {
@@ -3671,6 +3850,24 @@ app.router.go('editor');
          app.ui.renderEditorExercises();
          },
          
+setExRestType: (type) => {
+    const normalBtn = document.getElementById('modal-type-normal');
+    const circuitBtn = document.getElementById('modal-type-circuit');
+    const normalSection = document.getElementById('modal-rest-normal-section');
+    const circuitSection = document.getElementById('modal-rest-circuit-section');
+    if (type === 'circuit') {
+        normalBtn.className = 'rest-type-btn py-2 px-3 rounded-lg text-sm font-semibold border-2 border-gray-600 bg-gray-700 text-gray-400 transition-all';
+        circuitBtn.className = 'rest-type-btn py-2 px-3 rounded-lg text-sm font-semibold border-2 border-orange-500 bg-orange-500/20 text-orange-300 transition-all';
+        normalSection.classList.add('hidden');
+        circuitSection.classList.remove('hidden');
+    } else {
+        normalBtn.className = 'rest-type-btn py-2 px-3 rounded-lg text-sm font-semibold border-2 border-primary bg-primary/20 text-white transition-all';
+        circuitBtn.className = 'rest-type-btn py-2 px-3 rounded-lg text-sm font-semibold border-2 border-gray-600 bg-gray-700 text-gray-400 transition-all';
+        normalSection.classList.remove('hidden');
+        circuitSection.classList.add('hidden');
+    }
+},
+
                  removeExercise: (idx) => {
                      if(confirm('Rimuovere esercizio?')) {
                          app.state.editingWorkout.exercises.splice(idx, 1);
@@ -4017,86 +4214,229 @@ completeSet: () => {
          
 startRest: (seconds, isNextExercise = false) => {
     const session = app.state.activeSession;
+    const ex = session.workout.exercises[session.currentExIdx];
+    const isCircuit = !!ex.circuitScheme;
+
+    // In circuito: prima avvia la fase LAVORO, poi la pausa
+    if (isCircuit) {
+        const parts = ex.circuitScheme.split('-');
+        const workSecs = parseInt(parts[0]);
+        const restSecs = parseInt(parts[1]);
+        app.handlers.startCircuitWork(workSecs, restSecs, isNextExercise);
+        return;
+    }
+
+    // --- PAUSA NORMALE ---
     session.status = 'rest';
-    
+
     let timeLeft = parseInt(seconds);
     const timerEl = document.getElementById('rest-timer-text');
     const circle = document.getElementById('rest-timer-circle');
-    
+
     const maxOffset = 452;
     circle.style.strokeDasharray = maxOffset;
     circle.style.strokeDashoffset = maxOffset;
-    
+
     const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
     const secs = (timeLeft % 60).toString().padStart(2, '0');
     timerEl.innerText = `${mins}:${secs}`;
-    
+
     app.ui.updateActiveView();
-    
+
     setTimeout(() => {
         if (session?.restProgressSegment) {
             const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
             if (fill) fill.style.width = '0%';
         }
     }, 50);
-    
-    // 🔥 AVVIA TIMER NEL SERVICE WORKER (background)
+
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        const ex = session.workout.exercises[session.currentExIdx];
         navigator.serviceWorker.controller.postMessage({
             type: 'START_TIMER',
-            data: {
-                duration: seconds,
-                exerciseName: ex.name
-            }
+            data: { duration: seconds, exerciseName: ex.name }
         });
     }
-    
-    // 🔥 RICHIEDI PERMESSI NOTIFICHE SE NECESSARIO
+
     if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
     }
-    
+
     const autoNextCheckbox = document.getElementById('auto-next-toggle');
     if (autoNextCheckbox) {
         autoNextCheckbox.checked = app.state.settings.autoNext || false;
     }
-    
-    // Timer locale (per UI)
+
     app.restInterval = setInterval(() => {
         timeLeft--;
         const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const secs = (timeLeft % 60).toString().padStart(2, '0');
         timerEl.innerText = `${mins}:${secs}`;
-        
+
         const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
         circle.style.strokeDashoffset = offset;
-        
+
         const session = app.state.activeSession;
         if (session?.restProgressSegment) {
-           const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
-           if (fill) {
-              const percentComplete = ((seconds - timeLeft) / seconds) * 100;
-              fill.style.width = `${percentComplete}%`;
-           }
+            const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
+            if (fill) {
+                const percentComplete = ((seconds - timeLeft) / seconds) * 100;
+                fill.style.width = `${percentComplete}%`;
+            }
         }
-        
+
         if (timeLeft <= 0) {
             clearInterval(app.restInterval);
-            
             const restText = document.getElementById('rest-timer-text');
             restText.classList.add('rest-blink');
-            
             const isAutoNext = document.getElementById('auto-next-toggle')?.checked || false;
-            
             if (isAutoNext) {
-                if(app.state.settings.sound) {
-                    document.getElementById('audio-auto-next').play().catch(e=>{});
-                }
-                if(app.state.settings.vibrate && navigator.vibrate) {
-                    navigator.vibrate([300, 100, 300]);
-                }
-                
+                if (app.state.settings.sound) document.getElementById('audio-auto-next').play().catch(e => {});
+                if (app.state.settings.vibrate && navigator.vibrate) navigator.vibrate([300, 100, 300]);
+                setTimeout(() => {
+                    app.handlers.skipRest(null, isNextExercise);
+                    app.handlers.setRandomMotivation();
+                }, 1000);
+            } else {
+                app.handlers.notify();
+            }
+        }
+    }, 1000);
+},
+
+// 🔥 NUOVO: gestisce la fase LAVORO del circuito, poi avvia la pausa circuito
+startCircuitWork: (workSecs, restSecs, isNextExercise = false) => {
+    const session = app.state.activeSession;
+    session.status = 'rest'; // usiamo rest-overlay anche per il lavoro circuito
+
+    const timerEl = document.getElementById('rest-timer-text');
+    const circle = document.getElementById('rest-timer-circle');
+    const overlayLabel = document.getElementById('rest-overlay-label');
+    const badge = document.getElementById('circuit-mode-badge');
+    const badgeLabel = document.getElementById('circuit-badge-label');
+
+    // Colore verde per fase lavoro
+    circle.style.stroke = '#4ade80';
+    if (overlayLabel) { overlayLabel.innerText = 'Lavoro!'; overlayLabel.style.color = '#4ade80'; }
+    if (badge) {
+        badge.classList.remove('hidden');
+        badge.style.background = 'rgba(34,197,94,0.15)';
+        badge.style.borderColor = 'rgba(34,197,94,0.4)';
+        badge.style.color = '#4ade80';
+        if (badgeLabel) badgeLabel.innerText = 'Mini Circuito — Lavoro 🟢';
+    }
+
+    // Mostra rest-overlay con timer lavoro
+    document.getElementById('rest-overlay').classList.remove('hidden');
+    document.getElementById('rest-overlay').classList.add('flex');
+    document.getElementById('work-overlay').classList.add('hidden');
+    document.getElementById('work-overlay').classList.remove('flex');
+
+    const btn = document.getElementById('btn-main-action');
+    btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Lavoro</span>`;
+    btn.classList.replace('bg-primary', 'bg-green-700');
+    btn.onclick = () => app.handlers.startCircuitRest(restSecs, isNextExercise);
+
+    // Vibrazione inizio lavoro
+    if (app.state.settings.vibrate && navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    if (app.state.settings.sound) document.getElementById('audio-auto-next').play().catch(e => {});
+
+    const maxOffset = 452;
+    circle.style.strokeDasharray = maxOffset;
+    circle.style.strokeDashoffset = maxOffset;
+    let timeLeft = workSecs;
+    timerEl.innerText = `00:${String(workSecs).padStart(2,'0')}`;
+
+    if (app.restInterval) clearInterval(app.restInterval);
+    app.restInterval = setInterval(() => {
+        timeLeft--;
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        timerEl.innerText = `${m}:${s}`;
+        const offset = maxOffset - ((timeLeft / workSecs) * maxOffset);
+        circle.style.strokeDashoffset = offset;
+
+        // Aggiorna barra progressi
+        if (session?.restProgressSegment) {
+            const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
+            if (fill) fill.style.width = `${((workSecs - timeLeft) / workSecs) * 100}%`;
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(app.restInterval);
+            // Fine fase lavoro → avvia pausa circuito automaticamente
+            if (app.state.settings.sound) document.getElementById('audio-beep').play().catch(e => {});
+            if (app.state.settings.vibrate && navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            setTimeout(() => app.handlers.startCircuitRest(restSecs, isNextExercise), 300);
+        }
+    }, 1000);
+},
+
+// 🔥 NUOVO: fase PAUSA del circuito
+startCircuitRest: (restSecs, isNextExercise = false) => {
+    const session = app.state.activeSession;
+    const ex = session.workout.exercises[session.currentExIdx];
+
+    if (app.restInterval) clearInterval(app.restInterval);
+
+    const timerEl = document.getElementById('rest-timer-text');
+    const circle = document.getElementById('rest-timer-circle');
+    const overlayLabel = document.getElementById('rest-overlay-label');
+    const badge = document.getElementById('circuit-mode-badge');
+    const badgeLabel = document.getElementById('circuit-badge-label');
+
+    // Colore arancio per fase pausa circuito
+    circle.style.stroke = '#fb923c';
+    if (overlayLabel) { overlayLabel.innerText = 'Pausa'; overlayLabel.style.color = '#fb923c'; }
+    if (badge) {
+        badge.classList.remove('hidden');
+        badge.style.background = 'rgba(251,146,60,0.15)';
+        badge.style.borderColor = 'rgba(251,146,60,0.4)';
+        badge.style.color = '#fb923c';
+        if (badgeLabel) badgeLabel.innerText = 'Mini Circuito — Pausa 🟠';
+    }
+
+    const btn = document.getElementById('btn-main-action');
+    const isLastSet = session.currentSet === parseInt(ex.sets) - 1;
+    const isLastExercise = session.currentExIdx === session.workout.exercises.length - 1;
+
+    if (isLastSet && !isLastExercise) {
+        btn.innerHTML = `<i class="fa-solid fa-arrow-right"></i> <span>Prossimo Esercizio</span>`;
+    } else if (isLastSet && isLastExercise) {
+        btn.innerHTML = `<i class="fa-solid fa-flag-checkered"></i> <span>Termina Workout</span>`;
+    } else {
+        btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa Circuito</span>`;
+    }
+    btn.classList.replace('bg-green-700', 'bg-gray-600');
+    btn.onclick = app.handlers.skipRest;
+
+    const maxOffset = 452;
+    circle.style.strokeDasharray = maxOffset;
+    circle.style.strokeDashoffset = maxOffset;
+    let timeLeft = restSecs;
+    timerEl.innerText = `00:${String(restSecs).padStart(2,'0')}`;
+    timerEl.classList.remove('rest-blink');
+
+    const autoNext = document.getElementById('auto-next-toggle')?.checked || false;
+
+    app.restInterval = setInterval(() => {
+        timeLeft--;
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        timerEl.innerText = `${m}:${s}`;
+        const offset = maxOffset - ((timeLeft / restSecs) * maxOffset);
+        circle.style.strokeDashoffset = offset;
+
+        if (session?.restProgressSegment) {
+            const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
+            if (fill) fill.style.width = `${((restSecs - timeLeft) / restSecs) * 100}%`;
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(app.restInterval);
+            timerEl.classList.add('rest-blink');
+            if (autoNext) {
+                if (app.state.settings.sound) document.getElementById('audio-auto-next').play().catch(e => {});
+                if (app.state.settings.vibrate && navigator.vibrate) navigator.vibrate([300, 100, 300]);
                 setTimeout(() => {
                     app.handlers.skipRest(null, isNextExercise);
                     app.handlers.setRandomMotivation();
@@ -4120,12 +4460,21 @@ skipRest: (_, isNextExercise = false) => {
   // ✅ RIMUOVI LAMPEGGIO QUANDO SALTI IL RIPOSO
   const restText = document.getElementById('rest-timer-text');
   if (restText) restText.classList.remove('rest-blink');
+
+  // Reset colori circuito
+  const circle = document.getElementById('rest-timer-circle');
+  if (circle) { circle.style.stroke = ''; circle.classList.add('text-primary'); }
+  const badge = document.getElementById('circuit-mode-badge');
+  if (badge) badge.classList.add('hidden');
+  const overlayLabel = document.getElementById('rest-overlay-label');
+  if (overlayLabel) { overlayLabel.innerText = 'Pausa'; overlayLabel.style.color = ''; }
+  const btn = document.getElementById('btn-main-action');
+  if (btn) btn.style.background = '';
   
   const session = app.state.activeSession;
-  
   const ex = session.workout.exercises[session.currentExIdx];
   
-  if(session.currentSet < ex.sets - 1) {
+  if(session.currentSet < parseInt(ex.sets) - 1) {
     session.currentSet++;
   } else {
     session.currentExIdx++;
@@ -4134,7 +4483,6 @@ skipRest: (_, isNextExercise = false) => {
 	session.lastSavedWeight = null;
   }
   
-  // ✨ SPOSTA QUI: Resetta il timer PRIMA di cambiare status
   app.handlers.startExerciseTimer();
   app.handlers.setRandomMotivation();
   
