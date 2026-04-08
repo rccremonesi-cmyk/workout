@@ -107,9 +107,7 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 
 	   <script data-goatcounter="https://redmood.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
       <style>
-#exercise-modal {
-	overflow-y:auto;
-}
+
 	 
 /* Progress Bar Workout - Stile Classico */
 #progress-bar-container {
@@ -2886,35 +2884,37 @@ if (kgLabel) {
     const ex = session.workout.exercises[session.currentExIdx];
     const isCircuit = !!ex.circuitScheme;
 
-    // In circuit work phase: pulsante verde "Fatto!"
     if (isCircuit) {
-        btn.innerHTML = `<i class="fa-solid fa-rotate"></i> <span>Completato! Avvia Pausa</span>`;
-        btn.style.background = 'linear-gradient(135deg, #16a34a, #15803d)';
+        btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Completato → Pausa ${ex.circuitScheme.split('-')[1]}"</span>`;
     } else {
         btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Serie Completata</span>`;
-        btn.style.background = '';
     }
+    btn.style.background = '';
     btn.classList.replace('bg-gray-600', 'bg-primary');
-    if (isCircuit) btn.classList.remove('bg-primary'); // lascia il gradient
     btn.onclick = app.handlers.completeSet;
     restOverlay.classList.add('hidden');
     restOverlay.classList.remove('flex');
     workOverlay.classList.remove('hidden');
     workOverlay.classList.add('flex');
 
-    // Badge circuito nella work phase
+    // Badge circuito in work phase: mostralo nel work-overlay
     const badge = document.getElementById('circuit-mode-badge');
     if (badge) {
         if (isCircuit) {
             badge.classList.remove('hidden');
-            badge.querySelector('#circuit-badge-label').innerText = 'Mini Circuito — Lavoro 🟢';
-            badge.style.background = 'rgba(34,197,94,0.15)';
-            badge.style.borderColor = 'rgba(34,197,94,0.4)';
-            badge.style.color = '#4ade80';
-            // Sposta il badge nel work-overlay
-            workOverlay.querySelector('.w-full.px-6')?.prepend(badge);
+            badge.style.background = 'rgba(251,146,60,0.15)';
+            badge.style.borderColor = 'rgba(251,146,60,0.4)';
+            badge.style.color = '#fb923c';
+            const badgeLabel = document.getElementById('circuit-badge-label');
+            if (badgeLabel) badgeLabel.innerText = `⚡ Circuito ${ex.circuitScheme.replace('-','"lav / ')}" pausa`;
+            // Posiziona badge nel work-overlay
+            const workPx = workOverlay.querySelector('.w-full.px-6');
+            if (workPx && badge.parentElement !== workPx) workPx.prepend(badge);
         } else {
             badge.classList.add('hidden');
+            // Rimetti badge nel suo posto originale (rest-overlay)
+            const restOv = document.getElementById('rest-overlay');
+            if (restOv && badge.parentElement !== restOv) restOv.prepend(badge);
         }
     }
          }
@@ -4216,32 +4216,47 @@ completeSet: () => {
          
 startRest: (seconds, isNextExercise = false) => {
     const session = app.state.activeSession;
+    session.status = 'rest';
+
     const ex = session.workout.exercises[session.currentExIdx];
     const isCircuit = !!ex.circuitScheme;
 
-    // In circuito: prima avvia la fase LAVORO, poi la pausa
-    if (isCircuit) {
-        const parts = ex.circuitScheme.split('-');
-        const workSecs = parseInt(parts[0]);
-        const restSecs = parseInt(parts[1]);
-        app.handlers.startCircuitWork(workSecs, restSecs, isNextExercise);
-        return;
-    }
+    // In circuito: usa i secondi di pausa dello schema, ignora il parametro seconds
+    let restSecs = isCircuit
+        ? parseInt(ex.circuitScheme.split('-')[1])
+        : parseInt(seconds);
 
-    // --- PAUSA NORMALE ---
-    session.status = 'rest';
-
-    let timeLeft = parseInt(seconds);
     const timerEl = document.getElementById('rest-timer-text');
     const circle = document.getElementById('rest-timer-circle');
+    const overlayLabel = document.getElementById('rest-overlay-label');
+    const badge = document.getElementById('circuit-mode-badge');
+    const badgeLabel = document.getElementById('circuit-badge-label');
+
+    // Colori e badge: arancio per circuito, default per normale
+    if (isCircuit) {
+        circle.style.stroke = '#fb923c';
+        circle.classList.remove('text-primary');
+        if (overlayLabel) { overlayLabel.innerText = 'Pausa Circuito'; overlayLabel.style.color = '#fb923c'; }
+        if (badge) {
+            badge.classList.remove('hidden');
+            badge.style.background = 'rgba(251,146,60,0.15)';
+            badge.style.borderColor = 'rgba(251,146,60,0.4)';
+            badge.style.color = '#fb923c';
+            if (badgeLabel) badgeLabel.innerText = `⚡ Mini Circuito — ${ex.circuitScheme.replace('-','"lav / ')}" pausa`;
+        }
+    } else {
+        circle.style.stroke = '';
+        circle.classList.add('text-primary');
+        if (overlayLabel) { overlayLabel.innerText = 'Pausa'; overlayLabel.style.color = ''; }
+        if (badge) badge.classList.add('hidden');
+    }
 
     const maxOffset = 452;
     circle.style.strokeDasharray = maxOffset;
     circle.style.strokeDashoffset = maxOffset;
 
-    const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-    const secs = (timeLeft % 60).toString().padStart(2, '0');
-    timerEl.innerText = `${mins}:${secs}`;
+    timerEl.innerText = `${Math.floor(restSecs/60).toString().padStart(2,'0')}:${(restSecs%60).toString().padStart(2,'0')}`;
+    timerEl.classList.remove('rest-blink');
 
     app.ui.updateActiveView();
 
@@ -4255,7 +4270,7 @@ startRest: (seconds, isNextExercise = false) => {
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({
             type: 'START_TIMER',
-            data: { duration: seconds, exerciseName: ex.name }
+            data: { duration: restSecs, exerciseName: ex.name }
         });
     }
 
@@ -4268,166 +4283,15 @@ startRest: (seconds, isNextExercise = false) => {
         autoNextCheckbox.checked = app.state.settings.autoNext || false;
     }
 
-    app.restInterval = setInterval(() => {
-        timeLeft--;
-        const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-        const secs = (timeLeft % 60).toString().padStart(2, '0');
-        timerEl.innerText = `${mins}:${secs}`;
-
-        const offset = maxOffset - ((timeLeft / seconds) * maxOffset);
-        circle.style.strokeDashoffset = offset;
-
-        const session = app.state.activeSession;
-        if (session?.restProgressSegment) {
-            const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
-            if (fill) {
-                const percentComplete = ((seconds - timeLeft) / seconds) * 100;
-                fill.style.width = `${percentComplete}%`;
-            }
-        }
-
-        if (timeLeft <= 0) {
-            clearInterval(app.restInterval);
-            const restText = document.getElementById('rest-timer-text');
-            restText.classList.add('rest-blink');
-            const isAutoNext = document.getElementById('auto-next-toggle')?.checked || false;
-            if (isAutoNext) {
-                if (app.state.settings.sound) document.getElementById('audio-auto-next').play().catch(e => {});
-                if (app.state.settings.vibrate && navigator.vibrate) navigator.vibrate([300, 100, 300]);
-                setTimeout(() => {
-                    app.handlers.skipRest(null, isNextExercise);
-                    app.handlers.setRandomMotivation();
-                }, 1000);
-            } else {
-                app.handlers.notify();
-            }
-        }
-    }, 1000);
-},
-
-// 🔥 NUOVO: gestisce la fase LAVORO del circuito, poi avvia la pausa circuito
-startCircuitWork: (workSecs, restSecs, isNextExercise = false) => {
-    const session = app.state.activeSession;
-    session.status = 'rest'; // usiamo rest-overlay anche per il lavoro circuito
-
-    const timerEl = document.getElementById('rest-timer-text');
-    const circle = document.getElementById('rest-timer-circle');
-    const overlayLabel = document.getElementById('rest-overlay-label');
-    const badge = document.getElementById('circuit-mode-badge');
-    const badgeLabel = document.getElementById('circuit-badge-label');
-
-    // Colore verde per fase lavoro
-    circle.style.stroke = '#4ade80';
-    if (overlayLabel) { overlayLabel.innerText = 'Lavoro!'; overlayLabel.style.color = '#4ade80'; }
-    if (badge) {
-        badge.classList.remove('hidden');
-        badge.style.background = 'rgba(34,197,94,0.15)';
-        badge.style.borderColor = 'rgba(34,197,94,0.4)';
-        badge.style.color = '#4ade80';
-        if (badgeLabel) badgeLabel.innerText = 'Mini Circuito — Lavoro 🟢';
-    }
-
-    // Mostra rest-overlay con timer lavoro
-    document.getElementById('rest-overlay').classList.remove('hidden');
-    document.getElementById('rest-overlay').classList.add('flex');
-    document.getElementById('work-overlay').classList.add('hidden');
-    document.getElementById('work-overlay').classList.remove('flex');
-
-    const btn = document.getElementById('btn-main-action');
-    btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Lavoro</span>`;
-    btn.classList.replace('bg-primary', 'bg-green-700');
-    btn.onclick = () => app.handlers.startCircuitRest(restSecs, isNextExercise);
-
-    // Vibrazione inizio lavoro
-    if (app.state.settings.vibrate && navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    if (app.state.settings.sound) document.getElementById('audio-auto-next').play().catch(e => {});
-
-    const maxOffset = 452;
-    circle.style.strokeDasharray = maxOffset;
-    circle.style.strokeDashoffset = maxOffset;
-    let timeLeft = workSecs;
-    timerEl.innerText = `00:${String(workSecs).padStart(2,'0')}`;
-
-    if (app.restInterval) clearInterval(app.restInterval);
-    app.restInterval = setInterval(() => {
-        timeLeft--;
-        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-        const s = (timeLeft % 60).toString().padStart(2, '0');
-        timerEl.innerText = `${m}:${s}`;
-        const offset = maxOffset - ((timeLeft / workSecs) * maxOffset);
-        circle.style.strokeDashoffset = offset;
-
-        // Aggiorna barra progressi
-        if (session?.restProgressSegment) {
-            const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
-            if (fill) fill.style.width = `${((workSecs - timeLeft) / workSecs) * 100}%`;
-        }
-
-        if (timeLeft <= 0) {
-            clearInterval(app.restInterval);
-            // Fine fase lavoro → avvia pausa circuito automaticamente
-            if (app.state.settings.sound) document.getElementById('audio-beep').play().catch(e => {});
-            if (app.state.settings.vibrate && navigator.vibrate) navigator.vibrate([200, 100, 200]);
-            setTimeout(() => app.handlers.startCircuitRest(restSecs, isNextExercise), 300);
-        }
-    }, 1000);
-},
-
-// 🔥 NUOVO: fase PAUSA del circuito
-startCircuitRest: (restSecs, isNextExercise = false) => {
-    const session = app.state.activeSession;
-    const ex = session.workout.exercises[session.currentExIdx];
-
-    if (app.restInterval) clearInterval(app.restInterval);
-
-    const timerEl = document.getElementById('rest-timer-text');
-    const circle = document.getElementById('rest-timer-circle');
-    const overlayLabel = document.getElementById('rest-overlay-label');
-    const badge = document.getElementById('circuit-mode-badge');
-    const badgeLabel = document.getElementById('circuit-badge-label');
-
-    // Colore arancio per fase pausa circuito
-    circle.style.stroke = '#fb923c';
-    if (overlayLabel) { overlayLabel.innerText = 'Pausa'; overlayLabel.style.color = '#fb923c'; }
-    if (badge) {
-        badge.classList.remove('hidden');
-        badge.style.background = 'rgba(251,146,60,0.15)';
-        badge.style.borderColor = 'rgba(251,146,60,0.4)';
-        badge.style.color = '#fb923c';
-        if (badgeLabel) badgeLabel.innerText = 'Mini Circuito — Pausa 🟠';
-    }
-
-    const btn = document.getElementById('btn-main-action');
-    const isLastSet = session.currentSet === parseInt(ex.sets) - 1;
-    const isLastExercise = session.currentExIdx === session.workout.exercises.length - 1;
-
-    if (isLastSet && !isLastExercise) {
-        btn.innerHTML = `<i class="fa-solid fa-arrow-right"></i> <span>Prossimo Esercizio</span>`;
-    } else if (isLastSet && isLastExercise) {
-        btn.innerHTML = `<i class="fa-solid fa-flag-checkered"></i> <span>Termina Workout</span>`;
-    } else {
-        btn.innerHTML = `<i class="fa-solid fa-forward"></i> <span>Salta Pausa Circuito</span>`;
-    }
-    btn.classList.replace('bg-green-700', 'bg-gray-600');
-    btn.onclick = app.handlers.skipRest;
-
-    const maxOffset = 452;
-    circle.style.strokeDasharray = maxOffset;
-    circle.style.strokeDashoffset = maxOffset;
     let timeLeft = restSecs;
-    timerEl.innerText = `00:${String(restSecs).padStart(2,'0')}`;
-    timerEl.classList.remove('rest-blink');
-
-    const autoNext = document.getElementById('auto-next-toggle')?.checked || false;
-
     app.restInterval = setInterval(() => {
         timeLeft--;
-        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-        const s = (timeLeft % 60).toString().padStart(2, '0');
-        timerEl.innerText = `${m}:${s}`;
+        timerEl.innerText = `${Math.floor(timeLeft/60).toString().padStart(2,'0')}:${(timeLeft%60).toString().padStart(2,'0')}`;
+
         const offset = maxOffset - ((timeLeft / restSecs) * maxOffset);
         circle.style.strokeDashoffset = offset;
 
+        const session = app.state.activeSession;
         if (session?.restProgressSegment) {
             const fill = session.restProgressSegment.querySelector('#rest-progress-fill');
             if (fill) fill.style.width = `${((restSecs - timeLeft) / restSecs) * 100}%`;
@@ -4436,7 +4300,8 @@ startCircuitRest: (restSecs, isNextExercise = false) => {
         if (timeLeft <= 0) {
             clearInterval(app.restInterval);
             timerEl.classList.add('rest-blink');
-            if (autoNext) {
+            const isAutoNext = document.getElementById('auto-next-toggle')?.checked || false;
+            if (isAutoNext) {
                 if (app.state.settings.sound) document.getElementById('audio-auto-next').play().catch(e => {});
                 if (app.state.settings.vibrate && navigator.vibrate) navigator.vibrate([300, 100, 300]);
                 setTimeout(() => {
