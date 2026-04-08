@@ -107,9 +107,7 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 
 	   <script data-goatcounter="https://redmood.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
       <style>
-#exercise-modal{
-	overflow-y:auto;
-}
+
 	 
 /* Progress Bar Workout - Stile Classico */
 #progress-bar-container {
@@ -1079,12 +1077,30 @@ color:#c084fc;
 </div>
       </div>
       
-      <!-- Timer Card -->
-      <div class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700/50 mb-4">
+      <!-- Timer Card — normale: conta in su | circuito: countdown + auto-continua -->
+      <div id="timer-card-normal" class="bg-gray-800/50 rounded-2xl p-4 border border-gray-700/50 mb-4">
          <div class="flex items-center justify-center gap-2">
             <i class="fa-regular fa-clock text-purple-400"></i>
             <span class="text-sm text-gray-400">Serie iniziata da:</span>
             <span id="exercise-timer" class="text-xl font-bold font-mono text-purple-300">00:00</span>
+         </div>
+      </div>
+
+      <!-- Timer Card circuito: countdown lavoro -->
+      <div id="timer-card-circuit" class="hidden rounded-2xl p-5 border mb-4 text-center" style="background:rgba(251,146,60,0.08); border-color:rgba(251,146,60,0.35);">
+         <div class="text-xs font-bold uppercase tracking-wider mb-2" style="color:#fb923c;">
+            <i class="fa-solid fa-rotate mr-1"></i> Tempo di Lavoro
+         </div>
+         <div id="circuit-work-timer" class="text-5xl font-bold font-mono mb-3" style="color:#fb923c;">00:30</div>
+         <!-- Toggle auto-continua circuito -->
+         <div class="flex flex-col items-center gap-2 mt-2">
+            <span class="text-sm text-gray-300">Auto-continua alla pausa</span>
+            <div class="relative">
+               <input type="checkbox" id="circuit-auto-next" class="sr-only peer">
+               <div class="w-11 h-6 bg-gray-700 rounded-full peer-checked:bg-orange-500 transition-colors cursor-pointer"
+                  onclick="document.getElementById('circuit-auto-next').click()"></div>
+               <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 pointer-events-none"></div>
+            </div>
          </div>
       </div>
       
@@ -2899,6 +2915,17 @@ if (kgLabel) {
     workOverlay.classList.remove('hidden');
     workOverlay.classList.add('flex');
 
+    // Mostra la card timer giusta
+    const cardNormal = document.getElementById('timer-card-normal');
+    const cardCircuit = document.getElementById('timer-card-circuit');
+    if (isCircuit) {
+        if (cardNormal) cardNormal.classList.add('hidden');
+        if (cardCircuit) cardCircuit.classList.remove('hidden');
+    } else {
+        if (cardNormal) cardNormal.classList.remove('hidden');
+        if (cardCircuit) cardCircuit.classList.add('hidden');
+    }
+
     // Badge circuito in work phase: mostralo nel work-overlay
     const badge = document.getElementById('circuit-mode-badge');
     if (badge) {
@@ -4502,7 +4529,7 @@ startExerciseTimer: () => {
   const session = app.state.activeSession;
   if (!session) return;
 
-  // ✨ SALVA DURATA PRECEDENTE
+  // Salva durata precedente (solo per esercizi normali, conta in su)
   if (session.exerciseStartTime && session.status === 'work') {
     const duration = (Date.now() - session.exerciseStartTime) / 1000;
     if (!session.exerciseDurations) session.exerciseDurations = [];
@@ -4511,30 +4538,71 @@ startExerciseTimer: () => {
 
   session.exerciseStartTime = Date.now();
 
-  const el = document.getElementById('exercise-timer');
-  if (!el) return;
-
-// ✨ Calcola e mostra subito il tempo reale invece di 00:00
-const initialDiff = Math.floor((Date.now() - session.exerciseStartTime) / 1000);
-const initialM = Math.floor(initialDiff / 60).toString().padStart(2, '0');
-const initialS = (initialDiff % 60).toString().padStart(2, '0');
-el.innerText = `${initialM}:${initialS}`;
-
   // Pulisci eventuale timer precedente
   if (app.exerciseTimerInt) clearInterval(app.exerciseTimerInt);
 
-  app.exerciseTimerInt = setInterval(() => {
-    if (!app.state.activeSession || app.state.activeSession.status === 'rest') {
-      // ✨ MODIFICA: Durante il riposo, NON nascondere, ma mostra "00:00"
-      el.innerText = '00:00';
-      return;
-    }
+  const ex = session.workout.exercises[session.currentExIdx];
+  const isCircuit = !!ex.circuitScheme;
 
-    const diff = Math.floor((Date.now() - session.exerciseStartTime) / 1000);
-    const m = Math.floor(diff / 60).toString().padStart(2, '0');
-    const s = (diff % 60).toString().padStart(2, '0');
-    el.innerText = `${m}:${s}`;
-  }, 1000);
+  if (isCircuit) {
+    // CIRCUITO: countdown del tempo lavoro
+    const workSecs = parseInt(ex.circuitScheme.split('-')[0]);
+    const el = document.getElementById('circuit-work-timer');
+    if (!el) return;
+
+    let timeLeft = workSecs;
+    el.innerText = `00:${String(workSecs).padStart(2, '0')}`;
+
+    app.exerciseTimerInt = setInterval(() => {
+      if (!app.state.activeSession || app.state.activeSession.status === 'rest') {
+        clearInterval(app.exerciseTimerInt);
+        return;
+      }
+      timeLeft--;
+      const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+      const s = (timeLeft % 60).toString().padStart(2, '0');
+      el.innerText = `${m}:${s}`;
+
+      // Colore rosso negli ultimi 5 secondi
+      if (timeLeft <= 5) {
+        el.style.color = '#f87171';
+      } else {
+        el.style.color = '#fb923c';
+      }
+
+      if (timeLeft <= 0) {
+        clearInterval(app.exerciseTimerInt);
+        // Suono + vibra fine lavoro
+        if (app.state.settings.sound) document.getElementById('audio-beep').play().catch(e => {});
+        if (app.state.settings.vibrate && navigator.vibrate) navigator.vibrate([150, 80, 150]);
+
+        // Auto-avanza alla pausa se il toggle è attivo
+        const autoNext = document.getElementById('circuit-auto-next')?.checked || false;
+        if (autoNext) {
+          setTimeout(() => app.handlers.completeSet(), 400);
+        }
+        // Se non auto, il timer si ferma a 00:00 e l'utente clicca il bottone
+      }
+    }, 1000);
+
+  } else {
+    // NORMALE: conta in su
+    const el = document.getElementById('exercise-timer');
+    if (!el) return;
+
+    el.innerText = '00:00';
+
+    app.exerciseTimerInt = setInterval(() => {
+      if (!app.state.activeSession || app.state.activeSession.status === 'rest') {
+        el.innerText = '00:00';
+        return;
+      }
+      const diff = Math.floor((Date.now() - session.exerciseStartTime) / 1000);
+      const m = Math.floor(diff / 60).toString().padStart(2, '0');
+      const s = (diff % 60).toString().padStart(2, '0');
+      el.innerText = `${m}:${s}`;
+    }, 1000);
+  }
 },
          
 requestNotificationPermission: async () => {
