@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diario Crocchette — Transizione e Peso</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --parchment:#F6F2E9;
+    --pine:#2F4A3E;
+    --pine-dark:#233A30;
+    --ink:#2A2A22;
+    --sub:#5B685F;
+    --amber:#C9932E;
+    --amber-soft:#F0DCAF;
+    --coral:#C1543D;
+    --coral-soft:#F3D9D1;
+    --success:#3F7D58;
+    --success-soft:#DCEADD;
+    --card-border:#E4DCC8;
+  }
+  body{
+    background:var(--parchment);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    padding-bottom:4rem;
+  }
+  .display-font{font-family:'Fraunces',serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .fw-600{font-weight:600;}
+  header.app-header{
+    background:var(--pine);color:#fff;padding:2.2rem 0 2.6rem;
+    border-radius:0 0 24px 24px;margin-bottom:-1.4rem;
+  }
+  .card-custom{
+    background:#fff;border:1px solid var(--card-border);border-radius:14px;
+    box-shadow:0 2px 10px rgba(47,74,62,0.06);
+  }
+  .meal-bar{height:34px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--card-border);}
+  .meal-bar .orig{background:var(--amber-soft);transition:width .4s ease;}
+  .meal-bar .nuove{background:var(--pine);transition:width .4s ease;}
+  .stage-row.current{background:var(--amber-soft);border-radius:8px;}
+  .badge-stage{color:var(--pine);}
+  a, .btn-link{color:var(--pine);}
+  .btn-success{background:var(--pine);border-color:var(--pine);}
+  .btn-success:hover{background:var(--pine-dark);border-color:var(--pine-dark);}
+  .btn-outline-primary{color:var(--pine);border-color:var(--pine);}
+  .btn-outline-primary:hover{background:var(--pine);border-color:var(--pine);}
+  .progress-bar{background-color:var(--pine)!important;}
+</style>
+</head>
+<body>
+
+<header class="app-header text-center">
+  <div class="container">
+    <div class="display-font fs-2 fw-600">🐾 Diario Crocchette</div>
+    <div class="opacity-75">Transizione alimentare e monitoraggio peso</div>
+  </div>
+</header>
+
+<div class="container" style="max-width:840px;">
+
+  <div id="reminderZone" class="mt-4"></div>
+
+  <!-- Impostazioni -->
+  <div class="card-custom p-4 mb-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="display-font fs-4 mb-0">Impostazioni piano</h2>
+      <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#settingsBody">Mostra/Nascondi</button>
+    </div>
+    <div id="settingsBody" class="collapse show">
+      <form id="settingsForm" class="row g-3">
+        <div class="col-sm-6">
+          <label class="form-label">Data inizio transizione</label>
+          <input type="date" class="form-control" id="startDate" required>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">Grammi per pasto</label>
+          <input type="number" class="form-control" id="mealGrams" value="200" min="1" required>
+        </div>
+        <div class="col-sm-4">
+          <label class="form-label">Pasti al giorno</label>
+          <input type="number" class="form-control" id="mealsPerDay" value="2" min="1" required>
+        </div>
+        <div class="col-sm-4">
+          <label class="form-label">Aumento ogni (giorni)</label>
+          <input type="number" class="form-control" id="stepDays" value="4" min="1" required>
+        </div>
+        <div class="col-sm-4">
+          <label class="form-label">Incremento (%)</label>
+          <input type="number" class="form-control" id="stepPercent" value="10" min="1" max="100" required>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">Dimensione pacco nuove crocchette (kg)</label>
+          <input type="number" class="form-control" id="packageKg" value="10" min="0.1" step="0.1" required>
+        </div>
+        <div class="col-12 d-flex gap-2 mt-2 flex-wrap">
+          <button type="submit" class="btn btn-success">Salva impostazioni</button>
+          <button type="button" id="resetAllBtn" class="btn btn-outline-danger ms-auto">Azzera tutto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="notStartedZone"></div>
+
+  <!-- Oggi -->
+  <div id="todayCard" class="card-custom p-4 mb-4 d-none"></div>
+
+  <!-- Timeline -->
+  <div id="timelineCard" class="card-custom p-4 mb-4 d-none">
+    <h2 class="display-font fs-4 mb-3">Timeline transizione</h2>
+    <div id="timelineBody"></div>
+  </div>
+
+  <!-- Pacco -->
+  <div id="packageCard" class="card-custom p-4 mb-4 d-none">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <h2 class="display-font fs-4 mb-3">Scorta pacco crocchette nuove</h2>
+      <button class="btn btn-sm btn-outline-primary" id="newPackageBtn">Ho comprato un pacco nuovo</button>
+    </div>
+    <div id="packageBody"></div>
+  </div>
+
+  <!-- Peso -->
+  <div class="card-custom p-4 mb-4">
+    <h2 class="display-font fs-4 mb-3">Peso del cane</h2>
+    <form id="weightForm" class="row g-2 align-items-end mb-3">
+      <div class="col-sm-5">
+        <label class="form-label">Data</label>
+        <input type="date" class="form-control" id="weightDate" required>
+      </div>
+      <div class="col-sm-4">
+        <label class="form-label">Peso (kg)</label>
+        <input type="number" class="form-control" id="weightValue" step="0.1" min="0" required>
+      </div>
+      <div class="col-sm-3">
+        <button class="btn btn-success w-100" type="submit">Registra</button>
+      </div>
+    </form>
+    <div id="weightSummary" class="mb-3"></div>
+    <div id="weightChart" class="mb-3"></div>
+    <div id="weightHistory"></div>
+  </div>
+
+  <p class="text-center text-secondary small mt-4">
+    I dati sono salvati solo in questo browser (localStorage): non c'è un server, quindi non ti seguono se cambi dispositivo o browser.
+  </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function(){
+  const LS_SETTINGS='dietaCane_settings';
+  const LS_WEIGHTS='dietaCane_weights';
+  const LS_PACKAGE='dietaCane_package';
+
+  function todayISO(){ return isoFromDate(new Date()); }
+  function isoFromDate(d){
+    const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+  function dateFromISO(iso){ return new Date(iso+'T00:00:00'); }
+  function daysBetween(iso1,iso2){ return Math.round((dateFromISO(iso2)-dateFromISO(iso1))/86400000); }
+  function fmtDateIT(iso){ return dateFromISO(iso).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+
+  function loadSettings(){ const raw=localStorage.getItem(LS_SETTINGS); return raw?JSON.parse(raw):null; }
+  function saveSettings(s){ localStorage.setItem(LS_SETTINGS, JSON.stringify(s)); }
+  function loadWeights(){ const raw=localStorage.getItem(LS_WEIGHTS); return raw?JSON.parse(raw):[]; }
+  function saveWeights(w){ localStorage.setItem(LS_WEIGHTS, JSON.stringify(w)); }
+  function loadPackage(){ const raw=localStorage.getItem(LS_PACKAGE); return raw?JSON.parse(raw):null; }
+  function savePackage(p){ localStorage.setItem(LS_PACKAGE, JSON.stringify(p)); }
+
+  function seedIfNeeded(){
+    if(localStorage.getItem(LS_WEIGHTS)===null){
+      saveWeights([{date: todayISO(), weight:53}]);
+    }
+  }
+
+  function stagePercentForDay(dayNum, stepDays, stepPercent){
+    if(dayNum<1) return 0;
+    const stage=Math.ceil(dayNum/stepDays);
+    return Math.min(stage*stepPercent,100);
+  }
+
+  function cumulativeNewConsumption(fromISO,toISO,settings){
+    let total=0;
+    let cursor=dateFromISO(fromISO);
+    const end=dateFromISO(toISO);
+    if(cursor>end) return 0;
+    while(cursor<=end){
+      const iso=isoFromDate(cursor);
+      const dayN=daysBetween(settings.startDate, iso)+1;
+      const pct=stagePercentForDay(dayN, settings.stepDays, settings.stepPercent);
+      total += settings.mealGrams*settings.mealsPerDay*pct/100;
+      cursor.setDate(cursor.getDate()+1);
+    }
+    return total;
+  }
+
+  function render(){
+    const settings=loadSettings();
+    const notStartedZone=document.getElementById('notStartedZone');
+    const todayCard=document.getElementById('todayCard');
+    const timelineCard=document.getElementById('timelineCard');
+    const packageCard=document.getElementById('packageCard');
+    notStartedZone.innerHTML='';
+    todayCard.classList.add('d-none');
+    timelineCard.classList.add('d-none');
+    packageCard.classList.add('d-none');
+
+    if(settings){
+      document.getElementById('startDate').value=settings.startDate||'';
+      document.getElementById('mealGrams').value=settings.mealGrams;
+      document.getElementById('mealsPerDay').value=settings.mealsPerDay;
+      document.getElementById('stepDays').value=settings.stepDays;
+      document.getElementById('stepPercent').value=settings.stepPercent;
+      document.getElementById('packageKg').value=settings.packageKg;
+    }
+
+    if(!settings || !settings.startDate){
+      notStartedZone.innerHTML=`<div class="alert mb-4" style="background:var(--amber-soft);border:1px solid var(--amber);">Imposta la data di inizio del piano qui sopra per vedere il calcolo dei pasti di oggi.</div>`;
+      renderWeight();
+      return;
+    }
+
+    const today=todayISO();
+    const dayNum=daysBetween(settings.startDate,today)+1;
+
+    if(dayNum<1){
+      notStartedZone.innerHTML=`<div class="alert mb-4" style="background:var(--amber-soft);border:1px solid var(--amber);">Il piano inizierà il <strong>${fmtDateIT(settings.startDate)}</strong>.</div>`;
+    } else {
+      const percent=stagePercentForDay(dayNum, settings.stepDays, settings.stepPercent);
+      todayCard.classList.remove('d-none');
+      timelineCard.classList.remove('d-none');
+      renderToday(dayNum, percent, settings);
+      renderTimeline(dayNum, settings);
+    }
+
+    packageCard.classList.remove('d-none');
+    renderPackage(settings, today);
+    renderWeight();
+  }
+
+  function renderToday(dayNum, percent, settings){
+    const el=document.getElementById('todayCard');
+    if(percent>=100){
+      el.innerHTML=`
+        <div class="text-center py-3">
+          <div class="display-font fs-3 mb-2" style="color:var(--success);">✅ Transizione completata</div>
+          <p class="text-secondary mb-0">Giorno ${dayNum} del piano — il tuo cane mangia ormai il 100% delle crocchette nuove.</p>
+        </div>`;
+      return;
+    }
+    const newG=Math.round(settings.mealGrams*percent/100);
+    const origG=settings.mealGrams-newG;
+    let mealsHtml='';
+    for(let i=1;i<=settings.mealsPerDay;i++){
+      mealsHtml+=`
+        <div class="col-sm-6">
+          <div class="border rounded-3 p-3 h-100" style="border-color:var(--card-border)!important;">
+            <div class="fw-600 mb-2">Pasto ${i}</div>
+            <div class="meal-bar mb-2">
+              <div class="orig" style="width:${100-percent}%"></div>
+              <div class="nuove" style="width:${percent}%"></div>
+            </div>
+            <div class="d-flex justify-content-between mono small">
+              <span>Originali: <strong>${origG} g</strong></span>
+              <span>Nuove: <strong>${newG} g</strong></span>
+            </div>
+          </div>
+        </div>`;
+    }
+    el.innerHTML=`
+      <div class="d-flex justify-content-between align-items-baseline mb-3 flex-wrap gap-2">
+        <h2 class="display-font fs-4 mb-0">Oggi — giorno ${dayNum}</h2>
+        <span class="badge-stage mono fs-6">${percent}% nuove</span>
+      </div>
+      <div class="row g-3">${mealsHtml}</div>
+    `;
+  }
+
+  function renderTimeline(dayNum, settings){
+    const body=document.getElementById('timelineBody');
+    const stages=Math.ceil(100/settings.stepPercent);
+    let html='';
+    for(let s=1;s<=stages;s++){
+      const from=(s-1)*settings.stepDays+1;
+      const to=s*settings.stepDays;
+      const pct=Math.min(s*settings.stepPercent,100);
+      const isCurrent = dayNum>=from && dayNum<=to;
+      const isPast = dayNum>to;
+      html+=`
+        <div class="d-flex justify-content-between align-items-center py-2 px-2 stage-row ${isCurrent?'current':''}" style="border-bottom:1px solid var(--card-border);">
+          <span>Giorni ${from}–${to}</span>
+          <span class="mono">${pct}% nuove ${isPast?'✓':''}</span>
+        </div>`;
+    }
+    body.innerHTML=html;
+  }
+
+  function renderPackage(settings,today){
+    let pkg=loadPackage();
+    if(!pkg){
+      pkg={startDate: settings.startDate, sizeKg: settings.packageKg};
+      savePackage(pkg);
+    }
+    const sizeG=pkg.sizeKg*1000;
+    const consumed = cumulativeNewConsumption(pkg.startDate, today, settings);
+    const remaining = Math.max(sizeG-consumed,0);
+    const percentUsed = sizeG>0 ? Math.min(100,Math.round(consumed/sizeG*100)) : 0;
+
+    const todayDayNum = daysBetween(settings.startDate,today)+1;
+    const todayPct = stagePercentForDay(todayDayNum, settings.stepDays, settings.stepPercent);
+    const dailyRate = settings.mealGrams*settings.mealsPerDay*todayPct/100;
+    const daysLeft = dailyRate>0 ? Math.floor(remaining/dailyRate) : null;
+    const warn = (typeof daysLeft==='number' && daysLeft<=7);
+
+    document.getElementById('packageBody').innerHTML=`
+      <div class="mb-2 d-flex justify-content-between mono">
+        <span>Rimangono: <strong>${(remaining/1000).toFixed(2)} kg</strong></span>
+        <span>Usato: ${percentUsed}%</span>
+      </div>
+      <div class="progress mb-2" style="height:16px;">
+        <div class="progress-bar" role="progressbar" style="width:${percentUsed}%;"></div>
+      </div>
+      ${daysLeft===null
+        ? `<div class="text-secondary small">Il consumo giornaliero è ancora zero (transizione non iniziata a livello di crocchette nuove).</div>`
+        : warn
+          ? `<div class="alert alert-warning py-2 mb-0">Attenzione: al ritmo attuale restano circa <strong>${daysLeft} giorni</strong> di scorta. Meglio ordinare un altro pacco presto.</div>`
+          : `<div class="text-secondary small">Al ritmo attuale, la scorta durerà ancora circa <strong>${daysLeft}</strong> giorni.</div>`
+      }
+    `;
+
+    document.getElementById('newPackageBtn').onclick=function(){
+      if(confirm('Segnare come aperto un nuovo pacco da oggi?')){
+        savePackage({startDate: today, sizeKg: settings.packageKg});
+        render();
+      }
+    };
+  }
+
+  function renderWeight(){
+    const weights=loadWeights().slice().sort((a,b)=>a.date<b.date?-1:1);
+    const summaryEl=document.getElementById('weightSummary');
+    const historyEl=document.getElementById('weightHistory');
+    const chartEl=document.getElementById('weightChart');
+    const reminderZone=document.getElementById('reminderZone');
+
+    if(weights.length===0){
+      summaryEl.innerHTML='<p class="text-secondary">Nessuna pesata registrata ancora.</p>';
+      historyEl.innerHTML='';
+      chartEl.innerHTML='';
+      reminderZone.innerHTML='';
+      return;
+    }
+
+    const last=weights[weights.length-1];
+    const first=weights[0];
+    const prev=weights.length>1?weights[weights.length-2]:null;
+    const deltaPrev = prev? (last.weight-prev.weight):0;
+    const deltaFirst = last.weight-first.weight;
+
+    summaryEl.innerHTML=`
+      <div class="row g-3 text-center">
+        <div class="col-4">
+          <div class="text-secondary small">Peso attuale</div>
+          <div class="mono fs-5">${last.weight} kg</div>
+        </div>
+        <div class="col-4">
+          <div class="text-secondary small">Dalla prima pesata</div>
+          <div class="mono fs-5" style="color:${deltaFirst<=0?'var(--success)':'var(--coral)'}">${deltaFirst>0?'+':''}${deltaFirst.toFixed(1)} kg</div>
+        </div>
+        <div class="col-4">
+          <div class="text-secondary small">Ultima variazione</div>
+          <div class="mono fs-5" style="color:${deltaPrev<=0?'var(--success)':'var(--coral)'}">${prev?(deltaPrev>0?'+':'')+deltaPrev.toFixed(1)+' kg':'—'}</div>
+        </div>
+      </div>`;
+
+    historyEl.innerHTML='<h3 class="fs-6 text-secondary mt-3 mb-2">Storico</h3>'+
+      '<ul class="list-group list-group-flush">'+
+      weights.slice().reverse().map(w=>`<li class="list-group-item d-flex justify-content-between px-0 mono"><span>${fmtDateIT(w.date)}</span><span>${w.weight} kg</span></li>`).join('')+
+      '</ul>';
+
+    chartEl.innerHTML = buildChartSVG(weights);
+
+    const daysSinceLast = daysBetween(last.date, todayISO());
+    if(daysSinceLast>=7){
+      reminderZone.innerHTML = `<div class="alert py-2" style="background:var(--coral-soft);border:1px solid var(--coral);">⏰ Sono passati ${daysSinceLast} giorni dall'ultima pesata (${fmtDateIT(last.date)}). Ricordati di pesare il cane questa settimana.</div>`;
+    } else {
+      reminderZone.innerHTML='';
+    }
+  }
+
+  function buildChartSVG(weights){
+    const w=680,h=180,pad=30;
+    const values=weights.map(x=>x.weight);
+    const min=Math.min(...values), max=Math.max(...values);
+    const range=(max-min)||1;
+    const stepX = weights.length>1 ? (w-2*pad)/(weights.length-1) : 0;
+    const points = weights.map((wt,i)=>{
+      const x = pad + i*stepX;
+      const y = h-pad - ((wt.weight-min)/range)*(h-2*pad);
+      return [x,y];
+    });
+    const path = points.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    const circles = points.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="#2F4A3E"/>`).join('');
+    const labels = points.map((p,i)=> (i===0||i===points.length-1) ? `<text x="${p[0].toFixed(1)}" y="${h-6}" font-size="10" text-anchor="middle" fill="#5B685F" font-family="JetBrains Mono">${fmtDateIT(weights[i].date).slice(0,5)}</text>` : '').join('');
+    return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;background:#FBF9F3;border:1px solid var(--card-border);border-radius:10px;">
+      <path d="${path}" fill="none" stroke="#C9932E" stroke-width="2.5"/>
+      ${circles}
+      ${labels}
+    </svg>`;
+  }
+
+  document.getElementById('settingsForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const s={
+      startDate: document.getElementById('startDate').value,
+      mealGrams: parseFloat(document.getElementById('mealGrams').value),
+      mealsPerDay: parseInt(document.getElementById('mealsPerDay').value),
+      stepDays: parseInt(document.getElementById('stepDays').value),
+      stepPercent: parseInt(document.getElementById('stepPercent').value),
+      packageKg: parseFloat(document.getElementById('packageKg').value)
+    };
+    saveSettings(s);
+    render();
+  });
+
+  document.getElementById('weightForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const date=document.getElementById('weightDate').value;
+    const value=parseFloat(document.getElementById('weightValue').value);
+    const weights=loadWeights();
+    const idx=weights.findIndex(x=>x.date===date);
+    if(idx>=0) weights[idx].weight=value; else weights.push({date,weight:value});
+    saveWeights(weights);
+    document.getElementById('weightValue').value='';
+    render();
+  });
+
+  document.getElementById('resetAllBtn').addEventListener('click', function(){
+    if(confirm("Sicuro di voler azzerare tutti i dati (piano, pacco e storico peso)? L'azione non si può annullare.")){
+      localStorage.removeItem(LS_SETTINGS);
+      localStorage.removeItem(LS_WEIGHTS);
+      localStorage.removeItem(LS_PACKAGE);
+      location.reload();
+    }
+  });
+
+  document.getElementById('weightDate').value=todayISO();
+  seedIfNeeded();
+  render();
+})();
+</script>
+</body>
+</html>
