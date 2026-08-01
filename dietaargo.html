@@ -71,7 +71,7 @@
       <h2 class="display-font fs-4 mb-0">Impostazioni piano</h2>
       <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#settingsBody">Mostra/Nascondi</button>
     </div>
-    <div id="settingsBody" class="collapse show">
+    <div id="settingsBody" class="collapse">
       <form id="settingsForm" class="row g-3">
         <div class="col-sm-6">
           <label class="form-label">Data inizio transizione</label>
@@ -453,6 +453,10 @@
 
   document.getElementById('weightDate').value=todayISO();
   seedIfNeeded();
+  const existingSettings=loadSettings();
+  if(!existingSettings || !existingSettings.startDate){
+    document.getElementById('settingsBody').classList.add('show');
+  }
   render();
 })();
 </script>
