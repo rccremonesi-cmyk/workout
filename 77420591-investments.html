@@ -477,22 +477,54 @@ background-color:#7552a8;
 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label class="form-label"><i class="fas fa-signature me-1"></i> Nome Investimento <small class="text-muted">(usa lo stesso nome per versamenti successivi)</small></label>
                                     <input type="text" class="form-control" id="nome" required list="nomiList">
                                     <datalist id="nomiList"></datalist>
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label"><i class="fas fa-tag me-1"></i> Ticker</label>
+                                    <input type="text" class="form-control" id="ticker" placeholder="Es. SPPW">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label"><i class="fas fa-barcode me-1"></i> ISIN</label>
+                                    <input type="text" class="form-control" id="isin" placeholder="Es. IE00BFY0GT14">
+                                </div>
+                                <div class="col-md-3 mb-3">
                                     <label class="form-label"><i class="fas fa-link me-1"></i> Link (URL)</label>
                                     <input type="url" class="form-control" id="link" placeholder="https://...">
                                 </div>
                             </div>
                           <div class="row">
-    <div class="col-md-6 mb-3">
-        <label class="form-label"><i class="fas fa-euro-sign me-1"></i> Importo Versamento (€)</label>
+    <div class="col-md-2 mb-3">
+        <label class="form-label"><i class="fas fa-exchange-alt me-1"></i> Operazione</label>
+        <select class="form-select" id="operazione">
+            <option value="acquisto">Acquisto</option>
+            <option value="vendita">Vendita</option>
+        </select>
+    </div>
+    <div class="col-md-2 mb-3">
+        <label class="form-label"><i class="fas fa-euro-sign me-1"></i> Importo (€)</label>
         <input type="number" step="0.01" class="form-control" id="totaleInvestito" required>
     </div>
-<div class="col-md-6 mb-3">
+    <div class="col-md-2 mb-3">
+        <label class="form-label"><i class="fas fa-cubes me-1"></i> Quantità</label>
+        <input type="number" step="0.0001" class="form-control" id="quantita" placeholder="N° quote">
+    </div>
+    <div class="col-md-2 mb-3">
+        <label class="form-label"><i class="fas fa-money-bill me-1"></i> Prezzo Unitario</label>
+        <input type="number" step="0.0001" class="form-control" id="prezzoUnitario" placeholder="Prezzo">
+    </div>
+    <div class="col-md-1 mb-3">
+        <label class="form-label"><i class="fas fa-coins me-1"></i> Valuta</label>
+        <select class="form-select" id="valuta">
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+            <option value="GBP">GBP</option>
+            <option value="CHF">CHF</option>
+        </select>
+    </div>
+<div class="col-md-4 mb-3">
     <label class="form-label"><i class="fas fa-receipt me-1"></i> Commissioni (€) <small class="text-muted">(opzionale)</small></label>
     <div class="row g-2">
         <div class="col-7">
@@ -847,8 +879,10 @@ background-color:#7552a8;
                 document.getElementById('ter').value = invEsistente.ter;
                 document.getElementById('tipologia').value = invEsistente.tipologia;
                 selectedTags = [...invEsistente.settori];
-
+                document.getElementById('ticker').value = invEsistente.ticker || '';
+                document.getElementById('isin').value = invEsistente.isin || '';
                 document.getElementById('link').value = invEsistente.link;
+                document.getElementById('valuta').value = invEsistente.valuta || 'EUR';
             }
         });
 
@@ -868,8 +902,14 @@ background-color:#7552a8;
                 tipologia: document.getElementById('tipologia').value,
                 settori: [...selectedTags],
                 nome: document.getElementById('nome').value,
+                ticker: document.getElementById('ticker').value || '',
+                isin: document.getElementById('isin').value || '',
                 link: document.getElementById('link').value,
+                operazione: document.getElementById('operazione').value || 'acquisto',
                 totale: parseFloat(document.getElementById('totaleInvestito').value),
+                quantita: parseFloat(document.getElementById('quantita').value) || 0,
+                prezzoUnitario: parseFloat(document.getElementById('prezzoUnitario').value) || 0,
+                valuta: document.getElementById('valuta').value || 'EUR',
                 commissioni: commissioni,
                 commissioniTipo: commissioniTipo || 'sottratta'
             };
@@ -891,6 +931,12 @@ background-color:#7552a8;
         function resetForm() {
             document.getElementById('investmentForm').reset();
             document.getElementById('investmentId').value = '';
+            document.getElementById('operazione').value = 'acquisto';
+            document.getElementById('ticker').value = '';
+            document.getElementById('isin').value = '';
+            document.getElementById('quantita').value = '';
+            document.getElementById('prezzoUnitario').value = '';
+            document.getElementById('valuta').value = 'EUR';
             document.getElementById('commissioni').value = '';
             document.getElementById('commissioniTipo').value = 'sottratta';
         }
@@ -904,8 +950,14 @@ background-color:#7552a8;
                 document.getElementById('tipologia').value = inv.tipologia;
                 selectedTags = [...inv.settori];
                 document.getElementById('nome').value = inv.nome;
+                document.getElementById('operazione').value = inv.operazione || 'acquisto';
+                document.getElementById('ticker').value = inv.ticker || '';
+                document.getElementById('isin').value = inv.isin || '';
                 document.getElementById('link').value = inv.link;
                 document.getElementById('totaleInvestito').value = '';
+                document.getElementById('quantita').value = '';
+                document.getElementById('prezzoUnitario').value = '';
+                document.getElementById('valuta').value = inv.valuta || 'EUR';
                 document.getElementById('commissioni').value = inv.commissioni || 0;
                 document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottratta';
                 
@@ -923,8 +975,14 @@ background-color:#7552a8;
                 document.getElementById('tipologia').value = inv.tipologia;
                 selectedTags = [...inv.settori];
                 document.getElementById('nome').value = inv.nome;
+                document.getElementById('operazione').value = inv.operazione || 'acquisto';
+                document.getElementById('ticker').value = inv.ticker || '';
+                document.getElementById('isin').value = inv.isin || '';
                 document.getElementById('link').value = inv.link;
                 document.getElementById('totaleInvestito').value = inv.totale;
+                document.getElementById('quantita').value = inv.quantita || '';
+                document.getElementById('prezzoUnitario').value = inv.prezzoUnitario || '';
+                document.getElementById('valuta').value = inv.valuta || 'EUR';
                 document.getElementById('commissioni').value = inv.commissioni || 0;
                 document.getElementById('commissioniTipo').value = inv.commissioniTipo || 'sottratta';
                 
@@ -1048,8 +1106,11 @@ function deleteInvestment(id) {
                                         <tr>
                                             <th>Data</th>
                                             <th>Anno</th>
+                                            <th>Ticker</th>
                                             <th>Settori</th>
                                             <th>TER %</th>
+                                            <th>Qtà</th>
+                                            <th>Prezzo</th>
                                             <th>Versamento €</th>
                                             <th>Commissioni €</th>
                                             <th>Progressivo €</th>
@@ -1061,28 +1122,29 @@ function deleteInvestment(id) {
 
                     let progressivo = 0;
                     versamenti.forEach((inv, index) => {
+                        const isVendita = (inv.operazione === 'vendita');
                         const capitaleNettoVersamento = (() => {
                             const totale = inv.totale;
                             const commissioni = inv.commissioni || 0;
                             const tipo = inv.commissioniTipo || 'sottratta';
                             
-                            if (tipo === 'sottratta') {
-                                return totale - commissioni;
-                            } else {
-                                return totale;
-                            }
+                            let val = (tipo === 'sottratta') ? (totale - commissioni) : totale;
+                            return isVendita ? -val : val;
                         })();
                         
                         progressivo += capitaleNettoVersamento;
                         html += `
-                            <tr class="versamento-row">
+                            <tr class="versamento-row ${isVendita ? 'table-danger text-danger' : ''}">
                                 <td>${new Date(inv.data).toLocaleDateString('it-IT')}</td>
                                 <td>${inv.anno}</td>
+                                <td><small>${inv.ticker || '-'}</small></td>
                                 <td>
-                                    ${inv.settori.map(s => `<span class="badge bg-info badge-custom">${s}</span>`).join(' ')}
+                                    ${inv.settori.map(s => `<span class="badge ${isVendita ? 'bg-danger' : 'bg-info'} badge-custom">${s}</span>`).join(' ')}
                                 </td>
                                 <td>${inv.ter}%</td>
-                                <td>€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
+                                <td>${inv.quantita ? inv.quantita.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 4}) : '-'}</td>
+                                <td>${inv.prezzoUnitario ? (inv.valuta && inv.valuta !== 'EUR' ? inv.valuta + ' ' : '€') + inv.prezzoUnitario.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 4}) : '-'}</td>
+                                <td>${isVendita ? '-' : ''}€${inv.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                                 <td>
                                     ${inv.commissioni > 0 ? 
                                         `€${inv.commissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})} 
@@ -2027,25 +2089,26 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
         // Calcola il capitale netto investito (escluse commissioni)
         function calcolaCapitaleNetto(investimenti) {
             return investimenti.reduce((sum, inv) => {
+                const isVendita = (inv.operazione === 'vendita');
                 const totale = inv.totale;
                 const commissioni = inv.commissioni || 0;
                 const tipo = inv.commissioniTipo || 'sottratta';
                 
-                if (tipo === 'aggiuntiva') {
-                    return sum + totale;
-                } else {
-                    return sum + (totale - commissioni);
-                }
+                let val = (tipo === 'aggiuntiva') ? totale : (totale - commissioni);
+                return isVendita ? sum - val : sum + val;
             }, 0);
         }
 
         // Calcola il totale reale speso (versamenti + commissioni aggiuntive)
         function calcolaTotaleRealeSpeso(investimenti) {
             return investimenti.reduce((sum, inv) => {
+                const isVendita = (inv.operazione === 'vendita');
                 const totale = inv.totale;
                 const commissioni = inv.commissioni || 0;
                 const tipo = inv.commissioniTipo || 'sottratta';
-                return sum + totale + (tipo === 'aggiuntiva' ? commissioni : 0);
+                
+                let val = totale + (tipo === 'aggiuntiva' ? commissioni : 0);
+                return isVendita ? sum - val : sum + val;
             }, 0);
         }
 
@@ -2305,19 +2368,10 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
             // Calcola versamenti netti per anno
             const versamentiNettoPerAnno = {};
             investments.forEach(inv => {
-                if (!versamentiNettoPerAnno[inv.anno]) {
-                    versamentiNettoPerAnno[inv.anno] = 0;
-                }
-                
-                const totale = inv.totale;
-                const commissioni = inv.commissioni || 0;
-                const tipo = inv.commissioniTipo || 'sottratta';
-                
-                if (tipo === 'sottratta') {
-                    versamentiNettoPerAnno[inv.anno] += (totale - commissioni);
-                } else {
-                    versamentiNettoPerAnno[inv.anno] += totale;
-                }
+                if (!versamentiNettoPerAnno[inv.anno]) versamentiNettoPerAnno[inv.anno] = 0;
+                const isVendita = (inv.operazione === 'vendita');
+                let val = (inv.commissioniTipo === 'sottratta') ? (inv.totale - (inv.commissioni||0)) : inv.totale;
+                if (isVendita) versamentiNettoPerAnno[inv.anno] -= val; else versamentiNettoPerAnno[inv.anno] += val;
             });
 
             // Calcola versamento medio storico netto
@@ -2496,20 +2550,11 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
                 
                 // Calcola versamenti netti per anno
                 const versamentiNettoPerAnno = {};
-                investments.forEach(inv => {
-                    if (!versamentiNettoPerAnno[inv.anno]) {
-                        versamentiNettoPerAnno[inv.anno] = 0;
-                    }
-                    
-                    const totale = inv.totale;
-                    const commissioni = inv.commissioni || 0;
-                    const tipo = inv.commissioniTipo || 'sottratta';
-                    
-                    if (tipo === 'sottratta') {
-                        versamentiNettoPerAnno[inv.anno] += (totale - commissioni);
-                    } else {
-                        versamentiNettoPerAnno[inv.anno] += totale;
-                    }
+            investments.forEach(inv => {
+                if (!versamentiNettoPerAnno[inv.anno]) versamentiNettoPerAnno[inv.anno] = 0;
+                const isVendita = (inv.operazione === 'vendita');
+                let val = (inv.commissioniTipo === 'sottratta') ? (inv.totale - (inv.commissioni||0)) : inv.totale;
+                if (isVendita) versamentiNettoPerAnno[inv.anno] -= val; else versamentiNettoPerAnno[inv.anno] += val;
                 });
                 
                 let cumulativeInflation = 1; // Per calcolare inflazione cumulativa
@@ -2595,19 +2640,10 @@ if (returnRate !== 0) {
             // Calcola versamenti netti per anno
             const versamentiNettoPerAnno = {};
             investments.forEach(inv => {
-                if (!versamentiNettoPerAnno[inv.anno]) {
-                    versamentiNettoPerAnno[inv.anno] = 0;
-                }
-                
-                const totale = inv.totale;
-                const commissioni = inv.commissioni || 0;
-                const tipo = inv.commissioniTipo || 'sottratta';
-                
-                if (tipo === 'sottratta') {
-                    versamentiNettoPerAnno[inv.anno] += (totale - commissioni);
-                } else {
-                    versamentiNettoPerAnno[inv.anno] += totale;
-                }
+                if (!versamentiNettoPerAnno[inv.anno]) versamentiNettoPerAnno[inv.anno] = 0;
+                const isVendita = (inv.operazione === 'vendita');
+                let val = (inv.commissioniTipo === 'sottratta') ? (inv.totale - (inv.commissioni||0)) : inv.totale;
+                if (isVendita) versamentiNettoPerAnno[inv.anno] -= val; else versamentiNettoPerAnno[inv.anno] += val;
             });
 
             // Calcola preview con capitale progressivo
@@ -3552,3 +3588,4 @@ scales: {
     </script>
 </body>
 </html>
+
