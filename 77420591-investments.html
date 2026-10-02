@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Investimenti</title>
+    <title>Investimenti</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>ðŸ“Š</text></svg>">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -18,428 +18,149 @@
 <!-- Select2 JS (dopo jQuery) -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
-		.table-responsive {
-  scroll-behavior: smooth;
-  scrollbar-gutter: stable both-edges;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--bg:#f5f5f7;--surface:#fff;--surface2:#f0f0f3;--text:#0a0a0a;--muted:#7a7a85;--line:#e7e7ec;--accent:#0a0a0a;--on-accent:#fff;--pos:#00a86b;--neg:#e5384f;--side:#fff;--r:20px}
+[data-bs-theme=dark]{--bg:#000;--surface:#121214;--surface2:#1c1c20;--text:#f5f5f7;--muted:#8d8d98;--line:#26262b;--accent:#fff;--on-accent:#000;--pos:#2ee59d;--neg:#ff5a6e;--side:#0a0a0b}
+*{-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;letter-spacing:-.01em}
+a{color:var(--text);text-decoration-color:var(--line);text-underline-offset:3px}
+.app{display:flex;min-height:100vh}
+.sidebar{width:260px;flex:0 0 260px;background:var(--side);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;padding:20px 14px;display:flex;flex-direction:column;transition:margin .25s ease;z-index:1040;overflow-y:auto}
+body.sb-closed .sidebar{margin-left:-260px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;padding:6px 12px 22px}
+.brand i{background:var(--accent);color:var(--on-accent);width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:.95rem}
+.sidebar .nav{gap:2px}
+.side-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:transparent;color:var(--muted);padding:12px 14px;border-radius:12px;font-weight:600;font-size:.95rem;transition:background .15s,color .15s}
+.side-link i{width:20px;text-align:center}
+.side-link:hover{background:var(--surface2);color:var(--text)}
+.side-link.active{background:var(--accent);color:var(--on-accent)}
+.main-col{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:1030;display:flex;align-items:center;gap:14px;padding:14px 32px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topbar h1{font-size:1.25rem;font-weight:800;margin:0;letter-spacing:-.03em}
+.topbar .sub{color:var(--muted);font-size:.85rem;font-weight:500}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--text);display:grid;place-items:center;padding:0}
+.icon-btn:hover{background:var(--surface2)}
+.content{padding:28px 32px 80px;width:100%}
+.scrim{display:none}
+.card,.stat-card,.investment-group{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:none;margin-bottom:20px;transition:none;color:var(--text)}
+.card:hover,.stat-card:hover{box-shadow:none;transform:none}
+.card-header{background:transparent!important;color:var(--text)!important;border-bottom:1px solid var(--line);padding:20px 24px;font-weight:700;border-radius:var(--r) var(--r) 0 0!important}
+.card-header h5,.card-header h6{font-weight:700;font-size:1.05rem}
+.card-body{padding:24px}
+.card[class*=border-]{border-color:var(--line)!important}
+.stat-card{padding:24px;border-top:1px solid var(--line)!important;height:100%}
+.stat-card[class*=border-]{position:relative}
+.stat-card.border-success-soft .stat-value{color:var(--pos)}
+.stat-card.border-danger-soft .stat-value{color:var(--neg)}
+.stat-label{font-size:.8rem;color:var(--muted);font-weight:600;margin-top:6px;text-transform:none;letter-spacing:0}
+.stat-value{font-size:2.1rem;font-weight:800;letter-spacing:-.04em}
+.investment-group{padding:18px 8px 6px}
+.investment-group h6{padding:0 16px}
+.table{--bs-table-bg:transparent;--bs-table-color:var(--text);--bs-table-border-color:var(--line);--bs-table-striped-bg:var(--surface2);--bs-table-hover-bg:var(--surface2);color:var(--text)}
+.table thead th,.table-light th{background:transparent!important;color:var(--muted)!important;font-size:.78rem;font-weight:600;text-transform:none;letter-spacing:0;border-bottom:1px solid var(--line);padding:14px 16px}
+.table tbody td,.table tfoot td{padding:14px 16px;border-color:var(--line)}
+.table-secondary,.table-secondary>*{--bs-table-bg:var(--surface2)!important;--bs-table-color:var(--text)!important}
+.table-info,.table-warning,.table-success{--bs-table-bg:var(--surface2)!important;--bs-table-color:var(--text)!important}
+.table-danger{--bs-table-bg:color-mix(in srgb,var(--neg) 12%,transparent)!important}
+.table-dark,.table-dark>*{--bs-table-bg:var(--accent)!important;--bs-table-color:var(--on-accent)!important;color:var(--on-accent)!important}
+td[style*="background-color: white"]{background:var(--surface)!important}
+td[style*="#7552a8"]{background:var(--accent)!important}
+.form-control,.form-select{background:var(--surface2);border:1px solid transparent;color:var(--text);border-radius:14px;padding:12px 16px;font-weight:500}
+.form-control:focus,.form-select:focus{background:var(--surface);border-color:var(--accent);box-shadow:none;color:var(--text)}
+.form-control::placeholder{color:var(--muted)}
+.input-group-text{background:var(--surface2);border:1px solid transparent;color:var(--muted);border-radius:14px}
+.form-label{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0}
+.btn{border-radius:999px;font-weight:600;padding:10px 22px;box-shadow:none!important;transform:none!important}
+.btn-primary,.btn-success{background:var(--accent);border:1px solid var(--accent);color:var(--on-accent)}
+.btn-primary:hover,.btn-success:hover{background:var(--accent);opacity:.85;color:var(--on-accent)}
+.btn-outline-primary,.btn-outline-secondary,.btn-outline-success,.btn-outline-warning,.btn-outline-info{background:transparent;border:1px solid var(--line);color:var(--text)}
+.btn-outline-primary:hover,.btn-outline-secondary:hover,.btn-outline-success:hover,.btn-outline-warning:hover{background:var(--surface2);color:var(--text);border-color:var(--line)}
+.btn-outline-danger{border-color:var(--line);color:var(--neg)}
+.btn-outline-danger:hover{background:var(--neg);border-color:var(--neg);color:#fff}
+.btn-sm,.btn-clone{padding:6px 12px;font-size:.82rem}
+.btn-check:checked+.btn{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.badge,.badge-custom{border-radius:999px;font-weight:600;padding:6px 12px;font-size:.75rem}
+.badge.bg-primary,.badge.bg-secondary,.badge.bg-dark{background:var(--accent)!important;color:var(--on-accent)!important}
+.badge.bg-info,.bg-info.badge-custom{background:var(--surface2)!important;color:var(--text)!important}
+.badge.bg-success,.bg-success.badge-custom{background:color-mix(in srgb,var(--pos) 16%,transparent)!important;color:var(--pos)!important}
+.badge.bg-danger,.bg-danger.badge-custom{background:color-mix(in srgb,var(--neg) 16%,transparent)!important;color:var(--neg)!important}
+.badge.bg-warning{background:var(--surface2)!important;color:var(--text)!important}
+.bg-info.text-white,.bg-primary.text-white,.bg-light{background:transparent!important;color:var(--text)!important}
+.text-success{color:var(--pos)!important}.text-danger{color:var(--neg)!important}.text-primary,.text-info,.text-secondary,.text-warning{color:var(--text)!important}.text-muted{color:var(--muted)!important}
+.alert{border-radius:16px;border:0;background:var(--surface2);color:var(--text)}
+.alert-warning{background:color-mix(in srgb,var(--neg) 10%,var(--surface2))}
+.alert code,code{color:var(--text);background:var(--surface);padding:2px 6px;border-radius:6px}
+.year-tab{border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:10px 18px;font-weight:600;cursor:pointer;display:inline-block;margin:0 8px 10px 0}
+.year-tab.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.year-forecast-inputs{padding:18px;margin-bottom:12px;background:var(--surface2);border-radius:16px}
+.accordion-item,.accordion-button,.accordion-body{background:var(--surface2)!important;color:var(--text)!important;border-radius:16px!important}
+.list-group-item,.alert-light{background:transparent!important;color:var(--text)!important}
+.notes-editor{background:var(--surface);border:0;border-top:1px solid var(--line);border-radius:0;min-height:60vh;padding:24px}
+.notes-content{outline:none;min-height:55vh}
+.notes-toolbar,.notes-actions{padding:14px 24px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.notes-actions{border-top:1px solid var(--line)}
+.chart-container{height:340px}
+.floating-action-btn{position:fixed;right:24px;bottom:24px;width:48px;height:48px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);z-index:1000}
+.select2-container--default .select2-selection--multiple{background:var(--surface2);border:1px solid transparent;border-radius:14px;min-height:46px;padding:4px 8px}
+.select2-container--default .select2-selection--multiple .select2-selection__choice{background:var(--accent);color:var(--on-accent);border:0;border-radius:999px;padding:2px 10px}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove{color:var(--on-accent);margin-right:6px}
+.select2-dropdown{background:var(--surface);color:var(--text);border-color:var(--line)}
+.select2-container .select2-search--inline .select2-search__field{height:25px;color:var(--text)}
+.table-responsive{scrollbar-gutter:stable both-edges}
+@media(max-width:991px){
+.sidebar{position:fixed;left:0;margin-left:-260px;box-shadow:0 0 40px rgba(0,0,0,.25)}
+body.sb-open .sidebar{margin-left:0}
+body.sb-closed .sidebar{margin-left:-260px}
+body.sb-open.sb-closed .sidebar{margin-left:0}
+body.sb-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1035}
+.topbar{padding:12px 16px;flex-wrap:wrap}.content{padding:20px 16px 80px}
+.topbar .btn span{display:none}
 }
-
-		.select2-container .select2-search--inline .select2-search__field{
-    height:25px;
-}
-        :root {
-            --primary-color: #6366f1;
-            --secondary-color: #8b5cf6;
-            --success-color: #10b981;
-            --info-color: #06b6d4;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --light-color: #f8fafc;
-            --dark-color: #1e293b;
-            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            --gradient-info: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
-            --gradient-purple: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-        }
-        
-        body {
-            background: linear-gradient(to bottom right, #f8fafc 0%, #e0e7ff 100%);
-            font-family: 'Montserrat', sans-serif;
-            color: #1e293b;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1400px;
-        }
-        .card {
-            border: none;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
-            margin-bottom: 20px;
-            border-radius: 16px;
-            transition: transform 0.3s, box-shadow 0.3s;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.15);
-        }
-        .card-header {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            border-bottom: 2px solid rgba(99, 102, 241, 0.1);
-            font-weight: 600;
-            border-radius: 16px 16px 0 0 !important;
-            padding: 18px 24px;
-            color: var(--primary-color);
-        }
-        .nav-tabs {
-            border-bottom: 2px solid rgba(99, 102, 241, 0.1);
-        }
-        .nav-tabs .nav-link {
-            color: #64748b;
-            border: none;
-            border-bottom: 3px solid transparent;
-            padding: 14px 24px;
-            font-weight: 500;
-            border-radius: 12px 12px 0 0;
-            transition: all 0.3s;
-        }
-        .nav-tabs .nav-link:hover {
-            color: var(--primary-color);
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
-        }
-        .nav-tabs .nav-link.active {
-            color: var(--primary-color);
-            border-bottom: 3px solid var(--primary-color);
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
-        }
-        .table {
-            background-color: white;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .table thead {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        }
-        .badge-custom {
-            font-size: 0.85rem;
-            padding: 0.4em 0.75em;
-            border-radius: 24px;
-            font-weight: 500;
-        }
-        .stat-card {
-            background: var(--gradient-primary);
-            color: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
-            transition: transform 0.3s;
-			height:100%;
-        }
-        .stat-card:hover {
-            transform: translateY(-4px);
-        }
-        .stat-value {
-            font-size: 2.2rem;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .stat-label {
-            font-size: 0.95rem;
-            opacity: 0.95;
-            font-weight: 500;
-        }
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-bottom: 20px;
-        }
-        
-        
-        .btn-clone {
-            font-size: 0.85rem;
-            padding: 0.25rem 0.5rem;
-			border-radius:6px !important;
-        }
-        .year-tab {
-            cursor: pointer;
-            padding: 12px 24px;
-            margin-right: 8px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            display: inline-block;
-            margin-bottom: 12px;
-            transition: all 0.3s;
-            font-weight: 500;
-            border: 2px solid transparent;
-        }
-        .year-tab:hover {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
-            border-color: rgba(99, 102, 241, 0.3);
-        }
-        .year-tab.active {
-            background: var(--gradient-primary);
-            color: white;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-        .investment-group {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
-            border-left: 4px solid var(--primary-color);
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-        }
-        .versamento-row {
-            background-color: white;
-            margin-bottom: 5px;
-        }
-        .total-row {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            font-weight: bold;
-        }
-        .sub-table {
-            margin-top: 10px;
-            margin-bottom: 0;
-        }
-		.sub-table th{
-		width:15%;
-		}
-        .btn-primary {
-            background: var(--gradient-primary);
-            border: none;
-            border-radius: 10px;
-            padding: 12px 24px;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #5558e3 0%, #6d42a0 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
-        }
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            border-radius: 10px;
-            font-weight: 500;
-            border-width: 1px;
-        }
-        .btn-outline-primary:hover {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            transform: translateY(-2px);
-        }
-        .btn-outline-success {
-            border-radius: 10px;
-            font-weight: 500;
-            border-width: 2px;
-        }
-        .btn-outline-success:hover {
-            transform: translateY(-2px);
-        }
-        h1 {
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 800;
-        }
-        .form-control, .form-select {
-            border-radius: 10px;
-            padding: 12px 16px;
-            border: 2px solid #e2e8f0;
-            transition: all 0.3s;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.15);
-        }
-        .alert-info {
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
-            border: 2px solid rgba(6, 182, 212, 0.3);
-            color: #0e7490;
-            border-radius: 12px;
-        }
-        .notes-editor {
-            min-height: 400px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 15px;
-            background-color: white;
-        }
-        .notes-toolbar {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 12px;
-            border-radius: 12px 12px 0 0;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        .notes-content {
-            min-height: 350px;
-            padding: 15px;
-            outline: none;
-        }
-        .notes-actions {
-            padding: 12px;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 0 0 12px 12px;
-            border-top: 2px solid #e2e8f0;
-        }
-        .floating-action-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            z-index: 1000;
-            transition: all 0.3s;
-        }
-        .floating-action-btn:hover {
-            transform: scale(1.15) rotate(360deg);
-            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.45);
-        }
-        .custom-tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        .custom-tooltip .tooltip-text {
-            visibility: hidden;
-            width: 200px;
-            background-color: #1e293b;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 8px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.85rem;
-        }
-        .custom-tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-		.select2-container--default .select2-selection--multiple {
-            background-color: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 8px 0px 10px 12px;
-        }
-        .select2-container--default.select2-container--focus .select2-selection--multiple {
-            border-color: var(--primary-color);
-        }
-	
-	.forecast-input-card {
-        background: var(--gradient-purple);
-        color: #1e293b;
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 8px 24px rgba(168, 237, 234, 0.3);
-    }
-    
-    .badge {
-        border-radius: 20px;
-        padding: 0.5em 0.9em;
-        font-weight: 500;
-    }
-    
-    .badge.bg-primary {
-        background: var(--gradient-primary) !important;
-    }
-    
-    .badge.bg-info {
-        background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%) !important;
-    }
-    
-    .badge.bg-success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-    }
-    
-    .badge.bg-warning {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-    }
-    
-    .badge.bg-secondary {
-        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
-    }
-		.year-forecast-inputs {
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 15px;
-    border: 2px solid #e2e8f0;
-    transition: all 0.3s;
-}
-
-.year-forecast-inputs:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
-}
-.table-secondary td{
-background-color:#e4e3fa;
-}
-
-.table-hover>tbody>tr:hover>*,
-.table-hover>tbody>td:hover>*{
-background-color:#e4e3fa6e !important;
---bs-table-bg-state:#e4e3fa6e !important;
-}
-
-.table tfoot td{
-background-color:#7552a8;
-}
-
-    </style>
+.btn-more{width:34px;height:34px;font-size:.85rem}
+.dropdown-menu{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px;min-width:160px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
+.dropdown-item{display:flex;align-items:center;gap:10px;border-radius:10px;padding:10px 12px;font-weight:600;font-size:.9rem;color:var(--text)}
+.dropdown-item i{width:16px;text-align:center;color:var(--muted)}
+.dropdown-item.text-danger,.dropdown-item.text-danger i{color:var(--neg)!important}
+.dropdown-item:hover{background:var(--surface2);color:var(--text)}
+.dropdown-divider{border-color:var(--line);margin:4px 0}
+.period-badge{background:var(--surface2);color:var(--text);border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:600;white-space:nowrap}
+.period-bar{display:flex;gap:6px;flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;margin-left:8px}
+.period-bar::-webkit-scrollbar{display:none}
+.period-pill{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:7px 16px;font-size:.85rem;font-weight:600;white-space:nowrap}
+.period-pill:hover{color:var(--text);background:var(--surface2)}
+.period-pill.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+@media(max-width:991px){.period-bar{order:3;flex-basis:100%;margin-left:0}}
+</style>
 </head>
 <body>
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="mb-0"><i class="fas fa-chart-line me-2"></i> Gestione Investimenti Annuali</h1>
-            <div>
-                <button class="btn btn-outline-success me-2" onclick="exportData()">
-                    <i class="fas fa-download me-1"></i> Esporta Dati
-                </button>
-                <button class="btn btn-outline-primary" onclick="document.getElementById('importFile').click()">
-                    <i class="fas fa-upload me-1"></i> Importa Dati
-                </button>
-                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-            </div>
-        </div>
-        
-        <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="input-tab" data-bs-toggle="tab" data-bs-target="#input" type="button">
-                    <i class="fas fa-plus-circle me-1"></i> Inserimento
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" onclick="loadSummary()">
-                    <i class="fas fa-table me-1"></i> Riepilogo
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="matrix-tab" data-bs-toggle="tab" data-bs-target="#matrix" type="button" onclick="loadMatrix()">
-                    <i class="fas fa-th me-1"></i> Vista Matriciale
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics" type="button" onclick="loadAnalytics()">
-                    <i class="fas fa-chart-pie me-1"></i> Analytics
-                </button>
-            </li>
-			<li class="nav-item" role="presentation">
-    <button class="nav-link" id="forecast-tab" data-bs-toggle="tab" data-bs-target="#forecast" type="button" onclick="loadForecast()">
-        <i class="fas fa-chart-line me-1"></i> Previsioni
-    </button>
-</li><li class="nav-item" role="presentation">
-    <button class="nav-link" id="exposure-tab" data-bs-toggle="tab" data-bs-target="#exposure" type="button" onclick="loadExposure()">
-        <i class="fas fa-globe-americas me-1"></i> Esposizione Geografica/Settoriale
-    </button>
-</li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes" type="button" onclick="loadNotes()">
-                    <i class="fas fa-sticky-note me-1"></i> Appunti
-                </button>
-            </li>
-			
-        </ul>
-
-        <div class="tab-content" id="mainTabsContent">
+    <div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><i class="fas fa-chart-line"></i> Investimenti</div>
+  <nav class="nav flex-column" id="mainTabs" role="tablist">
+    <button class="nav-link side-link active" id="input-tab" data-title="Inserimento" data-bs-toggle="tab" data-bs-target="#input" type="button"><i class="fas fa-plus-circle"></i> Inserimento</button>
+    <button class="nav-link side-link" id="summary-tab" data-title="Riepilogo" data-bs-toggle="tab" data-bs-target="#summary" type="button" onclick="loadSummary()"><i class="fas fa-table"></i> Riepilogo</button>
+    <button class="nav-link side-link" id="matrix-tab" data-title="Vista Matriciale" data-bs-toggle="tab" data-bs-target="#matrix" type="button" onclick="loadMatrix()"><i class="fas fa-th"></i> Vista Matriciale</button>
+    <button class="nav-link side-link" id="analytics-tab" data-title="Analytics" data-bs-toggle="tab" data-bs-target="#analytics" type="button" onclick="loadAnalytics()"><i class="fas fa-chart-pie"></i> Analytics</button>
+    <button class="nav-link side-link" id="forecast-tab" data-title="Previsioni" data-bs-toggle="tab" data-bs-target="#forecast" type="button" onclick="loadForecast()"><i class="fas fa-seedling"></i> Previsioni</button>
+    <button class="nav-link side-link" id="exposure-tab" data-title="Esposizione Geografica/Settoriale" data-bs-toggle="tab" data-bs-target="#exposure" type="button" onclick="loadExposure()"><i class="fas fa-globe-americas"></i> Esposizione</button>
+    <button class="nav-link side-link" id="notes-tab" data-title="Appunti" data-bs-toggle="tab" data-bs-target="#notes" type="button" onclick="loadNotes()"><i class="fas fa-sticky-note"></i> Appunti</button>
+  </nav>
+</aside>
+<div class="scrim" id="scrim"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn" id="sbToggle" type="button" title="Menu"><i class="fas fa-bars"></i></button>
+  <div><h1 id="pageTitle">Inserimento</h1></div>
+  <div class="period-bar" id="periodBar" hidden></div>
+  <div class="ms-auto d-flex align-items-center gap-2">
+    <button class="icon-btn" id="themeToggle" type="button" title="Tema chiaro/scuro"><i class="fas fa-moon"></i></button>
+    <button class="btn btn-outline-primary" onclick="exportData()"><i class="fas fa-download me-1"></i><span>Esporta</span></button>
+    <button class="btn btn-primary" onclick="document.getElementById('importFile').click()"><i class="fas fa-upload me-1"></i><span>Importa</span></button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+</header>
+<main class="content">
+<div class="tab-content" id="mainTabsContent">
             <!-- TAB INSERIMENTO -->
             <div class="tab-pane fade show active" id="input" role="tabpanel">
                 <div class="card">
@@ -574,7 +295,7 @@ background-color:#7552a8;
             <div class="tab-pane fade" id="matrix" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-th me-2"></i> Vista Matriciale - Tutti gli Anni</h5>
+                        <h5 class="mb-0"><i class="fas fa-th me-2"></i> Vista Matriciale</h5>
                     </div>
                     <div class="card-body">
                         <div id="matrixContent"></div>
@@ -777,10 +498,7 @@ background-color:#7552a8;
     </div>
 </div>
 			
-        </div>
-    </div>
-
-    <button class="floating-action-btn" onclick="scrollToTop()">
+        </div></main></div></div><button class="floating-action-btn" onclick="scrollToTop()">
         <i class="fas fa-arrow-up"></i>
     </button>
 
@@ -1114,7 +832,7 @@ function deleteInvestment(id) {
                                             <th>Versamento €</th>
                                             <th>Commissioni €</th>
                                             <th>Progressivo €</th>
-                                            <th style="min-width:114px;">Azioni</th>
+                                            <th class="text-end" style="width:64px;"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1152,19 +870,16 @@ function deleteInvestment(id) {
                                         : '-'}
                                 </td>
                                 <td><strong>€${progressivo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-secondary btn-clone custom-tooltip" onclick="cloneInvestment('${inv.id}')" title="Clona per nuovo versamento">
-                                        <i class="fas fa-clone"></i>
-                                        <span class="tooltip-text">Clona per nuovo versamento</span>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary btn-clone custom-tooltip" onclick="editInvestment('${inv.id}')" title="Modifica">
-                                        <i class="fas fa-edit"></i>
-                                        <span class="tooltip-text">Modifica</span>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger btn-clone custom-tooltip" onclick="deleteInvestment('${inv.id}')" title="Elimina">
-                                        <i class="fas fa-trash"></i>
-                                        <span class="tooltip-text">Elimina</span>
-                                    </button>
+                                <td class="text-end">
+                                    <div class="dropdown">
+                                        <button class="icon-btn btn-more ms-auto" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" title="Azioni"><i class="fas fa-ellipsis-h"></i></button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><button class="dropdown-item" type="button" onclick="cloneInvestment('${inv.id}')"><i class="fas fa-clone"></i> Clona</button></li>
+                                            <li><button class="dropdown-item" type="button" onclick="editInvestment('${inv.id}')"><i class="fas fa-edit"></i> Modifica</button></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><button class="dropdown-item text-danger" type="button" onclick="deleteInvestment('${inv.id}')"><i class="fas fa-trash"></i> Elimina</button></li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -1193,192 +908,164 @@ function deleteInvestment(id) {
                 return;
             }
 
-            // Raggruppa per nome investimento
-            const byNome = {};
-            investments.forEach(inv => {
-                if (!byNome[inv.nome]) {
-                    byNome[inv.nome] = {
-                        nome: inv.nome,
-                        tipologia: inv.tipologia,
-                        link: inv.link,
-                        ter: inv.ter,
-                        versamenti: []
-                    };
-                }
-                byNome[inv.nome].versamenti.push(inv);
-            });
+            const limite = currentYear === 'all' ? null : currentYear;
+            const dati = investments.filter(inv => limite === null || inv.anno <= limite);
+            const fmt = (v, d = 2) => (v < 0 ? '-' : '') + '\u20AC' + Math.abs(v).toLocaleString('it-IT', {minimumFractionDigits: d, maximumFractionDigits: 2});
 
-            // Ottieni tutti gli anni ordinati
-            const years = [...new Set(investments.map(inv => inv.anno))].sort((a, b) => a - b);
+            // Raggruppa per nome investimento (ordine cronologico)
+            const gruppi = {};
+            dati.forEach(inv => { (gruppi[inv.nome] = gruppi[inv.nome] || []).push(inv); });
+            const years = [...new Set(dati.map(inv => inv.anno))].sort((a, b) => a - b);
 
-            // Calcola versamenti per anno per ogni investimento (NETTI)
-            const matrixData = Object.keys(byNome).sort().map(nome => {
-                const inv = byNome[nome];
+            const matrixData = Object.keys(gruppi).sort().map(nome => {
+                const vs = gruppi[nome].slice().sort((a, b) => new Date(a.data) - new Date(b.data));
+                const ultimo = vs[vs.length - 1];
+                const capitale = calcolaCapitaleNetto(vs);
+                const tuttiConQta = vs.every(v => v.quantita > 0);
+                const qta = vs.reduce((sum, v) => sum + (v.operazione === 'vendita' ? -v.quantita : v.quantita), 0);
+                const chiusa = tuttiConQta ? qta < 0.0001 : capitale <= 0.5;
                 const row = {
-    nome: inv.nome,
-    tipologia: inv.tipologia,
-    link: inv.link,
-    ter: inv.ter,
-    versamenti: {},
-    totale: 0,
-    commissioni: 0,  // AGGIUNGI QUESTA LINEA
-    costoTER: 0
-};
-
+                    nome: nome,
+                    tipologia: ultimo.tipologia,
+                    link: vs.slice().reverse().map(v => v.link).find(l => l) || '',
+                    ter: ultimo.ter,
+                    chiusa: chiusa,
+                    versamenti: {},
+                    totale: chiusa ? 0 : Math.max(0, capitale),
+                    commissioni: vs.reduce((sum, v) => sum + (v.commissioni || 0), 0),
+                    costoTER: 0
+                };
                 years.forEach(anno => {
-                    const versamentiAnno = inv.versamenti.filter(v => v.anno === anno);
-                    row.versamenti[anno] = versamentiAnno.reduce((sum, v) => {
-                        const totale = v.totale;
-                        const commissioni = v.commissioni || 0;
-                        const tipo = v.commissioniTipo || 'sottratta';
-                        
-                        if (tipo === 'sottratta') {
-                            return sum + (totale - commissioni);
-                        } else {
-                            return sum + totale;
-                        }
-                    }, 0);
+                    row.versamenti[anno] = calcolaCapitaleNetto(vs.filter(v => v.anno === anno));
                 });
-
-                // Calcola totale investito NETTO
-   // Calcola totale investito NETTO
-row.totale = inv.versamenti.reduce((sum, v) => {
-    const totale = v.totale;
-    const commissioni = v.commissioni || 0;
-    const tipo = v.commissioniTipo || 'sottratta';
-    
-    if (tipo === 'sottratta') {
-        return sum + (totale - commissioni);
-    } else {
-        return sum + totale;
-    }
-}, 0);
-
-// Calcola totale commissioni per questo investimento
-row.commissioni = inv.versamenti.reduce((sum, v) => {
-    return sum + (v.commissioni || 0);
-}, 0);
-
-// Calcola costo TER annuale sul capitale netto
-row.costoTER = row.totale * (row.ter / 100);
-
+                row.costoTER = row.totale * (row.ter / 100);
                 return row;
             });
 
-            // Calcola totali per anno
+            const aperte = matrixData.filter(r => !r.chiusa);
+            const chiuse = matrixData.filter(r => r.chiusa);
+
+            // Totali per anno: flussi (anche posizioni chiuse), vendite sottratte
             const totaliAnno = {};
             years.forEach(anno => {
                 totaliAnno[anno] = matrixData.reduce((sum, row) => sum + (row.versamenti[anno] || 0), 0);
             });
 
-           const granTotale = matrixData.reduce((sum, row) => sum + row.totale, 0);
-const totaleCostiTER = matrixData.reduce((sum, row) => sum + row.costoTER, 0);
+            // Portafoglio attuale: solo posizioni aperte
+            const granTotale = aperte.reduce((sum, row) => sum + row.totale, 0);
+            const totaleCostiTER = aperte.reduce((sum, row) => sum + row.costoTER, 0);
+            const totaleCommissioniGlobali = dati.reduce((sum, inv) => sum + (inv.commissioni || 0), 0);
+            const pct = v => granTotale > 0 ? ((v / granTotale) * 100).toFixed(2) : '0.00';
 
-// Calcola totale commissioni globali
-const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
-    return sum + (inv.commissioni || 0);
-}, 0);
-
-            // Calcola percentuali per tipologia
             const percentualiTipologia = {};
-            matrixData.forEach(row => {
-                if (!percentualiTipologia[row.tipologia]) {
-                    percentualiTipologia[row.tipologia] = 0;
-                }
-                percentualiTipologia[row.tipologia] += row.totale;
+            aperte.forEach(row => {
+                percentualiTipologia[row.tipologia] = (percentualiTipologia[row.tipologia] || 0) + row.totale;
             });
+            const totaleBondIBondMetalli = (percentualiTipologia['BOND'] || 0) + (percentualiTipologia['IBOND'] || 0) + (percentualiTipologia['METALLI PREZIOSI'] || 0);
+            const totaleETFStocks = (percentualiTipologia['ETF'] || 0) + (percentualiTipologia['STOCK'] || 0);
 
-            // Calcola totale Bond/iBond/Metalli
-            const totaleBondIBondMetalli = (percentualiTipologia['BOND'] || 0) + 
-                                           (percentualiTipologia['IBOND'] || 0) + 
-                                           (percentualiTipologia['METALLI PREZIOSI'] || 0);
-            
-            // Calcola totale ETF/Stocks
-            const totaleETFStocks = (percentualiTipologia['ETF'] || 0) + 
-                                    (percentualiTipologia['STOCK'] || 0);
+            const cols = 3 + years.length + 4;
+            const yearCells = row => years.map(anno => {
+                const val = row.versamenti[anno] || 0;
+                if (Math.abs(val) < 0.005) return '<td class="text-end">-</td>';
+                return `<td class="text-end ${val < 0 ? 'text-danger' : ''}">${fmt(val)}</td>`;
+            }).join('');
+            const nameCell = row => `<td style="position: sticky; left: 0; background-color: white; z-index: 1;">${row.link ? `<a href="${row.link}" target="_blank">${row.nome}</a>` : row.nome}</td>`;
 
             let html = `
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                       <thead class="table-light">
-    <tr>
-        <th>Investimento</th>
-        <th>Tipologia</th>
-        <th>TER %</th>
-        ${years.map(anno => `<th class="text-center">${anno}</th>`).join('')}
-        <th class="text-end">Totale €</th>
-        <th class="text-end">% sul Totale</th>
-        <th class="text-end">Commissioni €</th> <!-- AGGIUNGI QUESTA COLONNA -->
-        <th class="text-end">Costo TER €/anno</th>
-    </tr>
-</thead>
-                        <tbody>
+                        <tr>
+                            <th>Investimento</th>
+                            <th>Tipologia</th>
+                            <th>TER %</th>
+                            ${years.map(anno => `<th class="text-center">${anno}</th>`).join('')}
+                            <th class="text-end">Totale €</th>
+                            <th class="text-end">% sul Totale</th>
+                            <th class="text-end">Commissioni €</th>
+                            <th class="text-end">Costo TER €/anno</th>
+                        </tr>
+                      </thead>
+                      <tbody>
             `;
 
-            // Raggruppa per tipologia
             const byTipologia = {};
-            matrixData.forEach(row => {
-                if (!byTipologia[row.tipologia]) byTipologia[row.tipologia] = [];
-                byTipologia[row.tipologia].push(row);
-            });
+            aperte.forEach(row => { (byTipologia[row.tipologia] = byTipologia[row.tipologia] || []).push(row); });
 
             Object.keys(byTipologia).sort().forEach(tipologia => {
                 const rows = byTipologia[tipologia];
                 const totaleTipologia = rows.reduce((sum, row) => sum + row.totale, 0);
-                
-                // Header tipologia
                 html += `
                     <tr class="table-secondary">
-    <td colspan="${3 + years.length + 4}" style="font-weight: bold;"> <!-- CAMBIA 3 in 4 -->
-        <i class="fas fa-folder"></i> ${tipologia} 
-        <span class="badge bg-primary ms-2">€${totaleTipologia.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
-        <span class="badge bg-info ms-1">${((totaleTipologia / granTotale) * 100).toFixed(2)}%</span>
-    </td>
-</tr>
+                        <td colspan="${cols}" style="font-weight: bold;">
+                            <i class="fas fa-folder"></i> ${tipologia}
+                            <span class="badge bg-primary ms-2">${fmt(totaleTipologia)}</span>
+                            <span class="badge bg-info ms-1">${pct(totaleTipologia)}%</span>
+                        </td>
+                    </tr>
                 `;
-
-                // Righe investimenti
                 rows.forEach(row => {
                     html += `
                         <tr>
-                            <td style="position: sticky; left: 0; background-color: white; z-index: 1;">
-                                ${row.link ? `<a href="${row.link}" target="_blank">${row.nome}</a>` : row.nome}
-                            </td>
+                            ${nameCell(row)}
                             <td><span class="badge bg-secondary badge-custom">${row.tipologia}</span></td>
                             <td class="text-end">${row.ter}%</td>
-                            
-							${years.map(anno => {
-    const val = row.versamenti[anno] || 0;
-    return `<td class="text-end">${val > 0 ? '€' + val.toLocaleString('it-IT', {minimumFractionDigits: 2}) : '-'}</td>`;
-}).join('')}
-<td class="text-end"><strong>€${row.totale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-<td class="text-end">${((row.totale / granTotale) * 100).toFixed(2)}%</td>
-<td class="text-end">
-    ${row.commissioni > 0 ? 
-        '€' + row.commissioni.toLocaleString('it-IT', {minimumFractionDigits: 2}) : 
-        '-'}
-</td>
-<td class="text-end">€${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            ${yearCells(row)}
+                            <td class="text-end"><strong>${fmt(row.totale)}</strong></td>
+                            <td class="text-end">${pct(row.totale)}%</td>
+                            <td class="text-end">${row.commissioni > 0 ? fmt(row.commissioni) : '-'}</td>
+                            <td class="text-end">${fmt(row.costoTER)}</td>
                         </tr>
                     `;
                 });
             });
 
-            // Riga totali
+            if (chiuse.length > 0) {
+                html += `
+                    <tr class="table-secondary">
+                        <td colspan="${cols}" style="font-weight: bold;">
+                            <i class="fas fa-archive"></i> Posizioni chiuse
+                            <span class="badge bg-info ms-2">${chiuse.length}</span>
+                        </td>
+                    </tr>
+                `;
+                chiuse.forEach(row => {
+                    html += `
+                        <tr style="opacity: .6;">
+                            ${nameCell(row)}
+                            <td><span class="badge bg-secondary badge-custom">${row.tipologia}</span></td>
+                            <td class="text-end">${row.ter}%</td>
+                            ${yearCells(row)}
+                            <td class="text-end"><span class="badge bg-info">Venduto</span></td>
+                            <td class="text-end">-</td>
+                            <td class="text-end">${row.commissioni > 0 ? fmt(row.commissioni) : '-'}</td>
+                            <td class="text-end">-</td>
+                        </tr>
+                    `;
+                });
+            }
+
             html += `
-                        </tbody>
-                        <tfoot class="table-dark">
-    <tr>
-        <td colspan="3" style="position: sticky; left: 0; background-color: #7552a8; z-index: 2;"><strong>TOTALI</strong></td>
-        ${years.map(anno => `<td class="text-end"><strong>€${totaliAnno[anno].toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>`).join('')}
-        <td class="text-end"><strong>€${granTotale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-        <td class="text-end"><strong>100%</strong></td>
-        <td class="text-end"><strong>€${totaleCommissioniGlobali.toLocaleString('it-IT', {minimumFractionDigits: 2})}</strong></td>
-        <td class="text-end"><strong>€${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
-    </tr>
-</tfoot>
+                      </tbody>
+                      <tfoot class="table-dark">
+                        <tr>
+                            <td colspan="3" style="position: sticky; left: 0; background-color: #7552a8; z-index: 2;"><strong>TOTALI</strong></td>
+                            ${years.map(anno => `<td class="text-end"><strong>${fmt(totaliAnno[anno])}</strong></td>`).join('')}
+                            <td class="text-end"><strong>${fmt(granTotale)}</strong></td>
+                            <td class="text-end"><strong>${granTotale > 0 ? '100%' : '-'}</strong></td>
+                            <td class="text-end"><strong>${fmt(totaleCommissioniGlobali)}</strong></td>
+                            <td class="text-end"><strong>${fmt(totaleCostiTER)}</strong></td>
+                        </tr>
+                      </tfoot>
                     </table>
                 </div>
+                <p class="text-muted small mt-2 mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Le colonne degli anni mostrano i flussi netti (le vendite sono in rosso, in negativo) e includono anche le posizioni chiuse.
+                    Totale, percentuali, TER e riepiloghi riguardano solo le posizioni ancora aperte; le commissioni sono storiche.
+                    La somma degli anni pu\u00F2 quindi differire dal Totale: la differenza \u00E8 il risultato realizzato con le posizioni vendute.
+                </p>
 
                 <div class="row mt-4">
                     <div class="col-md-6">
@@ -1389,7 +1076,7 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                                     <thead>
                                         <tr>
                                             <th>Tipologia</th>
-                                            <th class="text-end">Totale €</th>
+                                            <th class="text-end">Totale \u20AC</th>
                                             <th class="text-end">% Portafoglio</th>
                                         </tr>
                                     </thead>
@@ -1397,19 +1084,19 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                                         ${Object.entries(percentualiTipologia).sort((a, b) => b[1] - a[1]).map(([tipo, val]) => `
                                             <tr>
                                                 <td><strong>${tipo}</strong></td>
-                                                <td class="text-end">€${val.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                                <td class="text-end"><span class="badge bg-primary">${((val / granTotale) * 100).toFixed(2)}%</span></td>
+                                                <td class="text-end">${fmt(val)}</td>
+                                                <td class="text-end"><span class="badge bg-primary">${pct(val)}%</span></td>
                                             </tr>
                                         `).join('')}
                                         <tr class="table-info">
                                             <td><strong>Bond / iBond / Metalli Preziosi</strong></td>
-                                            <td class="text-end"><strong>€${totaleBondIBondMetalli.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
-                                            <td class="text-end"><span class="badge bg-success">${((totaleBondIBondMetalli / granTotale) * 100).toFixed(2)}%</span></td>
+                                            <td class="text-end"><strong>${fmt(totaleBondIBondMetalli)}</strong></td>
+                                            <td class="text-end"><span class="badge bg-success">${pct(totaleBondIBondMetalli)}%</span></td>
                                         </tr>
                                         <tr class="table-warning">
                                             <td><strong>ETF / Stocks</strong></td>
-                                            <td class="text-end"><strong>€${totaleETFStocks.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
-                                            <td class="text-end"><span class="badge bg-success">${((totaleETFStocks / granTotale) * 100).toFixed(2)}%</span></td>
+                                            <td class="text-end"><strong>${fmt(totaleETFStocks)}</strong></td>
+                                            <td class="text-end"><span class="badge bg-success">${pct(totaleETFStocks)}%</span></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1425,24 +1112,24 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
                                         <tr>
                                             <th>Investimento</th>
                                             <th class="text-end">TER %</th>
-                                            <th class="text-end">Costo €/anno</th>
+                                            <th class="text-end">Costo \u20AC/anno</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${matrixData.sort((a, b) => b.costoTER - a.costoTER).slice(0, 10).map(row => `
+                                        ${aperte.slice().sort((a, b) => b.costoTER - a.costoTER).slice(0, 10).map(row => `
                                             <tr>
                                                 <td>${row.nome}</td>
                                                 <td class="text-end">${row.ter}%</td>
-                                                <td class="text-end">€${row.costoTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                                <td class="text-end">${fmt(row.costoTER)}</td>
                                             </tr>
                                         `).join('')}
-										<tfoot>
+                                    </tbody>
+                                    <tfoot>
                                         <tr class="table-dark">
                                             <td colspan="2"><strong>TOTALE COSTI TER</strong></td>
-                                            <td class="text-end"><strong>€${totaleCostiTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                                            <td class="text-end"><strong>${fmt(totaleCostiTER)}</strong></td>
                                         </tr>
-										</tfoot>
-                                    </tbody>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>
@@ -1455,205 +1142,73 @@ const totaleCommissioniGlobali = investments.reduce((sum, inv) => {
 
         function loadAnalytics() {
             const filtered = currentYear === 'all' ? investments : investments.filter(inv => inv.anno === currentYear);
-            
-            if (filtered.length === 0) {
+
+            if (investments.length === 0) {
                 document.getElementById('analyticsContent').innerHTML = '<p class="text-muted">Nessun dato disponibile.</p>';
                 return;
             }
 
-            // Raggruppa per nome investimento per calcolare i totali progressivi
-            const byNome = {};
-            investments.forEach(inv => {
-                if (!byNome[inv.nome]) byNome[inv.nome] = [];
-                byNome[inv.nome].push(inv);
-            });
+            // Posizioni aperte fino ad un anno (null = oggi). Una posizione venduta del tutto non compare.
+            const posizioniAl = (limite) => {
+                const gruppi = {};
+                investments.forEach(inv => {
+                    if (limite !== null && inv.anno > limite) return;
+                    (gruppi[inv.nome] = gruppi[inv.nome] || []).push(inv);
+                });
+                const out = {};
+                Object.keys(gruppi).forEach(nome => {
+                    const vs = gruppi[nome].slice().sort((a, b) => new Date(a.data) - new Date(b.data));
+                    const capitale = calcolaCapitaleNetto(vs);
+                    const tuttiConQta = vs.every(v => v.quantita > 0);
+                    const qta = vs.reduce((sum, v) => sum + (v.operazione === 'vendita' ? -v.quantita : v.quantita), 0);
+                    const chiusa = tuttiConQta ? qta < 0.0001 : capitale <= 0.5;
+                    if (chiusa) return;
+                    out[nome] = { versamenti: vs, capitale: Math.max(0, capitale), ultimo: vs[vs.length - 1] };
+                });
+                return out;
+            };
 
-            // Calcola i totali per anno considerando tutti i versamenti fino a quell'anno (NETTI)
+            const byNome = posizioniAl(currentYear === 'all' ? null : currentYear);
+            const posizioni = Object.values(byNome);
+            const years = [...new Set(investments.map(inv => inv.anno))].sort((a, b) => a - b);
+
             const totaliPerAnno = {};
-            const years = [...new Set(investments.map(inv => inv.anno))].sort();
-            
             years.forEach(anno => {
-                totaliPerAnno[anno] = 0;
-                Object.keys(byNome).forEach(nome => {
-                    const versamentiFinoAdAnno = byNome[nome].filter(inv => inv.anno <= anno);
-                    if (versamentiFinoAdAnno.length > 0) {
-                        totaliPerAnno[anno] += versamentiFinoAdAnno.reduce((sum, inv) => {
-                            const totale = inv.totale;
-                            const commissioni = inv.commissioni || 0;
-                            const tipo = inv.commissioniTipo || 'sottratta';
-                            
-                            if (tipo === 'sottratta') {
-                                return sum + (totale - commissioni);
-                            } else {
-                                return sum + totale;
-                            }
-                        }, 0);
-                    }
-                });
+                totaliPerAnno[anno] = Object.values(posizioniAl(anno)).reduce((sum, p) => sum + p.capitale, 0);
             });
 
-            // Calcola capitale netto investito (escluse commissioni)
-            const capitaleNettoInvestito = calcolaCapitaleNetto(filtered);
-            
-            // Calcola TER sul totale progressivo dell'anno selezionato (sul capitale netto)
-            let totaleTER = 0;
-            if (currentYear === 'all') {
-                // Per "tutti gli anni" calcola il TER più recente di ogni investimento
-                Object.keys(byNome).forEach(nome => {
-                    const versamenti = byNome[nome].sort((a, b) => new Date(b.data) - new Date(a.data));
-                    const ultimo = versamenti[0];
-                    const totaleInv = versamenti.reduce((sum, inv) => {
-                        const totale = inv.totale;
-                        const commissioni = inv.commissioni || 0;
-                        const tipo = inv.commissioniTipo || 'sottratta';
-                        
-                        if (tipo === 'sottratta') {
-                            return sum + (totale - commissioni);
-                        } else {
-                            return sum + totale;
-                        }
-                    }, 0);
-                    totaleTER += totaleInv * (ultimo.ter / 100);
-                });
-            } else {
-                // Per un anno specifico, calcola TER sui versamenti di quell'anno
-                Object.keys(byNome).forEach(nome => {
-                    const versamentiAnno = byNome[nome].filter(inv => inv.anno === currentYear);
-                    if (versamentiAnno.length > 0) {
-                        const totaleInv = byNome[nome].filter(inv => inv.anno <= currentYear).reduce((sum, inv) => {
-                            const totale = inv.totale;
-                            const commissioni = inv.commissioni || 0;
-                            const tipo = inv.commissioniTipo || 'sottratta';
-                            
-                            if (tipo === 'sottratta') {
-                                return sum + (totale - commissioni);
-                            } else {
-                                return sum + totale;
-                            }
-                        }, 0);
-                        const ultimo = versamentiAnno.sort((a, b) => new Date(b.data) - new Date(a.data))[0];
-                        totaleTER += totaleInv * (ultimo.ter / 100);
-                    }
-                });
-            }
+            const capitaleNettoInvestito = posizioni.reduce((sum, p) => sum + p.capitale, 0);
+            const totaleTER = posizioni.reduce((sum, p) => sum + p.capitale * (p.ultimo.ter / 100), 0);
 
-            // Calcoli per tipologia (sul totale progressivo NETTO)
             const byType = {};
-            Object.keys(byNome).forEach(nome => {
-                const versamenti = byNome[nome];
-                const versamentiValidi = currentYear === 'all' ? versamenti : versamenti.filter(inv => inv.anno <= currentYear);
-                if (versamentiValidi.length > 0) {
-                    const totaleInv = versamentiValidi.reduce((sum, inv) => {
-                        const totale = inv.totale;
-                        const commissioni = inv.commissioni || 0;
-                        const tipo = inv.commissioniTipo || 'sottratta';
-                        
-                        if (tipo === 'sottratta') {
-                            return sum + (totale - commissioni);
-                        } else {
-                            return sum + totale;
-                        }
-                    }, 0);
-                    const tipo = versamentiValidi[versamentiValidi.length - 1].tipologia;
-                    if (!byType[tipo]) byType[tipo] = 0;
-                    byType[tipo] += totaleInv;
-                }
-            });
-
-            // Calcoli per settore (sul totale progressivo NETTO)
             const bySector = {};
-            Object.keys(byNome).forEach(nome => {
-                const versamenti = byNome[nome];
-                const versamentiValidi = currentYear === 'all' ? versamenti : versamenti.filter(inv => inv.anno <= currentYear);
-                if (versamentiValidi.length > 0) {
-                    const totaleInv = versamentiValidi.reduce((sum, inv) => {
-                        const totale = inv.totale;
-                        const commissioni = inv.commissioni || 0;
-                        const tipo = inv.commissioniTipo || 'sottratta';
-                        
-                        if (tipo === 'sottratta') {
-                            return sum + (totale - commissioni);
-                        } else {
-                            return sum + totale;
-                        }
-                    }, 0);
-                    const ultimo = versamentiValidi[versamentiValidi.length - 1];
-                    if (ultimo.settori && ultimo.settori.length > 0) {
-                        ultimo.settori.forEach(settore => {
-                            if (!bySector[settore]) bySector[settore] = 0;
-                            bySector[settore] += totaleInv;
-                        });
-                    }
-                }
+            posizioni.forEach(p => {
+                const tipo = p.ultimo.tipologia;
+                byType[tipo] = (byType[tipo] || 0) + p.capitale;
+                (p.ultimo.settori || []).forEach(settore => {
+                    bySector[settore] = (bySector[settore] || 0) + p.capitale;
+                });
             });
 
-            const totaleProgressivo = currentYear === 'all' ? 
-                Object.values(byType).reduce((sum, val) => sum + val, 0) : 
-                totaliPerAnno[currentYear] || 0;
+            const totaleProgressivo = capitaleNettoInvestito;
 
-            // Totali specifici
             const stockTotal = byType['STOCK'] || 0;
             const bondTotal = (byType['BOND'] || 0) + (byType['IBOND'] || 0) + (byType['METALLI PREZIOSI'] || 0);
             const etfTotal = byType['ETF'] || 0;
 
-            // Calcola totale commissioni
             const totaleCommissioni = filtered.reduce((sum, inv) => sum + (inv.commissioni || 0), 0);
+            const totaleRealeSpeso = calcolaTotaleRealeSpeso(filtered);
 
-            // Calcola totale reale speso (versamenti + commissioni aggiuntive)
-            const totaleRealeSpeso = filtered.reduce((sum, inv) => {
-                const totale = inv.totale;
-                const commissioni = inv.commissioni || 0;
-                const tipo = inv.commissioniTipo || 'sottratta';
-                return sum + totale + (tipo === 'aggiuntiva' ? commissioni : 0);
-            }, 0);
-			
-			// Calcola TER accumulato nel tempo (anno per anno)
-let terAccumulato = 0;
-const currentYearNum = new Date().getFullYear();
-const anniInvestimento = [...new Set(filtered.map(inv => inv.anno))].sort();
+            // TER accumulato: somma, per ogni anno fino a quello selezionato, del TER sulle posizioni aperte a fine anno
+            let terAccumulato = 0;
+            const limiteAnno = currentYear === 'all' ? new Date().getFullYear() : currentYear;
+            years.filter(a => a <= limiteAnno).forEach(a => {
+                Object.values(posizioniAl(a)).forEach(p => {
+                    terAccumulato += p.capitale * (p.ultimo.ter / 100);
+                });
+            });
 
-// Per ogni anno dalla data del primo investimento ad oggi
-anniInvestimento.forEach(anno => {
-    if (anno > currentYearNum) return; // Non calcolare anni futuri
-    
-    // Calcola il capitale disponibile a fine anno precedente
-    const investimentiFinoAnnoCorrente = filtered.filter(inv => inv.anno <= anno);
-    
-    // Raggruppa per nome investimento
-    const byNomeAnno = {};
-    investimentiFinoAnnoCorrente.forEach(inv => {
-        if (!byNomeAnno[inv.nome]) byNomeAnno[inv.nome] = [];
-        byNomeAnno[inv.nome].push(inv);
-    });
-    
-    // Calcola TER per quest'anno
-    let terAnno = 0;
-    Object.keys(byNomeAnno).forEach(nome => {
-        const versamenti = byNomeAnno[nome];
-        // Prendi il TER più recente per questo investimento in quest'anno
-        const ultimo = versamenti.sort((a, b) => new Date(b.data) - new Date(a.data))[0];
-        
-        // Calcola capitale netto investito fino a quest'anno
-        const capitaleNetto = versamenti.reduce((sum, inv) => {
-            const totale = inv.totale;
-            const commissioni = inv.commissioni || 0;
-            const tipo = inv.commissioniTipo || 'sottratta';
-            
-            if (tipo === 'sottratta') {
-                return sum + (totale - commissioni);
-            } else {
-                return sum + totale;
-            }
-        }, 0);
-        
-        terAnno += capitaleNetto * (ultimo.ter / 100);
-    });
-    
-    terAccumulato += terAnno;
-});
-
-// Calcola costi totali reali (TER accumulato + Commissioni)
-const costiTotaliReali = terAccumulato + totaleCommissioni;
+            const costiTotaliReali = terAccumulato + totaleCommissioni;
 
             let html = `
                 <div class="row">
@@ -1665,19 +1220,19 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="stat-card" style="background: var(--gradient-warning);">
+                        <div class="stat-card border-warning-soft">
                             <div class="stat-value">€${totaleTER.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                             <div class="stat-label">Costo TER Annuale</div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="stat-card" style="background: var(--gradient-danger);">
-                            <div class="stat-value" style="color:#575252;">${totaleCommissioni > 0 ? '€' + totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</div>
-                            <div class="stat-label" style="color:#575252;">${totaleCommissioni > 0 ? 'Commissioni Totali' : 'Nessuna Commissione'}</div>
+                        <div class="stat-card border-danger-soft">
+                            <div class="stat-value" >${totaleCommissioni > 0 ? '€' + totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</div>
+                            <div class="stat-label" >${totaleCommissioni > 0 ? 'Commissioni Totali' : 'Nessuna Commissione'}</div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="stat-card" style="background: var(--gradient-success);">
+                        <div class="stat-card border-success-soft">
                             <div class="stat-value">${Object.keys(byNome).length}</div>
                             <div class="stat-label">Investimenti Attivi</div>
                         </div>
@@ -1686,13 +1241,13 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
                 
                 <div class="row mt-3">
                     <div class="col-md-4">
-                        <div class="stat-card" style="background: var(--gradient-info);">
+                        <div class="stat-card border-info-soft">
                             <div class="stat-value">${totaleProgressivo > 0 ? (totaleTER / totaleProgressivo * 100).toFixed(2) : 0}%</div>
                             <div class="stat-label">TER Medio</div>
                         </div>
                     </div>
                     <div class="col-md-4">
-    <div class="stat-card" style="background: var(--gradient-secondary);">
+    <div class="stat-card border-secondary-soft">
         <div class="stat-value">€${costiTotaliReali.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
         <div class="stat-label">Costi Totali Accumulati</div>
         <small style="opacity: 0.9; font-size: 0.75rem;">TER: €${terAccumulato.toLocaleString('it-IT', {minimumFractionDigits: 2})} + Comm.: €${totaleCommissioni.toLocaleString('it-IT', {minimumFractionDigits: 2})}</small>
@@ -1749,7 +1304,8 @@ const costiTotaliReali = terAccumulato + totaleCommissioni;
                                             ${years.map((anno, idx) => {
                                                 const versamentiAnno = calcolaCapitaleNetto(investments.filter(inv => inv.anno === anno));
                                                 const progressivo = totaliPerAnno[anno];
-                                                const crescita = idx > 0 ? ((progressivo - totaliPerAnno[years[idx - 1]]) / totaliPerAnno[years[idx - 1]] * 100).toFixed(2) : 0;
+                                                const prec = idx > 0 ? totaliPerAnno[years[idx - 1]] : 0;
+                                                const crescita = prec > 0 ? ((progressivo - prec) / prec * 100).toFixed(2) : 0;
                                                 return `
                                                     <tr>
                                                         <td><strong>${anno}</strong></td>
@@ -3586,6 +3142,54 @@ scales: {
         // Inizializzazione
         loadData();
     </script>
+<script>
+(function(){
+  var b=document.body, ls=function(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
+  var mobile=function(){return window.matchMedia('(max-width:991px)').matches};
+  if(!mobile() && ls('sidebarClosed')==='1') b.classList.add('sb-closed');
+  document.getElementById('sbToggle').onclick=function(){
+    if(mobile()){b.classList.toggle('sb-open')}
+    else{b.classList.toggle('sb-closed');ls('sidebarClosed',b.classList.contains('sb-closed')?'1':'0')}
+  };
+  document.getElementById('scrim').onclick=function(){b.classList.remove('sb-open')};
+  document.querySelectorAll('.side-link').forEach(function(t){
+    t.addEventListener('shown.bs.tab',function(){document.getElementById('pageTitle').textContent=t.dataset.title;window.scrollTo(0,0)});
+    t.addEventListener('click',function(){if(mobile())b.classList.remove('sb-open')});
+  });
+  var root=document.documentElement, icon=document.querySelector('#themeToggle i');
+  function setTheme(t){root.setAttribute('data-bs-theme',t);icon.className='fas '+(t==='dark'?'fa-sun':'fa-moon');
+    if(window.Chart){Chart.defaults.color=t==='dark'?'#8d8d98':'#7a7a85';Chart.defaults.borderColor=t==='dark'?'#26262b':'#e7e7ec'}}
+  setTheme(ls('uiTheme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+  document.getElementById('themeToggle').onclick=function(){var t=root.getAttribute('data-bs-theme')==='dark'?'light':'dark';ls('uiTheme',t);setTheme(t);
+    var a=document.querySelector('.side-link.active');if(a&&a.getAttribute('onclick'))a.click()};
+})();
+</script>
+<script>
+(function(){
+  var bar=document.getElementById('periodBar');
+  function active(){return document.querySelector('.side-link.active')}
+  function render(){
+    var a=active(), id=a&&a.id;
+    if(id!=='analytics-tab'&&id!=='matrix-tab'){bar.hidden=true;return}
+    var ys=Array.from(new Set(investments.map(function(i){return i.anno}))).sort(function(x,y){return x-y});
+    if(currentYear!=='all'&&ys.indexOf(currentYear)<0)currentYear='all';
+    bar.innerHTML=['all'].concat(ys).map(function(y){
+      return '<button type="button" class="period-pill'+(String(currentYear)===String(y)?' active':'')+'" data-y="'+y+'">'+(y==='all'?'Tutti gli anni':y)+'</button>'}).join('');
+    bar.hidden=false;
+  }
+  bar.addEventListener('click',function(e){
+    var b=e.target.closest('.period-pill'); if(!b)return;
+    currentYear=b.dataset.y==='all'?'all':parseInt(b.dataset.y,10);
+    if(active().id==='analytics-tab')loadAnalytics(); else loadMatrix();
+    render();
+  });
+  ['loadAnalytics','loadMatrix','filterByYear','importData'].forEach(function(n){
+    var f=window[n]; if(typeof f!=='function')return;
+    window[n]=function(){var r=f.apply(this,arguments);setTimeout(render,0);return r};
+  });
+  document.querySelectorAll('.side-link').forEach(function(t){t.addEventListener('shown.bs.tab',render)});
+})();
+</script>
 </body>
 </html>
 
