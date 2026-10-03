@@ -19,8 +19,8 @@ const manifestData = {
     "id": "/",
     "display": "standalone",
     "display_override": ["standalone", "minimal-ui"],
-    "background_color": "#111827",
-    "theme_color": "#111827",
+    "background_color": "#fafafa",
+    "theme_color": "#fafafa",
     "orientation": "portrait-primary",
     "categories": ["health", "fitness", "lifestyle"],
 	"permissions": ["notifications"],
@@ -73,11 +73,11 @@ const manifestURL = URL.createObjectURL(manifestBlob);
 document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 </script>
 
-<meta name="theme-color" content="#111827">
+<meta name="theme-color" content="#fafafa">
 
 <!-- ✅ Apple PWA Meta Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="WorkoutTracker">
 <link rel="apple-touch-icon" href="https://rccremonesi-cmyk.github.io/workout/barbell-ico.png">      
 <!-- ✅ Meta tag Android -->
@@ -99,7 +99,7 @@ document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
 	  
 	  <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
       <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
       <meta http-equiv="Pragma" content="no-cache">
@@ -376,8 +376,8 @@ input[type="checkbox"]::before {
   height: 20px;
   background-color: white;
   border-radius: 50%;
-  top: 2px;
-  left: 2px;
+  top: 1px;
+  left: 1px;
   transition: transform 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
@@ -520,7 +520,7 @@ color:#c084fc;
          }
          /* ... (mantieni il tuo stile CSS esistente qui) ... */
          /* Assicurati solo di non aver cancellato i tuoi stili custom */
-         body { font-family: "Montserrat", sans-serif;
+         body { font-family: "Inter", sans-serif;
   font-optical-sizing: auto; }
          .hide-scrollbar::-webkit-scrollbar { display: none; }
          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -654,16 +654,64 @@ color:#c084fc;
                  extend: {
                      colors: {
                          // NEW COLOR: rgb(81 39 242) -> Hex #5127F2
-                         primary: '#5127F2', 
-                         primaryDark: '#401eb5', // Versione più scura per hover
-                         darkBg: '#111827',
-                         darkCard: '#1f2937'
+                         primary: 'rgb(var(--accent-rgb) / <alpha-value>)', 
+                         primaryDark: 'rgb(var(--accent-dark-rgb) / <alpha-value>)', // Versione più scura per hover
+                         darkBg: '#fafafa',
+                         darkCard: '#ffffff',
+                         gray: {50:'#09090b',100:'#18181b',200:'#27272a',300:'#3f3f46',400:'#71717a',500:'#a1a1aa',600:'#d4d4d8',700:'#e4e4e7',800:'#f4f4f5',900:'#fafafa'},
+                         purple: {300:'#71717a',400:'rgb(var(--accent-rgb) / <alpha-value>)',500:'rgb(var(--accent-rgb) / <alpha-value>)',600:'rgb(var(--accent-rgb) / <alpha-value>)',700:'rgb(var(--accent-dark-rgb) / <alpha-value>)'},
+                         violet: {400:'rgb(var(--accent-rgb) / <alpha-value>)',500:'rgb(var(--accent-rgb) / <alpha-value>)'},
+                         green: {400:'#16a34a'}, orange: {400:'#ea580c'}, blue: {400:'#2563eb'}
                      }
                  }
              }
          }
       </script>
-   </head>
+   <script>try{var a=localStorage.getItem('accent');if(a){var r=document.documentElement.style;var h=parseInt(a.slice(1),16),R=h>>16,G=(h>>8)&255,B=h&255;r.setProperty('--accent',a);r.setProperty('--accent-rgb',R+' '+G+' '+B);r.setProperty('--accent-dark-rgb',Math.round(R*.75)+' '+Math.round(G*.75)+' '+Math.round(B*.75));}}catch(e){}</script>
+<style id="light-theme">
+:root{--accent:#18181b;--accent-rgb:24 24 27;--accent-dark-rgb:0 0 0}
+[style*="50px 64px"]{box-shadow:none!important;-webkit-box-shadow:none!important}
+.fixed.bottom-0.left-0.right-0.bg-gray-800{border-top:1px solid #ececec}
+body{font-family:"Inter",sans-serif!important;background:#fafafa}
+/* testo */
+.text-white{color:#18181b!important}
+.bg-primary,.bg-primary *,.bg-green-500.text-white{color:#fff!important}
+button[class*="from-primary"],button[class*="to-purple-600"]{background:var(--accent)!important;color:#fff!important}
+button[class*="from-primary"] *,button[class*="to-purple-600"] *{color:#fff!important}
+div[style*="background"]>i.text-white{color:#fff!important}
+/* ombre di sfondo scure inline */
+[style*="111827"]{box-shadow:none!important;-webkit-box-shadow:none!important}
+[style*="background-color: #111827"]{background:linear-gradient(transparent,#fafafa)!important}
+header,header[style*="111827"]{background-color:#fff!important;border-bottom:1px solid #ececec}
+nav{border-top:1px solid #ececec!important}
+.shadow-sm,.shadow-md,.shadow-lg,.shadow-xl,.shadow-2xl,.shadow-custom{box-shadow:none!important}
+.rounded-xl.bg-darkCard,.rounded-2xl.bg-darkCard,.rounded-3xl.bg-darkCard{border:1px solid #ececec}
+.bg-white.text-black{border:1px solid #d4d4d8}
+[style*="border-color"]{border-color:#d4d4d8!important}
+/* card hero: da gradiente a bianco */
+div[class*="from-primary"],div[class*="to-black"],div[class*="from-darkCard"]{background:#fff!important;color:#18181b!important;border:1px solid #e4e4e7;box-shadow:none!important}
+div[class*="from-primary"] .absolute[class*="bg-white/10"],div[class*="to-black"] .absolute{display:none}
+[class*="bg-white/10"]{background:#f4f4f5!important}
+[class*="bg-white/20"]{background:#e4e4e7!important}
+[class*="bg-white/30"]{background:#d4d4d8!important}
+[class*="border-white/"]{border-color:#e4e4e7!important}
+/* input */
+#view-settings input:not([type=checkbox]),#view-settings select,#exercise-modal input,#exercise-modal textarea,#exercise-modal select{border:1px solid #e4e4e7!important;background-color:#f4f4f5!important;color:#18181b}
+#view-settings input[type=checkbox],input#editor-archived{background-color:#d4d4d8!important}
+#view-settings input[type=checkbox]:checked,input#editor-archived:checked{background-color:var(--accent)!important}
+/* accenti */
+nav button.text-primary{color:var(--accent)!important}
+nav button{color:#a1a1aa}
+#footer-progress-text,#weight-comparison{color:#52525b!important}
+.timer-circle{stroke:var(--accent)}
+.stats-tab.active{background:var(--accent)!important;color:#fff!important;box-shadow:none!important}
+#progress-bar-container{background:#f4f4f5!important;border-color:#e4e4e7!important}
+#editor-preferred-days label:has(.editor-day-check:checked){background-color:var(--accent)!important;color:#fff!important;box-shadow:none!important}
+#editor-preferred-days label:has(.editor-day-check:checked) span{color:#fff}
+.sortable-ghost{background:#f4f4f5!important;border-color:#a1a1aa!important}
+.accent-swatch{border:3px solid #fff;box-shadow:0 0 0 1px #d4d4d8}.accent-swatch.selected{box-shadow:0 0 0 2px var(--accent)}
+</style>
+</head>
    <body class="bg-darkBg text-gray-100 h-screen flex flex-col overflow-hidden">
       <!-- HEADER -->
 <header class="bg-darkCard shadow-sm z-20 px-4 py-3 grid grid-cols-3 items-center" style="-webkit-box-shadow: 0px 0px 22px 4px #111827;
@@ -700,11 +748,7 @@ color:#c084fc;
 		 
 		 
 		 
-		 <div id="badge-notification" class="hidden" style="margin-bottom:15px;">
-      <!-- Badge injected here -->
-   </div>
-   
-            <!-- Quick Stats Card -->
+		 <!-- Quick Stats Card -->
 <!-- Quick Stats Card -->
 <div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden" style="margin-top:0px;">
    <!-- Decorative Background Elements -->
@@ -1285,43 +1329,7 @@ color:#c084fc;
                </div>
             </div>
 			
-			<!-- ✅ LEGENDA PALLINI (NUOVO) -->
-			
-		<div class="bg-darkCard rounded-2xl p-4 shadow-sm mb-6 border border-gray-700/50" style="display: ${localStorage.getItem('hideLegend') === 'true' ? 'none' : 'block'}">
-				<div class="flex items-start gap-3 mb-3">
-			
-			  <div class="flex-1">
-				 
-				 <div class="space-y-2 text-xs">
-					<!-- Pallino Verde -->
-					<div class="flex items-center gap-2">
-					   <span class="text-sm">🟢</span>
-					   <span class="text-gray-300">
-						  <strong class="text-white">Workout Valido</strong> - Completato correttamente, traguardi assegnati
-					   </span>
-					</div>
-					
-					<!-- Pallino Rosso -->
-					<div class="flex items-center gap-2">
-					   <span class="text-sm">🔴</span>
-					   <span class="text-gray-300">
-						  <strong class="text-red-400">Workout Sospetto</strong> - Completato troppo velocemente, traguardi non assegnati
-					   </span>
-					</div>
-				 </div>
-			  </div>
-			  
-			  <!-- Pulsante Chiudi (opzionale) -->
-			  <button onclick="this.closest('.bg-darkCard').remove(); localStorage.setItem('hideLegend', 'true')" 
-				 class="text-gray-500 hover:text-white transition-colors" 
-				 title="Nascondi legenda">
-				 <i class="fa-solid fa-xmark"></i>
-			  </button>
-		   </div>
-			  
-		</div>
-
-               <div id="history-list" class="space-y-3 text-sm">
+			<div id="history-list" class="space-y-3 text-sm">
                   <!-- Logs injected here -->
                </div>
             </div>
@@ -1340,29 +1348,7 @@ color:#c084fc;
 			</div>
          </section>
 		 
-		 <!-- VIEW: BADGES -->
-<section id="view-badges" class="view-section p-4 space-y-6 pb-20">
-  <div class="internal-section">
-   
-   <div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden mb-7">
-   <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-   <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
-      <div class="text-center">
-         <i class="fa-solid fa-trophy text-5xl mb-3 opacity-90"></i>
-         <h3 class="text-lg font-bold">Sblocca i tuoi traguardi!</h3>
-         <p class="text-sm opacity-90 mt-2">
-            Completa allenamenti e raggiungi obiettivi per sbloccare badge esclusivi
-         </p>
-      </div>
-   </div>
-   
-   <div id="badges-list" class="space-y-4">
-      <!-- Injected by JS -->
-   </div>
-   </div>
-</section>
-		 
-         <!-- VIEW: SETTINGS -->
+		 <!-- VIEW: SETTINGS -->
          <section id="view-settings" class="view-section p-4 ">
 		 <div class="internal-section space-y-6">
             <div class="bg-gradient-to-br from-primary via-purple-600 to-primaryDark  mb-4 rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden">
@@ -1454,6 +1440,11 @@ color:#c084fc;
    <input type="checkbox" id="setting-motivational" checked class="accent-primary w-5 h-5">
 </div>
             </div>
+            <div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm space-y-3">
+               <h3 class="font-bold"><i class="fa-solid fa-palette mr-2"></i> Colore dell'app</h3>
+               <p style="margin:0px;"><small>Scegli il colore di pulsanti e dettagli</small></p>
+               <div class="flex flex-wrap gap-3"><button onclick="app.handlers.setAccent('#18181b')" data-accent="#18181b" title="Nero" class="accent-swatch w-10 h-10 rounded-full" style="background:#18181b"></button><button onclick="app.handlers.setAccent('#2563eb')" data-accent="#2563eb" title="Blu" class="accent-swatch w-10 h-10 rounded-full" style="background:#2563eb"></button><button onclick="app.handlers.setAccent('#0d9488')" data-accent="#0d9488" title="Verde acqua" class="accent-swatch w-10 h-10 rounded-full" style="background:#0d9488"></button><button onclick="app.handlers.setAccent('#16a34a')" data-accent="#16a34a" title="Verde" class="accent-swatch w-10 h-10 rounded-full" style="background:#16a34a"></button><button onclick="app.handlers.setAccent('#7c3aed')" data-accent="#7c3aed" title="Viola" class="accent-swatch w-10 h-10 rounded-full" style="background:#7c3aed"></button><button onclick="app.handlers.setAccent('#db2777')" data-accent="#db2777" title="Rosa" class="accent-swatch w-10 h-10 rounded-full" style="background:#db2777"></button><button onclick="app.handlers.setAccent('#ea580c')" data-accent="#ea580c" title="Arancio" class="accent-swatch w-10 h-10 rounded-full" style="background:#ea580c"></button></div>
+            </div>
             <div class="bg-darkBg bg-darkCard rounded-xl p-4 shadow-sm space-y-4">
                <h3 class="font-bold"><i class="fa-regular fa-floppy-disk mr-2"></i> Salva o importa dati personali </h3>
 			   <p style="margin:0px;"><small>Salva qui tutte le tue informazioni salvate nell'app</small></p>
@@ -1476,10 +1467,7 @@ color:#c084fc;
    <i class="fa-solid fa-house mb-1"></i>
    <span class="text-[10px] font-medium">Home</span> 
    </button>
-   <button onclick="app.router.go('badges')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-purple-400 transition">
-   <i class="fa-solid fa-trophy mb-1"></i>
-   <span class="text-[10px] font-medium">Traguardi</span>
-   </button>
+   
    <button onclick="app.router.go('stats')" class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-purple-400 transition">
    <i class="fa-solid fa-chart-simple mb-1"></i>
    <span class="text-[10px] font-medium">Statistiche</span>
@@ -1799,6 +1787,7 @@ request.onupgradeneeded = (e) => {
           */
          const app = {
              db: new DB(),
+             accent: () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#18181b',
              state: {
     currentView: 'dashboard',
     statsPeriod: 'week',
@@ -2201,7 +2190,7 @@ if (app.state.currentView === 'editor' && viewId === 'dashboard') {
         
         // ✅ AGGIUNGI LA CLASSE SOLO SE NON SEI IN EDITOR O ACTIVE
         if(viewId !== 'editor' && viewId !== 'active') {
-            const navIndices = {'dashboard': 0, 'badges': 1, 'stats': 2, 'settings': 3};
+            const navIndices = {'dashboard': 0, 'stats': 1, 'settings': 2};
             const targetBtn = document.querySelectorAll('.nav-btn')[navIndices[viewId]];
             if (targetBtn) {
                 targetBtn.classList.add('text-primary');
@@ -2211,13 +2200,21 @@ if (app.state.currentView === 'editor' && viewId === 'dashboard') {
         
         app.state.currentView = viewId;
         if (viewId === 'dashboard') app.ui.renderDashboard();
-        if (viewId === 'badges') app.ui.renderBadges();
+        
         if (viewId === 'stats') app.ui.renderStats();
     }
 },
          
              ui: {
                  applyTheme: () => {
+                    const a = app.state.settings.accentColor || localStorage.getItem('accent') || '#18181b';
+                    const h = parseInt(a.slice(1), 16), R = h >> 16, G = (h >> 8) & 255, B = h & 255;
+                    const st = document.documentElement.style;
+                    st.setProperty('--accent', a);
+                    st.setProperty('--accent-rgb', `${R} ${G} ${B}`);
+                    st.setProperty('--accent-dark-rgb', `${Math.round(R*.75)} ${Math.round(G*.75)} ${Math.round(B*.75)}`);
+                    localStorage.setItem('accent', a);
+                    document.querySelectorAll('.accent-swatch').forEach(b => b.classList.toggle('selected', b.dataset.accent === a));
                     
                  },
                  
@@ -2225,9 +2222,7 @@ renderDashboard: () => {
     const list = document.getElementById('workout-list');
     list.innerHTML = '';
     
-    if (app.state.pendingBadges.length > 0) {
-        app.ui.showBadgeNotification();
-    }
+    
     
     // Stats calculation based on period
     const now = new Date();
@@ -3096,7 +3091,7 @@ for (let step = 0; step < totalSegments; step++) {
                          type: 'bar',
                          data: {
                              labels: lastLogs.map(l => new Date(l.date).toLocaleDateString(undefined, {weekday:'short'})),
-                             datasets: [{ label: 'Volume (kg)', data: lastLogs.map(l => l.totalVolume), backgroundColor: '#5127f2', borderRadius: 4 }]
+                             datasets: [{ label: 'Volume (kg)', data: lastLogs.map(l => l.totalVolume), backgroundColor: app.accent(), borderRadius: 4 }]
                          },
 						 			 
 						 
@@ -3115,7 +3110,7 @@ for (let step = 0; step < totalSegments; step++) {
                          type: 'line',
                          data: {
                              labels: Object.keys(monthCounts),
-                             datasets: [{ label: 'Sessioni', data: Object.values(monthCounts), borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)' }]
+                             datasets: [{ label: 'Sessioni', data: Object.values(monthCounts), borderColor: app.accent(), tension: 0.4, fill: true, backgroundColor: 'rgba(24,24,27,0.06)' }]
                          },
                          options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: {stepSize: 1} } } }
                      });
@@ -3219,11 +3214,11 @@ const renderWorkoutCard = (h, index, isFirstInGroup = false) => {
 
 	let dateLabel;
 	if (isToday) {
-		dateLabel = `${statusDot} Oggi`;
+		dateLabel = `Oggi`;
 	} else if (isYesterday) {
-		dateLabel = `${statusDot} Ieri`;
+		dateLabel = `Ieri`;
 	} else {
-		dateLabel = `${statusDot} ${date.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' })}`;
+		dateLabel = `${date.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' })}`;
 	}
     
     const timeLabel = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
@@ -3584,12 +3579,12 @@ workoutCard.innerHTML = `
                     datasets: [{
                         label: 'Peso (kg)',
                         data: avgWeights,
-                        borderColor: '#5127f2',
-                        backgroundColor: 'rgba(81, 39, 242, 0.1)',
+                        borderColor: app.accent(),
+                        backgroundColor: 'rgba(24,24,27,0.06)',
                         tension: 0.3,
                         fill: true,
                         pointRadius: 4,
-                        pointBackgroundColor: '#5127f2',
+                        pointBackgroundColor: app.accent(),
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2
                     }]
@@ -3608,7 +3603,7 @@ workoutCard.innerHTML = `
                     scales: {
                         y: {
                             beginAtZero: false,
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.06)' },
                             ticks: { color: '#9ca3af' }
                         },
                         x: {
@@ -4496,7 +4491,7 @@ skipExercise: () => {
     };
     
     await app.db.put('history', historyItem);
-    await app.checkBadges(historyItem);
+    
     await app.loadData();
     
     // ✨ MOSTRA MODALE
@@ -5145,6 +5140,11 @@ toggleProgressAccordion: (workoutId) => {
             }
         });
     });
+},
+setAccent: (color) => {
+    app.state.settings.accentColor = color;
+    app.db.put('settings', { key: 'accentColor', value: color });
+    app.ui.applyTheme();
 },
 installPWA: () => {
     if (!app.state.deferredPrompt) {
