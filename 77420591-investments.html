@@ -130,6 +130,20 @@ body.sb-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.
 .period-pill:hover{color:var(--text);background:var(--surface2)}
 .period-pill.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 @media(max-width:991px){.period-bar{order:3;flex-basis:100%;margin-left:0}}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.perf-note{color:var(--muted);font-size:.85rem;font-weight:500}
+.perf-head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-bottom:20px}
+.perf-kpi .stat-value{font-size:1.75rem;font-variant-numeric:tabular-nums}
+.perf-kpi small{display:block;margin-top:6px;color:var(--muted);font-size:.8rem}
+.perf-table tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
+.perf-table .table-active{--bs-table-bg:var(--surface2);--bs-table-color:var(--text)}
+.perf-scroll{max-height:320px;overflow:auto}
+.perf-empty{text-align:center;padding:56px 24px}
+#perfEditor>summary{cursor:pointer;list-style:none;display:flex;align-items:center}
+#perfEditor>summary::-webkit-details-marker{display:none}
+#perfEditor>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+#perfEditor[open]>summary{border-bottom:1px solid var(--line)}
+#perfEditor:not([open])>summary{border-bottom:0;border-radius:var(--r)!important}
 </style>
 </head>
 <body>
@@ -141,6 +155,7 @@ body.sb-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.
     <button class="nav-link side-link" id="summary-tab" data-title="Riepilogo" data-bs-toggle="tab" data-bs-target="#summary" type="button" onclick="loadSummary()"><i class="fas fa-table"></i> Riepilogo</button>
     <button class="nav-link side-link" id="matrix-tab" data-title="Vista Matriciale" data-bs-toggle="tab" data-bs-target="#matrix" type="button" onclick="loadMatrix()"><i class="fas fa-th"></i> Vista Matriciale</button>
     <button class="nav-link side-link" id="analytics-tab" data-title="Analytics" data-bs-toggle="tab" data-bs-target="#analytics" type="button" onclick="loadAnalytics()"><i class="fas fa-chart-pie"></i> Analytics</button>
+    <button class="nav-link side-link" id="performance-tab" data-title="Rendimenti" data-bs-toggle="tab" data-bs-target="#performance" type="button" onclick="loadPerformance()"><i class="fas fa-arrow-trend-up"></i> Rendimenti</button>
     <button class="nav-link side-link" id="forecast-tab" data-title="Previsioni" data-bs-toggle="tab" data-bs-target="#forecast" type="button" onclick="loadForecast()"><i class="fas fa-seedling"></i> Previsioni</button>
     <button class="nav-link side-link" id="exposure-tab" data-title="Esposizione Geografica/Settoriale" data-bs-toggle="tab" data-bs-target="#exposure" type="button" onclick="loadExposure()"><i class="fas fa-globe-americas"></i> Esposizione</button>
     <button class="nav-link side-link" id="notes-tab" data-title="Appunti" data-bs-toggle="tab" data-bs-target="#notes" type="button" onclick="loadNotes()"><i class="fas fa-sticky-note"></i> Appunti</button>
@@ -306,6 +321,11 @@ body.sb-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.
             <!-- TAB ANALYTICS -->
             <div class="tab-pane fade" id="analytics" role="tabpanel">
                 <div id="analyticsContent"></div>
+            </div>
+
+            <!-- TAB RENDIMENTI -->
+            <div class="tab-pane fade" id="performance" role="tabpanel">
+                <div id="performanceContent"></div>
             </div>
 
             <!-- TAB APPUNTI -->
@@ -516,6 +536,10 @@ body.sb-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.
         let forecastInflation = {};
         let currentMarketValue = 0;
         let forecastChart = null;
+        const TAX_RATE = 0.26; // aliquota imposta sostitutiva sui redditi finanziari
+        let marketSnapshots = {}; // { 'YYYY-MM-DD': { nomeInvestimento: valoreEUR } }
+        let proventi = [];        // [{id,data,anno,nome,ticker,valuta,lordo,ritenuta,lordoEUR,ritenutaEUR}]
+        let perfCharts = {};
 
         // Caricamento dati da localStorage
         function loadData() {
@@ -570,6 +594,16 @@ body.sb-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.
             const savedExposureTypes = localStorage.getItem('exposureTypes');
             if (savedExposureTypes) {
                 exposureTypes = JSON.parse(savedExposureTypes);
+            }
+
+            // Carica valori di mercato e proventi (sezione Rendimenti)
+            const savedSnapshots = localStorage.getItem('marketSnapshots');
+            if (savedSnapshots) {
+                marketSnapshots = JSON.parse(savedSnapshots);
+            }
+            const savedProventi = localStorage.getItem('proventi');
+            if (savedProventi) {
+                proventi = JSON.parse(savedProventi);
             }
         }
 
@@ -1663,8 +1697,9 @@ function deleteInvestment(id) {
                 const commissioni = inv.commissioni || 0;
                 const tipo = inv.commissioniTipo || 'sottratta';
                 
-                let val = totale + (tipo === 'aggiuntiva' ? commissioni : 0);
-                return isVendita ? sum - val : sum + val;
+                // Acquisto: esborso = importo + commissioni aggiuntive. Vendita: incasso = importo - commissioni aggiuntive
+                const comm = (tipo === 'aggiuntiva' ? commissioni : 0);
+                return isVendita ? sum - (totale - comm) : sum + totale + comm;
             }, 0);
         }
 
@@ -1691,7 +1726,7 @@ function deleteInvestment(id) {
             const currentNotes = notesContent ? notesContent.innerHTML : (localStorage.getItem('investmentNotes') || '');
 
             const dataToExport = {
-                version: '1.0',
+                version: '1.1',
                 exportDate: new Date().toISOString(),
                 investments: investments,
                 allTags: Array.from(allTags),
@@ -1702,7 +1737,9 @@ function deleteInvestment(id) {
                 forecastInflation: forecastInflation,
                 currentMarketValue: currentMarketValue,
                 exposureData: exposureData,
-                exposureTypes: exposureTypes
+                exposureTypes: exposureTypes,
+                marketSnapshots: marketSnapshots,
+                proventi: proventi
             };
 
             const dataStr = JSON.stringify(dataToExport, null, 2);
@@ -1733,6 +1770,7 @@ function deleteInvestment(id) {
                         throw new Error('Formato file non valido');
                     }
 
+                    let importReplace = true; // false = modalità "aggiungi"
                     if (investments.length > 0) {
                         const confirmMsg = 'Attenzione: ci sono già ' + investments.length + ' investimenti salvati.\n\n' +
                                          'Scegli:\n' +
@@ -1742,6 +1780,7 @@ function deleteInvestment(id) {
                         if (confirm(confirmMsg)) {
                             investments = importedData.investments;
                         } else {
+                            importReplace = false;
                             importedData.investments.forEach(inv => {
                                 inv.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
                                 investments.push(inv);
@@ -1800,6 +1839,25 @@ function deleteInvestment(id) {
                         exposureTypes = importedData.exposureTypes;
                         localStorage.setItem('exposureTypes', JSON.stringify(exposureTypes));
                     }
+
+                    // Importa valori di mercato (snapshot per data): in modalità "aggiungi" unisce per data
+                    if (importedData.marketSnapshots) {
+                        marketSnapshots = importReplace
+                            ? importedData.marketSnapshots
+                            : Object.assign({}, marketSnapshots, importedData.marketSnapshots);
+                        localStorage.setItem('marketSnapshots', JSON.stringify(marketSnapshots));
+                    }
+
+                    // Importa dividendi/proventi: in modalità "aggiungi" evita i duplicati (stesso id)
+                    if (Array.isArray(importedData.proventi)) {
+                        if (importReplace) {
+                            proventi = importedData.proventi;
+                        } else {
+                            const ids = new Set(proventi.map(p => p.id));
+                            importedData.proventi.forEach(p => { if (!ids.has(p.id)) proventi.push(p); });
+                        }
+                        localStorage.setItem('proventi', JSON.stringify(proventi));
+                    }
                     
                     saveData();
                     updateNomiList();
@@ -1811,6 +1869,7 @@ function deleteInvestment(id) {
                         if (activeTab.id === 'summary-tab') loadSummary();
                         else if (activeTab.id === 'matrix-tab') loadMatrix();
                         else if (activeTab.id === 'analytics-tab') loadAnalytics();
+                        else if (activeTab.id === 'performance-tab') loadPerformance();
                     }
 
                 } catch (error) {
@@ -3139,6 +3198,477 @@ scales: {
             }
         }
 
+        // ============================================
+        // RENDIMENTI: guadagni/perdite al netto di spese e tasse
+        // Modello: guadagno periodo = valore fine - valore inizio - acquisti + vendite + proventi netti
+        // (acquisti/vendite comprendono le commissioni; il TER e' gia' nel prezzo di mercato)
+        // ============================================
+        const perfEur = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+        let perfEditorOpen = false;
+
+        function perfEsc(s) {
+            return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function perfMoney(n, signed) {
+            if (n == null || isNaN(n)) return '—';
+            const s = perfEur.format(Math.abs(n));
+            if (!signed) return (n < -0.004 ? '−' : '') + s;
+            return (n > 0.004 ? '+' : n < -0.004 ? '−' : '') + s;
+        }
+        function perfPct(n) {
+            if (n == null || !isFinite(n)) return '—';
+            return (n > 0.00004 ? '+' : n < -0.00004 ? '−' : '') +
+                Math.abs(n * 100).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+        }
+        function perfCls(n) { return n > 0.004 ? 'text-success' : n < -0.004 ? 'text-danger' : ''; }
+        function perfDate(d) { return d ? new Date(d + 'T00:00:00').toLocaleDateString('it-IT') : ''; }
+
+        // Flusso di cassa di un'operazione, commissioni comprese (+ esborso per acquisti, - incasso per vendite)
+        function perfFlow(inv) {
+            const c = inv.commissioni || 0;
+            const agg = (inv.commissioniTipo || 'sottratta') === 'aggiuntiva';
+            return inv.operazione === 'vendita' ? -(inv.totale - (agg ? c : 0)) : inv.totale + (agg ? c : 0);
+        }
+
+        function perfSnapDates() { return Object.keys(marketSnapshots).sort(); }
+        function perfSnapOnOrBefore(date) {
+            let r = null;
+            perfSnapDates().forEach(d => { if (d <= date) r = d; });
+            return r;
+        }
+
+        // Risolve il periodo ('all' oppure anno) in snapshot di inizio/fine e finestra delle operazioni
+        function perfPeriod(y) {
+            const dates = perfSnapDates();
+            const latest = dates.length ? dates[dates.length - 1] : null;
+            if (y === 'all') {
+                return { y: y, label: 'Tutti gli anni', lower: '0000-00-00', startSnap: null, endSnap: latest, to: latest || '9999-12-31', ok: !!latest };
+            }
+            const from = y + '-01-01', yearEnd = y + '-12-31';
+            const endSnap = perfSnapOnOrBefore(yearEnd);
+            let startSnap = perfSnapOnOrBefore((y - 1) + '-12-31');
+            if (startSnap && startSnap < (y - 1) + '-12-01') startSnap = null; // snapshot troppo vecchio: non e' l'inizio di questo anno
+            const hasBefore = investments.some(i => i.data < from);
+            const ok = !!endSnap && endSnap >= from && (!hasBefore || !!startSnap);
+            return {
+                y: y, label: String(y), lower: startSnap || '0000-00-00', startSnap: startSnap, endSnap: endSnap,
+                to: endSnap && endSnap < yearEnd ? endSnap : yearEnd, ok: ok
+            };
+        }
+
+        function perfCompute(p) {
+            const startMap = p.startSnap ? (marketSnapshots[p.startSnap] || {}) : {};
+            const endMap = p.endSnap ? (marketSnapshots[p.endSnap] || {}) : {};
+            const names = [...new Set(investments.map(i => i.nome).concat(proventi.map(x => x.nome)))];
+            const rows = [];
+            names.forEach(nome => {
+                const ops = investments.filter(i => i.nome === nome && i.data > p.lower && i.data <= p.to);
+                let acq = 0, vend = 0, comm = 0;
+                ops.forEach(i => {
+                    const fl = perfFlow(i);
+                    if (i.operazione === 'vendita') vend += -fl; else acq += fl;
+                    comm += (i.commissioni || 0);
+                });
+                const pr = proventi.filter(x => x.nome === nome && x.data > p.lower && x.data <= p.to);
+                const provLordi = pr.reduce((s, x) => s + (x.lordoEUR || 0), 0);
+                const rit = pr.reduce((s, x) => s + (x.ritenutaEUR || 0), 0);
+                const vIni = startMap[nome] || 0, vFin = endMap[nome] || 0;
+                if (!ops.length && !pr.length && !vIni && !vFin) return;
+
+                const mine = investments.filter(i => i.nome === nome).sort((a, b) => a.data.localeCompare(b.data));
+                const ref = mine.length ? mine[mine.length - 1] : {};
+                const gNet = vFin - vIni - acq + vend + (provLordi - rit);
+                const base = vIni + acq;
+                const tax = Math.max(0, gNet) * TAX_RATE;
+                rows.push({
+                    nome: nome, tipologia: ref.tipologia || '—', ticker: ref.ticker || '',
+                    vIni: vIni, vFin: vFin, acq: acq, vend: vend, comm: comm, rit: rit,
+                    provLordi: provLordi, provNetti: provLordi - rit,
+                    gNet: gNet, gLordo: gNet + comm + rit,
+                    perc: base > 0 ? gNet / base : null,
+                    tax: tax, gNetTax: gNet - tax,
+                    percTax: base > 0 ? (gNet - tax) / base : null
+                });
+            });
+            rows.sort((a, b) => b.gNet - a.gNet);
+            const tot = rows.reduce((t, r) => {
+                ['vIni', 'vFin', 'acq', 'vend', 'comm', 'rit', 'provLordi', 'provNetti', 'gNet', 'gLordo', 'tax', 'gNetTax']
+                    .forEach(k => { t[k] += r[k]; });
+                return t;
+            }, { vIni: 0, vFin: 0, acq: 0, vend: 0, comm: 0, rit: 0, provLordi: 0, provNetti: 0, gNet: 0, gLordo: 0, tax: 0, gNetTax: 0 });
+            const base = tot.vIni + tot.acq;
+            tot.perc = base > 0 ? tot.gNet / base : null;
+            tot.percTax = base > 0 ? tot.gNetTax / base : null;
+            return { rows: rows, tot: tot };
+        }
+
+        function perfColors() {
+            const cs = getComputedStyle(document.documentElement);
+            const g = n => cs.getPropertyValue(n).trim();
+            return { pos: g('--pos'), neg: g('--neg'), text: g('--text'), muted: g('--muted'), line: g('--line'), accent: g('--accent') };
+        }
+        function perfAlpha(hex, a) {
+            if (/^#[0-9a-f]{6}$/i.test(hex)) return hex + Math.round(a * 255).toString(16).padStart(2, '0');
+            return hex;
+        }
+        function perfDestroyCharts() {
+            Object.keys(perfCharts).forEach(k => { if (perfCharts[k]) perfCharts[k].destroy(); });
+            perfCharts = {};
+        }
+
+        function loadPerformance() {
+            const host = document.getElementById('performanceContent');
+            if (!host) return;
+            perfDestroyCharts();
+
+            // Anno non piu' presente nei dati: torna a "tutti"
+            const years = [...new Set(investments.map(i => i.anno))].sort((a, b) => a - b);
+            if (currentYear !== 'all' && years.indexOf(currentYear) < 0) currentYear = 'all';
+
+            if (investments.length === 0) {
+                host.innerHTML = '<div class="card"><div class="card-body perf-empty"><i class="fas fa-arrow-trend-up fa-2x mb-3 text-muted"></i>' +
+                    '<h5>Nessun investimento</h5><p class="text-muted mb-0">Inserisci almeno un versamento o importa un file per vedere i rendimenti.</p></div></div>';
+                return;
+            }
+
+            const p = perfPeriod(currentYear);
+            const res = p.ok ? perfCompute(p) : null;
+            let html = '';
+
+            // ---- Intestazione periodo
+            const periodTxt = p.ok
+                ? (p.y === 'all' ? 'Dal primo investimento al ' + perfDate(p.endSnap) : perfDate(p.y + '-01-01') + ' → ' + perfDate(p.to))
+                : '';
+            html += '<div class="perf-head"><span class="period-badge"><i class="fas fa-calendar-alt me-1"></i>' + perfEsc(p.label) + '</span>' +
+                (periodTxt ? '<span class="perf-note">' + periodTxt + '</span>' : '') + '</div>';
+
+            if (!p.ok) {
+                html += '<div class="card"><div class="card-body perf-empty"><i class="fas fa-circle-info fa-2x mb-3 text-muted"></i>' +
+                    '<h5>Mancano i valori di mercato per ' + perfEsc(p.label) + '</h5>' +
+                    '<p class="text-muted">Per calcolare guadagni e perdite servono i valori delle posizioni' +
+                    (p.y === 'all' ? '' : ' a fine ' + (p.y - 1) + ' e a fine ' + p.y) + '. Aggiungili nella sezione “Dati di calcolo” qui sotto.</p>' +
+                    '<button class="btn btn-primary" type="button" onclick="perfOpenEditor()">Inserisci valori di mercato</button></div></div>';
+            } else {
+                const t = res.tot;
+                const late = investments.filter(i => i.data > p.endSnap).length;
+                if (late > 0) {
+                    html += '<div class="alert alert-warning"><i class="fas fa-triangle-exclamation me-1"></i>' + late + ' operazion' + (late === 1 ? 'e' : 'i') +
+                        ' successiv' + (late === 1 ? 'a' : 'e') + ' al ' + perfDate(p.endSnap) + ' non incluse: aggiorna i valori di mercato per includerle.</div>';
+                }
+
+                // ---- KPI
+                const kcls = v => v >= 0 ? 'border-success-soft' : 'border-danger-soft';
+                html += '<div class="row g-3 mb-3 perf-kpi">' +
+                    '<div class="col-6 col-xl-3"><div class="stat-card"><div class="stat-value">' + perfMoney(t.vFin) + '</div>' +
+                    '<div class="stat-label">Valore a fine periodo</div><small>Investito netto nel periodo: ' + perfMoney(t.acq - t.vend) + '</small></div></div>' +
+                    '<div class="col-6 col-xl-3"><div class="stat-card ' + kcls(t.gNet) + '"><div class="stat-value">' + perfMoney(t.gNet, true) + '</div>' +
+                    '<div class="stat-label">Guadagno netto spese</div><small>' + perfPct(t.perc) + ' · lordo ' + perfMoney(t.gLordo, true) + '</small></div></div>' +
+                    '<div class="col-6 col-xl-3"><div class="stat-card"><div class="stat-value">' + perfMoney(-t.tax) + '</div>' +
+                    '<div class="stat-label">Tasse stimate (' + Math.round(TAX_RATE * 100) + '%)</div><small>Sui guadagni positivi di ogni posizione</small></div></div>' +
+                    '<div class="col-6 col-xl-3"><div class="stat-card ' + kcls(t.gNetTax) + '"><div class="stat-value">' + perfMoney(t.gNetTax, true) + '</div>' +
+                    '<div class="stat-label">Guadagno netto tasse</div><small>' + perfPct(t.percTax) + ' sul capitale impiegato</small></div></div>' +
+                    '</div>';
+
+                // ---- Grafici
+                html += '<div class="row g-3 mb-3">' +
+                    '<div class="col-lg-7"><div class="card h-100"><div class="card-header"><h6 class="mb-0">Valore del portafoglio e capitale investito</h6></div>' +
+                    '<div class="card-body"><div class="chart-container"><canvas id="perfChartValue"></canvas></div></div></div></div>' +
+                    '<div class="col-lg-5"><div class="card h-100"><div class="card-header"><h6 class="mb-0">Dal lordo al netto (' + perfEsc(p.label) + ')</h6></div>' +
+                    '<div class="card-body"><div class="chart-container"><canvas id="perfChartWaterfall"></canvas></div></div></div></div>' +
+                    '<div class="col-lg-5"><div class="card h-100"><div class="card-header"><h6 class="mb-0">Guadagno per anno</h6></div>' +
+                    '<div class="card-body"><div class="chart-container"><canvas id="perfChartYears"></canvas></div></div></div></div>' +
+                    '<div class="col-lg-7"><div class="card h-100"><div class="card-header"><h6 class="mb-0">Guadagno per investimento (' + perfEsc(p.label) + ')</h6></div>' +
+                    '<div class="card-body"><div class="chart-container" id="perfPosWrap"><canvas id="perfChartPositions"></canvas></div></div></div></div>' +
+                    '</div>';
+
+                // ---- Composizione lordo -> netto
+                html += '<div class="card"><div class="card-header"><h6 class="mb-0">Composizione del risultato</h6></div><div class="card-body">' +
+                    '<table class="table perf-table mb-2"><tbody>' +
+                    '<tr><td>Guadagno lordo <span class="perf-note">(prima di commissioni e ritenute)</span></td><td class="num ' + perfCls(t.gLordo) + '">' + perfMoney(t.gLordo, true) + '</td></tr>' +
+                    '<tr><td>Commissioni</td><td class="num text-danger">' + perfMoney(-t.comm, true) + '</td></tr>' +
+                    '<tr><td>Ritenute estere sui dividendi</td><td class="num text-danger">' + perfMoney(-t.rit, true) + '</td></tr>' +
+                    '<tr><td><strong>Guadagno netto spese</strong></td><td class="num ' + perfCls(t.gNet) + '"><strong>' + perfMoney(t.gNet, true) + '</strong></td></tr>' +
+                    '<tr><td>Tasse stimate ' + Math.round(TAX_RATE * 100) + '%</td><td class="num text-danger">' + perfMoney(-t.tax, true) + '</td></tr>' +
+                    '<tr><td><strong>Guadagno netto tasse</strong></td><td class="num ' + perfCls(t.gNetTax) + '"><strong>' + perfMoney(t.gNetTax, true) + '</strong></td></tr>' +
+                    '</tbody></table>' +
+                    '<p class="perf-note mb-0">Di cui dividendi netti incassati: ' + perfMoney(t.provNetti) + '. Il TER è già scontato nel prezzo dei fondi, quindi i valori di mercato sono già al netto del TER. ' +
+                    'Le tasse sono una stima indicativa: ' + Math.round(TAX_RATE * 100) + '% sul guadagno positivo di ogni posizione, anche se non ancora realizzato (la tassa si paga solo alla vendita), senza compensare le minusvalenze né scalare le ritenute estere.</p>' +
+                    '</div></div>';
+
+                // ---- Tabella per investimento
+                html += '<div class="card"><div class="card-header"><h6 class="mb-0">Dettaglio per investimento</h6></div><div class="card-body p-0"><div class="table-responsive">' +
+                    '<table class="table perf-table mb-0"><thead><tr>' +
+                    '<th>Investimento</th><th class="num">Valore inizio</th><th class="num">Acquisti</th><th class="num">Vendite</th><th class="num">Valore fine</th>' +
+                    '<th class="num">Dividendi netti</th><th class="num">Commissioni</th><th class="num">Guadagno lordo</th><th class="num">Netto spese</th>' +
+                    '<th class="num">%</th><th class="num">Tasse ' + Math.round(TAX_RATE * 100) + '%</th><th class="num">Netto tasse</th><th class="num">%</th></tr></thead><tbody>';
+                res.rows.forEach(r => {
+                    html += '<tr><td><strong>' + perfEsc(r.nome) + '</strong><div class="perf-note">' + perfEsc(r.ticker ? r.ticker + ' · ' : '') + perfEsc(r.tipologia) + '</div></td>' +
+                        '<td class="num">' + perfMoney(r.vIni) + '</td><td class="num">' + perfMoney(r.acq) + '</td><td class="num">' + perfMoney(r.vend) + '</td><td class="num">' + perfMoney(r.vFin) + '</td>' +
+                        '<td class="num">' + perfMoney(r.provNetti) + '</td><td class="num">' + perfMoney(r.comm) + '</td>' +
+                        '<td class="num ' + perfCls(r.gLordo) + '">' + perfMoney(r.gLordo, true) + '</td>' +
+                        '<td class="num ' + perfCls(r.gNet) + '"><strong>' + perfMoney(r.gNet, true) + '</strong></td><td class="num ' + perfCls(r.gNet) + '">' + perfPct(r.perc) + '</td>' +
+                        '<td class="num">' + perfMoney(-r.tax) + '</td>' +
+                        '<td class="num ' + perfCls(r.gNetTax) + '"><strong>' + perfMoney(r.gNetTax, true) + '</strong></td><td class="num ' + perfCls(r.gNetTax) + '">' + perfPct(r.percTax) + '</td></tr>';
+                });
+                html += '</tbody><tfoot><tr><td>Totale</td>' +
+                    '<td class="num">' + perfMoney(t.vIni) + '</td><td class="num">' + perfMoney(t.acq) + '</td><td class="num">' + perfMoney(t.vend) + '</td><td class="num">' + perfMoney(t.vFin) + '</td>' +
+                    '<td class="num">' + perfMoney(t.provNetti) + '</td><td class="num">' + perfMoney(t.comm) + '</td>' +
+                    '<td class="num ' + perfCls(t.gLordo) + '">' + perfMoney(t.gLordo, true) + '</td>' +
+                    '<td class="num ' + perfCls(t.gNet) + '">' + perfMoney(t.gNet, true) + '</td><td class="num ' + perfCls(t.gNet) + '">' + perfPct(t.perc) + '</td>' +
+                    '<td class="num">' + perfMoney(-t.tax) + '</td>' +
+                    '<td class="num ' + perfCls(t.gNetTax) + '">' + perfMoney(t.gNetTax, true) + '</td><td class="num ' + perfCls(t.gNetTax) + '">' + perfPct(t.percTax) + '</td></tr></tfoot></table></div></div></div>';
+            }
+
+            // ---- Andamento per anno (sempre visibile, indipendente dal filtro)
+            const yearData = years.map(y => {
+                const yp = perfPeriod(y);
+                return { y: y, p: yp, r: yp.ok ? perfCompute(yp) : null };
+            });
+            html += '<div class="card"><div class="card-header"><h6 class="mb-0">Andamento per anno</h6></div><div class="card-body p-0"><div class="table-responsive">' +
+                '<table class="table perf-table mb-0"><thead><tr><th>Anno</th><th class="num">Valore a fine anno</th><th class="num">Investito netto</th>' +
+                '<th class="num">Dividendi netti</th><th class="num">Netto spese</th><th class="num">%</th><th class="num">Tasse ' + Math.round(TAX_RATE * 100) + '%</th><th class="num">Netto tasse</th></tr></thead><tbody>';
+            yearData.forEach(d => {
+                if (!d.r) {
+                    html += '<tr><td><strong>' + d.y + '</strong></td><td class="num perf-note" colspan="7">Valori di mercato non disponibili</td></tr>';
+                    return;
+                }
+                const t = d.r.tot;
+                html += '<tr' + (currentYear === d.y ? ' class="table-active"' : '') + '><td><strong>' + d.y + '</strong>' +
+                    (d.p.endSnap < d.y + '-12-31' ? '<div class="perf-note">al ' + perfDate(d.p.endSnap) + '</div>' : '') + '</td>' +
+                    '<td class="num">' + perfMoney(t.vFin) + '</td><td class="num">' + perfMoney(t.acq - t.vend) + '</td><td class="num">' + perfMoney(t.provNetti) + '</td>' +
+                    '<td class="num ' + perfCls(t.gNet) + '"><strong>' + perfMoney(t.gNet, true) + '</strong></td><td class="num ' + perfCls(t.gNet) + '">' + perfPct(t.perc) + '</td>' +
+                    '<td class="num">' + perfMoney(-t.tax) + '</td><td class="num ' + perfCls(t.gNetTax) + '"><strong>' + perfMoney(t.gNetTax, true) + '</strong></td></tr>';
+            });
+            html += '</tbody></table></div></div></div>';
+
+            // ---- Editor dati di calcolo
+            html += perfEditorHtml();
+            host.innerHTML = html;
+
+            const ed = document.getElementById('perfEditor');
+            if (ed) ed.addEventListener('toggle', function () { perfEditorOpen = ed.open; });
+            perfFillInputs(document.getElementById('snapDate').value);
+
+            if (p.ok) perfRenderCharts(p, res, yearData);
+        }
+
+        function perfRenderCharts(p, res, yearData) {
+            if (!window.Chart) return;
+            const c = perfColors();
+            const money = v => perfMoney(v);
+            const baseOpts = {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { usePointStyle: true, boxWidth: 8 } }, tooltip: { callbacks: {} } }
+            };
+            const axisMoney = { ticks: { callback: v => perfEur.format(v) }, grid: { color: c.line } };
+
+            // 1) Valore portafoglio vs capitale investito netto (agli snapshot)
+            const dates = perfSnapDates();
+            const valueSeries = dates.map(d => Object.keys(marketSnapshots[d]).reduce((s, k) => s + (marketSnapshots[d][k] || 0), 0));
+            const investedSeries = dates.map(d => investments.filter(i => i.data <= d).reduce((s, i) => s + perfFlow(i), 0));
+            perfCharts.value = new Chart(document.getElementById('perfChartValue'), {
+                type: 'line',
+                data: {
+                    labels: dates.map(perfDate),
+                    datasets: [
+                        { label: 'Valore di mercato', data: valueSeries, borderColor: c.accent, backgroundColor: perfAlpha(c.accent, 0.08), fill: true, tension: 0.25, pointRadius: 4 },
+                        { label: 'Capitale investito netto', data: investedSeries, borderColor: c.muted, borderDash: [6, 4], fill: false, tension: 0.25, pointRadius: 3 }
+                    ]
+                },
+                options: Object.assign({}, baseOpts, {
+                    interaction: { mode: 'index', intersect: false },
+                    scales: { y: axisMoney, x: { grid: { display: false } } },
+                    plugins: {
+                        legend: baseOpts.plugins.legend,
+                        tooltip: { callbacks: {
+                            label: ctx => ctx.dataset.label + ': ' + money(ctx.parsed.y),
+                            afterBody: items => { const i = items[0].dataIndex; return 'Guadagno: ' + perfMoney(valueSeries[i] - investedSeries[i], true); }
+                        } }
+                    }
+                })
+            });
+
+            // 2) Dal lordo al netto (cascata)
+            const t = res.tot;
+            const steps = [
+                { l: 'Lordo', a: 0, b: t.gLordo, col: t.gLordo >= 0 ? c.pos : c.neg },
+                { delta: true, l: 'Commissioni', a: t.gLordo, b: t.gLordo - t.comm, col: c.neg },
+                { delta: true, l: 'Ritenute', a: t.gLordo - t.comm, b: t.gNet, col: c.neg },
+                { l: 'Netto spese', a: 0, b: t.gNet, col: t.gNet >= 0 ? c.pos : c.neg },
+                { delta: true, l: 'Tasse', a: t.gNet, b: t.gNetTax, col: c.neg },
+                { l: 'Netto tasse', a: 0, b: t.gNetTax, col: t.gNetTax >= 0 ? c.pos : c.neg }
+            ];
+            perfCharts.waterfall = new Chart(document.getElementById('perfChartWaterfall'), {
+                type: 'bar',
+                data: { labels: steps.map(s => s.l), datasets: [{ data: steps.map(s => [s.a, s.b]), backgroundColor: steps.map(s => s.col), borderRadius: 6, borderSkipped: false }] },
+                options: Object.assign({}, baseOpts, {
+                    scales: { y: axisMoney, x: { grid: { display: false } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: {
+                        label: ctx => { const s = steps[ctx.dataIndex]; return perfMoney(s.delta ? s.b - s.a : s.b, true); }
+                    } } }
+                })
+            });
+
+            // 3) Guadagno per anno
+            const ys = yearData.filter(d => d.r);
+            perfCharts.years = new Chart(document.getElementById('perfChartYears'), {
+                type: 'bar',
+                data: {
+                    labels: ys.map(d => String(d.y)),
+                    datasets: [
+                        { label: 'Netto spese', data: ys.map(d => d.r.tot.gNet), backgroundColor: ys.map(d => d.r.tot.gNet >= 0 ? c.pos : c.neg), borderRadius: 6 },
+                        { label: 'Netto tasse', data: ys.map(d => d.r.tot.gNetTax), backgroundColor: ys.map(d => perfAlpha(d.r.tot.gNetTax >= 0 ? c.pos : c.neg, 0.45)), borderRadius: 6 }
+                    ]
+                },
+                options: Object.assign({}, baseOpts, {
+                    scales: { y: axisMoney, x: { grid: { display: false } } },
+                    plugins: { legend: baseOpts.plugins.legend, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + perfMoney(ctx.parsed.y, true) } } }
+                })
+            });
+
+            // 4) Guadagno per investimento nel periodo selezionato
+            const rows = res.rows;
+            const wrap = document.getElementById('perfPosWrap');
+            if (wrap) wrap.style.height = Math.max(300, rows.length * 44 + 70) + 'px';
+            perfCharts.positions = new Chart(document.getElementById('perfChartPositions'), {
+                type: 'bar',
+                data: {
+                    labels: rows.map(r => r.ticker || r.nome),
+                    datasets: [
+                        { label: 'Netto spese', data: rows.map(r => r.gNet), backgroundColor: rows.map(r => r.gNet >= 0 ? c.pos : c.neg), borderRadius: 6 },
+                        { label: 'Netto tasse', data: rows.map(r => r.gNetTax), backgroundColor: rows.map(r => perfAlpha(r.gNetTax >= 0 ? c.pos : c.neg, 0.45)), borderRadius: 6 }
+                    ]
+                },
+                options: Object.assign({}, baseOpts, {
+                    indexAxis: 'y',
+                    scales: { x: axisMoney, y: { grid: { display: false } } },
+                    plugins: { legend: baseOpts.plugins.legend, tooltip: { callbacks: {
+                        title: items => rows[items[0].dataIndex].nome,
+                        label: ctx => ctx.dataset.label + ': ' + perfMoney(ctx.parsed.x, true)
+                    } } }
+                })
+            });
+        }
+
+        // ---------- Editor: valori di mercato e dividendi ----------
+        function perfOpenEditor() {
+            const ed = document.getElementById('perfEditor');
+            if (ed) { ed.open = true; perfEditorOpen = true; ed.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        }
+
+        function perfNames() {
+            return [...new Set(investments.map(i => i.nome))].sort((a, b) => a.localeCompare(b));
+        }
+
+        function perfEditorHtml() {
+            const dates = perfSnapDates();
+            const defDate = dates.length ? dates[dates.length - 1] : new Date().toISOString().slice(0, 10);
+            const names = perfNames();
+            const opts = dates.slice().reverse().map(d => '<option value="' + d + '"' + (d === defDate ? ' selected' : '') + '>' + perfDate(d) + '</option>').join('');
+            const provRows = proventi.slice().sort((a, b) => b.data.localeCompare(a.data));
+            const provTot = provRows.reduce((s, x) => s + (x.lordoEUR || 0) - (x.ritenutaEUR || 0), 0);
+
+            let h = '<details class="card" id="perfEditor"' + (perfEditorOpen ? ' open' : '') + '>' +
+                '<summary class="card-header"><i class="fas fa-sliders me-2"></i>Dati di calcolo: valori di mercato e dividendi</summary><div class="card-body">' +
+                '<h6>Valori di mercato per data</h6>' +
+                '<p class="perf-note">Inserisci il valore in € di ogni posizione a una data (fine anno o oggi). Servono a calcolare guadagni e perdite: a fine anno per il rendimento annuale, all’ultima data per il valore attuale. Le posizioni chiuse valgono 0.</p>' +
+                '<div class="row g-3 align-items-end">' +
+                '<div class="col-md-3"><label class="form-label" for="snapDate">Data</label><input type="date" class="form-control" id="snapDate" value="' + defDate + '" onchange="perfFillInputs(this.value)"></div>' +
+                '<div class="col-md-4"><label class="form-label" for="snapSelect">Date già salvate</label><select class="form-select" id="snapSelect" onchange="perfPickSnapshot(this.value)"><option value="">' + (dates.length ? 'Scegli una data…' : 'Nessuna') + '</option>' + opts + '</select></div>' +
+                '<div class="col-md-5 d-flex flex-wrap gap-2"><button type="button" class="btn btn-primary" onclick="perfSaveSnapshot()"><i class="fas fa-save me-1"></i>Salva valori</button>' +
+                '<button type="button" class="btn btn-outline-danger" onclick="perfDeleteSnapshot()"><i class="fas fa-trash me-1"></i>Elimina data</button></div></div>' +
+                '<div class="table-responsive mt-3"><table class="table perf-table mb-0"><thead><tr><th>Investimento</th><th class="num" style="width:220px">Valore (€)</th></tr></thead><tbody>';
+            names.forEach(n => {
+                h += '<tr><td>' + perfEsc(n) + '</td><td><input type="number" step="0.01" min="0" class="form-control text-end" data-nome="' + perfEsc(n) + '" aria-label="Valore di ' + perfEsc(n) + '"></td></tr>';
+            });
+            h += '</tbody></table></div><hr class="my-4">' +
+                '<h6>Dividendi e proventi</h6>' +
+                '<p class="perf-note">Importi in € già convertiti. La ritenuta è l’imposta estera trattenuta alla fonte. Totale netto incassato: ' + perfMoney(provTot) + ' (' + provRows.length + ' movimenti).</p>' +
+                '<div class="row g-3 align-items-end">' +
+                '<div class="col-md-2"><label class="form-label" for="provData">Data</label><input type="date" class="form-control" id="provData"></div>' +
+                '<div class="col-md-4"><label class="form-label" for="provNome">Investimento</label><select class="form-select" id="provNome">' + names.map(n => '<option value="' + perfEsc(n) + '">' + perfEsc(n) + '</option>').join('') + '</select></div>' +
+                '<div class="col-md-2"><label class="form-label" for="provLordo">Lordo (€)</label><input type="number" step="0.01" min="0" class="form-control" id="provLordo"></div>' +
+                '<div class="col-md-2"><label class="form-label" for="provRit">Ritenuta (€)</label><input type="number" step="0.01" min="0" class="form-control" id="provRit" placeholder="0"></div>' +
+                '<div class="col-md-2"><button type="button" class="btn btn-primary w-100" onclick="perfAddProvento()"><i class="fas fa-plus me-1"></i>Aggiungi</button></div></div>' +
+                '<div class="table-responsive perf-scroll mt-3"><table class="table perf-table mb-0"><thead><tr><th>Data</th><th>Investimento</th><th class="num">Lordo</th><th class="num">Ritenuta</th><th class="num">Netto</th><th></th></tr></thead><tbody>';
+            if (!provRows.length) {
+                h += '<tr><td colspan="6" class="perf-note">Nessun dividendo registrato.</td></tr>';
+            }
+            provRows.forEach(x => {
+                h += '<tr><td>' + perfDate(x.data) + '</td><td>' + perfEsc(x.nome) + '</td><td class="num">' + perfMoney(x.lordoEUR) + '</td><td class="num">' + perfMoney(-(x.ritenutaEUR || 0)) + '</td>' +
+                    '<td class="num">' + perfMoney((x.lordoEUR || 0) - (x.ritenutaEUR || 0)) + '</td>' +
+                    '<td class="num"><button type="button" class="btn btn-outline-danger btn-sm" aria-label="Elimina dividendo" data-id="' + perfEsc(x.id) + '" onclick="perfDeleteProvento(this.dataset.id)"><i class="fas fa-trash"></i></button></td></tr>';
+            });
+            h += '</tbody></table></div></div></details>';
+            return h;
+        }
+
+        function perfFillInputs(date) {
+            const snap = marketSnapshots[date] || {};
+            document.querySelectorAll('#perfEditor input[data-nome]').forEach(inp => {
+                inp.value = snap[inp.dataset.nome] != null ? snap[inp.dataset.nome] : '';
+            });
+            const sel = document.getElementById('snapSelect');
+            if (sel) sel.value = marketSnapshots[date] ? date : '';
+        }
+
+        function perfPickSnapshot(date) {
+            if (!date) return;
+            document.getElementById('snapDate').value = date;
+            perfFillInputs(date);
+        }
+
+        function perfSaveSnapshot() {
+            const date = document.getElementById('snapDate').value;
+            if (!date) { alert('Seleziona la data dei valori di mercato.'); return; }
+            const map = {};
+            document.querySelectorAll('#perfEditor input[data-nome]').forEach(inp => {
+                if (inp.value !== '') map[inp.dataset.nome] = Math.max(0, parseFloat(inp.value) || 0);
+            });
+            if (!Object.keys(map).length) { alert('Inserisci almeno un valore.'); return; }
+            marketSnapshots[date] = map;
+            localStorage.setItem('marketSnapshots', JSON.stringify(marketSnapshots));
+            perfEditorOpen = true;
+            loadPerformance();
+        }
+
+        function perfDeleteSnapshot() {
+            const date = document.getElementById('snapDate').value;
+            if (!marketSnapshots[date]) { alert('Per questa data non ci sono valori salvati.'); return; }
+            if (!confirm('Eliminare i valori di mercato del ' + perfDate(date) + '?')) return;
+            delete marketSnapshots[date];
+            localStorage.setItem('marketSnapshots', JSON.stringify(marketSnapshots));
+            perfEditorOpen = true;
+            loadPerformance();
+        }
+
+        function perfAddProvento() {
+            const data = document.getElementById('provData').value;
+            const nome = document.getElementById('provNome').value;
+            const lordo = parseFloat(document.getElementById('provLordo').value);
+            const rit = parseFloat(document.getElementById('provRit').value) || 0;
+            if (!data || !nome || isNaN(lordo)) { alert('Compila data, investimento e importo lordo.'); return; }
+            if (rit > lordo) { alert('La ritenuta non può superare l’importo lordo.'); return; }
+            const ref = investments.filter(i => i.nome === nome).pop() || {};
+            proventi.push({
+                id: 'prov_' + Date.now(), data: data, anno: new Date(data).getFullYear(), nome: nome,
+                ticker: ref.ticker || '', isin: ref.isin || '', tipo: 'dividendo', valuta: 'EUR',
+                lordo: lordo, ritenuta: rit, lordoEUR: lordo, ritenutaEUR: rit
+            });
+            localStorage.setItem('proventi', JSON.stringify(proventi));
+            perfEditorOpen = true;
+            loadPerformance();
+        }
+
+        function perfDeleteProvento(id) {
+            if (!confirm('Eliminare questo dividendo?')) return;
+            proventi = proventi.filter(x => x.id !== id);
+            localStorage.setItem('proventi', JSON.stringify(proventi));
+            perfEditorOpen = true;
+            loadPerformance();
+        }
+
+
         // Inizializzazione
         loadData();
     </script>
@@ -3170,7 +3700,7 @@ scales: {
   function active(){return document.querySelector('.side-link.active')}
   function render(){
     var a=active(), id=a&&a.id;
-    if(id!=='analytics-tab'&&id!=='matrix-tab'){bar.hidden=true;return}
+    if(id!=='analytics-tab'&&id!=='matrix-tab'&&id!=='performance-tab'){bar.hidden=true;return}
     var ys=Array.from(new Set(investments.map(function(i){return i.anno}))).sort(function(x,y){return x-y});
     if(currentYear!=='all'&&ys.indexOf(currentYear)<0)currentYear='all';
     bar.innerHTML=['all'].concat(ys).map(function(y){
@@ -3180,10 +3710,10 @@ scales: {
   bar.addEventListener('click',function(e){
     var b=e.target.closest('.period-pill'); if(!b)return;
     currentYear=b.dataset.y==='all'?'all':parseInt(b.dataset.y,10);
-    if(active().id==='analytics-tab')loadAnalytics(); else loadMatrix();
+    var aid=active().id; if(aid==='analytics-tab')loadAnalytics(); else if(aid==='performance-tab')loadPerformance(); else loadMatrix();
     render();
   });
-  ['loadAnalytics','loadMatrix','filterByYear','importData'].forEach(function(n){
+  ['loadAnalytics','loadMatrix','loadPerformance','filterByYear','importData'].forEach(function(n){
     var f=window[n]; if(typeof f!=='function')return;
     window[n]=function(){var r=f.apply(this,arguments);setTimeout(render,0);return r};
   });
